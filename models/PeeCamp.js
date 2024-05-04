@@ -64,6 +64,5 @@ const PeeCampSchema=new mongoose.Schema({
         type: Map,
         default: new Map
     }
-
 })
 module.exports=mongoose.model('PeeCamp',PeeCampSchema)

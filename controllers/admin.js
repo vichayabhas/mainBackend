@@ -41,6 +41,5 @@ exports.addPart = async (req, res, next) => {
         baan.mapPeeCampIdByPartId.set(part._id, peeCamp._id)
         part.mapPeeCampIdByBaanId.set(baanId, peeCamp._id)
     })
-    
     res.status(201).json({ success: true, data: part })
 }

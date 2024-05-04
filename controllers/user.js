@@ -198,8 +198,7 @@ exports.getHelthIsue = async (req, res) => {
 		});
 	}
 };
-exports.updateHelth = async (req, res) => {
-	//req.params.id=userId
+exports.updateHelth = async (req, res,next) => {
 	const user = await this.getUser(req)
 	const oldHelthId = user.helthIsueId
 	if (findLock(user._id, oldHelthId)) {

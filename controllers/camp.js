@@ -8,10 +8,6 @@ const PetoCamp = require("../models/PetoCamp")
 const User = require("../models/User")
 const WorkItem = require("../models/WorkItem");
 const ShertManage = require("../models/ShertManage")
-
-
-
-
 const {
     swop
 } = require("./setup");
@@ -514,6 +510,8 @@ exports.getActionPlan = async (req, res, next) => {
 };
 exports.createActionPlan = async (req, res, next) => {
     const hospital = await ActionPlan.create(req.body);
+    const part = await Part.findById(req.body.partId)
+    part.actionPlanIds.push(hospital._id)
     res.status(200).json({
         success: true,
         data: hospital
@@ -539,12 +537,16 @@ exports.updateActionPlan = async (req, res, next) => {
 };
 exports.deleteActionPlan = async (req, res, next) => {
     try {
-        const hospital = await ActionPlan.findByIdAndDelete(req.params.id);
+        const hospital = await ActionPlan.findById(req.params.id);
         if (!hospital) {
             res.status(400).json({
                 success: false
             });
         }
+        const part = await Part.findById(hospital.partId)
+        const buf = swop(hospital._id, null, part.actionPlanIds)
+        part.updateOne({ actionPlanIds: buf })
+        hospital.deleteOne()
         res.status(200).json({
             success: true,
             data: {}

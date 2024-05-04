@@ -79,6 +79,14 @@ const PartSchema = new mongoose.Schema({
     petoShertManageIds:{
         type:[String],
         default:[]
+    },
+    actionPlanIds:{
+        type:[String],
+        default:[]
+    },
+    workItemIds:{
+        type:[String],
+        default:[]
     }
 })
 module.exports = mongoose.model('Part', PartSchema)

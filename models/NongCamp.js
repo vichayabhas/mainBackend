@@ -1,27 +1,23 @@
-const  mongoose = require("mongoose");
-const Camp = require("./Camp");
-const Baan = require("./Baan");
-
-
-
-const PeeCampSchema=new mongoose.Schema({
-    campId:{
-        type:String
+const mongoose = require("mongoose");
+const PeeCampSchema = new mongoose.Schema({
+    campId: {
+        type: String
     },
-    
-    baanId:{
-        type:String
-    },
-    nongIds:{
-        type:[String],
-        default:[]
-    },
-    nongShertManageIds:{
-        type:[String],
-        default:[]
-    },
-    
 
-
+    baanId: {
+        type: String
+    },
+    nongIds: {//user
+        type: [String],
+        default: []
+    },
+    nongShertManageIds: {
+        type: [String],
+        default: []
+    },
+    mapNongCampIdByUserId: {//user    รหัสประจำตัวน้องค่าย    
+        type: Map,
+        default: new Map
+    }
 })
-module.exports=mongoose.model('NongCamp',PeeCampSchema)
+module.exports = mongoose.model('NongCamp', PeeCampSchema)
