@@ -72,5 +72,13 @@ const PartSchema = new mongoose.Schema({
         type:Map,
         default:new Map
     },
+    peeShertManageIds:{
+        type:[String],
+        default:[]
+    },
+    petoShertManageIds:{
+        type:[String],
+        default:[]
+    }
 })
 module.exports = mongoose.model('Part', PartSchema)

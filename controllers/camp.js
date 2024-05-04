@@ -1,12 +1,17 @@
-const ActionPlan = require("../models/ActionPlan").default;
-const Baan = require("../models/Baan").default;
-const Camp = require("../models/Camp").default;
-const NongCamp = require("../models/NongCamp").default;
-const Part = require("../models/Part").default;
-const PeeCamp = require("../models/PeeCamp").default;
-const PetoCamp = require("../models/PetoCamp").default;
-const User = require("../models/User").default;
+const ActionPlan = require("../models/ActionPlan")
+const Baan = require("../models/Baan")
+const Camp = require("../models/Camp")
+const NongCamp = require("../models/NongCamp")
+const Part = require("../models/Part")
+const PeeCamp = require("../models/PeeCamp")
+const PetoCamp = require("../models/PetoCamp")
+const User = require("../models/User")
 const WorkItem = require("../models/WorkItem");
+const ShertManage = require("../models/ShertManage")
+
+
+
+
 const {
     swop
 } = require("./setup");
@@ -43,6 +48,8 @@ exports.getWorkingItem = async (req, res, next) => {
                 massage: 'this is start point'
             })
         }
+
+
         if (req.params.id === 'end') {
             return res.status(400).json({
                 success: false,
@@ -259,7 +266,7 @@ exports.addNong = async (req, res, next) => {
         }
         const nongCamp = await NongCamp.findById(baan.nongModelId)
         var newNongPassIds = camp.nongSureIds
-        
+
         var count = 0
         var b = baan.nongHaveBottle
         var c = camp.nongHaveBottle
@@ -269,11 +276,18 @@ exports.addNong = async (req, res, next) => {
             camp.nongIds.push(nongId);
             const nong = await User.findById(nongId);
             nongCamp.nongIds.push(nongId)
+
             if (!nong) {
                 return res.status(400).json({
                     success: false
                 });
             }
+            const shertManage = await ShertManage.create({ userId: nongId, size: nong.shertSize, campModelId: nongCamp._id, recive: 'baan' })
+            nongCamp.nongShertManageIds.push(shertManage._id)
+            baan.nongShertManageIds.push(shertManage._id)
+            camp.nongShertManageIds.push(shertManage._id)
+            nong.shertManageIds.push(shertManage._id)
+
             newNongPassIds = swop(nongId, null, newNongPassIds)
             if (nong.helthIsueId) {
                 baan.nongHelthIsueIds.push(nong.helthIsueId);
@@ -327,6 +341,11 @@ exports.addPee = async (req, res, next) => {
             const user = await User.findById(userId);
             const part = await Part.findById(camp.peePassIds.get(userId));
             const peeCamp = await PeeCamp.findById(baan.mapPeeCampIdByPartId.get(part._id))
+            const shertManage = await ShertManage.create({ userId, size: user.shertSize, campModelId: peeCamp._id, recive: 'baan' })
+            part.peeShertManageIds.push(shertManage._id)
+            camp.peeShertManageIds.push(shertManage._id)
+            baan.peeShertManageIds.push(shertManage._id)
+            user.shertManageIds.push(shertManage._id)
             count = count + 1
             baan.peeIds.push(userId);
             camp.peeIds.push(userId);
@@ -405,6 +424,7 @@ async function addPetoRaw(campId, member, partId, res) {
                 camp.petoHelthIsueIds.push(user.helthIsueId);
                 part.petoHelthIsueIds.push(user.helthIsueId);
             }
+            const shertManage = await ShertManage.create({ userId, size: user.shertSize, campModelId: petoCamp._id, recive: 'part' })
             camp.petoShertSize.set(user.shertSize, part.petoShertSize.get(user.shertSize) + 1);
             part.petoShertSize.set(user.shertSize, part.petoShertSize.get(user.shertSize) + 1);
             if (user.haveBottle) {

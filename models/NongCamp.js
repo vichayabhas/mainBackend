@@ -11,7 +11,17 @@ const PeeCampSchema=new mongoose.Schema({
     
     baanId:{
         type:String
-    }
+    },
+    nongIds:{
+        type:[String],
+        default:[]
+    },
+    nongShertManageIds:{
+        type:[String],
+        default:[]
+    },
+    
+
 
 })
 module.exports=mongoose.model('NongCamp',PeeCampSchema)

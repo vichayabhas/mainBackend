@@ -1,5 +1,5 @@
 const mongoose  = require("mongoose");
-const User = require("./User");
+
 const { startSize } = require("../controllers/setup");
 
 
@@ -130,18 +130,18 @@ const campSchema= new mongoose.Schema({
         type:[String],
         default:[]
     },
-    mapSizeByNongId:{
-        type:Map,
-        default:new Map
+    nongShertManageIds:{
+        type:[String],
+        default:[]
     },
-    mapSizeByPeeId:{
-        type:Map,
-        default:new Map
+    peeShertManageIds:{
+        type:[String],
+        default:[]
     },
-    mapSizeByPetoId:{
-        type:Map,
-        default:new Map
-    },
+    petoShertManageIds:{
+        type:[String],
+        default:[]
+    }
 
 
 

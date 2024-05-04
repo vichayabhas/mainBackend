@@ -129,6 +129,10 @@ const UserSchema=new mongoose.Schema({
         type:[String],
         default:[]
     },
+    shertManageIds:{
+        type:[String],
+        default:[]
+    },
 
     
     createdAt:{

@@ -1,6 +1,6 @@
-const Camp = require("../models/Camp").default
-const Song = require("../models/Song").default
-const User = require("../models/User").default
+const Camp = require("../models/Camp")
+const Song = require("../models/Song")
+const User = require("../models/User")
 
 exports.addLikeSong = async (req, res, next) => {
 	const {

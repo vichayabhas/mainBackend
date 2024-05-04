@@ -1,8 +1,4 @@
 const  mongoose = require("mongoose");
-
-
-
-
 const PeeCampSchema=new mongoose.Schema({
     campId:{
         type:String
@@ -15,6 +11,10 @@ const PeeCampSchema=new mongoose.Schema({
     },peeIds: {
         type: [String],
         default: []
+    },
+    peeShertManageIds:{
+        type:[String],
+        default:[]
     },
     arrayString1: {
         type: [String],
@@ -53,6 +53,14 @@ const PeeCampSchema=new mongoose.Schema({
         default: new Map
     },
     map5: {
+        type: Map,
+        default: new Map
+    },
+    mapArrayStringNumberByName: {
+        type: Map,
+        default: new Map
+    },
+    mapMapNumberByName: {
         type: Map,
         default: new Map
     }

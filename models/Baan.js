@@ -69,13 +69,13 @@ const BaanSchema= new mongoose.Schema({
         type:Map,
         default:new Map
     },
-    mapSizeByNongId:{
-        type:Map,
-        default:new Map
+    nongShertManageIds:{
+        type:[String],
+        default:[]
     },
-    mapSizeByPeeId:{
-        type:Map,
-        default:new Map
+    peeShertManageIds:{
+        type:[String],
+        default:[]
     },
    
     
