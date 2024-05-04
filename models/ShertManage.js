@@ -14,6 +14,10 @@ const PeeCampSchema=new mongoose.Schema({
     campModelId:{
         type:String
     },
+    role:{
+        type:String,
+        enum:['nong','pee','peto']
+    },
     recive:{
         type:String,
         enum:['baan','part']

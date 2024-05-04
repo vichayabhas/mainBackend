@@ -14,7 +14,7 @@ exports.addLikeSong = async (req, res, next) => {
         success: true
     })
 }
-async function getAllSong(){
+async function getAllSong() {
     const songs = await Song.find()
     const map = new Map
     songs.forEach((song) => {

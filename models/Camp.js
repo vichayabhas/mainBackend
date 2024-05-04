@@ -72,7 +72,15 @@ const campSchema= new mongoose.Schema({
         type:Map,
         default:startSize
     },
-    campModelIds:{
+    nongModelIds:{
+        type:[String],
+        default:[]
+    },
+    peeModelIds:{
+        type:[String],
+        default:[]
+    },
+    petoModelIds:{
         type:[String],
         default:[]
     },

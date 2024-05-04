@@ -1,13 +1,13 @@
-const ActionPlan = require("../models/ActionPlan")
-const Baan = require("../models/Baan")
-const Camp = require("../models/Camp")
-const NongCamp = require("../models/NongCamp")
-const Part = require("../models/Part")
-const PeeCamp = require("../models/PeeCamp")
-const PetoCamp = require("../models/PetoCamp")
-const User = require("../models/User")
+const ActionPlan = require("../models/ActionPlan");
+const Baan = require("../models/Baan");
+const Camp = require("../models/Camp");
+const NongCamp = require("../models/NongCamp");
+const Part = require("../models/Part");
+const PeeCamp = require("../models/PeeCamp");
+const PetoCamp = require("../models/PetoCamp");
+const User = require("../models/User");
 const WorkItem = require("../models/WorkItem");
-const ShertManage = require("../models/ShertManage")
+const ShertManage = require("../models/ShertManage");
 const {
     swop
 } = require("./setup");
@@ -316,6 +316,7 @@ exports.addNong = async (req, res, next) => {
         });
     }
 };
+
 exports.addPee = async (req, res, next) => {
     const {
         campId,

@@ -3,7 +3,7 @@ const { startSize } = require("../controllers/setup");
 
 
 const PartSchema = new mongoose.Schema({
-    name: {
+    nameId: {
         type: String
     },
     campId: {//camp

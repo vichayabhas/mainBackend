@@ -5,6 +5,7 @@ const NongCamp = require("../models/NongCamp");
 const Part = require("../models/Part");
 const PeeCamp = require("../models/PeeCamp");
 const PetoCamp = require("../models/PetoCamp");
+const ShertManage = require("../models/ShertManage");
 const User = require("../models/User");
 const {
 	swop
@@ -15,11 +16,11 @@ const {
 // exports.logout
 // exports.getUser             protect lib
 // exports.updateMode          protect pee up
-// exports.updateSize          protect
-// exports.getHelthIsue        protect
-// exports.updateHelth         protect
+// exports.updateSize          protect           params id
+// exports.getHelthIsue        protect           params id
+// exports.updateHelth         protect           params id
 // exports.updateBottle        protect
-exports.register = async (req, res) => {
+exports.register = async (req, res, next) => {
 	try {
 		const user = await User.create(req.body);
 		sendTokenResponse(user, 200, res);
@@ -30,7 +31,7 @@ exports.register = async (req, res) => {
 		console.log(err.stack);
 	}
 };
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
 	const {
 		email,
 		password
@@ -73,14 +74,14 @@ const sendTokenResponse = (user, statusCode, res) => {
 		token,
 	});
 };
-exports.getMe = async (req, res) => {
+exports.getMe = async (req, res, next) => {
 	const user = await User.findById(req.user._id);
 	res.status(200).json({
 		success: true,
 		data: user
 	});
 };
-exports.logout = async (req, res) => {
+exports.logout = async (req, res, next) => {
 	//Clears cookie
 	res.cookie('token', 'none', {
 		expires: new Date(Date.now() + 10 * 1000),
@@ -96,7 +97,7 @@ exports.getUser = async (req) => {
 	const decoded = jwt.verify(token.process.env.JWT_SECRET);
 	return await User.findById(decoded.id);
 }
-exports.updateMode = async (req, res) => {
+exports.updateMode = async (req, res, next) => {
 	const {
 		mode,
 		filter
@@ -110,7 +111,7 @@ exports.updateMode = async (req, res) => {
 		user,
 	});
 };
-exports.updateSize = async (req, res) => {
+exports.updateSize = async (req, res, next) => {
 	const {
 		shertSize
 	} = req.body;
@@ -120,56 +121,67 @@ exports.updateSize = async (req, res) => {
 		const user = await User.findByIdAndUpdate(old._id, {
 			shertSize
 		});
-		user.nongCampIds.forEach(async (nongcampId) => {
-			const nongCamp = await NongCamp.findById(nongcampId);
-			const camp = await Camp.findById(nongCamp.campId);
-			if (!camp.dataLock) {
-				const baan = await Baan.findById(nongCamp.baanId);
-				const oldc = camp.nongShertSize.get(oldSize);
-				camp.nongShertSize.set(oldSize, oldc - 1);
-				const newc = camp.nongShertSize.get(user.shertSize);
-				camp.nongShertSize.set(user.shertSize, newc + 1);
-				const oldb = baan.nongShertSize.get(oldSize);
-				baan.nongShertSize.set(oldSize, oldb - 1);
-				const newb = baan.nongShertSize.get(user.shertSize);
-				baan.nongShertSize.set(user.shertSize, newb + 1);
+		user.shertManageIds.forEach(async (shertManageId) => {
+			const shertManage = await ShertManage.findById(shertManageId)
+			switch (shertManage.role) {
+				case 'nong': {
+					const nongCamp = await NongCamp.findById(shertManage.campModelId)
+					const camp = await Camp.findById(nongCamp.campId)
+					if (!camp.dataLock) {
+						shertManage.updateOne({ size: shertSize })
+						const baan = await Baan.findById(nongCamp.baanId);
+						const oldc = camp.nongShertSize.get(oldSize);
+						camp.nongShertSize.set(oldSize, oldc - 1);
+						const newc = camp.nongShertSize.get(user.shertSize);
+						camp.nongShertSize.set(user.shertSize, newc + 1);
+						const oldb = baan.nongShertSize.get(oldSize);
+						baan.nongShertSize.set(oldSize, oldb - 1);
+						const newb = baan.nongShertSize.get(user.shertSize);
+						baan.nongShertSize.set(user.shertSize, newb + 1);
+					}
+					break;
+				}
+				case 'pee': {
+					const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+					const camp = await Camp.findById(peeCamp.campId)
+					if (!camp.dataLock) {
+						const baan = await Baan.findById(peeCamp.baanId);
+						const part = await Part.findById(peeCamp.partId);
+						const oldc = camp.peeShertSize.get(oldSize);
+						camp.peeShertSize.set(oldSize, oldc - 1);
+						const newc = camp.peeShertSize.get(user.shertSize);
+						camp.peeShertSize.set(user.shertSize, newc + 1);
+						const oldb = baan.peeShertSize.get(oldSize);
+						baan.peeShertSize.set(oldSize, oldb - 1);
+						const newb = baan.peeShertSize.get(user.shertSize);
+						baan.peeShertSize.set(user.shertSize, newb + 1);
+						const oldp = part.peeShertSize.get(oldSize);
+						part.peeShertSize.set(oldSize, oldp - 1);
+						const newp = part.peeShertSize.get(user.shertSize);
+						part.peeShertSize.set(user.shertSize, newp + 1);
+						shertManage.updateOne({ size: shertSize })
+					}
+					break;
+				}
+				case 'peto': {
+					const petoCamp = await PetoCamp.findById(shertManage.campModelId);
+					const camp = await Camp.findById(petoCamp.campId);
+					if (!camp.dataLock) {
+						const part = await Part.findById(petoCamp.partId);
+						const oldc = camp.petoShertSize.get(oldSize);
+						camp.petoShertSize.set(oldSize, oldc - 1);
+						const newc = camp.petoShertSize.get(user.shertSize);
+						camp.petoShertSize.set(user.shertSize, newc + 1);
+						const oldp = part.petoShertSize.get(oldSize);
+						part.petoShertSize.set(oldSize, oldp - 1);
+						const newp = part.petoShertSize.get(user.shertSize);
+						part.petoShertSize.set(user.shertSize, newp + 1);
+						shertManage.updateOne({ size: shertSize })
+					}
+					break;
+				}
 			}
-		});
-		user.peeCampIds.forEach(async (peeCampId) => {
-			const peeCamp = await PeeCamp.findById(peeCampId);
-			const camp = await Camp.findById(peeCamp.campId);
-			if (!camp.dataLock) {
-				const baan = await Baan.findById(peeCamp.baanId);
-				const part = await Part.findById(peeCamp.partId);
-				const oldc = camp.peeShertSize.get(oldSize);
-				camp.peeShertSize.set(oldSize, oldc - 1);
-				const newc = camp.peeShertSize.get(user.shertSize);
-				camp.peeShertSize.set(user.shertSize, newc + 1);
-				const oldb = baan.peeShertSize.get(oldSize);
-				baan.peeShertSize.set(oldSize, oldb - 1);
-				const newb = baan.peeShertSize.get(user.shertSize);
-				baan.peeShertSize.set(user.shertSize, newb + 1);
-				const oldp = part.peeShertSize.get(oldSize);
-				part.peeShertSize.set(oldSize, oldp - 1);
-				const newp = part.peeShertSize.get(user.shertSize);
-				part.peeShertSize.set(user.shertSize, newp + 1);
-			}
-		});
-		user.petoCampIds.forEach(async (petoCampId) => {
-			const petoCamp = await PetoCamp.findById(petoCampId);
-			const camp = await Camp.findById(petoCamp.campId);
-			if (!camp.dataLock) {
-				const part = await Part.findById(petoCamp.partId);
-				const oldc = camp.petoShertSize.get(oldSize);
-				camp.petoShertSize.set(oldSize, oldc - 1);
-				const newc = camp.petoShertSize.get(user.shertSize);
-				camp.petoShertSize.set(user.shertSize, newc + 1);
-				const oldp = part.petoShertSize.get(oldSize);
-				part.petoShertSize.set(oldSize, oldp - 1);
-				const newp = part.petoShertSize.get(user.shertSize);
-				part.petoShertSize.set(user.shertSize, newp + 1);
-			}
-		});
+		})
 		res.status(200).json({
 			success: true,
 			user,
@@ -180,7 +192,7 @@ exports.updateSize = async (req, res) => {
 		})
 	}
 }
-exports.getHelthIsue = async (req, res) => {
+exports.getHelthIsue = async (req, res, next) => {
 	try {
 		const data = await HelthIsue.findById(req.params.id);
 		if (!data) {
@@ -198,7 +210,7 @@ exports.getHelthIsue = async (req, res) => {
 		});
 	}
 };
-exports.updateHelth = async (req, res,next) => {
+exports.updateHelth = async (req, res, next) => {
 	const user = await this.getUser(req)
 	const oldHelthId = user.helthIsueId
 	if (findLock(user._id, oldHelthId)) {
@@ -296,7 +308,7 @@ async function findLock(userId, oldHelthId) {
 	});
 	return false;
 }
-exports.updateBottle = async (req, res) => {
+exports.updateBottle = async (req, res, next) => {
 	const old = await this.getUser(req)
 	const oldBottle = old.haveBottle
 	var change = 1

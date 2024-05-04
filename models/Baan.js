@@ -7,6 +7,9 @@ const BaanSchema= new mongoose.Schema({
     name:{
         type:String
     },
+    fullName:{
+        type:String
+    },
     campId:{//camp
         type:String
     },

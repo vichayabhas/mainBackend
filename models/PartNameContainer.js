@@ -10,6 +10,10 @@ const PeeCampSchema=new mongoose.Schema({
     },
     name:{
         type:String
+    },
+    partIds:{
+        type:[String],
+        default:[]
     }
 })
 module.exports=mongoose.model('NameContainer',PeeCampSchema)
