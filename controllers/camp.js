@@ -14,15 +14,15 @@ const {
 const {
     getUser
 } = require("./user");
-// exports.getWorkingItem           protect pee up           params id
+// exports.getWorkingItem           protect pee up           params id                fix
 // exports.createWorkingItem        protect pee up
 // exports.updateWorkingItem        protect pee up           params id
 // exports.deleteWorkingItem        protect peto up          params id
-// exports.getWorkingItems          protect pee up
-// exports.getBaan                                           params id
-// exports.getCamp                                           params id
-// exports.getNongCamp                                       params id
-// exports.getPeeCamp               protect pee up           params id
+// exports.getWorkingItems          protect pee up                                    fix
+// exports.getBaan                  protect                  params id                fix
+// exports.getCamp                  protect                  params id                fix
+// exports.getNongCamp              protect                  params id                fix
+// exports.getPeeCamp               protect pee up           params id                fix
 // exports.getPetoCamp              protect pee up           params id
 // exports.getPart                  protect pee up           params id
 // exports.addNong                  protect peto up
@@ -30,11 +30,11 @@ const {
 // exports.addPeto                  protect peto up
 // exports.staffRegister            protect pee up
 // exports.addNongPass              protect peto up
-// exports.getActionPlan            protect pee up           params id
+// exports.getActionPlan            protect pee up           params id                fix
 // exports.createActionPlan         protect pee up
 // exports.updateActionPlan         protect pee up           params id
 // exports.deleteActionPlan         protect pee up           params id
-// exports.getActionPlans           protect pee up
+// exports.getActionPlans           protect pee up                                    fix
 // exports.nongRegister             protect nong
 exports.getWorkingItem = async (req, res, next) => {
     try {
