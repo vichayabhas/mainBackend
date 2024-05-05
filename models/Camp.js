@@ -149,6 +149,9 @@ const campSchema= new mongoose.Schema({
     petoShertManageIds:{
         type:[String],
         default:[]
+    },
+    link:{
+        type:String
     }
 
 

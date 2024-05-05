@@ -80,6 +80,9 @@ const BaanSchema= new mongoose.Schema({
         type:[String],
         default:[]
     },
+    link:{
+        type:String
+    }
    
     
    

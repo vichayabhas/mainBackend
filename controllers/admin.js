@@ -43,10 +43,10 @@ exports.addPart = async (req, res, next) => {
     })
     res.status(201).json({ success: true, data: part })
 }
-exports.updateBaanName = async (req, res, next) => {
+exports.updateBaan = async (req, res, next) => {
     try {
-        const { name, fullName, baanId } = req.body
-        const baan = await Baan.findByIdAndUpdate(baanId, { name, fullName })
+        const { name, fullName, baanId, link } = req.body
+        const baan = await Baan.findByIdAndUpdate(baanId, { name, fullName, link })
         res.status(200).json({
             success: true,
             data: baan

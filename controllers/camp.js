@@ -36,6 +36,7 @@ const {
 // exports.deleteActionPlan         protect pee up           params id
 // exports.getActionPlans           protect pee up                                    fix
 // exports.nongRegister             protect nong
+// exports.renameVarible            protect pee up
 exports.getWorkingItem = async (req, res, next) => {
     try {
         if (req.params.id === 'init') {
@@ -601,5 +602,40 @@ exports.nongRegister = async (req, res, next) => {
         res.status(400).json({
             success: false
         })
+    }
+}
+exports.renameVarible = async (req, res, next) => {
+    try {
+        const { peeCampId, names } = req.body
+        const peeCamp = await PeeCamp.findById(peeCampId)
+        var i = 0
+        while (i < 10) {
+            if (!names[i]) {
+                names[i] = peeCamp.varibleNames[i]
+                i = i + 1;
+            }
+        }
+        i = 0
+        while (i < 5) {
+            peeCamp.mapArrayStringNumberByName.delete(peeCamp.varibleNames[i++])
+        }
+        while (i < 10) {
+            peeCamp.mapMapNumberByName.delete(peeCamp.varibleNames[i++])
+        }
+        peeCamp.updateOne({ varibleNames: names })
+        i = 0
+        peeCamp.mapArrayStringNumberByName.set(names[i++], peeCamp.arrayString1)
+        peeCamp.mapArrayStringNumberByName.set(names[i++], peeCamp.arrayString2)
+        peeCamp.mapArrayStringNumberByName.set(names[i++], peeCamp.arrayString3)
+        peeCamp.mapArrayStringNumberByName.set(names[i++], peeCamp.arrayString4)
+        peeCamp.mapArrayStringNumberByName.set(names[i++], peeCamp.arrayString5)
+        peeCamp.mapMapNumberByName.set(names[i++], peeCamp.map1)
+        peeCamp.mapMapNumberByName.set(names[i++], peeCamp.map2)
+        peeCamp.mapMapNumberByName.set(names[i++], peeCamp.map3)
+        peeCamp.mapMapNumberByName.set(names[i++], peeCamp.map4)
+        peeCamp.mapMapNumberByName.set(names[i++], peeCamp.map5)
+        res.status(200).json({success:true})
+    } catch (error) {
+        res.status(400).json({success:false})
     }
 }
