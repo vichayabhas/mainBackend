@@ -289,12 +289,11 @@ exports.addNong = async (req, res, next) => {
                     success: false
                 });
             }
-            const shertManage = await ShertManage.create({ userId: nongId, size: nong.shertSize, campModelId: nongCamp._id, recive: 'baan' })
+            const shertManage = await ShertManage.create({ userId: nongId, size: nong.shertSize, campModelId: nongCamp._id, recive: 'baan', role: 'nong' })
             nongCamp.nongShertManageIds.push(shertManage._id)
             baan.nongShertManageIds.push(shertManage._id)
             camp.nongShertManageIds.push(shertManage._id)
             nong.shertManageIds.push(shertManage._id)
-
             newNongPassIds = swop(nongId, null, newNongPassIds)
             if (nong.helthIsueId) {
                 baan.nongHelthIsueIds.push(nong.helthIsueId);
@@ -349,12 +348,13 @@ exports.addPee = async (req, res, next) => {
             const user = await User.findById(userId);
             const part = await Part.findById(camp.peePassIds.get(userId));
             const peeCamp = await PeeCamp.findById(baan.mapPeeCampIdByPartId.get(part._id))
-            const shertManage = await ShertManage.create({ userId, size: user.shertSize, campModelId: peeCamp._id, recive: 'baan' })
+            const shertManage = await ShertManage.create({ userId, size: user.shertSize, campModelId: peeCamp._id, recive: 'baan', role: 'pee' })
             part.peeShertManageIds.push(shertManage._id)
             camp.peeShertManageIds.push(shertManage._id)
             baan.peeShertManageIds.push(shertManage._id)
             user.shertManageIds.push(shertManage._id)
             count = count + 1
+            peeCamp.peeShertManageIds.push(shertManage._id)
             baan.peeIds.push(userId);
             camp.peeIds.push(userId);
             part.peeIds.push(userId);
@@ -432,9 +432,12 @@ async function addPetoRaw(campId, member, partId, res) {
                 camp.petoHelthIsueIds.push(user.helthIsueId);
                 part.petoHelthIsueIds.push(user.helthIsueId);
             }
-            const shertManage = await ShertManage.create({ userId, size: user.shertSize, campModelId: petoCamp._id, recive: 'part' })
+            const shertManage = await ShertManage.create({ userId, size: user.shertSize, campModelId: petoCamp._id, recive: 'part', role: 'peto' })
             camp.petoShertSize.set(user.shertSize, part.petoShertSize.get(user.shertSize) + 1);
+            user.shertManageIds.push(shertManage._id)
+            part.petoShertManageIds.push(shertManage._id)
             part.petoShertSize.set(user.shertSize, part.petoShertSize.get(user.shertSize) + 1);
+            petoCamp.petoShertManageIds.push(shertManage._id)
             if (user.haveBottle) {
                 c = c + 1
                 p = p + 1

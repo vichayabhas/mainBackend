@@ -12,4 +12,4 @@ const PeeCampSchema = new mongoose.Schema({
         default: []
     }
 })
-module.exports = mongoose.model('NameContainer', PeeCampSchema)
+module.exports = mongoose.model('PartNameContainer', PeeCampSchema)
