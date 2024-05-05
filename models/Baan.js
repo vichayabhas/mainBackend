@@ -79,6 +79,9 @@ const BaanSchema = new mongoose.Schema({
     },
     link: {
         type: String
+    },
+    styleId: {
+        type: String
     }
 })
 module.exports = mongoose.model('Baan', BaanSchema)

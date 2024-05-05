@@ -1,9 +1,13 @@
 const Baan = require("../models/Baan")
 const Camp = require("../models/Camp")
+const CampStyle = require("../models/CampStyle")
+const NameContainer = require("../models/NameContainer")
 const NongCamp = require("../models/NongCamp")
 const Part = require("../models/Part")
 const PeeCamp = require("../models/PeeCamp")
 const PetoCamp = require("../models/PetoCamp")
+const ShertManage = require("../models/ShertManage")
+const User = require("../models/User")
 exports.addBaan = async (req, res, next) => {
     const { campId, name, fullName } = req.body
     const baan = await Baan.create({ campId, name, fullName })
@@ -21,7 +25,9 @@ exports.addBaan = async (req, res, next) => {
         baan.mapPeeCampIdByPartId.set(partId, peeCamp._id)
         part.mapPeeCampIdByBaanId.set(baan._id, peeCamp._id)
     })
+    const campStyle = await CampStyle.create({ refId: baan._id, types: 'baan' })
     camp.baanIds.push(baan._id)
+    baan.updateOne({ styleId: campStyle._id })
     res.status(201).json({ success: true, data: baan })
 }
 exports.addPart = async (req, res, next) => {
@@ -70,3 +76,34 @@ async function setDefalse(peeCampId) {
     peeCamp.mapMapNumberByName.set(name[8], peeCamp.map4)
     peeCamp.mapMapNumberByName.set(name[9], peeCamp.map5)
 }
+exports.createCamp = async (req, res, next) => {
+    try {
+        const { nameId, round, dateStart, dateEnd, boardIds } = req.body
+        const camp = await Camp.create({ nameId, round, dateStart, dateEnd, boardIds })
+        const campStyle = await CampStyle.create({ refId: camp._id, types: 'camp' })
+        camp.updateOne({ campStyleId: campStyle._id })
+        boardIds.forEach(async (boardId) => {
+            const user = await User.findById(boardId)
+            user.authorizeIds.push(camp._id)
+        })
+        const nameContainer = await NameContainer.findById(nameId)
+        nameContainer.campIds.push(camp._id)
+        res.status(201).json({ success: true, data: camp })
+    } catch (err) {
+        res.status(400).json({ success: false })
+    }
+}
+/*exports.deleteCamp = async (req, res, next) => {
+    const campId=req.params.id
+    const camp=await Camp.findById(campId)
+    camp.peeShertManageIds.forEach(async (peeShertManageId)=>{
+        await ShertManage.findByIdAndDelete(peeShertManageId)
+    })
+    camp.nongShertManageIds.forEach(async (peeShertManageId)=>{
+        await ShertManage.findByIdAndDelete(peeShertManageId)
+    })
+    camp.petoShertManageIds.forEach(async (peeShertManageId)=>{
+        await ShertManage.findByIdAndDelete(peeShertManageId)
+    })
+
+}*/

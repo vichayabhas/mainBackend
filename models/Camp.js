@@ -14,7 +14,7 @@ const campSchema = new mongoose.Schema({
     dateEnd: {
         type: Date
     },
-    boardIds: {//user
+    boardIds: {//user               //
         type: [String],
         default: []
     },
@@ -161,7 +161,7 @@ const campSchema = new mongoose.Schema({
         type: String
     }
 })
-campSchema.method.getName = async function() {
+campSchema.method.getName = async function () {
     const nameContainer = await NameContainer.findById(this.nameId)
     return `${nameContainer.name} ${this.round}`
 }
