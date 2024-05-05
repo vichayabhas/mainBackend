@@ -4,6 +4,7 @@ const NongCamp = require("../models/NongCamp")
 const Part = require("../models/Part")
 const PeeCamp = require("../models/PeeCamp")
 const PetoCamp = require("../models/PetoCamp")
+const { setDefalse } = require("./setup")
 
 exports.addBaan = async (req, res, next) => {
     const { campId, name, fullName } = req.body
@@ -15,6 +16,7 @@ exports.addBaan = async (req, res, next) => {
     camp.partIds.forEach(async (partId) => {
         const part = await Part.findById(partId)
         const peeCamp = await PeeCamp.create({ campId, baanId: baan._id, partId })
+        setDefalse(peeCamp._id)
         part.peeModelIds.push(peeCamp._id)
         baan.peeModelIds.push(peeCamp._id)
         camp.peeModelIds.push(peeCamp._id)
@@ -38,6 +40,7 @@ exports.addPart = async (req, res, next) => {
         baan.peeModelIds.push(peeCamp._id)
         camp.peeModelIds.push(peeCamp._id)
         part.peeModelIds.push(peeCamp._id)
+        setDefalse(peeCamp._id)
         baan.mapPeeCampIdByPartId.set(part._id, peeCamp._id)
         part.mapPeeCampIdByBaanId.set(baanId, peeCamp._id)
     })
