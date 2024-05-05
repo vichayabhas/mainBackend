@@ -178,6 +178,9 @@ exports.deleteCamp = async (req, res, next) => {
         camp.actionPlanIds.forEach(async (actionPlanId) => {
             await ActionPlan.findByIdAndDelete(actionPlanId)
         })
+        const name=await NameContainer.findById(camp.nameId)
+        const campIds=swop(campId,null,name.campIds)
+        name.updateOne({campIds})
         camp.deleteOne()
         res.status(200).json({ success: true })
     } catch (error) {
