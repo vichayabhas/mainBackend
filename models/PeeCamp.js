@@ -1,20 +1,20 @@
-const  mongoose = require("mongoose");
-const PeeCampSchema=new mongoose.Schema({
-    campId:{
-        type:String
+const mongoose = require("mongoose");
+const PeeCampSchema = new mongoose.Schema({
+    campId: {
+        type: String
     },
-    partId:{
-        type:String
+    partId: {
+        type: String
     },
-    baanId:{
-        type:String
-    },peeIds: {
+    baanId: {
+        type: String
+    }, peeIds: {
         type: [String],
         default: []
     },
-    peeShertManageIds:{
-        type:[String],
-        default:[]
+    peeShertManageIds: {
+        type: [String],
+        default: []
     },
     arrayString1: {
         type: [String],
@@ -64,9 +64,9 @@ const PeeCampSchema=new mongoose.Schema({
         type: Map,
         default: new Map
     },
-    varibleNames:{
+    varibleNames: {
         type: [String],
-        default: ['arrayString1','arrayString2','arrayString3','arrayString4','arrayString5','map1','map2','map3','map4','map5']
+        default: ['arrayString1', 'arrayString2', 'arrayString3', 'arrayString4', 'arrayString5', 'map1', 'map2', 'map3', 'map4', 'map5']
     }
 })
-module.exports=mongoose.model('PeeCamp',PeeCampSchema)
+module.exports = mongoose.model('PeeCamp', PeeCampSchema)

@@ -5,7 +5,6 @@ const Part = require("../models/Part")
 const PeeCamp = require("../models/PeeCamp")
 const PetoCamp = require("../models/PetoCamp")
 const { setDefalse } = require("./setup")
-
 exports.addBaan = async (req, res, next) => {
     const { campId, name, fullName } = req.body
     const baan = await Baan.create({ campId, name, fullName })

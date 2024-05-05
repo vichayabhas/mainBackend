@@ -1,7 +1,5 @@
 const { default: mongoose } = require("mongoose");
 const { startSize } = require("../controllers/setup");
-
-
 const PartSchema = new mongoose.Schema({
     nameId: {
         type: String
@@ -41,52 +39,52 @@ const PartSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    nongHaveBottleMapIds:{
-        type:Map,
-        default:new Map
+    nongHaveBottleMapIds: {
+        type: Map,
+        default: new Map
     },
-    peeHaveBottleMapIds:{
-        type:Map,
-        default:new Map
+    peeHaveBottleMapIds: {
+        type: Map,
+        default: new Map
     },
-    petoHaveBottleMapIds:{
-        type:Map,
-        default:new Map
+    petoHaveBottleMapIds: {
+        type: Map,
+        default: new Map
     },
-    peeModelIds:{//peeCamp
-        type:[String],
-        default:[]
+    peeModelIds: {//peeCamp
+        type: [String],
+        default: []
     },
-    petoModelId:{
-        type:String
+    petoModelId: {
+        type: String
     },
-    mapPeeCampIdByBaanId:{
-        type:Map,
-        default:new Map
+    mapPeeCampIdByBaanId: {
+        type: Map,
+        default: new Map
     },
-    mapSizeByPeeId:{
-        type:Map,
-        default:new Map
+    mapSizeByPeeId: {
+        type: Map,
+        default: new Map
     },
-    mapSizeByPetoId:{
-        type:Map,
-        default:new Map
+    mapSizeByPetoId: {
+        type: Map,
+        default: new Map
     },
-    peeShertManageIds:{
-        type:[String],
-        default:[]
+    peeShertManageIds: {
+        type: [String],
+        default: []
     },
-    petoShertManageIds:{
-        type:[String],
-        default:[]
+    petoShertManageIds: {
+        type: [String],
+        default: []
     },
-    actionPlanIds:{
-        type:[String],
-        default:[]
+    actionPlanIds: {
+        type: [String],
+        default: []
     },
-    workItemIds:{
-        type:[String],
-        default:[]
+    workItemIds: {
+        type: [String],
+        default: []
     }
 })
 module.exports = mongoose.model('Part', PartSchema)

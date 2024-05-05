@@ -1,33 +1,28 @@
 const { default: mongoose } = require("mongoose");
-
-
-
-const PartSchema=new mongoose.Schema({
-    name:{
-        type:String
+const PartSchema = new mongoose.Schema({
+    name: {
+        type: String
     },
-    campIds:{//camp
-        type:[String],
-        default:[]
+    campIds: {//camp
+        type: [String],
+        default: []
     },
-    baanIds:{//baan
-        type:[String],
-        default:[]
+    baanIds: {//baan
+        type: [String],
+        default: []
     },
-    auther:{
-        type:String
+    auther: {
+        type: String
     },
-    time:{
-        type:TimeRanges
+    time: {
+        type: TimeRanges
     },
-    link:{
-        type:String
+    link: {
+        type: String
     },
-    userLikeIds:{
-        type:[String],
-        default:[]
+    userLikeIds: {
+        type: [String],
+        default: []
     }
-
-   
 })
-module.exports=mongoose.model('Song',PartSchema)
+module.exports = mongoose.model('Song', PartSchema)

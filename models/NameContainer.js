@@ -1,15 +1,15 @@
-const  mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
 
 
 
-const PeeCampSchema=new mongoose.Schema({
-    campIds:{//camp
-        type:[String],
-        default:[]
+const PeeCampSchema = new mongoose.Schema({
+    campIds: {//camp
+        type: [String],
+        default: []
     },
-    name:{
-        type:String
+    name: {
+        type: String
     }
 })
-module.exports=mongoose.model('NameContainer',PeeCampSchema)
+module.exports = mongoose.model('NameContainer', PeeCampSchema)

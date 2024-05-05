@@ -1,30 +1,30 @@
-const { default: mongoose} = require("mongoose");
+const { default: mongoose } = require("mongoose");
 
 
-const fridayActSchema=new mongoose.Schema({
-    company:{
-        type:String,
-        require:[true,'Plese fill company']
+const fridayActSchema = new mongoose.Schema({
+    company: {
+        type: String,
+        require: [true, 'Plese fill company']
     },
-    date:{
-        type:Date
+    date: {
+        type: Date
     },
-    staffId:{//user
-        type:[String],
+    staffId: {//user
+        type: [String],
         default: []
 
     },
-    limit:{
-        type:Number
+    limit: {
+        type: Number
     },
-    studentId:{//user
-        type:[String],
+    studentId: {//user
+        type: [String],
         default: []
-        
+
     },
-    placeId:{//place
-        type:String
+    placeId: {//place
+        type: String
 
     }
 })
-module.exports=mongoose.model('FridayAct',fridayActSchema)
+module.exports = mongoose.model('FridayAct', fridayActSchema)

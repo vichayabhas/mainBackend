@@ -1,165 +1,163 @@
-const mongoose  = require("mongoose");
-
+const mongoose = require("mongoose");
 const { startSize } = require("../controllers/setup");
-
-
-const campSchema= new mongoose.Schema({
-    nameId:{//nameContainer
-        type:String
+const campSchema = new mongoose.Schema({
+    nameId: {//nameContainer
+        type: String
     },
-    round:{
-        type:Number
+    round: {
+        type: Number
     },
-    dateStart:{
-        type:Date
+    dateStart: {
+        type: Date
     },
-    dateEnd:{
-        type:Date
+    dateEnd: {
+        type: Date
     },
-    boardIds:{//user
-        type:[String],
+    boardIds: {//user
+        type: [String],
         default: []
     },
-    peeIds:{//user
-        type:[String],
+    peeIds: {//user
+        type: [String],
         default: []
     },
-    nongIds:{//user
-        type:[String],
-        default:[]
-    },
-    partIds:{//part
-        type:[String],
-        default:[]
-
-    },
-    petoIds:{//user
-        type:[String],
+    nongIds: {//user
+        type: [String],
         default: []
     },
-
-    authorizeIds:{//user
-        type:[String],
-        default:[]
-        
-
+    partIds: {//part
+        type: [String],
+        default: []
     },
-    nongHelthIsueIds:{//helth
-        type:[String],
-        default:[]
+    petoIds: {//user
+        type: [String],
+        default: []
     },
-    peeHelthIsueIds:{//helth
-        type:[String],
-        default:[]
+    authorizeIds: {//user
+        type: [String],
+        default: []
     },
-    petoHelthIsueIds:{//helth
-        type:[String],
-        default:[]
+    nongHelthIsueIds: {//helth
+        type: [String],
+        default: []
     },
-    dataLock:{
-        type:Boolean,
-        default:false
+    peeHelthIsueIds: {//helth
+        type: [String],
+        default: []
     },
-    nongShertSize:{// size    count
-        type:Map,
-        default:startSize
+    petoHelthIsueIds: {//helth
+        type: [String],
+        default: []
     },
-    peeShertSize:{// size    count
-        type:Map,
-        default:startSize
+    dataLock: {
+        type: Boolean,
+        default: false
     },
-    petoShertSize:{// size    count
-        type:Map,
-        default:startSize
+    nongShertSize: {// size    count
+        type: Map,
+        default: startSize
     },
-    nongModelIds:{
-        type:[String],
-        default:[]
+    peeShertSize: {// size    count
+        type: Map,
+        default: startSize
     },
-    peeModelIds:{
-        type:[String],
-        default:[]
+    petoShertSize: {// size    count
+        type: Map,
+        default: startSize
     },
-    petoModelIds:{
-        type:[String],
-        default:[]
+    nongModelIds: {
+        type: [String],
+        default: []
     },
-    nongPendingIds:{//user
-        type:Map,
-        default:new Map
+    peeModelIds: {
+        type: [String],
+        default: []
     },
-    nongPassIds:{//user    link
-        type:Map,
-        default: new Map
-
+    petoModelIds: {
+        type: [String],
+        default: []
     },
-    open:{
-        type:Boolean,
-        default:false
-    },
-    peePassIds:{
-        type:Map,
+    nongPendingIds: {//user
+        type: Map,
         default: new Map
     },
-    songIds:{//song
-        type:[String],
-        default:[]
+    nongPassIds: {//user    link
+        type: Map,
+        default: new Map
     },
-    nongHaveBottle:{
-        type:Number,
-        default:0
+    open: {
+        type: Boolean,
+        default: true
     },
-    peeHaveBottle:{
-        type:Number,
-        default:0
+    peePassIds: {
+        type: Map,
+        default: new Map
     },
-    petoHaveBottle:{
-        type:Number,
-        default:0
+    songIds: {//song
+        type: [String],
+        default: []
     },
-    nongHaveBottleMapIds:{
-        type:Map,
-        default:new Map
+    nongHaveBottle: {
+        type: Number,
+        default: 0
     },
-    peeHaveBottleMapIds:{
-        type:Map,
-        default:new Map
+    peeHaveBottle: {
+        type: Number,
+        default: 0
     },
-    petoHaveBottleMapIds:{
-        type:Map,
-        default:new Map
+    petoHaveBottle: {
+        type: Number,
+        default: 0
     },
-    nongSureIds:{//user
-        type:[String],
-        default:[]
-
+    nongHaveBottleMapIds: {
+        type: Map,
+        default: new Map
     },
-    baanIds:{//baan
-        type:[String],
-        default:[]
+    peeHaveBottleMapIds: {
+        type: Map,
+        default: new Map
     },
-    nongShertManageIds:{
-        type:[String],
-        default:[]
+    petoHaveBottleMapIds: {
+        type: Map,
+        default: new Map
     },
-    peeShertManageIds:{
-        type:[String],
-        default:[]
+    nongSureIds: {//user
+        type: [String],
+        default: []
     },
-    petoShertManageIds:{
-        type:[String],
-        default:[]
+    baanIds: {//baan
+        type: [String],
+        default: []
     },
-    link:{
-        type:String
+    nongShertManageIds: {
+        type: [String],
+        default: []
+    },
+    peeShertManageIds: {
+        type: [String],
+        default: []
+    },
+    petoShertManageIds: {
+        type: [String],
+        default: []
+    },
+    link: {
+        type: String
+    },
+    allDone: {
+        type: Boolean,
+        default: false
+    },
+    lockChangePickup: {
+        type: Boolean,
+        default: false
+    },
+    pictureUrls: {
+        type: [String],
+        default: []
     }
-
-
-
-
-
 })
-module.exports=mongoose.model('Camp',campSchema)
+module.exports = mongoose.model('Camp', campSchema)
 
 
 

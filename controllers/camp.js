@@ -70,6 +70,10 @@ exports.getWorkingItem = async (req, res, next) => {
     }
 };
 exports.createWorkingItem = async (req, res, next) => {
+    const camp = await Camp.findById(req.body.campId)
+    if (camp.allDone) {
+        return res.status(400).json({ success: false, message: 'This camp is all done' })
+    }
     const hospital = await WorkItem.create(req.body);
     res.status(200).json({
         success: true,
@@ -78,6 +82,10 @@ exports.createWorkingItem = async (req, res, next) => {
 };
 exports.updateWorkingItem = async (req, res, next) => {
     try {
+        const camp = await Camp.findById(req.body.campId)
+        if (camp.allDone) {
+            return res.status(400).json({ success: false, message: 'This camp is all done' })
+        }
         const hospital = await WorkItem.findByIdAndUpdate(req.params.id, req.body);
         if (!hospital) {
             return res.status(400).json({
@@ -96,6 +104,10 @@ exports.updateWorkingItem = async (req, res, next) => {
 };
 exports.deleteWorkingItem = async (req, res, next) => {
     try {
+        const camp = await Camp.findById(req.body.campId)
+        if (camp.allDone) {
+            return res.status(400).json({ success: false, message: 'This camp is all done' })
+        }
         const hospital = await WorkItem.findByIdAndDelete(req.params.id);
         if (!hospital) {
             res.status(400).json({
@@ -263,7 +275,6 @@ exports.addNong = async (req, res, next) => {
         }
         const nongCamp = await NongCamp.findById(baan.nongModelId)
         var newNongPassIds = camp.nongSureIds
-
         var count = 0
         var b = baan.nongHaveBottle
         var c = camp.nongHaveBottle
@@ -273,7 +284,6 @@ exports.addNong = async (req, res, next) => {
             camp.nongIds.push(nongId);
             const nong = await User.findById(nongId);
             nongCamp.nongIds.push(nongId)
-
             if (!nong) {
                 return res.status(400).json({
                     success: false
@@ -594,6 +604,9 @@ exports.nongRegister = async (req, res, next) => {
         } = req.body
         const nong = await getUser(req)
         const camp = await Camp.findById(campId)
+        if (!camp.open) {
+            return res.status(400).json({ success: false, message: 'This camp is close' })
+        }
         camp.nongPendingIds.set(nong._id, link)
         res.status(200).json({
             success: true
@@ -608,6 +621,10 @@ exports.renameVarible = async (req, res, next) => {
     try {
         const { peeCampId, names } = req.body
         const peeCamp = await PeeCamp.findById(peeCampId)
+        const camp = await Camp.findById(peeCamp.campId)
+        if (camp.allDone) {
+            return res.status(400).json({ success: false, message: 'This camp is all done' })
+        }
         var i = 0
         while (i < 10) {
             if (!names[i]) {
@@ -634,8 +651,8 @@ exports.renameVarible = async (req, res, next) => {
         peeCamp.mapMapNumberByName.set(names[i++], peeCamp.map3)
         peeCamp.mapMapNumberByName.set(names[i++], peeCamp.map4)
         peeCamp.mapMapNumberByName.set(names[i++], peeCamp.map5)
-        res.status(200).json({success:true})
+        res.status(200).json({ success: true })
     } catch (error) {
-        res.status(400).json({success:false})
+        res.status(400).json({ success: false })
     }
 }

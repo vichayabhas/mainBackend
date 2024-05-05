@@ -3,32 +3,27 @@ const mongoose = require('mongoose');
 const HospitalSchema = new mongoose.Schema({
     name: {
         type: String
-        
     },
-    link:{
-        type:String
+    link: {
+        type: String
     },
-    status:{
-        type:String,
-        enum:['not start','in process','done'],
-        default:'not start'
+    status: {
+        type: String,
+        enum: ['not start', 'in process', 'done'],
+        default: 'not start'
     },
-    partId:{
-        type:String
+    partId: {
+        type: String
     },
-    campId:{
-        type:String
+    campId: {
+        type: String
     },
-    linkOutIds:{//workItem
-        type:[String],
-        default:[]
+    linkOutIds: {//workItem
+        type: [String],
+        default: []
     },
-    fromId:{
-        type:String
+    fromId: {
+        type: String
     }
-
-    
-
-
 });
-module.exports=mongoose.model('WorkItem', HospitalSchema);
+module.exports = mongoose.model('WorkItem', HospitalSchema);
