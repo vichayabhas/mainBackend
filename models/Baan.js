@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
 const { startSize } = require("../controllers/setup");
-
-
-
 const BaanSchema = new mongoose.Schema({
     name: {
         type: String

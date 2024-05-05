@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const HospitalSchema = new mongoose.Schema({
     action: {
         type: String

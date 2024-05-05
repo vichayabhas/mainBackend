@@ -155,6 +155,9 @@ const campSchema = new mongoose.Schema({
     pictureUrls: {
         type: [String],
         default: []
+    },
+    campStyleId:{
+        type:String
     }
 })
 module.exports = mongoose.model('Camp', campSchema)

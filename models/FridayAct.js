@@ -12,7 +12,6 @@ const fridayActSchema = new mongoose.Schema({
     staffId: {//user
         type: [String],
         default: []
-
     },
     limit: {
         type: Number
@@ -20,11 +19,9 @@ const fridayActSchema = new mongoose.Schema({
     studentId: {//user
         type: [String],
         default: []
-
     },
     placeId: {//place
         type: String
-
     }
 })
 module.exports = mongoose.model('FridayAct', fridayActSchema)

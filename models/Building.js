@@ -1,8 +1,4 @@
 const mongoose = require("mongoose");
-
-
-
-
 const PeeCampSchema = new mongoose.Schema({
     name: {
         type: String
@@ -19,6 +15,5 @@ const PeeCampSchema = new mongoose.Schema({
         type: [String],
         default: []
     }
-
 })
 module.exports = mongoose.model('Building', PeeCampSchema)

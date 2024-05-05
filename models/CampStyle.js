@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const PeeCampSchema = new mongoose.Schema({
-    userId: {//user
+    campId: {//camp
         type: String
-    }
+    },
+    
 })
-module.exports = mongoose.model('HelthIsue', PeeCampSchema)
+module.exports = mongoose.model('CampStyle', PeeCampSchema)

@@ -3,7 +3,6 @@ const PeeCampSchema = new mongoose.Schema({
     campId: {
         type: String
     },
-
     baanId: {
         type: String
     },
