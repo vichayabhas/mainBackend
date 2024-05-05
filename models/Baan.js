@@ -80,8 +80,5 @@ const BaanSchema = new mongoose.Schema({
     link: {
         type: String
     }
-
-
-
 })
 module.exports = mongoose.model('Baan', BaanSchema)

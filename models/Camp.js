@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { startSize } = require("../controllers/setup");
+const NameContainer = require("./NameContainer");
 const campSchema = new mongoose.Schema({
     nameId: {//nameContainer
         type: String
@@ -156,10 +157,14 @@ const campSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
-    campStyleId:{
-        type:String
+    campStyleId: {
+        type: String
     }
 })
+campSchema.method.getName = async function() {
+    const nameContainer = await NameContainer.findById(this.nameId)
+    return `${nameContainer.name} ${this.round}`
+}
 module.exports = mongoose.model('Camp', campSchema)
 
 
