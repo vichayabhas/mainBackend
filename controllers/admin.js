@@ -12,11 +12,11 @@ const ShertManage = require("../models/ShertManage")
 const User = require("../models/User")
 const WorkItem = require("../models/WorkItem")
 const { swop } = require("./setup")
-// exports.addBaan
-// exports.addPart
+// exports.addBaan        authorize
+// exports.addPart        authorize
 // exports.updateBaan
 // exports.createCamp
-// exports.deleteCamp            params id
+// exports.deleteCamp                       params id
 exports.addBaan = async (req, res, next) => {
     const { campId, name, fullName } = req.body
     const baan = await Baan.create({ campId, name, fullName })
