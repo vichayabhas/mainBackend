@@ -5,9 +5,8 @@ const s = ['S', 'M', 'L', 'XL', 'XXL', '3XL']
 s.forEach((e) => {
     size.set(e, 0)
 })
-const startSize = size
-exports = startSize
-exports = function swop(olds, news, array) {
+exports.startSize=size
+exports.swop=(olds, news, array) =>{
     if (!olds) {
         if (news) {
             array.push(news)

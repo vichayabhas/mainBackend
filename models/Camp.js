@@ -14,7 +14,7 @@ const campSchema = new mongoose.Schema({
     dateEnd: {
         type: Date
     },
-    boardIds: {//user               //
+    boardIds: {//user            
         type: [String],
         default: []
     },
@@ -26,7 +26,7 @@ const campSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
-    partIds: {//part
+    partIds: {//part                       //
         type: [String],
         default: []
     },
@@ -41,14 +41,14 @@ const campSchema = new mongoose.Schema({
     nongHelthIsueIds: {//helth
         type: [String],
         default: []
-    },
+    },                                              //
     peeHelthIsueIds: {//helth
-        type: [String],
+        type: [String],                             //
         default: []
     },
     petoHelthIsueIds: {//helth
         type: [String],
-        default: []
+        default: []                                  //
     },
     dataLock: {
         type: Boolean,
@@ -159,6 +159,14 @@ const campSchema = new mongoose.Schema({
     },
     campStyleId: {
         type: String
+    },
+    actionPlanIds: {
+        type: [String],
+        default: []
+    },
+    workItemIds: {
+        type: [String],
+        default: []
     }
 })
 campSchema.method.getName = async function () {

@@ -9,6 +9,10 @@ const PeeCampSchema = new mongoose.Schema({
     petoShertManageIds: {
         type: [String],
         default: []
+    },
+    petoIds:{
+        type: [String],
+        default: []
     }
 })
 module.exports = mongoose.model('PetoCamp', PeeCampSchema)

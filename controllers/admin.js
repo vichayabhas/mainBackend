@@ -1,6 +1,8 @@
+const ActionPlan = require("../models/ActionPlan")
 const Baan = require("../models/Baan")
 const Camp = require("../models/Camp")
 const CampStyle = require("../models/CampStyle")
+const HelthIsue = require("../models/HelthIsue")
 const NameContainer = require("../models/NameContainer")
 const NongCamp = require("../models/NongCamp")
 const Part = require("../models/Part")
@@ -8,6 +10,8 @@ const PeeCamp = require("../models/PeeCamp")
 const PetoCamp = require("../models/PetoCamp")
 const ShertManage = require("../models/ShertManage")
 const User = require("../models/User")
+const WorkItem = require("../models/WorkItem")
+const { swop } = require("./setup")
 exports.addBaan = async (req, res, next) => {
     const { campId, name, fullName } = req.body
     const baan = await Baan.create({ campId, name, fullName })
@@ -93,17 +97,90 @@ exports.createCamp = async (req, res, next) => {
         res.status(400).json({ success: false })
     }
 }
-/*exports.deleteCamp = async (req, res, next) => {
-    const campId=req.params.id
-    const camp=await Camp.findById(campId)
-    camp.peeShertManageIds.forEach(async (peeShertManageId)=>{
-        await ShertManage.findByIdAndDelete(peeShertManageId)
-    })
-    camp.nongShertManageIds.forEach(async (peeShertManageId)=>{
-        await ShertManage.findByIdAndDelete(peeShertManageId)
-    })
-    camp.petoShertManageIds.forEach(async (peeShertManageId)=>{
-        await ShertManage.findByIdAndDelete(peeShertManageId)
-    })
-
-}*/
+exports.deleteCamp = async (req, res, next) => {
+    try {
+        const campId = req.params.id
+        const camp = await Camp.findById(campId)
+        camp.peeShertManageIds.forEach(async (peeShertManageId) => {
+            await ShertManage.findByIdAndDelete(peeShertManageId)
+        })
+        camp.nongShertManageIds.forEach(async (peeShertManageId) => {
+            await ShertManage.findByIdAndDelete(peeShertManageId)
+        })
+        camp.petoShertManageIds.forEach(async (peeShertManageId) => {
+            await ShertManage.findByIdAndDelete(peeShertManageId)
+        })
+        camp.boardIds.forEach(async (boardId) => {
+            const user = await User.findById(boardId)
+            const news = swop(camp._id, null, user.authorizeIds)
+            user.updateOne({ authorizeIds: news })
+        })
+        camp.nongModelIds.forEach(async (nongModelId) => {
+            const nongCamp = await NongCamp.findById(nongModelId)
+            nongCamp.nongIds.forEach(async (userId) => {
+                const user = await User.findById(userId)
+                const nongCampIds = swop(nongCamp._id, null, user.nongCampIds)
+                user.updateOne({ nongCampIds })
+            })
+            nongCamp.deleteOne()
+        })
+        camp.peeModelIds.forEach(async (nongModelId) => {
+            const nongCamp = await PeeCamp.findById(nongModelId)
+            nongCamp.peeIds.forEach(async (userId) => {
+                const user = await User.findById(userId)
+                const peeCampIds = swop(nongCamp._id, null, user.peeCampIds)
+                user.updateOne({ peeCampIds })
+            })
+            nongCamp.deleteOne()
+        })
+        camp.petoModelIds.forEach(async (nongModelId) => {
+            const nongCamp = await PetoCamp.findById(nongModelId)
+            nongCamp.petoIds.forEach(async (userId) => {
+                const user = await User.findById(userId)
+                const petoCampIds = swop(nongCamp._id, null, user.petoCampIds)
+                user.updateOne({ petoCampIds })
+            })
+            nongCamp.deleteOne()
+        })
+        camp.baanIds.forEach(async (baanId) => {
+            const baan = await Baan.findById(baanId)
+            await CampStyle.findByIdAndDelete(baan.styleId)
+            baan.deleteOne()
+        })
+        await CampStyle.findByIdAndDelete(camp.campStyleId)
+        camp.nongHelthIsueIds.forEach(async (helthueId) => {
+            const helthIsue = await HelthIsue.findById(helthueId)
+            const user = await User.findById(helthIsue.userId)
+            if (!user.helthIsueId.localeCompare(helthueId)) {
+                helthIsue.deleteOne()
+            }
+        })
+        camp.peeHelthIsueIds.forEach(async (helthueId) => {
+            const helthIsue = await HelthIsue.findById(helthueId)
+            const user = await User.findById(helthIsue.userId)
+            if (!user.helthIsueId.localeCompare(helthueId)) {
+                helthIsue.deleteOne()
+            }
+        })
+        camp.petoHelthIsueIds.forEach(async (helthueId) => {
+            const helthIsue = await HelthIsue.findById(helthueId)
+            const user = await User.findById(helthIsue.userId)
+            if (!user.helthIsueId.localeCompare(helthueId)) {
+                helthIsue.deleteOne()
+            }
+        })
+        camp.partIds.forEach(async (partId) => {
+            await Part.findByIdAndDelete(partId)
+        })
+        camp.workItemIds.forEach(async (workItemId) => {
+            await WorkItem.findByIdAndDelete(workItemId)
+        })
+        camp.actionPlanIds.forEach(async (actionPlanId) => {
+            await ActionPlan.findByIdAndDelete(actionPlanId)
+        })
+        camp.deleteOne()
+        res.status(200).json({ success: true })
+    } catch (error) {
+        res.status(400).json({ success: false })
+    }
+}
