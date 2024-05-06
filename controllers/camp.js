@@ -14,6 +14,8 @@ const {
 const {
     getUser
 } = require("./user");
+const PartNameContainer = require("../models/PartNameContainer");
+const NameContainer = require("../models/NameContainer");
 // exports.getWorkingItem           protect pee up           params id                fix
 // exports.createWorkingItem        protect pee up
 // exports.updateWorkingItem        protect pee up           params id
@@ -57,9 +59,17 @@ exports.getWorkingItem = async (req, res, next) => {
                 success: false
             });
         }
+        const camp=await Camp.findById(hospital.campId)
+        const part=await Part.findById(hospital.partId)
+        const partName= await PartNameContainer.findById(part.nameId)
+        const name= await NameContainer.findById(camp.nameId)
+
+
         res.status(200).json({
             success: true,
-            data: hospital
+            camp:`${name.name} ${camp.round}`,
+            part:partName.name,
+            data:hospital
         });
     } catch (err) {
         res.status(400).json({
@@ -124,20 +134,27 @@ exports.deleteWorkingItem = async (req, res, next) => {
 };
 exports.getWorkingItems = async (req, res, next) => {
     try {
-        var data = [];
+        var  bufe = [];
         const user = await getUser(req)
         if (user.filterIds.length == 0) {
-            data = await WorkItem.find();
+            bufe = await WorkItem.find();
         } else {
-            await req.user.filter.forEach(async (campId) => {
+            user.filterIds.forEach(async (campId) => {
                 const buf = await WorkItem.find({
                     campId
                 });
                 buf.forEach((b) => {
-                    data.push(b);
+                    bufe.push(b);
                 });
             });
         }
+        const data=bufe.map(async (workItem)=>{
+            const part=await Part.findById(workItem.partId)
+
+            
+            
+        })
+        
         res.status(200).json({
             success: true,
             count: data.length,
