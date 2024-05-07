@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
 
 const router = express.Router();
 
-const {protect, modePee, peto}=require('../middleware/auth');
-const { getWorkingItems, createWorkingItem, getWorkingItem, updateWorkingItem, deleteWorkingItem } = require('../controllers/camp');
+import { protect, modePee, peto } from '../middleware/auth';
+import { getWorkingItems, createWorkingItem, getWorkingItem, updateWorkingItem, deleteWorkingItem } from '../controllers/camp';
 
 
 
@@ -11,7 +11,7 @@ router.route('/workingItem/').get(protect,modePee,getWorkingItems).post(protect,
 router.route('/workingItem/:id').get(protect,modePee,getWorkingItem).put(protect,modePee,updateWorkingItem).delete(protect,modePee,peto,deleteWorkingItem)
 
 
-module.exports=router;
+export default router;
 
 
 

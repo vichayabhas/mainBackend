@@ -1,4 +1,4 @@
-const { default: mongoose } = require("mongoose");
+import  mongoose  from "mongoose";
 
 
 const fridayActSchema = new mongoose.Schema({
@@ -24,4 +24,4 @@ const fridayActSchema = new mongoose.Schema({
         type: String
     }
 })
-module.exports = mongoose.model('FridayAct', fridayActSchema)
+export default mongoose.model('FridayAct', fridayActSchema)

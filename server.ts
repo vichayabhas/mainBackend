@@ -1,20 +1,20 @@
-const express = require('express');
-const dotenv = require('dotenv');
+import express, { json } from 'express';
+import { config } from 'dotenv';
 
-const auth = require('./routes/user')
-const connectDB = require('./config/db');
-const cookieParser=require('cookie-parser');
-const camp = require('./routes/camp')
+import auth from './routes/user';
+import connectDB from './config/db';
+import cookieParser from 'cookie-parser';
+import camp from './routes/camp';
 
 
-dotenv.config({path:'./config/config.env'});
+config({path:'./config/config.env'});
 
 connectDB();
 
 const app = express();
 app.use(cookieParser());
 //Body parser
-app.use(express.json());
+app.use(json());
 
 /*app.get('/', (req,res) => {
     //1. res.send('<h1>Hello from express<h1>');
@@ -29,9 +29,9 @@ app.use('/camp',camp);
 app.use('/user',auth);
 
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, console.log('Server running in ',process.env.NODE_ENV, ' mode on port ', PORT));
+const server = app.listen(PORT, ()=>console.log('Server running in ',process.env.NODE_ENV, ' mode on port ', PORT));
 
-process.on('unhandledRejection',(err,Promise) => {
+process.on('unhandledRejection',(err:Error,Promise) => {
     console.log(`Error: ${err.message}`);
     server.close(() => process.exit(1));
 });

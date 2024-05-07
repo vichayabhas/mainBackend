@@ -1,4 +1,4 @@
-const { default: mongoose } = require("mongoose");
+import mongoose from "mongoose"
 const PartSchema = new mongoose.Schema({
     name: {
         type: String
@@ -25,4 +25,4 @@ const PartSchema = new mongoose.Schema({
         default: []
     }
 })
-module.exports = mongoose.model('Song', PartSchema)
+export default mongoose.model('Song', PartSchema)

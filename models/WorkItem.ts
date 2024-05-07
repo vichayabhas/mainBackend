@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const HospitalSchema = new mongoose.Schema({
     name: {
@@ -26,4 +26,4 @@ const HospitalSchema = new mongoose.Schema({
         type: String
     }
 });
-module.exports = mongoose.model('WorkItem', HospitalSchema);
+export default mongoose.model('WorkItem', HospitalSchema);

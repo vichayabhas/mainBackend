@@ -1,7 +1,10 @@
-const { default: mongoose } = require("mongoose");
-const { startSize } = require("../controllers/setup");
-const PartSchema = new mongoose.Schema({
-    nameId: {
+import mongoose from "mongoose";
+import { startSize } from "../controllers/setup";
+const BaanSchema = new mongoose.Schema({
+    name: {
+        type: String
+    },
+    fullName: {
         type: String
     },
     campId: {//camp
@@ -11,7 +14,11 @@ const PartSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
-    petoIds: {//user
+    nongIds: {//user
+        type: [String],
+        default: []
+    },
+    nongHelthIsueIds: {//helth
         type: [String],
         default: []
     },
@@ -19,23 +26,23 @@ const PartSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
-    petoHelthIsueIds: {//helth
-        type: [String],
-        default: []
+    nongShertSize: {// size    count
+        type: Map,
+        default: startSize
     },
     peeShertSize: {// size    count
         type: Map,
         default: startSize
     },
-    petoShertSize: {// size    count
-        type: Map,
-        default: startSize
+    songIds: {
+        type: [String],
+        default: []
     },
-    peeHaveBottle: {
+    nongHaveBottle: {
         type: Number,
         default: 0
     },
-    petoHaveBottle: {
+    peeHaveBottle: {
         type: Number,
         default: 0
     },
@@ -47,44 +54,39 @@ const PartSchema = new mongoose.Schema({
         type: Map,
         default: new Map
     },
-    petoHaveBottleMapIds: {
+    mapPeeCampIdByPartId: {
         type: Map,
         default: new Map
     },
-    peeModelIds: {//peeCamp
+    peeModelIds: {
         type: [String],
         default: []
     },
-    petoModelId: {
+    nongModelId: {
         type: String
     },
-    mapPeeCampIdByBaanId: {
-        type: Map,
-        default: new Map
-    },
-    mapSizeByPeeId: {
-        type: Map,
-        default: new Map
-    },
-    mapSizeByPetoId: {
-        type: Map,
-        default: new Map
+    nongShertManageIds: {
+        type: [String],
+        default: []
     },
     peeShertManageIds: {
         type: [String],
         default: []
     },
-    petoShertManageIds: {
-        type: [String],
-        default: []
+    link: {
+        type: String
     },
-    actionPlanIds: {
-        type: [String],
-        default: []
+    styleId: {
+        type: String
     },
-    workItemIds: {
-        type: [String],
-        default: []
+    boySleepPlaceId:{
+        type:String
+    },
+    girlSleepPlaceId:{
+        type:String
+    },
+    nomalPlaceId:{
+        type:String
     }
 })
-module.exports = mongoose.model('Part', PartSchema)
+export default mongoose.model('Baan', BaanSchema)

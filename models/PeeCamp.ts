@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose"
 const PeeCampSchema = new mongoose.Schema({
     campId: {
         type: String
@@ -69,4 +69,4 @@ const PeeCampSchema = new mongoose.Schema({
         default: ['arrayString1', 'arrayString2', 'arrayString3', 'arrayString4', 'arrayString5', 'map1', 'map2', 'map3', 'map4', 'map5']
     }
 })
-module.exports = mongoose.model('PeeCamp', PeeCampSchema)
+export default mongoose.model('PeeCamp', PeeCampSchema)

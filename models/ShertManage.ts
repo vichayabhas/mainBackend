@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose"
 const PeeCampSchema = new mongoose.Schema({
     userId: {
         type: String
@@ -23,4 +23,4 @@ const PeeCampSchema = new mongoose.Schema({
         default: 0
     }
 })
-module.exports = mongoose.model('ShertManage', PeeCampSchema)
+export default mongoose.model('ShertManage', PeeCampSchema)

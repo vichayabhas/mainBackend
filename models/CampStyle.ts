@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose"
 const PeeCampSchema = new mongoose.Schema({
     refId: {//camp
         type: String
@@ -8,4 +8,4 @@ const PeeCampSchema = new mongoose.Schema({
         enum: ['camp', 'baan']
     }
 })
-module.exports = mongoose.model('CampStyle', PeeCampSchema)
+export default mongoose.model('CampStyle', PeeCampSchema)

@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const { startSize } = require("../controllers/setup");
-const NameContainer = require("./NameContainer");
+import mongoose from "mongoose";
+import { startSize } from "../controllers/setup";
+
 const campSchema = new mongoose.Schema({
     nameId: {//nameContainer
         type: String
@@ -26,7 +26,7 @@ const campSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
-    partIds: {//part                       //
+    partIds: {//part           
         type: [String],
         default: []
     },
@@ -41,21 +41,23 @@ const campSchema = new mongoose.Schema({
     nongHelthIsueIds: {//helth
         type: [String],
         default: []
-    },                                              //
+    },
     peeHelthIsueIds: {//helth
-        type: [String],                             //
+        type: [String],
         default: []
     },
     petoHelthIsueIds: {//helth
         type: [String],
-        default: []                                  //
+        default: []
     },
     dataLock: {
         type: Boolean,
         default: false
     },
     nongShertSize: {// size    count
-        type: Map,
+        type:Map,
+        value:Number,
+        //key:('S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'),
         default: startSize
     },
     peeShertSize: {// size    count
@@ -167,13 +169,21 @@ const campSchema = new mongoose.Schema({
     workItemIds: {
         type: [String],
         default: []
+    },
+    nongPaidIds: {
+        type: [String],
+        default: []
+    },
+    nongInterviewIds: {
+        type: [String],
+        default: []
+    },
+    registerModel: {
+        type: String,
+        enum: ['noPaid', 'noInterview', 'all']
     }
 })
-campSchema.method.getName = async function () {
-    const nameContainer = await NameContainer.findById(this.nameId)
-    return `${nameContainer.name} ${this.round}`
-}
-module.exports = mongoose.model('Camp', campSchema)
+export default mongoose.model('Camp', campSchema)
 
 
 
