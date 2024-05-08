@@ -31,6 +31,7 @@ import PartNameContainer from '../models/PartNameContainer'
 // export async function forceDeletePart
 // export async function addPartName
 // export async function saveDeletePartName
+// export async function forceDeletePartName
 export async function addBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const { campId, name, fullName } = req.body
@@ -421,7 +422,11 @@ export async function saveDeletePart(req: express.Request, res: express.Response
     res.status(200).json({ success: true })
 }
 export async function forceDeletePart(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const part = await Part.findById(req.params.id)
+    forceDeletePartRaw(req.params.id)
+    res.status(200).json({ success: true })
+}
+async function forceDeletePartRaw(partId:string){
+    const part = await Part.findById(partId)
     const camp = await Camp.findById(part?.campId)
     camp?.updateOne({
         partIds: swop(part?.id, null, camp.baanIds),
@@ -517,7 +522,7 @@ export async function forceDeletePart(req: express.Request, res: express.Respons
     })
 
     part?.deleteOne()
-    res.status(200).json({ success: true })
+    
 }
 async function deleteWorkingItem(workItemId:string,campId:string){
     const workItem=await WorkItem.findById(workItemId)
@@ -530,19 +535,6 @@ async function deleteWorkingItem(workItemId:string,campId:string){
     })
     workItem?.deleteOne()
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 export async function addPartName(req: express.Request, res: express.Response, next: express.NextFunction) {
     const name = await PartNameContainer.create({ name: req.params.id })
     res.status(201).json({
@@ -569,6 +561,14 @@ export async function saveDeletePartName(req: express.Request, res: express.Resp
             success: false
         });
     }
+}
+export async function forceDeletePartName(req:express.Request,res:express.Response,next:express.NextFunction){
+    const partNameContainer = await PartNameContainer.findById(req.params.id)
+    partNameContainer?.partIds.forEach((id)=>{
+        forceDeletePartRaw(id)
+    })
+    res.status(200).json({success:true})
+
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // export async function addBaan
