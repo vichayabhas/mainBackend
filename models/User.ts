@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-export  const buf:string= process.env.JWT_SECECRET||''
+export  const buf:string= process.env.JWT_SECECRET||'asdfjkl;;lkjfdsa'
 const UserSchema = new mongoose.Schema({
     name: {
         type: String,

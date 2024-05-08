@@ -520,9 +520,9 @@ export async function staffRegister(req: express.Request, res: express.Response,
         partId
     } = req.body;
     const user = await getUser(req)
-    if (user?.role === 'pee') {
-        const camp = await Camp.findById(campId)
-        camp?.peePassIds.set(user._id.toString(), partId)
+    const camp = await Camp.findById(campId)
+    if (user?.role === 'pee'||!camp?.havePeto) {
+        camp?.peePassIds.set(user?._id.toString() as string, partId)
         res.status(200).json({
             success: true
         })

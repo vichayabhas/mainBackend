@@ -1,4 +1,4 @@
-import mongoose, { ObjectId } from "mongoose"
+import mongoose from "mongoose"
 
 export interface IntreActionPlan {
     _id: mongoose.ObjectId,
@@ -90,8 +90,9 @@ export interface InterCamp {
     actionPlanIds: string[],
     workItemIds: string[],
     nongPaidIds: string[],
-    nongInterviewIds: string[],
-    registerModel: 'noPaid' | 'noInterview' | 'all'
+    nongInterviewIds: Map<string,string>,
+    registerModel: 'noPaid' | 'noInterview' | 'all',
+    havePeto:boolean
 }
 export interface InterCampStyle {
     _id: mongoose.ObjectId,
@@ -216,7 +217,6 @@ export interface InterSong {
     userLikeIds: string[]
 }
 export interface InterUser {
-    //_id: any,
     id:string,
     name: string,
     lastname: string,

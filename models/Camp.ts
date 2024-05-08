@@ -56,7 +56,7 @@ const campSchema = new mongoose.Schema({
     },
     nongShertSize: {// size    count
         type:Map,
-        value:Number,
+        //value:Number,
         //key:('S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'),
         default: startSize
     },
@@ -175,12 +175,16 @@ const campSchema = new mongoose.Schema({
         default: []
     },
     nongInterviewIds: {
-        type: [String],
-        default: []
+        type: Map,
+        default:new Map
     },
     registerModel: {
         type: String,
         enum: ['noPaid', 'noInterview', 'all']
+    },
+    havePeto:{
+        type:Boolean,
+        default:true
     }
 })
 export default mongoose.model('Camp', campSchema)

@@ -79,14 +79,14 @@ const BaanSchema = new mongoose.Schema({
     styleId: {
         type: String
     },
-    boySleepPlaceId:{
-        type:String
+    boySleepPlaceId: {
+        type: String
     },
-    girlSleepPlaceId:{
-        type:String
+    girlSleepPlaceId: {
+        type: String
     },
-    nomalPlaceId:{
-        type:String
+    nomalPlaceId: {
+        type: String
     }
 })
 export default mongoose.model('Baan', BaanSchema)
