@@ -16,6 +16,7 @@ import { calculate, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
 import PartNameContainer from '../models/PartNameContainer'
+import Place from "../models/Place"
 // export async function addBaan
 // export async function addPart
 // export async function updateBaan
@@ -381,6 +382,12 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
     camp?.nongShertSize.forEach((v, k) => {
         camp.nongShertSize.set(k, calculate(v, 0, baan?.nongShertSize.get(k)))
     })
+    const boy = await Place.findById(baan?.boySleepPlaceId)
+    boy?.updateOne({boySleepBaanIds:swop(baan?.id,null,boy.boySleepBaanIds)})
+    const girl = await Place.findById(baan?.girlSleepPlaceId)
+    girl?.updateOne({girlSleepBaanIds:swop(baan?.id,null,girl.girlSleepBaanIds)})
+    const normal=await Place.findById(baan?.nomalPlaceId)
+    normal?.updateOne({normalBaanIds:swop(baan?.id,null,normal.normalBaanIds)})
     camp?.peeShertSize.forEach((v, k) => {
         camp.peeShertSize.set(k, calculate(v, 0, baan?.peeShertSize.get(k)))
     })
@@ -516,21 +523,21 @@ async function forceDeletePartRaw(partId:string){
         if(workItem?.fromId!='init'){
             const from = await WorkItem.findById(workItem?.fromId)
             from?.updateOne({linkOutIds:swop(id,null,from.linkOutIds)})
-
         }
-        deleteWorkingItem(id,camp?.id)
+        deleteWorkingItem(id)
     })
-
     part?.deleteOne()
     
 }
-async function deleteWorkingItem(workItemId:string,campId:string){
+async function deleteWorkingItem(workItemId:string){
     const workItem=await WorkItem.findById(workItemId)
-    const camp=await Camp.findById(campId)
+    const camp=await Camp.findById(workItem?.campId)
+    const part=await Part.findById(workItem?.partId)
+    part?.updateOne({workItemIds:swop(workItem?.id,null,part.workItemIds)})
     camp?.updateOne({workItemIds:swop(workItem?.id,null,camp.workItemIds)})
     workItem?.linkOutIds.forEach((outId)=>{
         if(outId!='end'){
-            deleteWorkingItem(outId,campId)
+            deleteWorkingItem(outId)
         }
     })
     workItem?.deleteOne()
@@ -568,8 +575,9 @@ export async function forceDeletePartName(req:express.Request,res:express.Respon
         forceDeletePartRaw(id)
     })
     res.status(200).json({success:true})
-
 }
+//////////////////
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // export async function addBaan
 // export async function addPart
