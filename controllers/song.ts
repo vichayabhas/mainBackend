@@ -2,10 +2,9 @@ import { getUser } from "../middleware/auth";
 import Camp from "../models/Camp"
 import Song from "../models/Song"
 import User from "../models/User"
-import { NextFunction } from 'express'
 import express from "express";
 
-export async function addLikeSong(req: express.Request, res: express.Response, next: NextFunction) {
+export async function addLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { songIds } = req.body
     const user = await getUser(req)
     songIds.forEach(async (songId: string) => {
@@ -28,7 +27,7 @@ async function getAllSong() {
     })
     return map
 }
-export async function getNongLikeSong(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getNongLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const camp = await Camp.findById(req.params.id)
     const songList: Map<string, number> = await getAllSong()
     
@@ -42,7 +41,7 @@ export async function getNongLikeSong(req: express.Request, res: express.Respons
     })
     res.status(200).json({ songList })
 }
-export async function getPeeLikeSong(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getPeeLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const camp = await Camp.findById(req.params.id)
     const songList = await getAllSong()
     
@@ -55,7 +54,7 @@ export async function getPeeLikeSong(req: express.Request, res: express.Response
     })
     res.status(200).json({ songList })
 }
-export async function getPetoLikeSong(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getPetoLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const camp = await Camp.findById(req.params.id)
     const songList = await getAllSong()
     
@@ -68,7 +67,7 @@ export async function getPetoLikeSong(req: express.Request, res: express.Respons
     })
     res.status(200).json({ songList })
 }
-export async function getAllCampLikeSong(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getAllCampLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const camp = await Camp.findById(req.params.id)
     const songList = await getAllSong()
     

@@ -11,10 +11,9 @@ import ShertManage from "../models/ShertManage";
 import { startSize, swop } from "./setup";
 import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
-import { NextFunction } from 'express'
 import express from "express";
-import { getUser } from "../middleware/auth";
-import { InterWorkingItem, IntreActionPlan } from "../models/intreface";
+import { getUser, pee } from "../middleware/auth";
+import { InterBaan, InterWorkingItem, IntreActionPlan } from "../models/intreface";
 // exports.getWorkingItem           protect pee up           params id                fix
 // exports.createWorkingItem        protect pee up
 // exports.updateWorkingItem        protect pee up           params id
@@ -38,7 +37,35 @@ import { InterWorkingItem, IntreActionPlan } from "../models/intreface";
 // exports.getActionPlans           protect pee up                                    fix
 // exports.nongRegister             protect nong
 // exports.renameVarible            protect pee up
-export async function getWorkingItem(req: express.Request, res: express.Response, next: NextFunction) {
+// export async function getWorkingItem
+// export async function createWorkingItem
+// export async function updateWorkingItem
+// export async function deleteWorkingItem
+// export async function getWorkingItems
+// export async function getBaan
+// export async function getCamp
+// export async function getBaans
+// export async function getCamps
+// export async function getNongCamp
+// export async function getPeeCamp
+// export async function getPetoCamp
+// export async function getPart
+// export async function addNong
+// export async function addPee
+// export async function addPeto
+// export async function staffRegister
+// export async function addNongPass
+// export async function getActionPlan
+// export async function createActionPlan
+// export async function updateActionPlan
+// export async function deleteActionPlan
+// export async function getActionPlans
+// export async function nongRegister
+// export async function renameVarible
+// export async function getCampShertSize
+// export async function getBaanShertSize
+// export async function getPartShertSize
+export async function getWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         if (req.params.id === 'init') {
             return res.status(400).json({
@@ -60,12 +87,8 @@ export async function getWorkingItem(req: express.Request, res: express.Response
         }
         const camp = await Camp.findById(hospital.campId)
         const part = await Part.findById(hospital.partId)
-
         const partName = await PartNameContainer.findById(part?.nameId)
         const name = await NameContainer.findById(camp?.nameId)
-
-
-
         res.status(200).json({
             success: true,
             camp: `${name?.name} ${camp?.round}`,
@@ -78,7 +101,7 @@ export async function getWorkingItem(req: express.Request, res: express.Response
         });
     }
 }
-export async function createWorkingItem(req: express.Request, res: express.Response, next: NextFunction) {
+export async function createWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
     const camp = await Camp.findById(req.body.campId)
 
     if (camp?.allDone) {
@@ -90,7 +113,7 @@ export async function createWorkingItem(req: express.Request, res: express.Respo
         data: hospital
     });
 }
-export async function updateWorkingItem(req: express.Request, res: express.Response, next: NextFunction) {
+export async function updateWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const camp = await Camp.findById(req.body.campId)
 
@@ -113,7 +136,7 @@ export async function updateWorkingItem(req: express.Request, res: express.Respo
         });
     }
 }
-export async function deleteWorkingItem(req: express.Request, res: express.Response, next: NextFunction) {
+export async function deleteWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const camp = await Camp.findById(req.body.campId)
         if (camp?.allDone) {
@@ -135,7 +158,7 @@ export async function deleteWorkingItem(req: express.Request, res: express.Respo
         });
     }
 }
-export async function getWorkingItems(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getWorkingItems(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         var bufe: InterWorkingItem[] = [];
         const user = await getUser(req)
@@ -182,7 +205,7 @@ export async function getWorkingItems(req: express.Request, res: express.Respons
         });
     }
 }
-export async function getBaan(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const data = await Baan.findById(req.params.id);
         if (!data) {
@@ -200,7 +223,7 @@ export async function getBaan(req: express.Request, res: express.Response, next:
         });
     }
 }
-export async function getCamp(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const data = await Camp.findById(req.params.id);
         if (!data) {
@@ -218,7 +241,49 @@ export async function getCamp(req: express.Request, res: express.Response, next:
         });
     }
 }
-export async function getNongCamp(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getBaans(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        const camp = await Camp.findById(req.params.id);
+        if (!camp) {
+            return res.status(400).json({
+                success: false
+            });
+        }
+        var baans:InterBaan[]=[]
+        camp.baanIds.forEach( async (baanId)=>{
+            const baan:InterBaan|null =await Baan.findById(baanId)
+            if(baan){
+                baans.push(baan)
+            }
+        })
+        //const baans:InterBaan[]=await data
+        
+        res.status(200).json(baans);
+    } catch (err) {
+        res.status(400).json({
+            success: false
+        });
+    }
+}
+export async function getCamps(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        const data = await Camp.find();
+        if (!data) {
+            return res.status(400).json({
+                success: false
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false
+        });
+    }
+}
+export async function getNongCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const data = await NongCamp.findById(req.params.id);
         if (!data) {
@@ -236,7 +301,7 @@ export async function getNongCamp(req: express.Request, res: express.Response, n
         });
     }
 }
-export async function getPeeCamp(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getPeeCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const data = await PeeCamp.findById(req.params.id);
         if (!data) {
@@ -254,7 +319,7 @@ export async function getPeeCamp(req: express.Request, res: express.Response, ne
         });
     }
 }
-export async function getPetoCamp(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getPetoCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const data = await PetoCamp.findById(req.params.id);
         if (!data) {
@@ -272,7 +337,7 @@ export async function getPetoCamp(req: express.Request, res: express.Response, n
         });
     }
 }
-export async function getPart(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getPart(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const data = await Part.findById(req.params.id);
         if (!data) {
@@ -290,7 +355,7 @@ export async function getPart(req: express.Request, res: express.Response, next:
         });
     }
 }
-export async function addNong(req: express.Request, res: express.Response, next: NextFunction) {
+export async function addNong(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const {
             campId,
@@ -367,7 +432,7 @@ export async function addNong(req: express.Request, res: express.Response, next:
     }
 }
 
-export async function addPee(req: express.Request, res: express.Response, next: NextFunction) {
+export async function addPee(req: express.Request, res: express.Response, next: express.NextFunction) {
     const {
         campId,
         member,
@@ -441,7 +506,7 @@ export async function addPee(req: express.Request, res: express.Response, next: 
         });
     }
 }
-export async function addPeto(req: express.Request, res: express.Response, next: NextFunction) {
+export async function addPeto(req: express.Request, res: express.Response, next: express.NextFunction) {
     const {
         campId,
         member,
@@ -449,7 +514,7 @@ export async function addPeto(req: express.Request, res: express.Response, next:
     } = req.body;
     await addPetoRaw(campId, member, partId, res);
 }
-async function addPetoRaw(campId:string, member:string[], partId:string, res:express.Response) {
+async function addPetoRaw(campId: string, member: string[], partId: string, res: express.Response) {
     try {
         const camp = await Camp.findById(campId);
         const part = await Part.findById(partId);
@@ -514,14 +579,14 @@ async function addPetoRaw(campId:string, member:string[], partId:string, res:exp
         });
     }
 }
-export async function staffRegister(req: express.Request, res: express.Response, next: NextFunction) {
+export async function staffRegister(req: express.Request, res: express.Response, next: express.NextFunction) {
     const {
         campId,
         partId
     } = req.body;
     const user = await getUser(req)
     const camp = await Camp.findById(campId)
-    if (user?.role === 'pee'||!camp?.havePeto) {
+    if (user?.role === 'pee' || !camp?.havePeto) {
         camp?.peePassIds.set(user?._id.toString() as string, partId)
         res.status(200).json({
             success: true
@@ -530,7 +595,7 @@ export async function staffRegister(req: express.Request, res: express.Response,
         await addPetoRaw(campId, [user?._id.toString() as string], partId, res);
     }
 }
-export async function addNongPass(req: express.Request, res: express.Response, next: NextFunction) {
+export async function addNongPass(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const {
             campId,
@@ -539,8 +604,8 @@ export async function addNongPass(req: express.Request, res: express.Response, n
         const camp = await Camp.findById(campId)
         var newPending = camp?.nongPendingIds
         var count = 0
-        member.forEach((nongId:string) => {
-            camp?.nongPassIds.set(nongId,camp.nongPendingIds.get(nongId))
+        member.forEach((nongId: string) => {
+            camp?.nongPassIds.set(nongId, camp.nongPendingIds.get(nongId))
             camp?.nongPendingIds.delete(nongId)
             count = count + 1;
         })
@@ -557,7 +622,7 @@ export async function addNongPass(req: express.Request, res: express.Response, n
         })
     }
 }
-export async function getActionPlan(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const hospital = await ActionPlan.findById(req.params.id);
         if (!hospital) {
@@ -575,7 +640,7 @@ export async function getActionPlan(req: express.Request, res: express.Response,
         });
     }
 }
-export async function createActionPlan(req: express.Request, res: express.Response, next: NextFunction) {
+export async function createActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
     const hospital = await ActionPlan.create(req.body);
     const part = await Part.findById(req.body.partId)
     part?.actionPlanIds.push(hospital._id.toString())
@@ -584,7 +649,7 @@ export async function createActionPlan(req: express.Request, res: express.Respon
         data: hospital
     });
 }
-export async function updateActionPlan(req: express.Request, res: express.Response, next: NextFunction) {
+export async function updateActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const hospital = await ActionPlan.findByIdAndUpdate(req.params.id, req.body);
         if (!hospital) {
@@ -602,7 +667,7 @@ export async function updateActionPlan(req: express.Request, res: express.Respon
         });
     }
 }
-export async function deleteActionPlan(req: express.Request, res: express.Response, next: NextFunction) {
+export async function deleteActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const hospital = await ActionPlan.findById(req.params.id);
         if (!hospital) {
@@ -624,9 +689,9 @@ export async function deleteActionPlan(req: express.Request, res: express.Respon
         });
     }
 }
-export async function getActionPlans(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getActionPlans(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        var data:IntreActionPlan[] = [];
+        var data: IntreActionPlan[] = [];
         const user = await getUser(req)
         if (user?.filterIds.length == 0) {
             data = await ActionPlan.find();
@@ -651,7 +716,7 @@ export async function getActionPlans(req: express.Request, res: express.Response
         });
     }
 }
-export async function nongRegister(req: express.Request, res: express.Response, next: NextFunction) {
+export async function nongRegister(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const {
             campId,
@@ -672,7 +737,7 @@ export async function nongRegister(req: express.Request, res: express.Response, 
         })
     }
 }
-export async function renameVarible(req: express.Request, res: express.Response, next: NextFunction) {
+export async function renameVarible(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const { peeCampId, names } = req.body
         const peeCamp = await PeeCamp.findById(peeCampId)
@@ -708,6 +773,30 @@ export async function renameVarible(req: express.Request, res: express.Response,
         peeCamp?.mapMapNumberByName.set(names[i++], peeCamp.map5)
         res.status(200).json({ success: true })
     } catch (error) {
+        res.status(400).json({ success: false })
+    }
+}
+export async function getCampShertSize(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        const camp = await Camp.findById(req.params.id)
+        res.status(200).json({ success: true, nong: camp?.nongShertSize, pee: camp?.peeShertSize, peto: camp?.petoShertSize })
+    } catch {
+        res.status(400).json({ success: false })
+    }
+}
+export async function getBaanShertSize(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        const camp = await Baan.findById(req.params.id)
+        res.status(200).json({ success: true, nong: camp?.nongShertSize, pee: camp?.peeShertSize })
+    } catch {
+        res.status(400).json({ success: false })
+    }
+}
+export async function getPartShertSize(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        const camp = await Part.findById(req.params.id)
+        res.status(200).json({ success: true, pee: camp?.peeShertSize, peto: camp?.petoShertSize })
+    } catch {
         res.status(400).json({ success: false })
     }
 }

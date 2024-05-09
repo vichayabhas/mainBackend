@@ -26,7 +26,7 @@ import jwt from 'jsonwebtoken'
 // exports.getHelthIsue        protect           params id
 // exports.updateHelth         protect           params id
 // exports.updateBottle        protect
-export async function register(req: express.Request, res: express.Response, next: NextFunction) {
+export async function register(req: express.Request, res: express.Response, next: express.NextFunction) {
 	try {
 		const user = await User.create(req.body);
 		sendTokenResponse(user as InterUser, 200, res);
@@ -37,7 +37,7 @@ export async function register(req: express.Request, res: express.Response, next
 		//console.log(err.stack); 
 	}
 }
-export async function login(req: express.Request, res: express.Response, next: NextFunction) {
+export async function login(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const {
 		email,
 		password
@@ -82,7 +82,7 @@ const sendTokenResponse = (user:InterUser, statusCode :number, res:express.Respo
 		token,
 	});
 };
-export async function getMe(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getMe(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const user = await getUser(req)
 
 	res.status(200).json({
@@ -90,7 +90,7 @@ export async function getMe(req: express.Request, res: express.Response, next: N
 		data: user
 	});
 }
-export async function logout(req: express.Request, res: express.Response, next: NextFunction) {
+export async function logout(req: express.Request, res: express.Response, next: express.NextFunction) {
 	//Clears cookie
 	res.cookie('token', 'none', {
 		expires: new Date(Date.now() + 10 * 1000),
@@ -102,7 +102,7 @@ export async function logout(req: express.Request, res: express.Response, next: 
 	});
 }
 
-export async function updateMode(req: express.Request, res: express.Response, next: NextFunction) {
+export async function updateMode(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const {
 		mode,
 		filter
@@ -116,7 +116,7 @@ export async function updateMode(req: express.Request, res: express.Response, ne
 		user,
 	});
 }
-export async function updateSize(req: express.Request, res: express.Response, next: NextFunction) {
+export async function updateSize(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const {
 		shertSize
 	} = req.body;
@@ -210,7 +210,7 @@ export async function updateSize(req: express.Request, res: express.Response, ne
 		})
 	}
 }
-export async function getHelthIsue(req: express.Request, res: express.Response, next: NextFunction) {
+export async function getHelthIsue(req: express.Request, res: express.Response, next: express.NextFunction) {
 	try {
 		const data = await HelthIsue.findById(req.params.id);
 		if (!data) {
@@ -228,7 +228,7 @@ export async function getHelthIsue(req: express.Request, res: express.Response, 
 		});
 	}
 }
-export async function updateHelth(req: express.Request, res: express.Response, next: NextFunction) {
+export async function updateHelth(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const user = await getUser(req)
 	const oldHelthId = user?.helthIsueId
 	if (await findLock(user?._id.toString(), oldHelthId as string)) {
@@ -342,7 +342,7 @@ async function findLock(userId: string|null|undefined, oldHelthId: string | null
 	});
 	return false;
 }
-export async function updateBottle(req: express.Request, res: express.Response, next: NextFunction) {
+export async function updateBottle(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const old = await getUser(req)
 	const oldBottle = old?.haveBottle
 	var change = 1

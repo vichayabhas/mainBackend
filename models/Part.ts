@@ -73,6 +73,9 @@ const PartSchema = new mongoose.Schema({
     workItemIds: {
         type: [String],
         default: []
+    },
+    place:{
+        type:String
     }
 })
 export default mongoose.model('Part', PartSchema)

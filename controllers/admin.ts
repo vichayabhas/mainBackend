@@ -17,6 +17,8 @@ import express from "express";
 import Song from "../models/Song"
 import PartNameContainer from '../models/PartNameContainer'
 import Place from "../models/Place"
+import { getUser } from "../middleware/auth"
+import Building from "../models/Building"
 // export async function addBaan
 // export async function addPart
 // export async function updateBaan
@@ -33,73 +35,80 @@ import Place from "../models/Place"
 // export async function addPartName
 // export async function saveDeletePartName
 // export async function forceDeletePartName
+// export async function addAdmin
+// export async function getAllAdmin
+// export async function downRole
+// export async function addMoreBoard
+// export async function removeBoard
+// export async function createPlac
+// export async function saveDeletePlace
+// export async function saveDeleteBuilding
 export async function addBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
+        const user = await getUser(req)
         const { campId, name, fullName } = req.body
+        const camp = await Camp.findById(campId)
+        if (user?.role != 'admin' && !user?.authorizeIds.includes(camp?.id)) {
+            return res.status(401).json({ success: false })
+        }
         const baan = await Baan.create({ campId, name, fullName })
         const nongCamp = await NongCamp.create({ campId, baanId: baan._id })
         baan.updateOne({ nongModelId: nongCamp._id })
-        const camp = await Camp.findById(campId)
-        if (!camp) {
-            return
-        }
-        camp.nongModelIds.push(nongCamp._id.toString())
-        camp.partIds.forEach(async (partId) => {
+        camp?.nongModelIds.push(nongCamp._id.toString())
+        camp?.partIds.forEach(async (partId) => {
             const part = await Part.findById(partId)
             const peeCamp = await PeeCamp.create({ campId, baanId: baan._id, partId })
             setDefalse(peeCamp._id.toString())
-            if (!part) {
-                return
-            }
-            part.peeModelIds.push(peeCamp._id.toString())
+            part?.peeModelIds.push(peeCamp._id.toString())
             baan.peeModelIds.push(peeCamp._id.toString())
             camp.peeModelIds.push(peeCamp._id.toString())
             baan.mapPeeCampIdByPartId.set(partId, peeCamp._id)
-            part.mapPeeCampIdByBaanId.set(baan._id.toString(), peeCamp._id)
+            part?.mapPeeCampIdByBaanId.set(baan._id.toString(), peeCamp._id)
         })
         const campStyle = await CampStyle.create({ refId: baan._id, types: 'baan' })
-        camp.baanIds.push(baan._id.toString())
+        camp?.baanIds.push(baan._id.toString())
         baan.updateOne({ styleId: campStyle._id })
-        res.status(201).json({ success: true, data: baan })
+        res.status(201).json(baan)
     } catch {
-
+        return res.status(400).json({ success: false })
     }
 
 }
 export async function addPart(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { campId, nameId } = req.body
-    const part = await Part.create({ campId, nameId })
+
     const camp = await Camp.findById(campId)
-    const petoCamp = await PetoCamp.create({ campId, partId: part._id })
-    if (!camp) {
-        return
+    const user = await getUser(req)
+    if (user?.role != 'admin' && !user?.authorizeIds.includes(camp?.id)) {
+        return res.status(401).json({ success: false })
     }
-    camp.petoModelIds.push(petoCamp._id.toString())
-    camp.partIds.push(part._id.toString())
+    const part = await Part.create({ campId, nameId })
+    const petoCamp = await PetoCamp.create({ campId, partId: part.id })
+    camp?.petoModelIds.push(petoCamp._id.toString())
+    camp?.partIds.push(part._id.toString())
     part.updateOne({ petoModelId: petoCamp._id })
-    camp.baanIds.forEach(async (baanId) => {
+    camp?.baanIds.forEach(async (baanId) => {
         const baan = await Baan.findById(baanId)
-        if (!baan) {
-            return
-        }
         const peeCamp = await PeeCamp.create({ baanId, campId, partId: part._id })
-        baan.peeModelIds.push(peeCamp._id.toString())
+        baan?.peeModelIds.push(peeCamp._id.toString())
         camp.peeModelIds.push(peeCamp._id.toString())
         part.peeModelIds.push(peeCamp._id.toString())
         setDefalse(peeCamp._id.toString())
-        baan.mapPeeCampIdByPartId.set(part._id.toString(), peeCamp._id)
+        baan?.mapPeeCampIdByPartId.set(part._id.toString(), peeCamp._id)
         part.mapPeeCampIdByBaanId.set(baanId, peeCamp._id)
     })
-    res.status(201).json({ success: true, data: part })
+    res.status(201).json(part)
 }
 export async function updateBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const { name, fullName, baanId, link } = req.body
-        const baan = await Baan.findByIdAndUpdate(baanId, { name, fullName, link })
-        res.status(200).json({
-            success: true,
-            data: baan
-        })
+        const { name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId } = req.body
+        const baan = await Baan.findById(baanId)
+        const user = await getUser(req)
+        if (user?.role != 'admin' && !user?.authorizeIds.includes(baan?.campId as string)) {
+            return res.status(401).json({ success: false })
+        }
+        baan?.updateOne({ name, fullName, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId })
+        res.status(200).json(baan)
     } catch (err) {
         res.status(400).json({ success: false })
     }
@@ -130,7 +139,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
         })
         const nameContainer = await NameContainer.findById(nameId)
         nameContainer?.campIds.push(camp._id.toString())
-        res.status(201).json({ success: true, data: camp })
+        res.status(201).json(camp)
     } catch (err) {
         res.status(400).json({ success: false })
     }
@@ -254,7 +263,7 @@ export async function saveDeleteCamp(req: express.Request, res: express.Response
     }
     camp.boardIds.forEach(async (boardId: string) => {
         const user = await User.findById(boardId)
-        const news = swop(camp._id.toString(), null, user?.authorizeIds as string[])
+        const news = swop(camp.id, null, user?.authorizeIds as string[])
         user?.updateOne({ authorizeIds: news })
     })
     await CampStyle.findByIdAndDelete(camp.campStyleId)
@@ -266,14 +275,10 @@ export async function saveDeleteCamp(req: express.Request, res: express.Response
 }
 export async function addCampName(req: express.Request, res: express.Response, next: express.NextFunction) {
     const name = await NameContainer.create({ name: req.params.id })
-    res.status(201).json({
-        success: true,
-        data: name
-    })
+    res.status(201).json(name.toJSON())
 }
 export async function saveDeleteCampName(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-
         const hospital = await NameContainer.findById(req.params.id)
         res.status(400).json({
             success: false
@@ -350,9 +355,7 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
     baan?.peeModelIds.forEach(async (nongModelId) => {
         const nongCamp = await PeeCamp.findById(nongModelId)
         const part = await Part.findById(nongCamp?.partId)
-
         nongCamp?.peeIds.forEach(async (userId) => {
-
             const user = await User.findById(userId)
             if (user?.haveBottle) {
                 part?.updateOne({ peeHaveBottle: part.peeHaveBottle - 1 })
@@ -383,11 +386,11 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
         camp.nongShertSize.set(k, calculate(v, 0, baan?.nongShertSize.get(k)))
     })
     const boy = await Place.findById(baan?.boySleepPlaceId)
-    boy?.updateOne({boySleepBaanIds:swop(baan?.id,null,boy.boySleepBaanIds)})
+    boy?.updateOne({ boySleepBaanIds: swop(baan?.id, null, boy.boySleepBaanIds) })
     const girl = await Place.findById(baan?.girlSleepPlaceId)
-    girl?.updateOne({girlSleepBaanIds:swop(baan?.id,null,girl.girlSleepBaanIds)})
-    const normal=await Place.findById(baan?.nomalPlaceId)
-    normal?.updateOne({normalBaanIds:swop(baan?.id,null,normal.normalBaanIds)})
+    girl?.updateOne({ girlSleepBaanIds: swop(baan?.id, null, girl.girlSleepBaanIds) })
+    const normal = await Place.findById(baan?.nomalPlaceId)
+    normal?.updateOne({ normalBaanIds: swop(baan?.id, null, normal.normalBaanIds) })
     camp?.peeShertSize.forEach((v, k) => {
         camp.peeShertSize.set(k, calculate(v, 0, baan?.peeShertSize.get(k)))
     })
@@ -398,6 +401,10 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
 export async function saveDeleteBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     const baan = await Baan.findById(req.params.id)
     const camp = await Camp.findById(baan?.campId)
+    const user = await getUser(req)
+    if (user?.role != 'admin' && !user?.authorizeIds.includes(camp?.id)) {
+        return res.status(401).json({ success: false })
+    }
     if (baan?.nongIds.length || baan?.peeIds.length || baan?.songIds.length) {
         return res.status(400).json({ success: false, message: 'this baan is not save to delete' })
     }
@@ -415,7 +422,7 @@ export async function saveDeleteBaan(req: express.Request, res: express.Response
 export async function saveDeletePart(req: express.Request, res: express.Response, next: express.NextFunction) {
     const part = await Part.findById(req.params.id)
     const camp = await Camp.findById(part?.campId)
-    if (part?.petoIds.length || part?.peeIds.length||part?.actionPlanIds.length||part?.workItemIds.length) {
+    if (part?.petoIds.length || part?.peeIds.length || part?.actionPlanIds.length || part?.workItemIds.length) {
         return res.status(400).json({ success: false, message: 'this baan is not save to delete' })
     }
     part?.peeModelIds.forEach(async (peeModelId) => {
@@ -432,7 +439,7 @@ export async function forceDeletePart(req: express.Request, res: express.Respons
     forceDeletePartRaw(req.params.id)
     res.status(200).json({ success: true })
 }
-async function forceDeletePartRaw(partId:string){
+async function forceDeletePartRaw(partId: string) {
     const part = await Part.findById(partId)
     const camp = await Camp.findById(part?.campId)
     camp?.updateOne({
@@ -514,29 +521,29 @@ async function forceDeletePartRaw(partId:string){
     camp?.peeShertSize.forEach((v, k) => {
         camp.peeShertSize.set(k, calculate(v, 0, part?.peeShertSize.get(k)))
     })
-    part?.actionPlanIds.forEach(async (id)=>{
+    part?.actionPlanIds.forEach(async (id) => {
         await ActionPlan.findByIdAndDelete(id)
-        camp?.updateOne({actionPlanIds:swop(id,null,camp.actionPlanIds)})
+        camp?.updateOne({ actionPlanIds: swop(id, null, camp.actionPlanIds) })
     })
-    part?.workItemIds.forEach(async (id)=>{
-        const workItem=await WorkItem.findById(id)
-        if(workItem?.fromId!='init'){
+    part?.workItemIds.forEach(async (id) => {
+        const workItem = await WorkItem.findById(id)
+        if (workItem?.fromId != 'init') {
             const from = await WorkItem.findById(workItem?.fromId)
-            from?.updateOne({linkOutIds:swop(id,null,from.linkOutIds)})
+            from?.updateOne({ linkOutIds: swop(id, null, from.linkOutIds) })
         }
         deleteWorkingItem(id)
     })
     part?.deleteOne()
-    
+
 }
-async function deleteWorkingItem(workItemId:string){
-    const workItem=await WorkItem.findById(workItemId)
-    const camp=await Camp.findById(workItem?.campId)
-    const part=await Part.findById(workItem?.partId)
-    part?.updateOne({workItemIds:swop(workItem?.id,null,part.workItemIds)})
-    camp?.updateOne({workItemIds:swop(workItem?.id,null,camp.workItemIds)})
-    workItem?.linkOutIds.forEach((outId)=>{
-        if(outId!='end'){
+async function deleteWorkingItem(workItemId: string) {
+    const workItem = await WorkItem.findById(workItemId)
+    const camp = await Camp.findById(workItem?.campId)
+    const part = await Part.findById(workItem?.partId)
+    part?.updateOne({ workItemIds: swop(workItem?.id, null, part.workItemIds) })
+    camp?.updateOne({ workItemIds: swop(workItem?.id, null, camp.workItemIds) })
+    workItem?.linkOutIds.forEach((outId) => {
+        if (outId != 'end') {
             deleteWorkingItem(outId)
         }
     })
@@ -569,32 +576,70 @@ export async function saveDeletePartName(req: express.Request, res: express.Resp
         });
     }
 }
-export async function forceDeletePartName(req:express.Request,res:express.Response,next:express.NextFunction){
+export async function forceDeletePartName(req: express.Request, res: express.Response, next: express.NextFunction) {
     const partNameContainer = await PartNameContainer.findById(req.params.id)
-    partNameContainer?.partIds.forEach((id)=>{
+    partNameContainer?.partIds.forEach((id) => {
         forceDeletePartRaw(id)
     })
-    res.status(200).json({success:true})
+    res.status(200).json({ success: true })
 }
-//////////////////
+export async function addAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { userIdsbuf } = req.body
+    const userIds: string[] = userIdsbuf
+    userIds.forEach(async (userId: string) => {
+        const user = await User.findById(userId)
+        user?.updateOne({ role: 'admin' })
+    })
+    res.status(200).json({ success: true })
+}
+export async function getAllAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const users = await User.find({ role: 'admin' })
+    res.status(200).json({ success: true, admins: users })
+}
+export async function downRole(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const user = await getUser(req)
+    user?.updateOne({ role: req.params.id })
+    res.status(200).json({ success: true })
+}
+export async function addMoreBoard(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { campId, userIds } = req.body
+    const camp = await Camp.findById(campId)
+    userIds.forEach(async (userId: string) => {
+        const user = await User.findById(userId)
+        user?.authorizeIds.push(camp?.id)
+        camp?.boardIds.push(user?.id)
+    });
+    res.status(200).json({ success: true })
+}
+export async function removeBoard(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { campId, userId } = req.body
+    const camp = await Camp.findById(campId)
+    const user = await User.findById(userId)
+    camp?.updateOne({ boardIds: swop(user?.id, null, camp.boardIds) })
+    user?.updateOne({ authorizeIds: swop(camp?.id, null, user.authorizeIds) })
+}
+export async function createPlace(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { room, buildingId } = req.body
+    const place = await Place.create({ room, buildingId })
+    res.status(201).json(place.toJSON())
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// export async function addBaan
-// export async function addPart
-// export async function updateBaan
-// export async function createCamp
-// export async function forceDeleteCamp
-// export async function saveDeleteCamp
-// export async function addCampName
-// export async function saveDeleteCampName
-// export async function forceDeleteCampName
-// export async function forceDeleteBaan
-// export async function saveDeleteBaan
-// export async function saveDeletePart
-// export async function forceDeletePart
-
-
-
-
-// export async function addPartName
-// export async function saveDeletePartName
+}
+export async function saveDeletePlace(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const place = await Place.findById(req.params.id)
+    if (place?.actionPlanIds.length || place?.boySleepBaanIds.length || place?.girlSleepBaanIds.length || place?.normalBaanIds.length || place?.fridayActIds.length) {
+        return res.status(400).json({ success: false })
+    }
+    place?.deleteOne()
+    res.status(200).json({ success: true })
+}
+export async function createBuilding(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const building = await Building.create({ name: req.params.id })
+    res.status(201).json(building)
+}
+export async function saveDeleteBuilding(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const building = await Building.findById(req.params.id)
+    if (building?.placeIds.length) {
+        return res.status(400).json({ success: false })
+    }
+    building?.deleteOne()
+}

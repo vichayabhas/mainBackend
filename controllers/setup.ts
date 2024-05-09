@@ -20,5 +20,4 @@ export function swop(olds :string|null, news:string|null, array:string[]){
 }
 export function calculate(input:unknown|number|undefined,plus:|unknown|number|undefined,minus:unknown|number|undefined){
     return (input as number )+(plus as number)-(minus as number)
-
 }

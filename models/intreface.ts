@@ -1,7 +1,5 @@
-import mongoose from "mongoose"
-
 export interface IntreActionPlan {
-    _id: mongoose.ObjectId,
+    id: string,
     action: string,
     partId: string,
     placeIds: string[],
@@ -11,7 +9,7 @@ export interface IntreActionPlan {
     body: string
 }
 export interface InterBaan {
-    _id: mongoose.ObjectId,
+    id: string,
     name: string,
     fullName: string | null,
     campId: string,
@@ -33,19 +31,19 @@ export interface InterBaan {
     peeShertManageIds: string[],
     link: string | null,
     styleId: string,
-    boySleepPlaceId:string,
-    girlSleepPlaceId:string,
-    nomalPlaceId:string
+    boySleepPlaceId: string | null,
+    girlSleepPlaceId: string | null,
+    nomalPlaceId: string | null
 }
 export interface InterBuilding {
-    _id: mongoose.ObjectId,
+    id: string,
     name: string,
     placeIds: string[],
     actionPlanIds: string[],
     fridayActIds: string[]
 }
 export interface InterCamp {
-    _id: mongoose.ObjectId,
+    id: string,
     nameId: string,
     round: number,
     dateStart: Date,
@@ -82,7 +80,7 @@ export interface InterCamp {
     nongShertManageIds: string[],
     peeShertManageIds: string[],
     petoShertManageIds: string[],
-    link: string,
+    link: string | null,
     allDone: boolean,
     lockChangePickup: string,
     pictureUrls: string[],
@@ -90,17 +88,17 @@ export interface InterCamp {
     actionPlanIds: string[],
     workItemIds: string[],
     nongPaidIds: string[],
-    nongInterviewIds: Map<string,string>,
+    nongInterviewIds: Map<string, string>,
     registerModel: 'noPaid' | 'noInterview' | 'all',
-    havePeto:boolean
+    havePeto: boolean
 }
 export interface InterCampStyle {
-    _id: mongoose.ObjectId,
+    id: string,
     refId: string,
     types: 'camp' | 'baan'
 }
 export interface InterFrydayAct {
-    _id: mongoose.ObjectId,
+    id: string,
     company: string,
     date: Date,
     staffId: string[],
@@ -109,16 +107,16 @@ export interface InterFrydayAct {
     placeId: string
 }
 export interface InterHelthIsue {
-    _id: mongoose.ObjectId,
+    id: string,
     userId: string
 }
 export interface InterNameContainer {
-    _id: mongoose.ObjectId,
+    id: string,
     campIds: string[],
     name: string
 }
 export interface InterNongCamp {
-    _id: mongoose.ObjectId,
+    id: string,
     campId: string,
     baanId: string,
     nongIds: string[],
@@ -126,7 +124,7 @@ export interface InterNongCamp {
     mapNongCampIdByUserId: Map<string, string>
 }
 export interface InterPart {
-    _id: mongoose.ObjectId,
+    id: string,
     nameId: string,
     campId: string,
     peeIds: string[],
@@ -145,16 +143,17 @@ export interface InterPart {
     peeShertManageIds: string[],
     petoShertManageIds: string[],
     actionPlanIds: string[],
-    workItemIds: string[]
+    workItemIds: string[],
+    place: string
 }
 export interface InterPartNameContainer {
-    _id: mongoose.ObjectId,
+    id: string,
     campIds: string[],
     name: string,
     partIds: string[]
 }
 export interface InterPeeCamp {
-    _id: mongoose.ObjectId,
+    id: string,
     campId: string,
     partId: string,
     baanId: string, peeIds: string[],
@@ -169,36 +168,33 @@ export interface InterPeeCamp {
     map3: Map<string, string>,
     map4: Map<string, string>,
     map5: Map<string, string>,
-    mapArrayStringNumberByName: Map<string, string[]>
-    mapMapNumberByName: Map<string, Map<string, string>>
+    mapArrayStringNumberByName: Map<string, string[]>,
+    mapMapNumberByName: Map<string, Map<string, string>>,
     varibleNames: string[]
 }
 export interface InterPetoCamp {
-    _id: mongoose.ObjectId
+    id: string,
     campId: string,
     partId: string,
     petoShertManageIds: string,
-    petoIds: {
-        type: [String],
-        default: []
-    }
+    petoIds: string[]
 }
 export interface InterPlace {
-    _id: mongoose.ObjectId,
+    id: string,
     buildingId: string,
     flore: string,
     room: string,
     actionPlanIds: string[],
     fridayActIds: string[],
-    boySleepBaanIds:string[],
-    girlSleepBaanIds:string[],
-    normalBaanIds:string[],
-    sleepCap:number,
-    actCap:number,
-    studyCap:number,
+    boySleepBaanIds: string[],
+    girlSleepBaanIds: string[],
+    normalBaanIds: string[],
+    sleepCap: number,
+    actCap: number,
+    studyCap: number,
 }
 export interface InterShertManage {
-    _id: mongoose.ObjectId,
+    id: string,
     userId: string,
     size: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',
     campModelId: string,
@@ -207,7 +203,7 @@ export interface InterShertManage {
     recived: number
 }
 export interface InterSong {
-    _id: mongoose.ObjectId,
+    id: string,
     name: string,
     campIds: string[],
     baanIds: string[],
@@ -217,7 +213,7 @@ export interface InterSong {
     userLikeIds: string[]
 }
 export interface InterUser {
-    id:string,
+    id: string,
     name: string,
     lastname: string,
     nickname: string,
@@ -247,9 +243,9 @@ export interface InterUser {
     createdAt: Date
 }
 export interface InterWorkingItem {
-    _id: mongoose.ObjectId,
-    name: string
-    link: string
+    id: string,
+    name: string,
+    link: string,
     status: 'not start' | 'in process' | 'done',
     partId: string,
     campId: string,
