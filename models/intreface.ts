@@ -96,6 +96,7 @@ export interface InterCampStyle {
     id: string,
     refId: string,
     types: 'camp' | 'baan'
+    
 }
 export interface InterFrydayAct {
     id: string,
@@ -144,7 +145,7 @@ export interface InterPart {
     petoShertManageIds: string[],
     actionPlanIds: string[],
     workItemIds: string[],
-    place: string
+    place: string|null
 }
 export interface InterPartNameContainer {
     id: string,

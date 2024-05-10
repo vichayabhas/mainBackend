@@ -14,6 +14,14 @@ const PeeCampSchema = new mongoose.Schema({
     fridayActIds: {//fridayAct
         type: [String],
         default: []
+    },
+    lostAndFoundIds:{
+        type: [String],
+        default: []      
+    },
+    partIds: {
+        type: [String],
+        default: []
     }
 })
 export default mongoose.model('Building', PeeCampSchema)

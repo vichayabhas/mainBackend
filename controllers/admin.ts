@@ -11,7 +11,7 @@ import PetoCamp from "../models/PetoCamp"
 import ShertManage from "../models/ShertManage"
 import User from "../models/User"
 import WorkItem from "../models/WorkItem"
-import { InterCamp } from "../models/intreface"
+import { InterCamp, InterPart, InterPlace, InterShertManage } from "../models/intreface"
 import { calculate, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
@@ -19,6 +19,7 @@ import PartNameContainer from '../models/PartNameContainer'
 import Place from "../models/Place"
 import { getUser } from "../middleware/auth"
 import Building from "../models/Building"
+import LostAndFound from "../models/LostAndFound"
 // export async function addBaan
 // export async function addPart
 // export async function updateBaan
@@ -40,7 +41,7 @@ import Building from "../models/Building"
 // export async function downRole
 // export async function addMoreBoard
 // export async function removeBoard
-// export async function createPlac
+// export async function createPlace
 // export async function saveDeletePlace
 // export async function saveDeleteBuilding
 export async function addBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -101,13 +102,57 @@ export async function addPart(req: express.Request, res: express.Response, next:
 }
 export async function updateBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const { name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId } = req.body
+        var { name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId } = req.body
         const baan = await Baan.findById(baanId)
         const user = await getUser(req)
         if (user?.role != 'admin' && !user?.authorizeIds.includes(baan?.campId as string)) {
             return res.status(401).json({ success: false })
         }
-        baan?.updateOne({ name, fullName, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId })
+        var boyNew = await Place.findById(boySleepPlaceId)
+        var girlNew = await Place.findById(girlSleepPlaceId)
+        var normalNew = await Place.findById(nomalPlaceId)
+        const boyOld = await Place.findById(baan?.boySleepPlaceId)
+        const girlOld = await Place.findById(baan?.girlSleepPlaceId)
+        const normalOld = await Place.findById(baan?.nomalPlaceId)
+        if (!boyNew) {
+            boyNew = boyOld
+        }
+        if (!girlNew) {
+            girlNew = girlOld
+        }
+        if (!normalNew) {
+            normalNew = normalOld
+        }
+        if (!name) {
+            name = baan?.name
+        }
+        if (!fullName) {
+            fullName = baan?.fullName
+        }
+        if (!link) {
+            link = baan?.link
+        }
+        boyNew?.updateOne({ boySleepBaanIds: swop(null, baan?.id, boyNew.boySleepBaanIds) })
+        girlNew?.updateOne({ girlSleepBaanIds: swop(null, baan?.id, girlNew.girlSleepBaanIds) })
+        normalNew?.updateOne({ normalBaanIds: swop(null, baan?.id, normalNew.normalBaanIds) })
+        boyOld?.updateOne({ boySleepBaanIds: swop(baan?.id, null, boyOld.boySleepBaanIds) })
+        girlOld?.updateOne({ girlSleepBaanIds: swop(baan?.id, null, girlOld.girlSleepBaanIds) })
+        normalOld?.updateOne({ normalBaanIds: swop(baan?.id, null, normalOld.normalBaanIds) })
+        baan?.updateOne({ name, fullName, link, girlSleepPlaceId: girlNew?.id, boySleepPlaceId: boyNew?.id, nomalPlaceId: normalNew?.id })
+        res.status(200).json(baan)
+    } catch (err) {
+        res.status(400).json({ success: false })
+    }
+}
+export async function updatePart(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        const { placeId, partId } = req.body
+        const baan = await Part.findById(partId)
+        const user = await getUser(req)
+        if (user?.role != 'admin' && !user?.authorizeIds.includes(baan?.campId as string)) {
+            return res.status(401).json({ success: false })
+        }
+        baan?.updateOne({ placeId })
         res.status(200).json(baan)
     } catch (err) {
         res.status(400).json({ success: false })
@@ -240,6 +285,16 @@ async function forceDeleteCampRaw(campId: string, res: express.Response | null) 
             await ActionPlan.findByIdAndDelete(actionPlanId)
         })
         const name = await NameContainer.findById(camp.nameId)
+        camp.lostAndFoundIds.forEach(async (id)=>{
+            const lostAndFound=await LostAndFound.findById(id)
+            const user=await User.findById(lostAndFound?.userId)
+            user?.updateOne({lostAndFoundIds:swop(lostAndFound?.id,null,user.lostAndFoundIds)})
+            const place=await Place.findById(lostAndFound?.placeId)
+            place?.updateOne({lostAndFoundIds:swop(lostAndFound?.id,null,place.lostAndFoundIds)})
+            const building=await Building.findById(lostAndFound?.buildingId)
+            building?.updateOne({lostAndFoundIds:swop(lostAndFound?.id,null,building.lostAndFoundIds)})
+            lostAndFound?.deleteOne()
+        })
         const campIds = swop(campId, null, name?.campIds as string[])
         name?.updateOne({ campIds })
         camp.deleteOne()
@@ -324,15 +379,18 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
         shertManage?.deleteOne()
     })
     baan?.peeShertManageIds.forEach(async (shertmanageId) => {
-        const shertManage = await ShertManage.findById(shertmanageId)
+        const shertManage: InterShertManage | null = await ShertManage.findById(shertmanageId)
+        if (!shertManage) {
+            return
+        }
         const user = await User.findById(shertManage?.userId)
         user?.updateOne({ shertManageIds: swop(shertmanageId, null, user.shertManageIds) })
         camp?.updateOne({ peeShertManageIds: swop(shertmanageId, null, camp.peeShertManageIds) })
         const peeCamp = await PeeCamp.findById(shertManage?.campModelId)
         const part = await Part.findById(peeCamp?.partId)
-        part?.updateOne({ peeShertManageIds: swop(shertManage?.id, null, part.peeShertManageIds) })
-        part?.peeShertSize.set(shertManage?.size as string, calculate(part.peeShertSize.get(shertManage?.size as string), 0, 1))
-        shertManage?.deleteOne()
+        part?.updateOne({ peeShertManageIds: swop(shertManage.id, null, part.peeShertManageIds) })
+        part?.peeShertSize.set(shertManage.size, calculate(part.peeShertSize.get(shertManage.size), 0, 1))
+        await ShertManage.findByIdAndDelete(shertManage.id)
     })
     baan?.nongHelthIsueIds.forEach(async (helthueId) => {
         const helthIsue = await HelthIsue.findById(helthueId)
@@ -626,7 +684,7 @@ export async function createPlace(req: express.Request, res: express.Response, n
 }
 export async function saveDeletePlace(req: express.Request, res: express.Response, next: express.NextFunction) {
     const place = await Place.findById(req.params.id)
-    if (place?.actionPlanIds.length || place?.boySleepBaanIds.length || place?.girlSleepBaanIds.length || place?.normalBaanIds.length || place?.fridayActIds.length) {
+    if (place?.actionPlanIds.length || place?.boySleepBaanIds.length || place?.girlSleepBaanIds.length || place?.normalBaanIds.length || place?.fridayActIds.length || place?.partIds.length) {
         return res.status(400).json({ success: false })
     }
     place?.deleteOne()

@@ -74,7 +74,7 @@ const PartSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
-    place:{
+    placeId:{
         type:String
     }
 })

@@ -37,7 +37,14 @@ const PeeCampSchema = new mongoose.Schema({
     },
     studyCap:{
         type:Number
+    },
+    lostAndFoundIds:{
+        type: [String],
+        default: []      
+    },
+    partIds:{
+        type:[String],
+        default:[]
     }
-
 })
 export default mongoose.model('Place', PeeCampSchema)

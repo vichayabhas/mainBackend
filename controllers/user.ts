@@ -67,11 +67,11 @@ export async function login(req: express.Request, res: express.Response, next: e
 	}
 	sendTokenResponse(user as InterUser, 200, res);
 }
-const sendTokenResponse = (user:InterUser, statusCode :number, res:express.Response) => {
-	const token = jwt.sign({id:user.id},buf,{
-			expiresIn: process.env.JWT_EXPIRE
-		});
-	
+const sendTokenResponse = (user: InterUser, statusCode: number, res: express.Response) => {
+	const token = jwt.sign({ id: user.id }, buf, {
+		expiresIn: process.env.JWT_EXPIRE
+	});
+
 	const options = {
 		expires: new Date(Date.now() + parseInt(process.env.JWT_COOKIE_EXPIRE || '0') * 24 * 60 * 60 * 1000),
 		httpOnly: true,
@@ -238,9 +238,9 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 		});
 		user?.nongCampIds.forEach(async (nongCampId: string) => {
 			const nongCamp = await NongCamp.findById(nongCampId);
-			
+
 			const camp = await Camp.findById(nongCamp?.campId);
-			
+
 			if (!camp?.dataLock) {
 				const baan = await Baan.findById(nongCamp?.baanId);
 				const baanNewHelth = swop(oldHelthId as string, helth._id.toString(), baan?.nongHelthIsueIds as string[]);
@@ -255,13 +255,13 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 		});
 		user?.peeCampIds.forEach(async (peeCampId) => {
 			const peeCamp = await PeeCamp.findById(peeCampId)
-			
+
 			const camp = await Camp.findById(peeCamp?.campId)
-			
+
 			if (!camp?.dataLock) {
 				const baan = await Baan.findById(peeCamp?.baanId)
 				const part = await Part.findById(peeCamp?.partId)
-				
+
 				const baanNewHelth = swop(oldHelthId as string, helth._id.toString(), baan?.peeHelthIsueIds as string[])
 				const partNewHelth = swop(oldHelthId as string, helth._id.toString(), part?.peeHelthIsueIds as string[])
 				const campNewHelth = swop(oldHelthId as string, helth._id.toString(), camp?.peeHelthIsueIds as string[])
@@ -278,12 +278,12 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 		})
 		user?.petoCampIds.forEach(async (petoCampId) => {
 			const petoCamp = await PeeCamp.findById(petoCampId)
-			
+
 			const camp = await Camp.findById(petoCamp?.campId)
-			
+
 			if (!camp?.dataLock) {
 				const part = await Part.findById(petoCamp?.partId)
-				
+
 				const partNewHelth = swop(oldHelthId as string, helth._id.toString(), part?.petoHelthIsueIds as string[])
 				const campNewHelth = swop(oldHelthId as string, helth._id.toString(), camp?.petoHelthIsueIds as string[])
 				camp?.updateOne({
@@ -306,36 +306,36 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 		});
 	}
 }
-async function findLock(userId: string|null|undefined, oldHelthId: string | null) {
-	
+async function findLock(userId: string | null | undefined, oldHelthId: string | null) {
+
 	const user = await User.findById(userId);
-	if(!oldHelthId){
+	if (!oldHelthId) {
 		return true
 	}
-	
+
 	user?.nongCampIds.forEach(async (nongCampId) => {
 		const nongCamp = await NongCamp.findById(nongCampId);
-		
+
 		const camp = await Camp.findById(nongCamp?.campId);
-		
+
 		if (camp?.nongHelthIsueIds.includes(oldHelthId) && camp.dataLock) {
 			return true;
 		}
 	});
 	user?.peeCampIds.forEach(async (peeCampId) => {
 		const peeCamp = await PeeCamp.findById(peeCampId);
-		
+
 		const camp = await Camp.findById(peeCamp?.campId);
-		
+
 		if (camp?.peeHelthIsueIds.includes(oldHelthId) && camp.dataLock) {
 			return true;
 		}
 	});
 	user?.petoCampIds.forEach(async (petoCampId) => {
 		const petoCamp = await PetoCamp.findById(petoCampId);
-		
+
 		const camp = await Camp.findById(petoCamp?.campId);
-		
+
 		if (camp?.petoHelthIsueIds.includes(oldHelthId) && camp?.dataLock) {
 			return true;
 		}
@@ -352,20 +352,20 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 	const user = await User.findByIdAndUpdate(old?._id, {
 		haveBottle: !oldBottle
 	});
-	
+
 	user?.nongCampIds.forEach(async (nongcampId) => {
 		const nongCamp = await NongCamp.findById(nongcampId);
-		
+
 		const camp = await Camp.findById(nongCamp?.campId);
-		
-		
+
+
 		if (!camp?.dataLock) {
 			const baan = await Baan.findById(nongCamp?.baanId);
 			const oldc = camp?.nongHaveBottle;
 			camp?.updateOne({
 				nongHaveBottle: oldc as number + change
 			});
-			
+
 			const oldb = baan?.nongHaveBottle;
 			baan?.updateOne({
 				nongHaveBottle: oldb as number + change
@@ -374,9 +374,9 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 	});
 	user?.peeCampIds.forEach(async (peeCampId) => {
 		const peeCamp = await PeeCamp.findById(peeCampId);
-		
+
 		const camp = await Camp.findById(peeCamp?.campId);
-		
+
 		if (!camp?.dataLock) {
 			const baan = await Baan.findById(peeCamp?.baanId);
 			const part = await Part.findById(peeCamp?.partId);
@@ -384,32 +384,31 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 			camp?.updateOne({
 				peeHaveBottle: oldc as number + change
 			})
-			
+
 			const oldb = baan?.peeHaveBottle
 			baan?.updateOne({
 				peeHaveBottle: oldb as number + change
 			})
 			const oldp = part?.peeHaveBottle
 			part?.updateOne({
-				peeHaveBottle: oldp as number+ change
+				peeHaveBottle: oldp as number + change
 			})
 		}
 	});
 	user?.petoCampIds.forEach(async (petoCampId) => {
 		const petoCamp = await PetoCamp.findById(petoCampId);
-		
+
 		const camp = await Camp.findById(petoCamp?.campId);
-		
+
 		if (!camp?.dataLock) {
 			const part = await Part.findById(petoCamp?.partId);
 			const oldc = camp?.petoHaveBottle
 			camp?.updateOne({
-				petoHaveBottle: oldc as number+ change
+				petoHaveBottle: oldc as number + change
 			})
-			
 			const oldp = part?.petoHaveBottle
 			part?.updateOne({
-				petoHaveBottle: oldp as number+ change
+				petoHaveBottle: oldp as number + change
 			})
 		}
 	});
