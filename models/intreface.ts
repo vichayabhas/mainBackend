@@ -8,7 +8,7 @@ export interface IntreActionPlan {
     headId: string,
     body: string
 }
-export interface InterBaan {
+export interface InterBaanBack {
     id: string,
     name: string,
     fullName: string | null,
@@ -26,7 +26,7 @@ export interface InterBaan {
     peeHaveBottleMapIds: Map<string, boolean>,
     peeModelIds: string[],
     nongModelId: string,
-    mapPeeCampIdByPartId: Map<string, string>,
+    mapPeeCampIdByPartId: Map<string, string>,                    ///////////////////////i
     nongShertManageIds: string[],
     peeShertManageIds: string[],
     link: string | null,
@@ -42,7 +42,7 @@ export interface InterBuilding {
     actionPlanIds: string[],
     fridayActIds: string[]
 }
-export interface InterCamp {
+export interface InterCampBack {
     id: string,
     nameId: string,
     round: number,
@@ -64,10 +64,10 @@ export interface InterCamp {
     nongModelIds: string[],
     peeModelIds: string[],
     petoModelIds: string[],
-    nongPendingIds: Map<string, string>,
-    nongPassIds: Map<string, string>,
+    nongPendingIds: Map<string, string>,                            /////////////i
+    nongPassIds: Map<string, string>,                               ////////////////////i
     open: boolean,
-    peePassIds: Map<string, string>,//<userId,partId>
+    peePassIds: Map<string, string>,//<userId,partId>               ////////////////////////i
     songIds: string[],
     nongHaveBottle: number,
     peeHaveBottle: number,
@@ -82,13 +82,13 @@ export interface InterCamp {
     petoShertManageIds: string[],
     link: string | null,
     allDone: boolean,
-    lockChangePickup: string,
+    lockChangePickup: boolean,
     pictureUrls: string[],
     campStyleId: string,
     actionPlanIds: string[],
     workItemIds: string[],
     nongPaidIds: string[],
-    nongInterviewIds: Map<string, string>,
+    nongInterviewIds: Map<string, string>,                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
     havePeto: boolean
 }
@@ -116,7 +116,7 @@ export interface InterNameContainer {
     campIds: string[],
     name: string
 }
-export interface InterNongCamp {
+export interface InterNongCampBack {
     id: string,
     campId: string,
     baanId: string,
@@ -124,7 +124,7 @@ export interface InterNongCamp {
     nongShertManageIds: string[],
     mapNongCampIdByUserId: Map<string, string>
 }
-export interface InterPart {
+export interface InterPartBack {
     id: string,
     nameId: string,
     campId: string,
@@ -140,12 +140,12 @@ export interface InterPart {
     petoHaveBottleMapIds: Map<string, boolean>,
     peeModelIds: string[],
     petoModelId: string,
-    mapPeeCampIdByBaanId: Map<string, string>,
+    mapPeeCampIdByBaanId: Map<string, string>,                                     /////////////////i
     peeShertManageIds: string[],
     petoShertManageIds: string[],
     actionPlanIds: string[],
     workItemIds: string[],
-    place: string|null
+    placeId: string|null
 }
 export interface InterPartNameContainer {
     id: string,
@@ -159,19 +159,6 @@ export interface InterPeeCamp {
     partId: string,
     baanId: string, peeIds: string[],
     peeShertManageIds: string[],
-    arrayString1: string[],
-    arrayString2: string[],
-    arrayString3: string[],
-    arrayString4: string[],
-    arrayString5: string[],
-    map1: Map<string, string>,
-    map2: Map<string, string>,
-    map3: Map<string, string>,
-    map4: Map<string, string>,
-    map5: Map<string, string>,
-    mapArrayStringNumberByName: Map<string, string[]>,
-    mapMapNumberByName: Map<string, Map<string, string>>,
-    varibleNames: string[]
 }
 export interface InterPetoCamp {
     id: string,
@@ -252,4 +239,119 @@ export interface InterWorkingItem {
     campId: string,
     linkOutIds: string[],
     fromId: string
+}
+export interface InterSize{
+    id:string|null,
+    sizeS:number,
+    sizeM:number,
+    sizeL:number,
+    sizeXL:number,
+    sizeXXL:number,
+    size3XL:number
+}
+
+//////////////////////////////////////////////////////////
+
+export interface InterBaanFront {
+    id: string,
+    name: string,
+    fullName: string | null,
+    campId: string,
+    peeIds: string[],
+    nongIds: string[],
+    nongHelthIsueIds: string[],
+    peeHelthIsueIds: string[],
+    nongShertSize: InterSize,//
+    peeShertSize: InterSize,//
+    songIds: string[],
+    nongHaveBottle: number,
+    peeHaveBottle: number,
+    nongHaveBottleMapIds: string[],//
+    peeHaveBottleMapIds: string[],//
+    peeModelIds: string[],
+    nongModelId: string,
+    nongShertManageIds: string[],
+    peeShertManageIds: string[],
+    link: string | null,
+    styleId: string,
+    boySleepPlaceId: string | null,
+    girlSleepPlaceId: string | null,
+    nomalPlaceId: string | null
+}
+
+export interface InterCampFront {
+    id: string,
+    nameId: string,
+    round: number,
+    dateStart: Date,
+    dateEnd: Date,
+    boardIds: string[],
+    peeIds: string[],
+    nongIds: string[],
+    partIds: string[],
+    petoIds: string[],
+    authorizeIds: string[],
+    nongHelthIsueIds: string[],
+    peeHelthIsueIds: string[],
+    petoHelthIsueIds: string[],
+    dataLock: boolean,
+    nongShertSize: InterSize,
+    peeShertSize: InterSize,
+    petoShertSize: InterSize,
+    nongModelIds: string[],
+    peeModelIds: string[],
+    petoModelIds: string[],
+    nongPendingIds: Map<string, string>,                            /////////////i
+    nongPassIds: Map<string, string>,                               ////////////////////i
+    open: boolean,
+    peePassIds: Map<string, string>,//<userId,partId>               ////////////////////////i
+    songIds: string[],
+    nongHaveBottle: number,
+    peeHaveBottle: number,
+    petoHaveBottle: number,
+    nongHaveBottleMapIds: string[],
+    peeHaveBottleMapIds: string[],
+    petoHaveBottleMapIds: string[],
+    nongSureIds: string[],
+    baanIds: string[],
+    nongShertManageIds: string[],
+    peeShertManageIds: string[],
+    petoShertManageIds: string[],
+    link: string | null,
+    allDone: boolean,
+    lockChangePickup: boolean,
+    pictureUrls: string[],
+    campStyleId: string,
+    actionPlanIds: string[],
+    workItemIds: string[],
+    nongPaidIds: string[],
+    nongInterviewIds: Map<string, string>,                            ////////////////////////////////i
+    registerModel: 'noPaid' | 'noInterview' | 'all',
+    havePeto: boolean
+}
+export interface InterPartFront {
+    id: string,
+    nameId: string,
+    campId: string,
+    peeIds: string[],
+    petoIds: string[],
+    peeHelthIsueIds: string[],
+    petoHelthIsueIds: string[],
+    peeShertSize: InterSize,
+    petoShertSize: InterSize,
+    peeHaveBottle: number,
+    petoHaveBottle: number,
+    peeHaveBottleMapIds: string[],
+    petoHaveBottleMapIds: string[],
+    peeModelIds: string[],
+    petoModelId: string,
+    peeShertManageIds: string[],
+    petoShertManageIds: string[],
+    actionPlanIds: string[],
+    workItemIds: string[],
+    placeId: string|null
+}
+export interface MyMap{
+    key:string,
+    value:string
 }

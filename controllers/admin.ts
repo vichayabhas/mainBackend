@@ -11,8 +11,8 @@ import PetoCamp from "../models/PetoCamp"
 import ShertManage from "../models/ShertManage"
 import User from "../models/User"
 import WorkItem from "../models/WorkItem"
-import { InterCamp, InterPart, InterPlace, InterShertManage } from "../models/intreface"
-import { calculate, swop } from "./setup"
+import { InterBaanBack, InterCampBack,  InterPartBack,  InterShertManage } from "../models/intreface"
+import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, sendRes, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
 import PartNameContainer from '../models/PartNameContainer'
@@ -50,7 +50,7 @@ export async function addBaan(req: express.Request, res: express.Response, next:
         const { campId, name, fullName } = req.body
         const camp = await Camp.findById(campId)
         if (user?.role != 'admin' && !user?.authorizeIds.includes(camp?.id)) {
-            return res.status(401).json({ success: false })
+            return res.status(403).json({ success: false })
         }
         const baan = await Baan.create({ campId, name, fullName })
         const nongCamp = await NongCamp.create({ campId, baanId: baan._id })
@@ -69,9 +69,9 @@ export async function addBaan(req: express.Request, res: express.Response, next:
         const campStyle = await CampStyle.create({ refId: baan._id, types: 'baan' })
         camp?.baanIds.push(baan._id.toString())
         baan.updateOne({ styleId: campStyle._id })
-        res.status(201).json(baan)
+        res.status(201).json(conBaanBackToFront(baan as InterBaanBack))
     } catch {
-        return res.status(400).json({ success: false })
+        sendRes(res,false)
     }
 
 }
@@ -81,7 +81,7 @@ export async function addPart(req: express.Request, res: express.Response, next:
     const camp = await Camp.findById(campId)
     const user = await getUser(req)
     if (user?.role != 'admin' && !user?.authorizeIds.includes(camp?.id)) {
-        return res.status(401).json({ success: false })
+        return res.status(403).json({ success: false })
     }
     const part = await Part.create({ campId, nameId })
     const petoCamp = await PetoCamp.create({ campId, partId: part.id })
@@ -98,7 +98,7 @@ export async function addPart(req: express.Request, res: express.Response, next:
         baan?.mapPeeCampIdByPartId.set(part._id.toString(), peeCamp._id)
         part.mapPeeCampIdByBaanId.set(baanId, peeCamp._id)
     })
-    res.status(201).json(part)
+    res.status(201).json(conPartBackToFront(part as InterPartBack))
 }
 export async function updateBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
@@ -139,7 +139,7 @@ export async function updateBaan(req: express.Request, res: express.Response, ne
         girlOld?.updateOne({ girlSleepBaanIds: swop(baan?.id, null, girlOld.girlSleepBaanIds) })
         normalOld?.updateOne({ normalBaanIds: swop(baan?.id, null, normalOld.normalBaanIds) })
         baan?.updateOne({ name, fullName, link, girlSleepPlaceId: girlNew?.id, boySleepPlaceId: boyNew?.id, nomalPlaceId: normalNew?.id })
-        res.status(200).json(baan)
+        res.status(200).json(conBaanBackToFront(baan as InterBaanBack))
     } catch (err) {
         res.status(400).json({ success: false })
     }
@@ -153,7 +153,7 @@ export async function updatePart(req: express.Request, res: express.Response, ne
             return res.status(401).json({ success: false })
         }
         baan?.updateOne({ placeId })
-        res.status(200).json(baan)
+        res.status(200).json(conPartBackToFront(baan as InterPartBack))
     } catch (err) {
         res.status(400).json({ success: false })
     }
@@ -184,7 +184,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
         })
         const nameContainer = await NameContainer.findById(nameId)
         nameContainer?.campIds.push(camp._id.toString())
-        res.status(201).json(camp)
+        res.status(201).json(conCampBackToFront(camp as InterCampBack))
     } catch (err) {
         res.status(400).json({ success: false })
     }
@@ -305,7 +305,7 @@ async function forceDeleteCampRaw(campId: string, res: express.Response | null) 
 }
 export async function saveDeleteCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     const campId: string = req.params.id
-    const camp: InterCamp | null = await Camp.findById(campId)
+    const camp: InterCampBack | null = await Camp.findById(campId)
     if (!camp) {
         return res.status(400).json({
             success: false,
@@ -330,7 +330,7 @@ export async function saveDeleteCamp(req: express.Request, res: express.Response
 }
 export async function addCampName(req: express.Request, res: express.Response, next: express.NextFunction) {
     const name = await NameContainer.create({ name: req.params.id })
-    res.status(201).json(name.toJSON())
+    res.status(201).json(name)
 }
 export async function saveDeleteCampName(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
@@ -609,10 +609,7 @@ async function deleteWorkingItem(workItemId: string) {
 }
 export async function addPartName(req: express.Request, res: express.Response, next: express.NextFunction) {
     const name = await PartNameContainer.create({ name: req.params.id })
-    res.status(201).json({
-        success: true,
-        data: name
-    })
+    res.status(201).json(name)
 }
 export async function saveDeletePartName(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
@@ -646,13 +643,13 @@ export async function addAdmin(req: express.Request, res: express.Response, next
     const userIds: string[] = userIdsbuf
     userIds.forEach(async (userId: string) => {
         const user = await User.findById(userId)
-        user?.updateOne({ role: 'admin' })
+        user?.updateOne({ role: 'admin',fridayActEn:true })
     })
     res.status(200).json({ success: true })
 }
 export async function getAllAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
     const users = await User.find({ role: 'admin' })
-    res.status(200).json({ success: true, admins: users })
+    res.status(200).json(users)
 }
 export async function downRole(req: express.Request, res: express.Response, next: express.NextFunction) {
     const user = await getUser(req)
@@ -675,11 +672,12 @@ export async function removeBoard(req: express.Request, res: express.Response, n
     const user = await User.findById(userId)
     camp?.updateOne({ boardIds: swop(user?.id, null, camp.boardIds) })
     user?.updateOne({ authorizeIds: swop(camp?.id, null, user.authorizeIds) })
+    sendRes(res,true)
 }
 export async function createPlace(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { room, buildingId } = req.body
     const place = await Place.create({ room, buildingId })
-    res.status(201).json(place.toJSON())
+    res.status(201).json(place)
 
 }
 export async function saveDeletePlace(req: express.Request, res: express.Response, next: express.NextFunction) {

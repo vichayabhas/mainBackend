@@ -8,12 +8,12 @@ import PetoCamp from "../models/PetoCamp";
 import User from "../models/User";
 import WorkItem from "../models/WorkItem";
 import ShertManage from "../models/ShertManage";
-import { resError, resOk, startSize, swop } from "./setup";
+import { conBaanBackToFront, conCampBackToFront, conPartBackToFront, resError, resOk, sendRes, startSize, swop } from "./setup";
 import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
 import express from "express";
 import { getUser } from "../middleware/auth";
-import { InterBaan, InterWorkingItem, IntreActionPlan } from "../models/intreface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterWorkingItem, IntreActionPlan } from "../models/intreface";
 // exports.getWorkingItem           protect pee up           params id                fix
 // exports.createWorkingItem        protect pee up
 // exports.updateWorkingItem        protect pee up           params id
@@ -61,10 +61,6 @@ import { InterBaan, InterWorkingItem, IntreActionPlan } from "../models/intrefac
 // export async function deleteActionPlan
 // export async function getActionPlans
 // export async function nongRegister
-// export async function renameVarible
-// export async function getCampShertSize
-// export async function getBaanShertSize
-// export async function getPartShertSize
 // export async function getCampName
 // export async function getPartName
 export async function getWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -85,16 +81,8 @@ export async function getWorkingItem(req: express.Request, res: express.Response
         if (!hospital) {
             return res.status(400).json(resError);
         }
-        const camp = await Camp.findById(hospital.campId)
-        const part = await Part.findById(hospital.partId)
-        const partName = await PartNameContainer.findById(part?.nameId)
-        const name = await NameContainer.findById(camp?.nameId)
-        res.status(200).json({
-            success: true,
-            camp: `${name?.name} ${camp?.round}`,
-            part: partName?.name,
-            data: hospital
-        });
+
+        res.status(200).json(hospital);
     } catch (err) {
         res.status(400).json(resError);
     }
@@ -170,10 +158,7 @@ export async function getBaan(req: express.Request, res: express.Response, next:
                 success: false
             });
         }
-        res.status(200).json({
-            success: true,
-            data
-        });
+        res.status(200).json(conBaanBackToFront(data as InterBaanBack));
     } catch (err) {
         res.status(400).json({
             success: false
@@ -188,10 +173,7 @@ export async function getCamp(req: express.Request, res: express.Response, next:
                 success: false
             });
         }
-        res.status(200).json({
-            success: true,
-            data
-        });
+        res.status(200).json(conCampBackToFront(data as InterCampBack));
     } catch (err) {
         res.status(400).json({
             success: false
@@ -206,11 +188,11 @@ export async function getBaans(req: express.Request, res: express.Response, next
                 success: false
             });
         }
-        var baans: InterBaan[] = []
+        var baans: InterBaanFront[] = []
         camp.baanIds.forEach(async (baanId) => {
-            const baan: InterBaan | null = await Baan.findById(baanId)
+            const baan: InterBaanBack | null = await Baan.findById(baanId)
             if (baan) {
-                baans.push(baan)
+                baans.push(conBaanBackToFront(baan))
             }
         })
         //const baans:InterBaan[]=await data
@@ -222,14 +204,14 @@ export async function getBaans(req: express.Request, res: express.Response, next
 }
 export async function getCamps(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const data = await Camp.find();
+        const data: InterCampBack[] = await Camp.find();
         if (!data) {
             return res.status(400).json(resError);
         }
-        res.status(200).json({
-            success: true,
-            data
-        });
+        const out: InterCampFront[] = data.map((input: InterCampBack) => {
+            return conCampBackToFront(input)
+        })
+        res.status(200).json(out);
     } catch (err) {
         res.status(400).json({
             success: false
@@ -255,10 +237,7 @@ export async function getPeeCamp(req: express.Request, res: express.Response, ne
                 success: false
             });
         }
-        res.status(200).json({
-            success: true,
-            data
-        });
+        res.status(200).json(data);
     } catch (err) {
         res.status(400).json({
             success: false
@@ -273,10 +252,7 @@ export async function getPetoCamp(req: express.Request, res: express.Response, n
                 success: false
             });
         }
-        res.status(200).json({
-            success: true,
-            data
-        });
+        res.status(200).json(data);
     } catch (err) {
         res.status(400).json({
             success: false
@@ -285,16 +261,13 @@ export async function getPetoCamp(req: express.Request, res: express.Response, n
 }
 export async function getPart(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const data = await Part.findById(req.params.id);
+        const data: InterPartBack | null = await Part.findById(req.params.id);
         if (!data) {
             return res.status(400).json({
                 success: false
             });
         }
-        res.status(200).json({
-            success: true,
-            data
-        });
+        res.status(200).json(conPartBackToFront(data));
     } catch (err) {
         res.status(400).json({
             success: false
@@ -576,10 +549,7 @@ export async function getActionPlan(req: express.Request, res: express.Response,
                 success: false
             });
         }
-        res.status(200).json({
-            success: true,
-            data: hospital
-        });
+        res.status(200).json(hospital);
     } catch (err) {
         res.status(400).json({
             success: false
@@ -590,10 +560,7 @@ export async function createActionPlan(req: express.Request, res: express.Respon
     const hospital = await ActionPlan.create(req.body);
     const part = await Part.findById(req.body.partId)
     part?.actionPlanIds.push(hospital._id.toString())
-    res.status(200).json({
-        success: true,
-        data: hospital
-    });
+    res.status(200).json(hospital);
 }
 export async function updateActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
@@ -603,10 +570,7 @@ export async function updateActionPlan(req: express.Request, res: express.Respon
                 success: false
             });
         }
-        res.status(200).json({
-            success: true,
-            data: hospital
-        });
+        res.status(200).json(hospital);
     } catch (err) {
         res.status(400).json({
             success: false
@@ -651,11 +615,7 @@ export async function getActionPlans(req: express.Request, res: express.Response
                 });
             });
         }
-        res.status(200).json({
-            success: true,
-            count: data.length,
-            data
-        });
+        res.status(200).json(data);
     } catch (err) {
         res.status(400).json({
             success: false
@@ -669,6 +629,10 @@ export async function nongRegister(req: express.Request, res: express.Response, 
             link
         } = req.body
         const nong = await getUser(req)
+        if (!campId || !link) {
+            sendRes(res, false)
+            return
+        }
         const camp = await Camp.findById(campId)
         if (!camp?.open) {
             return res.status(400).json({ success: false, message: 'This camp is close' })
@@ -681,69 +645,6 @@ export async function nongRegister(req: express.Request, res: express.Response, 
         res.status(400).json({
             success: false
         })
-    }
-}
-export async function renameVarible(req: express.Request, res: express.Response, next: express.NextFunction) {
-    try {
-        const { peeCampId, names } = req.body
-        const peeCamp = await PeeCamp.findById(peeCampId)
-        const camp = await Camp.findById(peeCamp?.campId)
-        if (camp?.allDone) {
-            return res.status(400).json({ success: false, message: 'This camp is all done' })
-        }
-        var i = 0
-        while (i < 10) {
-            if (!names[i]) {
-                names[i] = peeCamp?.varibleNames[i]
-                i = i + 1;
-            }
-        }
-        i = 0
-        while (i < 5) {
-            peeCamp?.mapArrayStringNumberByName.delete(peeCamp?.varibleNames[i++])
-        }
-        while (i < 10) {
-            peeCamp?.mapMapNumberByName.delete(peeCamp?.varibleNames[i++])
-        }
-        peeCamp?.updateOne({ varibleNames: names })
-        i = 0
-        peeCamp?.mapArrayStringNumberByName.set(names[i++], peeCamp.arrayString1)
-        peeCamp?.mapArrayStringNumberByName.set(names[i++], peeCamp.arrayString2)
-        peeCamp?.mapArrayStringNumberByName.set(names[i++], peeCamp.arrayString3)
-        peeCamp?.mapArrayStringNumberByName.set(names[i++], peeCamp.arrayString4)
-        peeCamp?.mapArrayStringNumberByName.set(names[i++], peeCamp.arrayString5)
-        peeCamp?.mapMapNumberByName.set(names[i++], peeCamp.map1)
-        peeCamp?.mapMapNumberByName.set(names[i++], peeCamp.map2)
-        peeCamp?.mapMapNumberByName.set(names[i++], peeCamp.map3)
-        peeCamp?.mapMapNumberByName.set(names[i++], peeCamp.map4)
-        peeCamp?.mapMapNumberByName.set(names[i++], peeCamp.map5)
-        res.status(200).json({ success: true })
-    } catch (error) {
-        res.status(400).json(resError)
-    }
-}
-export async function getCampShertSize(req: express.Request, res: express.Response, next: express.NextFunction) {
-    try {
-        const camp = await Camp.findById(req.params.id)
-        res.status(200).json({ success: true, nong: camp?.nongShertSize, pee: camp?.peeShertSize, peto: camp?.petoShertSize })
-    } catch {
-        res.status(400).json(resError)
-    }
-}
-export async function getBaanShertSize(req: express.Request, res: express.Response, next: express.NextFunction) {
-    try {
-        const camp = await Baan.findById(req.params.id)
-        res.status(200).json({ success: true, nong: camp?.nongShertSize, pee: camp?.peeShertSize })
-    } catch {
-        res.status(400).json(resError)
-    }
-}
-export async function getPartShertSize(req: express.Request, res: express.Response, next: express.NextFunction) {
-    try {
-        const camp = await Part.findById(req.params.id)
-        res.status(200).json({ success: true, pee: camp?.peeShertSize, peto: camp?.petoShertSize })
-    } catch {
-        res.status(400).json(resError)
     }
 }
 export async function getCampName(req: express.Request, res: express.Response, next: express.NextFunction) {

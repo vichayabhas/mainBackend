@@ -117,7 +117,7 @@ export async function addBaanSong(req: express.Request, res: express.Response, n
     })
     res.status(200).json({ success: true })
 }
-export async function removeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function removeBaanSong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { baanId, songId } = req.body
     const baan = await Baan.findById(baanId)
     const song = await Song.findById(songId)
