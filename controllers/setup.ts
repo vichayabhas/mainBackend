@@ -167,7 +167,6 @@ export function conPartBackToFront(input:InterPartBack):InterPartFront {
     workItemIds,
     placeId}=input
     return({actionPlanIds,workItemIds,id,campId,nameId,peeHaveBottle,peeHaveBottleMapIds:mapBoolToArray(peeHaveBottleMapIds),peeHelthIsueIds,peeIds,peeModelIds,peeShertManageIds,peeShertSize:sizeMapToJson(peeShertSize),petoHaveBottle,petoHaveBottleMapIds:mapBoolToArray(petoHaveBottleMapIds),petoHelthIsueIds,petoIds,petoModelId,petoShertManageIds,petoShertSize:sizeMapToJson(petoShertSize),placeId})
-    
 }
 export function mapStringToMyMap(input:Map<string,string>):MyMap[]{
     var out:MyMap[]=[]
@@ -175,4 +174,13 @@ export function mapStringToMyMap(input:Map<string,string>):MyMap[]{
         out.push({key,value})
     })
     return out
+}
+export function myMapToMapString(input:MyMap[]):Map<string,string>{
+    const map:Map<string,string>=new Map
+    input.forEach((v)=>{
+        map.set(v.key,v.value)
+
+    })
+    return map
+
 }
