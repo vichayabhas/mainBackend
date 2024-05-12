@@ -9,7 +9,6 @@ import PetoCamp from "../models/PetoCamp";
 import ShertManage from "../models/ShertManage";
 import User, { buf } from "../models/User";
 import { swop } from "./setup";
-import { NextFunction } from 'express'
 import express from "express";
 import bcrypt from "bcrypt"
 

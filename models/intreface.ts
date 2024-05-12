@@ -159,6 +159,7 @@ export interface InterPeeCamp {
     partId: string,
     baanId: string, peeIds: string[],
     peeShertManageIds: string[],
+
 }
 export interface InterPetoCamp {
     id: string,
@@ -301,10 +302,10 @@ export interface InterCampFront {
     nongModelIds: string[],
     peeModelIds: string[],
     petoModelIds: string[],
-    nongPendingIds: Map<string, string>,                            /////////////i
-    nongPassIds: Map<string, string>,                               ////////////////////i
+    nongPendingIds: MyMap[],                            /////////////i
+    nongPassIds: MyMap[],                               ////////////////////i
     open: boolean,
-    peePassIds: Map<string, string>,//<userId,partId>               ////////////////////////i
+    peePassIds: MyMap[],//<userId,partId>               ////////////////////////i
     songIds: string[],
     nongHaveBottle: number,
     peeHaveBottle: number,
@@ -325,7 +326,7 @@ export interface InterCampFront {
     actionPlanIds: string[],
     workItemIds: string[],
     nongPaidIds: string[],
-    nongInterviewIds: Map<string, string>,                            ////////////////////////////////i
+    nongInterviewIds: MyMap[],                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
     havePeto: boolean
 }
@@ -354,4 +355,13 @@ export interface InterPartFront {
 export interface MyMap{
     key:string,
     value:string
+}
+export interface InterLostAndFound{
+    campId:string|null,
+    type:'lost'|'found',
+    name:string,
+    detail:string,
+    userId:string,
+    placeId:string|null,
+    buildingId:string|null
 }

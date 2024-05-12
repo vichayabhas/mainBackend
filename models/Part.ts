@@ -25,11 +25,11 @@ const PartSchema = new mongoose.Schema({
     },
     peeShertSize: {// size    count
         type: Map,
-        default: startSize
+        default: startSize()
     },
     petoShertSize: {// size    count
         type: Map,
-        default: startSize
+        default: startSize()
     },
     peeHaveBottle: {
         type: Number,

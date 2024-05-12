@@ -1,13 +1,17 @@
 import express from 'express'
 import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, MyMap } from '../models/intreface'
-import Size from '../models/Size'
-const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = new Map
-const s: ('S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL')[] = ['S', 'M', 'L', 'XL', 'XXL', '3XL']
-s.forEach((e: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL') => {
-    size.set(e, 0)
-})
-export const startSize = size
-export function swop(olds: string | null, news: string | null, array: string[]) {
+
+
+export function startSize(): Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> {
+    const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = new Map()
+    const s: ('S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL')[] = ['S', 'M', 'L', 'XL', 'XXL', '3XL']
+    s.forEach((e: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL') => {
+        size.set(e, 0)
+
+    })
+    return size
+}
+export function swop(olds: string | null, news: string | null, array: string[]): string[] {
     if (!olds) {
         if (news) {
             array.push(news)
@@ -51,11 +55,7 @@ export function sizeJsonMod(size: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', count:
     }
     return input
 }
-export async function createSizeByJson(input: InterSize): Promise<string> {
-    const { sizeS, sizeM, sizeL, sizeXL, sizeXXL, size3XL } = input
-    const out = await Size.create({ sizeS, sizeM, sizeL, sizeXL, sizeXXL, size3XL })
-    return out.id
-}
+
 export function mapBoolToArray(input: Map<string, boolean>): string[] {
     var out: string[] = []
     input.forEach((v: boolean, k: string) => {
@@ -142,44 +142,44 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         nongInterviewIds,                            ////////////////////////////////i
         registerModel,
         havePeto } = input
-    return ({ partIds, open, peeHaveBottle, peeHaveBottleMapIds: mapBoolToArray(peeHaveBottleMapIds), peeHelthIsueIds, peeIds, peeModelIds, peePassIds, peeShertManageIds, peeShertSize: sizeMapToJson(peeShertSize), petoHaveBottle, petoHaveBottleMapIds: mapBoolToArray(petoHaveBottleMapIds), petoHelthIsueIds, petoIds, petoModelIds, petoShertManageIds, petoShertSize: sizeMapToJson(petoShertSize), pictureUrls, nameId, nongHaveBottle, nongHaveBottleMapIds: mapBoolToArray(nongHaveBottleMapIds), nongHelthIsueIds, nongIds, nongInterviewIds, nongModelIds, nongPaidIds, nongPassIds, nongPendingIds, nongShertManageIds, nongShertSize: sizeMapToJson(nongShertSize), nongSureIds, registerModel, round, actionPlanIds, allDone, authorizeIds, baanIds, boardIds, campStyleId, link, lockChangePickup, dataLock, dateEnd, dateStart, havePeto, workItemIds, songIds, id })
+    return ({ partIds, open, peeHaveBottle, peeHaveBottleMapIds: mapBoolToArray(peeHaveBottleMapIds), peeHelthIsueIds, peeIds, peeModelIds, peePassIds: mapStringToMyMap(peePassIds), peeShertManageIds, peeShertSize: sizeMapToJson(peeShertSize), petoHaveBottle, petoHaveBottleMapIds: mapBoolToArray(petoHaveBottleMapIds), petoHelthIsueIds, petoIds, petoModelIds, petoShertManageIds, petoShertSize: sizeMapToJson(petoShertSize), pictureUrls, nameId, nongHaveBottle, nongHaveBottleMapIds: mapBoolToArray(nongHaveBottleMapIds), nongHelthIsueIds, nongIds, nongInterviewIds: mapStringToMyMap(nongInterviewIds), nongModelIds, nongPaidIds, nongPassIds: mapStringToMyMap(nongPassIds), nongPendingIds: mapStringToMyMap(nongPendingIds), nongShertManageIds, nongShertSize: sizeMapToJson(nongShertSize), nongSureIds, registerModel, round, actionPlanIds, allDone, authorizeIds, baanIds, boardIds, campStyleId, link, lockChangePickup, dataLock, dateEnd, dateStart, havePeto, workItemIds, songIds, id })
 
 }
-export function conPartBackToFront(input:InterPartBack):InterPartFront {
-    const {id,
-    nameId,
-    campId,
-    peeIds,
-    petoIds,
-    peeHelthIsueIds,
-    petoHelthIsueIds,
-    peeShertSize,
-    petoShertSize,
-    peeHaveBottle,
-    petoHaveBottle,
-    peeHaveBottleMapIds,
-    petoHaveBottleMapIds,
-    peeModelIds,
-    petoModelId,
-    peeShertManageIds,
-    petoShertManageIds,
-    actionPlanIds,
-    workItemIds,
-    placeId}=input
-    return({actionPlanIds,workItemIds,id,campId,nameId,peeHaveBottle,peeHaveBottleMapIds:mapBoolToArray(peeHaveBottleMapIds),peeHelthIsueIds,peeIds,peeModelIds,peeShertManageIds,peeShertSize:sizeMapToJson(peeShertSize),petoHaveBottle,petoHaveBottleMapIds:mapBoolToArray(petoHaveBottleMapIds),petoHelthIsueIds,petoIds,petoModelId,petoShertManageIds,petoShertSize:sizeMapToJson(petoShertSize),placeId})
+export function conPartBackToFront(input: InterPartBack): InterPartFront {
+    const { id,
+        nameId,
+        campId,
+        peeIds,
+        petoIds,
+        peeHelthIsueIds,
+        petoHelthIsueIds,
+        peeShertSize,
+        petoShertSize,
+        peeHaveBottle,
+        petoHaveBottle,
+        peeHaveBottleMapIds,
+        petoHaveBottleMapIds,
+        peeModelIds,
+        petoModelId,
+        peeShertManageIds,
+        petoShertManageIds,
+        actionPlanIds,
+        workItemIds,
+        placeId } = input
+
+    return ({ actionPlanIds, workItemIds, id, campId, nameId, peeHaveBottle, peeHaveBottleMapIds: mapBoolToArray(peeHaveBottleMapIds), peeHelthIsueIds, peeIds, peeModelIds, peeShertManageIds, peeShertSize: sizeMapToJson(peeShertSize), petoHaveBottle, petoHaveBottleMapIds: mapBoolToArray(petoHaveBottleMapIds), petoHelthIsueIds, petoIds, petoModelId, petoShertManageIds, petoShertSize: sizeMapToJson(petoShertSize), placeId })
 }
-export function mapStringToMyMap(input:Map<string,string>):MyMap[]{
-    var out:MyMap[]=[]
-    input.forEach((value:string,key:string)=>{
-        out.push({key,value})
+export function mapStringToMyMap(input: Map<string, string>): MyMap[] {
+    var out: MyMap[] = []
+    input.forEach((value: string, key: string) => {
+        out.push({ key, value })
     })
     return out
 }
-export function myMapToMapString(input:MyMap[]):Map<string,string>{
-    const map:Map<string,string>=new Map
-    input.forEach((v)=>{
-        map.set(v.key,v.value)
-
+export function myMapToMapString(input: MyMap[]): Map<string, string> {
+    const map: Map<string, string> = new Map
+    input.forEach((v) => {
+        map.set(v.key, v.value)
     })
     return map
 

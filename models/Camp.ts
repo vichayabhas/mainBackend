@@ -58,15 +58,15 @@ const campSchema = new mongoose.Schema({
         type: Map,
         //value:Number,
         //key:('S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'),
-        default: startSize
+        default: startSize()
     },
     peeShertSize: {// size    count
         type: Map,
-        default: startSize
+        default: startSize()
     },
     petoShertSize: {// size    count
         type: Map,
-        default: startSize
+        default: startSize()
     },
     nongModelIds: {
         type: [String],

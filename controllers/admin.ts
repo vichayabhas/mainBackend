@@ -11,7 +11,7 @@ import PetoCamp from "../models/PetoCamp"
 import ShertManage from "../models/ShertManage"
 import User from "../models/User"
 import WorkItem from "../models/WorkItem"
-import { InterBaanBack, InterCampBack,  InterPartBack,  InterShertManage } from "../models/intreface"
+import { InterBaanBack, InterCampBack, InterPartBack, InterShertManage } from "../models/intreface"
 import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, sendRes, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
@@ -71,7 +71,7 @@ export async function addBaan(req: express.Request, res: express.Response, next:
         baan.updateOne({ styleId: campStyle._id })
         res.status(201).json(conBaanBackToFront(baan as InterBaanBack))
     } catch {
-        sendRes(res,false)
+        sendRes(res, false)
     }
 
 }
@@ -285,15 +285,8 @@ async function forceDeleteCampRaw(campId: string, res: express.Response | null) 
             await ActionPlan.findByIdAndDelete(actionPlanId)
         })
         const name = await NameContainer.findById(camp.nameId)
-        camp.lostAndFoundIds.forEach(async (id)=>{
-            const lostAndFound=await LostAndFound.findById(id)
-            const user=await User.findById(lostAndFound?.userId)
-            user?.updateOne({lostAndFoundIds:swop(lostAndFound?.id,null,user.lostAndFoundIds)})
-            const place=await Place.findById(lostAndFound?.placeId)
-            place?.updateOne({lostAndFoundIds:swop(lostAndFound?.id,null,place.lostAndFoundIds)})
-            const building=await Building.findById(lostAndFound?.buildingId)
-            building?.updateOne({lostAndFoundIds:swop(lostAndFound?.id,null,building.lostAndFoundIds)})
-            lostAndFound?.deleteOne()
+        camp.lostAndFoundIds.forEach(async (id) => {
+            await LostAndFound.findByIdAndUpdate(id, { campId: null })
         })
         const campIds = swop(campId, null, name?.campIds as string[])
         name?.updateOne({ campIds })
@@ -643,7 +636,7 @@ export async function addAdmin(req: express.Request, res: express.Response, next
     const userIds: string[] = userIdsbuf
     userIds.forEach(async (userId: string) => {
         const user = await User.findById(userId)
-        user?.updateOne({ role: 'admin',fridayActEn:true })
+        user?.updateOne({ role: 'admin', fridayActEn: true })
     })
     res.status(200).json({ success: true })
 }
@@ -672,7 +665,7 @@ export async function removeBoard(req: express.Request, res: express.Response, n
     const user = await User.findById(userId)
     camp?.updateOne({ boardIds: swop(user?.id, null, camp.boardIds) })
     user?.updateOne({ authorizeIds: swop(camp?.id, null, user.authorizeIds) })
-    sendRes(res,true)
+    sendRes(res, true)
 }
 export async function createPlace(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { room, buildingId } = req.body
@@ -682,7 +675,7 @@ export async function createPlace(req: express.Request, res: express.Response, n
 }
 export async function saveDeletePlace(req: express.Request, res: express.Response, next: express.NextFunction) {
     const place = await Place.findById(req.params.id)
-    if (place?.actionPlanIds.length || place?.boySleepBaanIds.length || place?.girlSleepBaanIds.length || place?.normalBaanIds.length || place?.fridayActIds.length || place?.partIds.length) {
+    if (place?.actionPlanIds.length || place?.boySleepBaanIds.length || place?.girlSleepBaanIds.length || place?.normalBaanIds.length || place?.fridayActIds.length || place?.partIds.length || place?.lostAndFoundIds.length) {
         return res.status(400).json({ success: false })
     }
     place?.deleteOne()
@@ -698,4 +691,5 @@ export async function saveDeleteBuilding(req: express.Request, res: express.Resp
         return res.status(400).json({ success: false })
     }
     building?.deleteOne()
+    sendRes(res, true)
 }

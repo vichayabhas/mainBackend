@@ -293,7 +293,7 @@ export async function addNong(req: express.Request, res: express.Response, next:
         var count = 0
         var b = baan.nongHaveBottle
         var c = camp.nongHaveBottle
-        const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize
+        const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize()
         await member.forEach(async (nongId: string) => {
             count = count + 1
             baan.nongIds.push(nongId);
@@ -368,7 +368,7 @@ export async function addPee(req: express.Request, res: express.Response, next: 
         var b = baan.peeHaveBottle
         var c = camp.peeHaveBottle
         var count = 0
-        const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize
+        const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize()
         await member.forEach(async (userId: string) => {
             const user = await User.findById(userId);
             const part = await Part.findById(camp.peePassIds.get(userId));
@@ -445,7 +445,7 @@ async function addPetoRaw(campId: string, member: string[], partId: string, res:
             });
         }
         var count = 0
-        const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize
+        const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize()
         const petoCamp = await PetoCamp.findById(part.petoModelId)
         member.forEach(async (userId: string) => {
             count = count + 1;

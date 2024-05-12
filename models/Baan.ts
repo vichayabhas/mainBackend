@@ -28,11 +28,11 @@ const BaanSchema = new mongoose.Schema({
     },
     nongShertSize: {// size    count
         type: Map,
-        default: startSize
+        default: startSize()
     },
     peeShertSize: {// size    count
         type: Map,
-        default: startSize
+        default: startSize()
     },
     songIds: {
         type: [String],

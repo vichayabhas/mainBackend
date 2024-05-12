@@ -4,7 +4,14 @@ import Camp from "../models/Camp"
 import Song from "../models/Song"
 import User from "../models/User"
 import express from "express";
-import { resError, resOk, swop } from "./setup";
+import { resError, resOk, sendRes, swop } from "./setup";
+import LostAndFound from "../models/LostAndFound";
+import Building from "../models/Building";
+import Place from "../models/Place";
+import NongCamp from "../models/NongCamp";
+import { InterLostAndFound } from "../models/intreface";
+import PeeCamp from "../models/PeeCamp";
+import PetoCamp from "../models/PetoCamp";
 // export async function addLikeSong
 // export async function getNongLikeSong
 // export async function getPeeLikeSong
@@ -128,5 +135,91 @@ export async function removeBaanSong(req: express.Request, res: express.Response
     song.updateOne({ baanIds: swop(baan.id, null, song.baanIds) })
     res.status(200).json(resOk)
 }
+export async function addLostAndFound(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const {
+        campId,
+        type,
+        name,
+        detail,
+        placeId,
+    } = req.body
+    const user = await getUser(req)
+    const place = await Place.findById(placeId)
+    const lostAndFound = await LostAndFound.create({ campId, type, name, detail, userId: user?.id, placeId, buildingId: place?.buildingId })
+    user?.lostAndFoundIds.push(lostAndFound.id)
+    if (campId) {
+        const camp = await Camp.findById(campId)
+        camp?.lostAndFoundIds.push(lostAndFound.id)
+    }
+    place?.lostAndFoundIds.push(lostAndFound.id)
+    const building = await Building.findById(place?.buildingId)
+    building?.lostAndFoundIds.push(lostAndFound.id)
+    res.status(201).json(lostAndFound)
+}
+export async function deleteLostAndFound(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const user = await getUser(req)
+    const lostAndFound = await LostAndFound.findById(req.params.id)
+    const camp = await Camp.findById(lostAndFound?.campId)
+    if (user?.role != 'admin' && !(lostAndFound?.userId?.localeCompare(user?.id)) && (camp ? !user?.authorizeIds.includes(camp.id) : true) && !camp?.boardIds.includes(user?.id)) {
+        res.status(403).json(resError)
+    }
+    const owner = await User.findById(lostAndFound?.userId)
+    const place = await Place.findById(lostAndFound?.placeId)
+    const building = await Building.findById(lostAndFound?.buildingId)
+    owner?.updateOne({ lostAndFoundIds: swop(lostAndFound?.id, null, owner.lostAndFoundIds) })
+    place?.updateOne({ lostAndFoundIds: swop(lostAndFound?.id, null, place.lostAndFoundIds) })
+    building?.updateOne({ lostAndFoundIds: swop(lostAndFound?.id, null, building.lostAndFoundIds) })
+    if (camp) {
+        camp.updateOne({ lostAndFoundIds: swop(lostAndFound?.id, null, camp.lostAndFoundIds) })
+    }
+    sendRes(res, true)
+
+}
+export async function getLostAndFounds(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const user = await getUser(req)
+    var out: InterLostAndFound[] = []
+    user?.nongCampIds.forEach(async (nongCampId: string) => {
+        const nongCamp = await NongCamp.findById(nongCampId)
+        const camp = await Camp.findById(nongCamp?.campId)
+        camp?.lostAndFoundIds.forEach(async (id) => {
+            const lostAndFound: InterLostAndFound | null = await LostAndFound.findById(id)
+            if (lostAndFound) {
+                out.push(lostAndFound)
+            }
+        })
+    })
+    if (user?.role != 'nong') {
+        user?.peeCampIds.forEach(async (peeCampId) => {
+            const peeCamp = await PeeCamp.findById(peeCampId)
+            const camp = await Camp.findById(peeCamp?.campId)
+            camp?.lostAndFoundIds.forEach(async (id) => {
+                const lostAndFound: InterLostAndFound | null = await LostAndFound.findById(id)
+                if (lostAndFound) {
+                    out.push(lostAndFound)
+                }
+            })
+        })
+        user?.petoCampIds.forEach(async (petoCampId) => {
+            const petoCamp = await PetoCamp.findById(petoCampId)
+            const camp = await Camp.findById(petoCamp?.campId)
+            camp?.lostAndFoundIds.forEach(async (id) => {
+                const lostAndFound: InterLostAndFound | null = await LostAndFound.findById(id)
+                if (lostAndFound) {
+                    out.push(lostAndFound)
+                }
+            })
+        })
+        const lostAndFounds: InterLostAndFound[] = await LostAndFound.find({ campId: null })
+        lostAndFounds.forEach((lostAndFound) => {
+            out.push(lostAndFound)
+        })
+    }
+    res.status(200).json(out)
+}
+export async function getLostAndFound(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const lostAndFound=await LostAndFound.findById(req.params.id)
+    res.status(200).json(lostAndFound)
+}
+
 
 
