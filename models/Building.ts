@@ -19,6 +19,18 @@ const PeeCampSchema = new mongoose.Schema({
         type: [String],
         default: []      
     },
+    boySleepBaanIds:{//baan
+        type:[String],
+        default:[]
+    },
+    girlSleepBaanIds:{//baan
+        type:[String],
+        default:[]
+    },
+    normalBaanIds:{//baan
+        type:[String],
+        default:[]
+    },
     partIds: {
         type: [String],
         default: []

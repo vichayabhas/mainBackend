@@ -37,7 +37,7 @@ export function authorize(...roles: String[]) {
       return res.status(401).json({ success: false, massage: 'Not authorize to access this route' });
     }
     const decoded = jwt.verify(token.toString(), testJwt)
-    const { id } = decoded as any
+    const { id } = decoded as {id:string}
     const user = await Customer.findById(id)
     if (!user) {
       return res.status(401).json({ success: false, massage: 'Not authorize to access this route' });
@@ -58,9 +58,7 @@ export async function getUser(req: express.Request) {
     return null
   }
   const decoded = jwt.verify(token.toString(), testJwt)
-  //const decoded= await Customer.findOne({})
   const { id } = decoded as any
-
   const user = await User.findById(id)
   return user
 }

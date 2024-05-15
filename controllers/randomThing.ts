@@ -24,12 +24,10 @@ export async function addLikeSong(req: express.Request, res: express.Response, n
     const user = await getUser(req)
     songIds.forEach(async (songId: string) => {
         const song = await Song.findById(songId)
-        if (!user || !song) {
-            return
-        }
-        song.userLikeIds.push(user._id.toString())
-        user.likeSongIds.push(songId)
+        await song?.updateOne({userLikeIds:swop(null,user?.id,song.userLikeIds)})
+        user?.likeSongIds.push(song?.id)
     })
+    await user?.updateOne({likeSongIds:user.likeSongIds})
     res.status(200).json({
         success: true
     })
@@ -38,19 +36,16 @@ async function getAllSong() {
     const songs = await Song.find()
     const map: Map<string, number> = new Map
     songs.forEach((song) => {
-        map.set(song._id.toString(), 0)
+        map.set(song.id, 0)
     })
     return map
 }
 export async function getNongLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const camp = await Camp.findById(req.params.id)
     const songList: Map<string, number> = await getAllSong()
-
     camp?.nongIds.forEach(async (nongId) => {
         const nong = await User.findById(nongId)
-
         nong?.likeSongIds.forEach((songId: string) => {
-
             songList.set(songId, songList.get(songId) as number + 1)
         })
     })
@@ -118,10 +113,11 @@ export async function addBaanSong(req: express.Request, res: express.Response, n
     buf.forEach(async (songId) => {
         const song = await Song.findById(songId)
         if (song) {
-            song.baanIds.push(baan.id)
             baan.songIds.push(song.id)
+            await song.updateOne({baanIds:swop(null,baan.id,song.baanIds)})
         }
     })
+    await baan.updateOne({songIds:baan.songIds})
     res.status(200).json({ success: true })
 }
 export async function removeBaanSong(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -131,8 +127,8 @@ export async function removeBaanSong(req: express.Request, res: express.Response
     if (!baan || !song) {
         return res.status(400).json(resError)
     }
-    baan.updateOne({ songIds: swop(song.id, null, baan.songIds) })
-    song.updateOne({ baanIds: swop(baan.id, null, song.baanIds) })
+    await baan.updateOne({ songIds: swop(song.id, null, baan.songIds) })
+    await song.updateOne({ baanIds: swop(baan.id, null, song.baanIds) })
     res.status(200).json(resOk)
 }
 export async function addLostAndFound(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -149,29 +145,31 @@ export async function addLostAndFound(req: express.Request, res: express.Respons
     user?.lostAndFoundIds.push(lostAndFound.id)
     if (campId) {
         const camp = await Camp.findById(campId)
-        camp?.lostAndFoundIds.push(lostAndFound.id)
+        await camp?.updateOne({lostAndFoundIds:swop(null,lostAndFound.id,camp.lostAndFoundIds)})
     }
-    place?.lostAndFoundIds.push(lostAndFound.id)
+    await place?.updateOne({lostAndFoundIds:swop(null,lostAndFound.id,place.lostAndFoundIds)})
     const building = await Building.findById(place?.buildingId)
     building?.lostAndFoundIds.push(lostAndFound.id)
+    await building?.updateOne({lostAndFoundIds:swop(null,lostAndFound.id,building.lostAndFoundIds)})
     res.status(201).json(lostAndFound)
 }
 export async function deleteLostAndFound(req: express.Request, res: express.Response, next: express.NextFunction) {
     const user = await getUser(req)
     const lostAndFound = await LostAndFound.findById(req.params.id)
     const camp = await Camp.findById(lostAndFound?.campId)
-    if (user?.role != 'admin' && !(lostAndFound?.userId?.localeCompare(user?.id)) && (camp ? !user?.authorizeIds.includes(camp.id) : true) && !camp?.boardIds.includes(user?.id)) {
+    if (user?.role != 'admin' && (lostAndFound?.userId?.localeCompare(user?.id)) && (camp ? !user?.authorizeIds.includes(camp.id) : true) && !camp?.boardIds.includes(user?.id)) {
         res.status(403).json(resError)
     }
     const owner = await User.findById(lostAndFound?.userId)
     const place = await Place.findById(lostAndFound?.placeId)
     const building = await Building.findById(lostAndFound?.buildingId)
-    owner?.updateOne({ lostAndFoundIds: swop(lostAndFound?.id, null, owner.lostAndFoundIds) })
-    place?.updateOne({ lostAndFoundIds: swop(lostAndFound?.id, null, place.lostAndFoundIds) })
-    building?.updateOne({ lostAndFoundIds: swop(lostAndFound?.id, null, building.lostAndFoundIds) })
+    await owner?.updateOne({ lostAndFoundIds: swop(lostAndFound?.id, null, owner.lostAndFoundIds) })
+    await place?.updateOne({ lostAndFoundIds: swop(lostAndFound?.id, null, place.lostAndFoundIds) })
+    await building?.updateOne({ lostAndFoundIds: swop(lostAndFound?.id, null, building.lostAndFoundIds) })
     if (camp) {
         camp.updateOne({ lostAndFoundIds: swop(lostAndFound?.id, null, camp.lostAndFoundIds) })
     }
+    await lostAndFound?.deleteOne()
     sendRes(res, true)
 }
 export async function getLostAndFounds(req: express.Request, res: express.Response, next: express.NextFunction) {

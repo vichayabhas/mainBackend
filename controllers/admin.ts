@@ -45,39 +45,32 @@ import LostAndFound from "../models/LostAndFound"
 // export async function saveDeletePlace
 // export async function saveDeleteBuilding
 export async function addBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
-    try {
-        const user = await getUser(req)
-        const { campId, name, fullName } = req.body
-        const camp = await Camp.findById(campId)
-        if (user?.role != 'admin' && !user?.authorizeIds.includes(camp?.id)) {
-            return res.status(403).json({ success: false })
-        }
-        const baan = await Baan.create({ campId, name, fullName })
-        const nongCamp = await NongCamp.create({ campId, baanId: baan._id })
-        baan.updateOne({ nongModelId: nongCamp._id })
-        camp?.nongModelIds.push(nongCamp._id.toString())
-        camp?.partIds.forEach(async (partId) => {
-            const part = await Part.findById(partId)
-            const peeCamp = await PeeCamp.create({ campId, baanId: baan._id, partId })
-            setDefalse(peeCamp._id.toString())
-            part?.peeModelIds.push(peeCamp._id.toString())
-            baan.peeModelIds.push(peeCamp._id.toString())
-            camp.peeModelIds.push(peeCamp._id.toString())
-            baan.mapPeeCampIdByPartId.set(partId, peeCamp._id)
-            part?.mapPeeCampIdByBaanId.set(baan._id.toString(), peeCamp._id)
-        })
-        const campStyle = await CampStyle.create({ refId: baan._id, types: 'baan' })
-        camp?.baanIds.push(baan._id.toString())
-        baan.updateOne({ styleId: campStyle._id })
-        res.status(201).json(conBaanBackToFront(baan as InterBaanBack))
-    } catch {
-        sendRes(res, false)
+    const user = await getUser(req)
+    const { campId, name, fullName } = req.body
+    const camp = await Camp.findById(campId)
+    if (user?.role != 'admin' && !user?.authorizeIds.includes(camp?.id)) {
+        return res.status(403).json({ success: false })
     }
-
+    const baan = await Baan.create({ campId, name, fullName })
+    const nongCamp = await NongCamp.create({ campId, baanId: baan._id })
+    camp?.partIds.forEach(async (partId) => {
+        const part = await Part.findById(partId)
+        const peeCamp = await PeeCamp.create({ campId, baanId: baan.id, partId })
+        setDefalse(peeCamp.id)
+        baan.peeModelIds.push(peeCamp.id)
+        await part?.updateOne({ peeModelIds: swop(null, peeCamp.id, part.peeModelIds) })
+        camp.peeModelIds.push(peeCamp.id)
+        baan.mapPeeCampIdByPartId.set(partId, peeCamp.id)
+        part?.mapPeeCampIdByBaanId.set(baan.id, peeCamp.id)
+        await part?.updateOne({ mapPeeCampIdByBaanId: part.mapPeeCampIdByBaanId })
+    })
+    await camp?.updateOne({ nongModelIds: swop(null, nongCamp.id, camp.nongModelIds), baanIds: swop(null, baan.id, camp.baanIds), peeModelIds: camp.peeModelIds })
+    const campStyle = await CampStyle.create({ refId: baan._id, types: 'baan' })
+    await baan.updateOne({ styleId: campStyle.id, mapPeeCampIdByPartId: baan.mapPeeCampIdByPartId, nongModelId: nongCamp.id, peeModelIds: baan.peeModelIds })
+    res.status(201).json(conBaanBackToFront(baan as InterBaanBack))
 }
 export async function addPart(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { campId, nameId } = req.body
-
     const camp = await Camp.findById(campId)
     const user = await getUser(req)
     if (user?.role != 'admin' && !user?.authorizeIds.includes(camp?.id)) {
@@ -85,19 +78,19 @@ export async function addPart(req: express.Request, res: express.Response, next:
     }
     const part = await Part.create({ campId, nameId })
     const petoCamp = await PetoCamp.create({ campId, partId: part.id })
-    camp?.petoModelIds.push(petoCamp._id.toString())
-    camp?.partIds.push(part._id.toString())
-    part.updateOne({ petoModelId: petoCamp._id })
     camp?.baanIds.forEach(async (baanId) => {
         const baan = await Baan.findById(baanId)
         const peeCamp = await PeeCamp.create({ baanId, campId, partId: part._id })
-        baan?.peeModelIds.push(peeCamp._id.toString())
-        camp.peeModelIds.push(peeCamp._id.toString())
-        part.peeModelIds.push(peeCamp._id.toString())
+        await baan?.updateOne({ peeModelIds: swop(null, peeCamp.id, baan.peeModelIds) })
+        camp.peeModelIds.push(peeCamp.id)
+        part.peeModelIds.push(peeCamp.id)
         setDefalse(peeCamp._id.toString())
         baan?.mapPeeCampIdByPartId.set(part._id.toString(), peeCamp._id)
         part.mapPeeCampIdByBaanId.set(baanId, peeCamp._id)
+        await baan?.updateOne({ mapPeeCampIdByPartId: baan.mapPeeCampIdByPartId })
     })
+    await camp?.updateOne({ partIds: swop(null, part.id, camp.partIds), petoModelIds: swop(null, petoCamp.id, camp.petoModelIds), peeModelIds: camp.peeModelIds })
+    await part.updateOne({ petoModelId: petoCamp.id, mapPeeCampIdByBaanId: part.mapPeeCampIdByBaanId, peeModelIds: part.peeModelIds })
     res.status(201).json(conPartBackToFront(part as InterPartBack))
 }
 export async function updateBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -108,20 +101,20 @@ export async function updateBaan(req: express.Request, res: express.Response, ne
         if (user?.role != 'admin' && !user?.authorizeIds.includes(baan?.campId as string)) {
             return res.status(401).json({ success: false })
         }
-        var boyNew = await Place.findById(boySleepPlaceId)
-        var girlNew = await Place.findById(girlSleepPlaceId)
-        var normalNew = await Place.findById(nomalPlaceId)
-        const boyOld = await Place.findById(baan?.boySleepPlaceId)
-        const girlOld = await Place.findById(baan?.girlSleepPlaceId)
-        const normalOld = await Place.findById(baan?.nomalPlaceId)
-        if (!boyNew) {
-            boyNew = boyOld
+        var boyNewP = await Place.findById(boySleepPlaceId)
+        var girlNewP = await Place.findById(girlSleepPlaceId)
+        var normalNewP = await Place.findById(nomalPlaceId)
+        const boyOldP = await Place.findById(baan?.boySleepPlaceId)
+        const girlOldP = await Place.findById(baan?.girlSleepPlaceId)
+        const normalOldP = await Place.findById(baan?.nomalPlaceId)
+        if (!boyNewP) {
+            boyNewP = boyOldP
         }
-        if (!girlNew) {
-            girlNew = girlOld
+        if (!girlNewP) {
+            girlNewP = girlOldP
         }
-        if (!normalNew) {
-            normalNew = normalOld
+        if (!normalNewP) {
+            normalNewP = normalOldP
         }
         if (!name) {
             name = baan?.name
@@ -132,13 +125,25 @@ export async function updateBaan(req: express.Request, res: express.Response, ne
         if (!link) {
             link = baan?.link
         }
-        boyNew?.updateOne({ boySleepBaanIds: swop(null, baan?.id, boyNew.boySleepBaanIds) })
-        girlNew?.updateOne({ girlSleepBaanIds: swop(null, baan?.id, girlNew.girlSleepBaanIds) })
-        normalNew?.updateOne({ normalBaanIds: swop(null, baan?.id, normalNew.normalBaanIds) })
-        boyOld?.updateOne({ boySleepBaanIds: swop(baan?.id, null, boyOld.boySleepBaanIds) })
-        girlOld?.updateOne({ girlSleepBaanIds: swop(baan?.id, null, girlOld.girlSleepBaanIds) })
-        normalOld?.updateOne({ normalBaanIds: swop(baan?.id, null, normalOld.normalBaanIds) })
-        baan?.updateOne({ name, fullName, link, girlSleepPlaceId: girlNew?.id, boySleepPlaceId: boyNew?.id, nomalPlaceId: normalNew?.id })
+        const boyNewB=await Building.findById(boyNewP?.buildingId)
+        const boyOldB=await Building.findById(boyOldP?.buildingId)
+        const girlNewB=await Building.findById(girlNewP?.buildingId)
+        const girlOldB=await Building.findById(girlOldP?.buildingId)
+        const normalNewB=await Building.findById(normalNewP?.buildingId)
+        const normalOldB=await Building.findById(normalOldP?.buildingId)
+        await boyNewP?.updateOne({ boySleepBaanIds: swop(null, baan?.id, boyNewP.boySleepBaanIds) })
+        await girlNewP?.updateOne({ girlSleepBaanIds: swop(null, baan?.id, girlNewP.girlSleepBaanIds) })
+        await normalNewP?.updateOne({ normalBaanIds: swop(null, baan?.id, normalNewP.normalBaanIds) })
+        await boyOldP?.updateOne({ boySleepBaanIds: swop(baan?.id, null, boyOldP.boySleepBaanIds) })
+        await girlOldP?.updateOne({ girlSleepBaanIds: swop(baan?.id, null, girlOldP.girlSleepBaanIds) })
+        await normalOldP?.updateOne({ normalBaanIds: swop(baan?.id, null, normalOldP.normalBaanIds) })
+        await boyNewB?.updateOne({ boySleepBaanIds: swop(null, baan?.id, boyNewB.boySleepBaanIds) })
+        await girlNewB?.updateOne({ girlSleepBaanIds: swop(null, baan?.id, girlNewB.girlSleepBaanIds) })
+        await normalNewB?.updateOne({ normalBaanIds: swop(null, baan?.id, normalNewB.normalBaanIds) })
+        await boyOldB?.updateOne({ boySleepBaanIds: swop(baan?.id, null, boyOldB.boySleepBaanIds) })
+        await girlOldB?.updateOne({ girlSleepBaanIds: swop(baan?.id, null, girlOldB.girlSleepBaanIds) })
+        await normalOldB?.updateOne({ normalBaanIds: swop(baan?.id, null, normalOldB.normalBaanIds) })
+        await baan?.updateOne({ name, fullName, link, girlSleepPlaceId: girlNewP?.id, boySleepPlaceId: boyNewP?.id, nomalPlaceId: normalNewP?.id })
         res.status(200).json(conBaanBackToFront(baan as InterBaanBack))
     } catch (err) {
         res.status(400).json({ success: false })
@@ -152,7 +157,7 @@ export async function updatePart(req: express.Request, res: express.Response, ne
         if (user?.role != 'admin' && !user?.authorizeIds.includes(baan?.campId as string)) {
             return res.status(401).json({ success: false })
         }
-        baan?.updateOne({ placeId })
+        await baan?.updateOne({ placeId })
         res.status(200).json(conPartBackToFront(baan as InterPartBack))
     } catch (err) {
         res.status(400).json({ success: false })
@@ -171,19 +176,20 @@ async function setDefalse(peeCampId: string) {
     peeCamp?.mapMapNumberByName.set(name[7], peeCamp.map3)
     peeCamp?.mapMapNumberByName.set(name[8], peeCamp.map4)
     peeCamp?.mapMapNumberByName.set(name[9], peeCamp.map5)
+    await peeCamp?.updateOne({ mapMapNumberByName: peeCamp.mapMapNumberByName, mapArrayStringNumberByName: peeCamp.mapArrayStringNumberByName })
 }
 export async function createCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const { nameId, round, dateStart, dateEnd, boardIds } = req.body
         const camp = await Camp.create({ nameId, round, dateStart, dateEnd, boardIds })
         const campStyle = await CampStyle.create({ refId: camp._id, types: 'camp' })
-        camp.updateOne({ campStyleId: campStyle._id })
+        await camp.updateOne({ campStyleId: campStyle.id })
         boardIds.forEach(async (boardId: string) => {
             const user = await User.findById(boardId)
-            user?.authorizeIds.push(camp._id.toString())
+            await user?.updateOne({ authorizeIds: swop(null, camp.id, user.authorizeIds) })
         })
         const nameContainer = await NameContainer.findById(nameId)
-        nameContainer?.campIds.push(camp._id.toString())
+        await nameContainer?.updateOne({ campIds: swop(null, camp.id, nameContainer.campIds) })
         res.status(201).json(conCampBackToFront(camp as InterCampBack))
     } catch (err) {
         res.status(400).json({ success: false })
@@ -215,25 +221,25 @@ async function forceDeleteCampRaw(campId: string, res: express.Response | null) 
         camp.boardIds.forEach(async (boardId: string) => {
             const user = await User.findById(boardId)
             const news = swop(camp._id.toString(), null, user?.authorizeIds as string[])
-            user?.updateOne({ authorizeIds: news })
+            await user?.updateOne({ authorizeIds: news })
         })
         camp.nongModelIds.forEach(async (nongModelId) => {
             const nongCamp = await NongCamp.findById(nongModelId)
             nongCamp?.nongIds.forEach(async (userId) => {
                 const user = await User.findById(userId)
                 const nongCampIds = swop(nongCamp._id.toString(), null, user?.nongCampIds as string[])
-                user?.updateOne({ nongCampIds })
+                await user?.updateOne({ nongCampIds })
             })
-            nongCamp?.deleteOne()
+            await nongCamp?.deleteOne()
         })
         camp.peeModelIds.forEach(async (nongModelId) => {
             const nongCamp = await PeeCamp.findById(nongModelId)
             nongCamp?.peeIds.forEach(async (userId) => {
                 const user = await User.findById(userId)
                 const peeCampIds = swop(nongCamp._id.toString(), null, user?.peeCampIds as string[])
-                user?.updateOne({ peeCampIds })
+                await user?.updateOne({ peeCampIds })
             })
-            nongCamp?.deleteOne()
+            await nongCamp?.deleteOne()
         })
         camp.petoModelIds.forEach(async (nongModelId) => {
             const nongCamp = await PetoCamp.findById(nongModelId)
@@ -242,37 +248,37 @@ async function forceDeleteCampRaw(campId: string, res: express.Response | null) 
                 const petoCampIds = swop(nongCamp._id.toString(), null, user?.petoCampIds as string[])
                 user?.updateOne({ petoCampIds })
             })
-            nongCamp?.deleteOne()
+            await nongCamp?.deleteOne()
         })
         camp.baanIds.forEach(async (baanId) => {
             const baan = await Baan.findById(baanId)
             baan?.songIds.forEach(async (songId) => {
                 const song = await Song.findById(songId)
-                song?.updateOne({ baanIds: swop(baan.id, null, song.baanIds) })
+                await song?.updateOne({ baanIds: swop(baan.id, null, song.baanIds) })
             })
             await CampStyle.findByIdAndDelete(baan?.styleId)
-            baan?.deleteOne()
+            await baan?.deleteOne()
         })
         await CampStyle.findByIdAndDelete(camp.campStyleId)
         camp.nongHelthIsueIds.forEach(async (helthueId) => {
             const helthIsue = await HelthIsue.findById(helthueId)
             const user = await User.findById(helthIsue?.userId)
             if (user?.helthIsueId.localeCompare(helthueId)) {
-                helthIsue?.deleteOne()
+                await helthIsue?.deleteOne()
             }
         })
         camp.peeHelthIsueIds.forEach(async (helthueId) => {
             const helthIsue = await HelthIsue.findById(helthueId)
             const user = await User.findById(helthIsue?.userId)
             if (user?.helthIsueId.localeCompare(helthueId)) {
-                helthIsue?.deleteOne()
+                await helthIsue?.deleteOne()
             }
         })
         camp.petoHelthIsueIds.forEach(async (helthueId) => {
             const helthIsue = await HelthIsue.findById(helthueId)
             const user = await User.findById(helthIsue?.userId)
             if (user?.helthIsueId.localeCompare(helthueId)) {
-                helthIsue?.deleteOne()
+                await helthIsue?.deleteOne()
             }
         })
         camp.partIds.forEach(async (partId) => {
@@ -281,16 +287,22 @@ async function forceDeleteCampRaw(campId: string, res: express.Response | null) 
         camp.workItemIds.forEach(async (workItemId) => {
             await WorkItem.findByIdAndDelete(workItemId)
         })
-        camp.actionPlanIds.forEach(async (actionPlanId) => {
-            await ActionPlan.findByIdAndDelete(actionPlanId)
+        camp.actionPlanIds.forEach( async (actionPlanId) => {
+            const actionPlan = await ActionPlan.findById(actionPlanId)
+            actionPlan?.placeIds.forEach(async (placeId: string) => {
+                const place = await Place.findById(placeId)
+                await place?.updateOne({ actionPlanIds: swop(actionPlan.id, null, place.actionPlanIds) })
+                const building = await Building.findById(place?.buildingId)
+                await building?.updateOne({ actionPlanIds: swop(actionPlan.id, null, building.actionPlanIds) })
+            })
         })
         const name = await NameContainer.findById(camp.nameId)
         camp.lostAndFoundIds.forEach(async (id) => {
             await LostAndFound.findByIdAndUpdate(id, { campId: null })
         })
         const campIds = swop(campId, null, name?.campIds as string[])
-        name?.updateOne({ campIds })
-        camp.deleteOne()
+        await name?.updateOne({ campIds })
+        await camp.deleteOne()
         res?.status(200).json({ success: true })
     } catch (error) {
         res?.status(400).json({ success: false })
@@ -312,13 +324,13 @@ export async function saveDeleteCamp(req: express.Request, res: express.Response
     camp.boardIds.forEach(async (boardId: string) => {
         const user = await User.findById(boardId)
         const news = swop(camp.id, null, user?.authorizeIds as string[])
-        user?.updateOne({ authorizeIds: news })
+        await user?.updateOne({ authorizeIds: news })
     })
     await CampStyle.findByIdAndDelete(camp.campStyleId)
     await Camp.findByIdAndDelete(campId)
     const name = await NameContainer.findById(camp.nameId)
     const campIds = swop(campId, null, name?.campIds as string[])
-    name?.updateOne({ campIds })
+    await name?.updateOne({ campIds })
     res.status(200).json({ success: true })
 }
 export async function addCampName(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -349,26 +361,26 @@ export async function forceDeleteCampName(req: express.Request, res: express.Res
     name?.campIds.forEach(async (campId: string) => {
         await forceDeleteCampRaw(campId, null)
     })
-    name?.deleteOne()
+    await name?.deleteOne()
     res.status(200).json({ success: true })
-
 }
 export async function forceDeleteBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     const baan = await Baan.findById(req.params.id)
     const camp = await Camp.findById(baan?.campId)
-    camp?.updateOne({
-        baanIds: swop(baan?._id.toString() as string, null, camp.baanIds),
-        nongModelIds: swop(baan?.nongModelId as string, null, camp.nongModelIds)
-    })
+    var nongIds: string[] = camp?.nongIds as string[]
+    var nongShertManageIds = camp?.nongShertManageIds as string[]
+    var peeShertManageIds = camp?.peeShertManageIds as string[]
+    var peeModelIds = camp?.peeModelIds as string[]
+    var peeIds = camp?.peeIds as string[]
+    var peeHelthIsueIds = camp?.peeHelthIsueIds as string[]
+    var nongHelthIsueIds = camp?.nongHelthIsueIds as string[]
     baan?.nongShertManageIds.forEach(async (shertmanageId) => {
         const shertManage = await ShertManage.findById(shertmanageId)
         const user = await User.findById(shertManage?.userId)
-        user?.updateOne({
+        await user?.updateOne({
             shertManageIds: swop(shertmanageId, null, user.shertManageIds)
         })
-        camp?.updateOne({
-            nongShertManageIds: swop(shertmanageId, null, camp.nongShertManageIds)
-        })
+        nongShertManageIds = swop(shertmanageId, null, nongShertManageIds)
         shertManage?.deleteOne()
     })
     baan?.peeShertManageIds.forEach(async (shertmanageId) => {
@@ -377,31 +389,37 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
             return
         }
         const user = await User.findById(shertManage?.userId)
-        user?.updateOne({ shertManageIds: swop(shertmanageId, null, user.shertManageIds) })
-        camp?.updateOne({ peeShertManageIds: swop(shertmanageId, null, camp.peeShertManageIds) })
+        await user?.updateOne({ shertManageIds: swop(shertmanageId, null, user.shertManageIds) })
+        peeShertManageIds = swop(shertmanageId, null, peeShertManageIds)
         const peeCamp = await PeeCamp.findById(shertManage?.campModelId)
         const part = await Part.findById(peeCamp?.partId)
-        part?.updateOne({ peeShertManageIds: swop(shertManage.id, null, part.peeShertManageIds) })
         part?.peeShertSize.set(shertManage.size, calculate(part.peeShertSize.get(shertManage.size), 0, 1))
+        await part?.updateOne({ peeShertManageIds: swop(shertManage.id, null, part.peeShertManageIds), peeShertSize: part.peeShertSize })
         await ShertManage.findByIdAndDelete(shertManage.id)
     })
     baan?.nongHelthIsueIds.forEach(async (helthueId) => {
         const helthIsue = await HelthIsue.findById(helthueId)
         const user = await User.findById(helthIsue?.userId)
+        nongHelthIsueIds = swop(helthIsue?.id, null, nongHelthIsueIds)
         if (user?.helthIsueId.localeCompare(helthueId)) {
-            helthIsue?.deleteOne()
+            await helthIsue?.deleteOne()
         }
     })
     baan?.peeHelthIsueIds.forEach(async (helthueId) => {
         const helthIsue = await HelthIsue.findById(helthueId)
         const user = await User.findById(helthIsue?.userId)
+        peeHelthIsueIds = swop(helthIsue?.id, null, peeHelthIsueIds)
+        const shertManage = await ShertManage.findById(baan.mapShertManageIdByUserId.get(user?.id))
+        const peeCamp = await PeeCamp.findById(shertManage?.campModelId)
+        const part = await Part.findById(peeCamp?.partId)
+        await part?.updateOne({ peeHelthIsueIds: swop(helthIsue?.id, null, part.peeHelthIsueIds) })
         if (user?.helthIsueId.localeCompare(helthueId)) {
-            helthIsue?.deleteOne()
+            await helthIsue?.deleteOne()
         }
     })
     baan?.songIds.forEach(async (songId) => {
         const song = await Song.findById(songId)
-        song?.updateOne({ baanIds: swop(baan.id, null, song.baanIds) })
+        await song?.updateOne({ baanIds: swop(baan.id, null, song.baanIds) })
     })
     baan?.peeModelIds.forEach(async (nongModelId) => {
         const nongCamp = await PeeCamp.findById(nongModelId)
@@ -409,44 +427,62 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
         nongCamp?.peeIds.forEach(async (userId) => {
             const user = await User.findById(userId)
             if (user?.haveBottle) {
-                part?.updateOne({ peeHaveBottle: part.peeHaveBottle - 1 })
+                await part?.updateOne({ peeHaveBottle: part.peeHaveBottle - 1 })
             }
-            const peeCampIds = swop(nongCamp._id.toString(), null, user?.peeCampIds as string[])
-            const p = swop(user?._id.toString() as string, null, part?.peeIds as string[])
-            part?.updateOne({ peeIds: p })
-            const peeIds = swop(user?._id.toString() as string, null, camp?.peeIds as string[])
-            camp?.updateOne({ peeIds })
-            user?.updateOne({ peeCampIds })
+            const peeCampIds = swop(nongCamp.id, null, user?.peeCampIds as string[])
+            const p = swop(user?.id, null, part?.peeIds as string[])
+            await part?.updateOne({ peeIds: p })
+            peeIds = swop(user?.id, null, peeIds)
             camp?.peeHaveBottleMapIds.delete(user?.id)
+            await user?.updateOne({ peeCampIds })
         })
-        camp?.updateOne({ peeModelIds: swop(nongModelId, null, camp.peeModelIds) })
-        nongCamp?.deleteOne()
+        peeModelIds = swop(nongModelId, null, peeModelIds)
+        await nongCamp?.deleteOne()
     })
     const nongCamp = await NongCamp.findById(baan?.nongModelId)
     nongCamp?.nongIds.forEach(async (userId) => {
         const user = await User.findById(userId)
-        const nongCampIds = swop(nongCamp._id.toString(), null, user?.nongCampIds as string[])
-        user?.updateOne({ nongCampIds })
-        const nongIds = swop(user?._id.toString() as string, null, camp?.nongIds as string[])
-        camp?.updateOne({ nongIds })
+        const nongCampIds = swop(nongCamp.id, null, user?.nongCampIds as string[])
+        await user?.updateOne({ nongCampIds })
+        nongIds = swop(user?.id, null, nongIds)
         camp?.nongHaveBottleMapIds.delete(user?.id)
     })
-    camp?.updateOne({ peeHaveBottle: calculate(camp.peeHaveBottle, 0, baan?.peeHaveBottle), nongHaveBottle: calculate(camp.nongHaveBottle, 0, baan?.nongHaveBottle) })
-    nongCamp?.deleteOne()
+    await nongCamp?.deleteOne()
     camp?.nongShertSize.forEach((v, k) => {
         camp.nongShertSize.set(k, calculate(v, 0, baan?.nongShertSize.get(k)))
     })
-    const boy = await Place.findById(baan?.boySleepPlaceId)
-    boy?.updateOne({ boySleepBaanIds: swop(baan?.id, null, boy.boySleepBaanIds) })
-    const girl = await Place.findById(baan?.girlSleepPlaceId)
-    girl?.updateOne({ girlSleepBaanIds: swop(baan?.id, null, girl.girlSleepBaanIds) })
-    const normal = await Place.findById(baan?.nomalPlaceId)
-    normal?.updateOne({ normalBaanIds: swop(baan?.id, null, normal.normalBaanIds) })
+    const boyP = await Place.findById(baan?.boySleepPlaceId)
+    await boyP?.updateOne({ boySleepBaanIds: swop(baan?.id, null, boyP.boySleepBaanIds) })
+    const boyB = await Building.findById(boyP?.buildingId)
+    await boyB?.updateOne({ boySleepBaanIds: swop(baan?.id, null, boyB.boySleepBaanIds) })
+    const girlP = await Place.findById(baan?.girlSleepPlaceId)
+    await girlP?.updateOne({ girlSleepBaanIds: swop(baan?.id, null, girlP.girlSleepBaanIds) })
+    const girlB = await Building.findById(girlP?.buildingId)
+    await girlB?.updateOne({ girlSleepBaanIds: swop(baan?.id, null, girlB.girlSleepBaanIds) })
+    const normalP = await Place.findById(baan?.nomalPlaceId)
+    await normalP?.updateOne({ normalBaanIds: swop(baan?.id, null, normalP.normalBaanIds) })
+    const normalB = await Building.findById(normalP?.buildingId)
+    await normalB?.updateOne({ normalBaanIds: swop(baan?.id, null, normalB.normalBaanIds) })
     camp?.peeShertSize.forEach((v, k) => {
         camp.peeShertSize.set(k, calculate(v, 0, baan?.peeShertSize.get(k)))
     })
+    await camp?.updateOne({
+        peeHaveBottle: calculate(camp.peeHaveBottle, 0, baan?.peeHaveBottle),
+        nongHaveBottle: calculate(camp.nongHaveBottle, 0, baan?.nongHaveBottle),
+        nongIds,
+        nongHaveBottleMapIds: camp.nongHaveBottleMapIds,
+        nongShertSize: camp.nongShertSize,
+        peeIds,
+        peeHaveBottleMapIds: camp.peeHaveBottleMapIds,
+        peeModelIds,
+        peeShertSize: camp.peeShertSize,
+        peeShertManageIds,
+        nongShertManageIds,
+        baanIds: swop(baan?.id, null, camp.baanIds),
+        nongModelIds: swop(baan?.nongModelId as string, null, camp.nongModelIds)
+    })
     await CampStyle.findByIdAndDelete(baan?.styleId)
-    baan?.deleteOne()
+    await baan?.deleteOne()
     res.status(200).json({ success: true })
 }
 export async function saveDeleteBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -459,15 +495,28 @@ export async function saveDeleteBaan(req: express.Request, res: express.Response
     if (baan?.nongIds.length || baan?.peeIds.length || baan?.songIds.length) {
         return res.status(400).json({ success: false, message: 'this baan is not save to delete' })
     }
+    var peeModelIds = camp?.peeModelIds as string[]
     baan?.peeModelIds.forEach(async (peeModelId) => {
         const peeCamp = await PeeCamp.findById(peeModelId)
-        camp?.updateOne({ peeModelIds: swop(peeCamp?.id, null, camp.peeModelIds) })
+        peeModelIds = swop(peeCamp?.id, null, peeModelIds)
         peeCamp?.deleteOne()
     })
-    camp?.updateOne({ nongModelIds: swop(baan?.nongModelId as string, null, camp.nongModelIds) })
+    const boyP = await Place.findById(baan?.boySleepPlaceId)
+    await boyP?.updateOne({ boySleepBaanIds: swop(baan?.id, null, boyP.boySleepBaanIds) })
+    const boyB = await Building.findById(boyP?.buildingId)
+    await boyB?.updateOne({ boySleepBaanIds: swop(baan?.id, null, boyB.boySleepBaanIds) })
+    const girlP = await Place.findById(baan?.girlSleepPlaceId)
+    await girlP?.updateOne({ girlSleepBaanIds: swop(baan?.id, null, girlP.girlSleepBaanIds) })
+    const girlB = await Building.findById(girlP?.buildingId)
+    await girlB?.updateOne({ girlSleepBaanIds: swop(baan?.id, null, girlB.girlSleepBaanIds) })
+    const normalP = await Place.findById(baan?.nomalPlaceId)
+    await normalP?.updateOne({ normalBaanIds: swop(baan?.id, null, normalP.normalBaanIds) })
+    const normalB = await Building.findById(normalP?.buildingId)
+    await normalB?.updateOne({ normalBaanIds: swop(baan?.id, null, normalB.normalBaanIds) })
+    await camp?.updateOne({ nongModelIds: swop(baan?.nongModelId as string, null, camp.nongModelIds), peeModelIds })
     await NongCamp.findByIdAndDelete(baan?.nongModelId)
     await CampStyle.findByIdAndDelete(baan?.styleId)
-    baan?.deleteOne()
+    await baan?.deleteOne()
     res.status(200).json({ success: true })
 }
 export async function saveDeletePart(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -493,98 +542,130 @@ export async function forceDeletePart(req: express.Request, res: express.Respons
 async function forceDeletePartRaw(partId: string) {
     const part = await Part.findById(partId)
     const camp = await Camp.findById(part?.campId)
-    camp?.updateOne({
-        partIds: swop(part?.id, null, camp.baanIds),
-        petoModelIds: swop(part?.petoModelId as string, null, camp.petoModelIds)
-    })
+    var petoShertManageIds = camp?.petoShertManageIds as string[]
+    var peeShertManageIds = camp?.peeShertManageIds as string[]
+    var actionPlanIds = camp?.actionPlanIds as string[]
+    var petoIds = camp?.petoIds as string[]
+    var peeIds = camp?.peeIds as string[]
+    var peeModelIds = camp?.peeModelIds as string[]
+    var workItemIds = camp?.workItemIds as string[]
+    var peeHelthIsueIds = camp?.peeHelthIsueIds as string[]
+    var petoHelthIsueIds = camp?.petoHelthIsueIds as string[]
     part?.petoShertManageIds.forEach(async (shertmanageId) => {
         const shertManage = await ShertManage.findById(shertmanageId)
         const user = await User.findById(shertManage?.userId)
-        user?.updateOne({
+        await user?.updateOne({
             shertManageIds: swop(shertmanageId, null, user.shertManageIds)
         })
-        camp?.updateOne({
-            petoShertManageIds: swop(shertmanageId, null, camp.petoShertManageIds)
-        })
+        petoShertManageIds = swop(shertmanageId, null, petoShertManageIds)
         shertManage?.deleteOne()
     })
     part?.peeShertManageIds.forEach(async (shertmanageId) => {
         const shertManage = await ShertManage.findById(shertmanageId)
         const user = await User.findById(shertManage?.userId)
         user?.updateOne({ shertManageIds: swop(shertmanageId, null, user.shertManageIds) })
-        camp?.updateOne({ peeShertManageIds: swop(shertmanageId, null, camp.peeShertManageIds) })
+        peeShertManageIds = swop(shertmanageId, null, peeShertManageIds)
         const peeCamp = await PeeCamp.findById(shertManage?.campModelId)
         const baan = await Baan.findById(peeCamp?.baanId)
         baan?.updateOne({ peeShertManageIds: swop(shertManage?.id, null, part.peeShertManageIds) })
         baan?.peeShertSize.set(shertManage?.size as string, calculate(baan.peeShertSize.get(shertManage?.size as string), 0, 1))
-        shertManage?.deleteOne()
+        await shertManage?.deleteOne()
+        await baan?.updateOne({ peeShertSize: baan.peeShertSize })
     })
     part?.petoHelthIsueIds.forEach(async (helthueId) => {
         const helthIsue = await HelthIsue.findById(helthueId)
+        petoHelthIsueIds = swop(helthIsue?.id, null, petoHelthIsueIds)
         const user = await User.findById(helthIsue?.userId)
         if (user?.helthIsueId.localeCompare(helthueId)) {
-            helthIsue?.deleteOne()
+            await helthIsue?.deleteOne()
         }
     })
     part?.peeHelthIsueIds.forEach(async (helthueId) => {
         const helthIsue = await HelthIsue.findById(helthueId)
         const user = await User.findById(helthIsue?.userId)
+        peeHelthIsueIds = swop(helthIsue?.id, null, peeHelthIsueIds)
+        const shertManage = await ShertManage.findById(part.mapShertManageIdByUserId.get(user?.id))
+        const peeCamp = await PeeCamp.findById(shertManage?.campModelId)
+        const baan = await Baan.findById(peeCamp?.baanId)
+        await baan?.updateOne({ peeHelthIsueIds: swop(helthIsue?.id, null, baan.peeHelthIsueIds) })
         if (user?.helthIsueId.localeCompare(helthueId)) {
             helthIsue?.deleteOne()
         }
     })
-
     part?.peeModelIds.forEach(async (nongModelId) => {
         const nongCamp = await PeeCamp.findById(nongModelId)
         const baan = await Baan.findById(nongCamp?.baanId)
-
         nongCamp?.peeIds.forEach(async (userId) => {
-
             const user = await User.findById(userId)
             if (user?.haveBottle) {
-                baan?.updateOne({ peeHaveBottle: baan.peeHaveBottle - 1 })
+                await baan?.updateOne({ peeHaveBottle: baan.peeHaveBottle - 1 })
             }
             const peeCampIds = swop(nongCamp._id.toString(), null, user?.peeCampIds as string[])
             const p = swop(user?.id, null, baan?.peeIds as string[])
-            baan?.updateOne({ peeIds: p })
-            const peeIds = swop(user?._id.toString() as string, null, camp?.peeIds as string[])
-            camp?.updateOne({ peeIds })
-            user?.updateOne({ peeCampIds })
+            await baan?.updateOne({ peeIds: p })
+            peeIds = swop(user?.id, null, peeIds)
+            await user?.updateOne({ peeCampIds })
             camp?.peeHaveBottleMapIds.delete(user?.id)
         })
-        camp?.updateOne({ peeModelIds: swop(nongModelId, null, camp.peeModelIds) })
-        nongCamp?.deleteOne()
+        peeModelIds = swop(nongModelId, null, peeModelIds)
+        await nongCamp?.deleteOne()
     })
-    const nongCamp = await PetoCamp.findById(part?.petoModelId)
-    nongCamp?.petoIds.forEach(async (userId) => {
+    const petoCamp = await PetoCamp.findById(part?.petoModelId)
+    petoCamp?.petoIds.forEach(async (userId) => {
         const user = await User.findById(userId)
-        const petoCampIds = swop(nongCamp.id, null, user?.petoCampIds as string[])
-        user?.updateOne({ petoCampIds })
-        const nongIds = swop(user?.id, null, camp?.petoIds as string[])
-        camp?.updateOne({ petoIds: nongIds })
+
+        user?.updateOne({ petoCampIds: swop(petoCamp.id, null, user.petoCampIds) })
+        petoIds = swop(user?.id, null, petoIds)
+
         camp?.petoHaveBottleMapIds.delete(user?.id)
     })
-    camp?.updateOne({ peeHaveBottle: calculate(camp.peeHaveBottle, 0, part?.peeHaveBottle), petoHaveBottle: calculate(camp.petoHaveBottle, 0, part?.petoHaveBottle) })
-    nongCamp?.deleteOne()
+
+    petoCamp?.deleteOne()
     camp?.petoShertSize.forEach((v, k) => {
-        camp.nongShertSize.set(k, calculate(v, 0, part?.petoShertSize.get(k)))
+        camp.petoShertSize.set(k, calculate(v, 0, part?.petoShertSize.get(k)))
     })
     camp?.peeShertSize.forEach((v, k) => {
         camp.peeShertSize.set(k, calculate(v, 0, part?.peeShertSize.get(k)))
     })
     part?.actionPlanIds.forEach(async (id) => {
-        await ActionPlan.findByIdAndDelete(id)
-        camp?.updateOne({ actionPlanIds: swop(id, null, camp.actionPlanIds) })
+              //////////////////////////////////////////////////////
+        const actionPlan = await ActionPlan.findById(id)
+        actionPlan?.placeIds.forEach(async (placeId: string) => {
+            const place = await Place.findById(placeId)
+            await place?.updateOne({ actionPlanIds: swop(actionPlan.id, null, place.actionPlanIds) })
+            const building = await Building.findById(place?.buildingId)
+            await building?.updateOne({ actionPlanIds: swop(actionPlan.id, null, building.actionPlanIds) })
+        })
+            actionPlanIds = swop(id, null, actionPlanIds)
     })
     part?.workItemIds.forEach(async (id) => {
         const workItem = await WorkItem.findById(id)
         if (workItem?.fromId != 'init') {
             const from = await WorkItem.findById(workItem?.fromId)
-            from?.updateOne({ linkOutIds: swop(id, null, from.linkOutIds) })
+            await from?.updateOne({ linkOutIds: swop(id, null, from.linkOutIds) })
         }
+        workItemIds = swop(workItem?.id, null, workItemIds)
         await deleteWorkingItemRaw(id)
     })
-    part?.deleteOne()
+    await camp?.updateOne({
+        partIds: swop(part?.id, null, camp.partIds),
+        petoModelIds: swop(part?.petoModelId as string, null, camp.petoModelIds),
+        peeHaveBottle: calculate(camp.peeHaveBottle, 0, part?.peeHaveBottle),
+        petoHaveBottle: calculate(camp.petoHaveBottle, 0, part?.petoHaveBottle),
+        petoHaveBottleMapIds: camp.petoHaveBottleMapIds,
+        peeHaveBottleMapIds: camp.peeHaveBottleMapIds,
+        petoShertSize: camp.petoShertSize,
+        petoShertManageIds,
+        peeShertManageIds,
+        peeModelIds,
+        actionPlanIds,
+        petoIds,
+        peeIds,
+        workItemIds,
+        peeHelthIsueIds,
+        petoHelthIsueIds
+    })
+    await part?.deleteOne()
 
 }
 async function deleteWorkingItemRaw(workItemId: string) {
@@ -598,7 +679,7 @@ async function deleteWorkingItemRaw(workItemId: string) {
             await deleteWorkingItemRaw(outId)
         }
     })
-    workItem?.deleteOne()
+    await workItem?.deleteOne()
 }
 export async function addPartName(req: express.Request, res: express.Response, next: express.NextFunction) {
     const name = await PartNameContainer.create({ name: req.params.id })
@@ -606,7 +687,6 @@ export async function addPartName(req: express.Request, res: express.Response, n
 }
 export async function saveDeletePartName(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-
         const hospital = await PartNameContainer.findById(req.params.id)
         res.status(400).json({
             success: false
@@ -626,17 +706,17 @@ export async function saveDeletePartName(req: express.Request, res: express.Resp
 }
 export async function forceDeletePartName(req: express.Request, res: express.Response, next: express.NextFunction) {
     const partNameContainer = await PartNameContainer.findById(req.params.id)
-    partNameContainer?.partIds.forEach((id) => {
-        forceDeletePartRaw(id)
+    partNameContainer?.partIds.forEach(async (id) => {
+        await forceDeletePartRaw(id)
     })
     res.status(200).json({ success: true })
 }
 export async function addAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { userIdsbuf } = req.body
-    const userIds: string[] = userIdsbuf
-    userIds.forEach(async (userId: string) => {
+    const { userIds } = req.body
+    const userIdsbuf: string[] = userIds
+    userIdsbuf.forEach(async (userId: string) => {
         const user = await User.findById(userId)
-        user?.updateOne({ role: 'admin', fridayActEn: true })
+        await user?.updateOne({ role: 'admin', fridayActEn: true })
     })
     res.status(200).json({ success: true })
 }
@@ -646,7 +726,7 @@ export async function getAllAdmin(req: express.Request, res: express.Response, n
 }
 export async function downRole(req: express.Request, res: express.Response, next: express.NextFunction) {
     const user = await getUser(req)
-    user?.updateOne({ role: req.params.id })
+    await user?.updateOne({ role: req.params.id })
     res.status(200).json({ success: true })
 }
 export async function addMoreBoard(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -654,31 +734,33 @@ export async function addMoreBoard(req: express.Request, res: express.Response, 
     const camp = await Camp.findById(campId)
     userIds.forEach(async (userId: string) => {
         const user = await User.findById(userId)
-        user?.authorizeIds.push(camp?.id)
+        await user?.updateOne({ authorizeIds: swop(null, camp?.id, user.authorizeIds) })
         camp?.boardIds.push(user?.id)
     });
+    await camp?.updateOne({ boardIds: camp.boardIds })
     res.status(200).json({ success: true })
 }
 export async function removeBoard(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { campId, userId } = req.body
     const camp = await Camp.findById(campId)
     const user = await User.findById(userId)
-    camp?.updateOne({ boardIds: swop(user?.id, null, camp.boardIds) })
-    user?.updateOne({ authorizeIds: swop(camp?.id, null, user.authorizeIds) })
+    await camp?.updateOne({ boardIds: swop(user?.id, null, camp.boardIds) })
+    await user?.updateOne({ authorizeIds: swop(camp?.id, null, user.authorizeIds) })
     sendRes(res, true)
 }
 export async function createPlace(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { room, buildingId } = req.body
     const place = await Place.create({ room, buildingId })
+    const building = await Building.findById(buildingId)
+    await building?.updateOne({ placeIds: swop(null, place.id, building.placeIds) })
     res.status(201).json(place)
-
 }
 export async function saveDeletePlace(req: express.Request, res: express.Response, next: express.NextFunction) {
     const place = await Place.findById(req.params.id)
     if (place?.actionPlanIds.length || place?.boySleepBaanIds.length || place?.girlSleepBaanIds.length || place?.normalBaanIds.length || place?.fridayActIds.length || place?.partIds.length || place?.lostAndFoundIds.length) {
         return res.status(400).json({ success: false })
     }
-    place?.deleteOne()
+    await place?.deleteOne()
     res.status(200).json({ success: true })
 }
 export async function createBuilding(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -690,6 +772,6 @@ export async function saveDeleteBuilding(req: express.Request, res: express.Resp
     if (building?.placeIds.length) {
         return res.status(400).json({ success: false })
     }
-    building?.deleteOne()
+    await building?.deleteOne()
     sendRes(res, true)
 }
