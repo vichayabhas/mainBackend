@@ -1,7 +1,8 @@
 import express, { json } from 'express';
 import { config, configDotenv } from 'dotenv';
+import cors from 'cors';
 
-import auth from './routes/user';
+import user from './routes/user';
 import connectDB from './config/db';
 import cookieParser from 'cookie-parser';
 import camp from './routes/camp';
@@ -16,6 +17,8 @@ app.use(cookieParser());
 //Body parser
 app.use(json());
 
+app.use(cors()); 
+
 /*app.get('/', (req,res) => {
     //1. res.send('<h1>Hello from express<h1>');
     //2. res.send({name:'Brad'});
@@ -26,7 +29,7 @@ app.use(json());
 });*/
 
 app.use('/camp',camp);
-app.use('/api/v1/auth',auth); 
+app.use('/api/v1/auth',user); 
 
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, ()=>console.log('Server running in ',process.env.NODE_ENV, ' mode on port ', PORT));

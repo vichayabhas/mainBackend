@@ -15,7 +15,7 @@ const PartSchema = new mongoose.Schema({
         type: String
     },
     time: {
-        type: TimeRanges
+        type: Number
     },
     link: {
         type: String

@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import { NextFunction } from 'express'
 import express from "express";
+import { resError } from "../controllers/setup";
 export async function protect(req: express.Request, res: express.Response, next: NextFunction) {
   let token: string | null | undefined;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -103,6 +104,45 @@ export async function peto(req: express.Request, res: express.Response, next: Ne
     return res.status(403).json({ success: false, message: `User role ${user?.role} is not authorize to access this route` });
   }
   next();
+}
+export function isLogin(withIn:express.RequestHandler,withOut:express.RequestHandler|null) {
+  return async (req: express.Request, res: express.Response, next: NextFunction) =>{
+    let token: string | null | undefined;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1]
+    }
+    if (!token) {
+      if(withOut){
+        withOut(req,res,next)
+      }else{
+        res.status(403).json(resError)
+      }
+      
+      return
+    }
+    try {
+      const decoded = jwt.verify(token.toString(), testJwt)
+      const { id } = decoded as any
+      const user = await User.findById(id)
+      if (!user) {
+        if(withOut){
+          withOut(req,res,next)
+        }else{
+          res.status(403).json(resError)
+        }
+        
+        return 
+      }
+      withIn(req,res,next)
+    } catch (err: any) {
+      if(withOut){
+        withOut(req,res,next)
+      }else{
+        res.status(403).json(resError)
+      }
+      return 
+    }
+  }
 }
 
 

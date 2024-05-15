@@ -87,6 +87,10 @@ const BaanSchema = new mongoose.Schema({
     },
     nomalPlaceId: {
         type: String
+    },
+    mapShertManageIdByUserId:{
+        type: Map,
+        default: new Map
     }
 })
 export default mongoose.model('Baan', BaanSchema)

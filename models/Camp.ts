@@ -189,6 +189,13 @@ const campSchema = new mongoose.Schema({
     havePeto: {
         type: Boolean,
         default: true
+    },
+    logoUrl:{
+        type:String
+    },
+    mapShertManageIdByUserId:{
+        type: Map,
+        default: new Map
     }
 })
 export default mongoose.model('Camp', campSchema)

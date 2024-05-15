@@ -582,20 +582,20 @@ async function forceDeletePartRaw(partId: string) {
             const from = await WorkItem.findById(workItem?.fromId)
             from?.updateOne({ linkOutIds: swop(id, null, from.linkOutIds) })
         }
-        deleteWorkingItem(id)
+        await deleteWorkingItemRaw(id)
     })
     part?.deleteOne()
 
 }
-async function deleteWorkingItem(workItemId: string) {
+async function deleteWorkingItemRaw(workItemId: string) {
     const workItem = await WorkItem.findById(workItemId)
     const camp = await Camp.findById(workItem?.campId)
     const part = await Part.findById(workItem?.partId)
-    part?.updateOne({ workItemIds: swop(workItem?.id, null, part.workItemIds) })
-    camp?.updateOne({ workItemIds: swop(workItem?.id, null, camp.workItemIds) })
-    workItem?.linkOutIds.forEach((outId) => {
+    await part?.updateOne({ workItemIds: swop(workItem?.id, null, part.workItemIds) })
+    await camp?.updateOne({ workItemIds: swop(workItem?.id, null, camp.workItemIds) })
+    workItem?.linkOutIds.forEach(async (outId) => {
         if (outId != 'end') {
-            deleteWorkingItem(outId)
+            await deleteWorkingItemRaw(outId)
         }
     })
     workItem?.deleteOne()

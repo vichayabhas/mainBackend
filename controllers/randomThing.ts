@@ -173,7 +173,6 @@ export async function deleteLostAndFound(req: express.Request, res: express.Resp
         camp.updateOne({ lostAndFoundIds: swop(lostAndFound?.id, null, camp.lostAndFoundIds) })
     }
     sendRes(res, true)
-
 }
 export async function getLostAndFounds(req: express.Request, res: express.Response, next: express.NextFunction) {
     const user = await getUser(req)
@@ -220,6 +219,3 @@ export async function getLostAndFound(req: express.Request, res: express.Respons
     const lostAndFound=await LostAndFound.findById(req.params.id)
     res.status(200).json(lostAndFound)
 }
-
-
-

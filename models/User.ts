@@ -37,6 +37,9 @@ const UserSchema = new mongoose.Schema({
         select: false
 
     },
+    tel:{
+        type:String
+    },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
     studentId: {//รหัสประจำตัวนิสิต
@@ -143,11 +146,6 @@ UserSchema.pre('save', async function (next) {
     this.password = await bcrypt.hash(this.password, salt);
     next()
 });
-UserSchema.methods.getSignedJwtToken=function(){
-    return jwt.sign({id:this._id},buf,{
-        expiresIn: process.env.JWT_EXPIRE
-    });
-}
 UserSchema.methods.matchPassword=async function(enteredPassword:string){
     return await bcrypt.compare(enteredPassword,this.password);
 }

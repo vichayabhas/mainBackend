@@ -90,8 +90,33 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
         styleId,
         boySleepPlaceId,
         girlSleepPlaceId,
+        mapShertManageIdByUserId,
         nomalPlaceId } = input
-    return ({ name, fullName, campId, link, peeHaveBottle, nomalPlaceId, nongHaveBottle, nongHelthIsueIds, nongIds, nongModelId, nongShertManageIds, peeHelthIsueIds, peeIds, peeShertManageIds, peeModelIds, peeShertSize: sizeMapToJson(peeShertSize), nongShertSize: sizeMapToJson(nongShertSize), songIds, styleId, boySleepPlaceId, girlSleepPlaceId, id, peeHaveBottleMapIds: mapBoolToArray(peeHaveBottleMapIds), nongHaveBottleMapIds: mapBoolToArray(nongHaveBottleMapIds) })
+    return ({ name, 
+        fullName, 
+        campId, 
+        link, 
+        peeHaveBottle, 
+        nomalPlaceId, 
+        nongHaveBottle, 
+        nongHelthIsueIds, 
+        nongIds, 
+        nongModelId, 
+        nongShertManageIds, 
+        peeHelthIsueIds, 
+        peeIds, 
+        peeShertManageIds, 
+        peeModelIds, 
+        peeShertSize: sizeMapToJson(peeShertSize), 
+        nongShertSize: sizeMapToJson(nongShertSize), 
+        songIds, 
+        styleId, 
+        boySleepPlaceId, 
+        girlSleepPlaceId, 
+        id, 
+        peeHaveBottleMapIds: mapBoolToArray(peeHaveBottleMapIds), 
+        nongHaveBottleMapIds: mapBoolToArray(nongHaveBottleMapIds) ,
+        mapShertManageIdByUserId:mapStringToMyMap(mapShertManageIdByUserId)})
 }
 export function conCampBackToFront(input: InterCampBack): InterCampFront {
     const { id,
@@ -141,9 +166,32 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         nongPaidIds,
         nongInterviewIds,                            ////////////////////////////////i
         registerModel,
-        havePeto } = input
-    return ({ partIds, open, peeHaveBottle, peeHaveBottleMapIds: mapBoolToArray(peeHaveBottleMapIds), peeHelthIsueIds, peeIds, peeModelIds, peePassIds: mapStringToMyMap(peePassIds), peeShertManageIds, peeShertSize: sizeMapToJson(peeShertSize), petoHaveBottle, petoHaveBottleMapIds: mapBoolToArray(petoHaveBottleMapIds), petoHelthIsueIds, petoIds, petoModelIds, petoShertManageIds, petoShertSize: sizeMapToJson(petoShertSize), pictureUrls, nameId, nongHaveBottle, nongHaveBottleMapIds: mapBoolToArray(nongHaveBottleMapIds), nongHelthIsueIds, nongIds, nongInterviewIds: mapStringToMyMap(nongInterviewIds), nongModelIds, nongPaidIds, nongPassIds: mapStringToMyMap(nongPassIds), nongPendingIds: mapStringToMyMap(nongPendingIds), nongShertManageIds, nongShertSize: sizeMapToJson(nongShertSize), nongSureIds, registerModel, round, actionPlanIds, allDone, authorizeIds, baanIds, boardIds, campStyleId, link, lockChangePickup, dataLock, dateEnd, dateStart, havePeto, workItemIds, songIds, id })
-
+        havePeto,
+        mapShertManageIdByUserId,
+        logoUrl } = input
+    return ({ 
+        partIds, 
+        open, 
+        peeHaveBottle, 
+        peeHaveBottleMapIds: mapBoolToArray(peeHaveBottleMapIds), 
+        peeHelthIsueIds, 
+        peeIds, 
+        peeModelIds, 
+        peePassIds: mapStringToMyMap(peePassIds), 
+        peeShertManageIds, 
+        peeShertSize: sizeMapToJson(peeShertSize), 
+        petoHaveBottle, 
+        petoHaveBottleMapIds: mapBoolToArray(petoHaveBottleMapIds), 
+        petoHelthIsueIds, 
+        petoIds, 
+        petoModelIds, 
+        petoShertManageIds, 
+        petoShertSize: sizeMapToJson(petoShertSize), 
+        pictureUrls, 
+        nameId, 
+        nongHaveBottle, 
+        nongHaveBottleMapIds: mapBoolToArray(nongHaveBottleMapIds), 
+        nongHelthIsueIds, nongIds, nongInterviewIds: mapStringToMyMap(nongInterviewIds), nongModelIds, nongPaidIds, nongPassIds: mapStringToMyMap(nongPassIds), nongPendingIds: mapStringToMyMap(nongPendingIds), nongShertManageIds, nongShertSize: sizeMapToJson(nongShertSize), nongSureIds, registerModel, round, actionPlanIds, allDone, authorizeIds, baanIds, boardIds, campStyleId, link, lockChangePickup, dataLock, dateEnd, dateStart, havePeto, workItemIds, songIds, id, logoUrl ,mapShertManageIdByUserId:mapStringToMyMap(mapShertManageIdByUserId)})
 }
 export function conPartBackToFront(input: InterPartBack): InterPartFront {
     const { id,
@@ -165,9 +213,31 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         petoShertManageIds,
         actionPlanIds,
         workItemIds,
+        mapShertManageIdByUserId,
         placeId } = input
 
-    return ({ actionPlanIds, workItemIds, id, campId, nameId, peeHaveBottle, peeHaveBottleMapIds: mapBoolToArray(peeHaveBottleMapIds), peeHelthIsueIds, peeIds, peeModelIds, peeShertManageIds, peeShertSize: sizeMapToJson(peeShertSize), petoHaveBottle, petoHaveBottleMapIds: mapBoolToArray(petoHaveBottleMapIds), petoHelthIsueIds, petoIds, petoModelId, petoShertManageIds, petoShertSize: sizeMapToJson(petoShertSize), placeId })
+    return ({ 
+        actionPlanIds, 
+        workItemIds, 
+        id, 
+        campId, 
+        nameId, 
+        peeHaveBottle, 
+        peeHaveBottleMapIds: mapBoolToArray(peeHaveBottleMapIds), 
+        peeHelthIsueIds, 
+        peeIds, 
+        peeModelIds, 
+        peeShertManageIds, 
+        peeShertSize: sizeMapToJson(peeShertSize), 
+        petoHaveBottle, 
+        petoHaveBottleMapIds: mapBoolToArray(petoHaveBottleMapIds), 
+        petoHelthIsueIds, 
+        petoIds, 
+        petoModelId, 
+        petoShertManageIds, 
+        petoShertSize: sizeMapToJson(petoShertSize), 
+        placeId ,
+        mapShertManageIdByUserId:mapStringToMyMap(mapShertManageIdByUserId)})
 }
 export function mapStringToMyMap(input: Map<string, string>): MyMap[] {
     var out: MyMap[] = []

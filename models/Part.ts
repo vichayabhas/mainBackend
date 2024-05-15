@@ -76,6 +76,10 @@ const PartSchema = new mongoose.Schema({
     },
     placeId:{
         type:String
+    },
+    mapShertManageIdByUserId:{
+        type: Map,
+        default: new Map
     }
 })
 export default mongoose.model('Part', PartSchema)

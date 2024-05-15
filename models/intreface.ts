@@ -33,7 +33,8 @@ export interface InterBaanBack {
     styleId: string,
     boySleepPlaceId: string | null,
     girlSleepPlaceId: string | null,
-    nomalPlaceId: string | null
+    nomalPlaceId: string | null,
+    mapShertManageIdByUserId:Map<string,string>
 }
 export interface InterBuilding {
     id: string,
@@ -90,7 +91,9 @@ export interface InterCampBack {
     nongPaidIds: string[],
     nongInterviewIds: Map<string, string>,                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
-    havePeto: boolean
+    havePeto: boolean,
+    logoUrl:string,
+    mapShertManageIdByUserId:Map<string,string>
 }
 export interface InterCampStyle {
     id: string,
@@ -110,6 +113,10 @@ export interface InterFrydayAct {
 export interface InterHelthIsue {
     id: string,
     userId: string
+    foodIds:string[],
+    chronicDiseaseIds:string[],
+    medicineIds:string[],
+    isWearing:boolean
 }
 export interface InterNameContainer {
     id: string,
@@ -145,7 +152,8 @@ export interface InterPartBack {
     petoShertManageIds: string[],
     actionPlanIds: string[],
     workItemIds: string[],
-    placeId: string|null
+    placeId: string|null,
+    mapShertManageIdByUserId:Map<string,string>
 }
 export interface InterPartNameContainer {
     id: string,
@@ -229,7 +237,8 @@ export interface InterUser {
     fridayAuth: boolean,
     likeSongIds: string[],
     shertManageIds: string[],
-    createdAt: Date
+    createdAt: Date,
+    tel:string
 }
 export interface InterWorkingItem {
     id: string,
@@ -277,7 +286,8 @@ export interface InterBaanFront {
     styleId: string,
     boySleepPlaceId: string | null,
     girlSleepPlaceId: string | null,
-    nomalPlaceId: string | null
+    nomalPlaceId: string | null,
+    mapShertManageIdByUserId:MyMap[]
 }
 
 export interface InterCampFront {
@@ -328,7 +338,9 @@ export interface InterCampFront {
     nongPaidIds: string[],
     nongInterviewIds: MyMap[],                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
-    havePeto: boolean
+    havePeto: boolean,
+    logoUrl:string,
+    mapShertManageIdByUserId:MyMap[]
 }
 export interface InterPartFront {
     id: string,
@@ -350,7 +362,8 @@ export interface InterPartFront {
     petoShertManageIds: string[],
     actionPlanIds: string[],
     workItemIds: string[],
-    placeId: string|null
+    placeId: string|null,
+    mapShertManageIdByUserId:MyMap[]
 }
 export interface MyMap{
     key:string,
@@ -363,5 +376,17 @@ export interface InterLostAndFound{
     detail:string,
     userId:string,
     placeId:string|null,
-    buildingId:string|null
+    buildingId:string|null,
+    tel:string
+}
+export interface Register {
+    name: string,
+    lastname: string,
+    nickname: string,
+    email: string,
+    password: string,
+    gender: 'Male' | 'Female',
+    shertSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',
+    haveBottle: boolean,
+    tel:string
 }
