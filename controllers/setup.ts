@@ -1,5 +1,6 @@
 import express from 'express'
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, MyMap } from '../models/intreface'
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, InterWorkingItem, MyMap } from '../models/intreface'
+import jwt from 'jsonwebtoken'
 
 
 export function startSize(): Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> {
@@ -170,7 +171,10 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         registerModel,
         havePeto,
         mapShertManageIdByUserId,
-        logoUrl } = input
+        logoUrl,
+        registerSheetLink,
+        peeLock
+    } = input
     return ({
         partIds,
         open,
@@ -221,7 +225,9 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         songIds,
         id,
         logoUrl,
-        mapShertManageIdByUserId: mapStringToMyMap(mapShertManageIdByUserId)
+        mapShertManageIdByUserId: mapStringToMyMap(mapShertManageIdByUserId),
+        registerSheetLink,
+        peeLock
     })
 }
 export function conPartBackToFront(input: InterPartBack): InterPartFront {
@@ -285,4 +291,56 @@ export function myMapToMapString(input: MyMap[]): Map<string, string> {
     })
     return map
 
+}
+export function linkSign(input: InterWorkingItem, token: string): InterWorkingItem {
+    const {
+        id,
+        name,
+        link,
+        status,
+        partId,
+        campId,
+        linkOutIds,
+        fromId
+    } = input
+    return ({
+        id,
+        name,
+        status,
+        campId,
+        linkOutIds,
+        fromId,
+        partId,
+        link: jwt.sign(link, token)
+    })
+}
+function hashRaw(input:string,token:string):string{
+    try {
+        const out=jwt.verify(input,token)
+        return out.toString()
+    } catch (error) {
+        return 'null'
+    }
+}
+export function linkHash(input: InterWorkingItem, token: string): InterWorkingItem {
+    const {
+        id,
+        name,
+        link,
+        status,
+        partId,
+        campId,
+        linkOutIds,
+        fromId
+    } = input
+    return ({
+        id,
+        name,
+        status,
+        campId,
+        linkOutIds,
+        fromId,
+        partId,
+        link: hashRaw(link, token)
+    })
 }

@@ -11,7 +11,7 @@ import PetoCamp from "../models/PetoCamp"
 import ShertManage from "../models/ShertManage"
 import User from "../models/User"
 import WorkItem from "../models/WorkItem"
-import { InterBaanBack, InterCampBack, InterPartBack, InterShertManage } from "../models/intreface"
+import { InterBaanBack, InterCampBack, InterPartBack, InterShertManage, UpdateCamp } from "../models/intreface"
 import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, sendRes, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
@@ -20,6 +20,7 @@ import Place from "../models/Place"
 import { getUser } from "../middleware/auth"
 import Building from "../models/Building"
 import LostAndFound from "../models/LostAndFound"
+import { addPetoRaw } from "./camp"
 // export async function addBaan
 // export async function addPart
 // export async function updateBaan
@@ -125,12 +126,12 @@ export async function updateBaan(req: express.Request, res: express.Response, ne
         if (!link) {
             link = baan?.link
         }
-        const boyNewB=await Building.findById(boyNewP?.buildingId)
-        const boyOldB=await Building.findById(boyOldP?.buildingId)
-        const girlNewB=await Building.findById(girlNewP?.buildingId)
-        const girlOldB=await Building.findById(girlOldP?.buildingId)
-        const normalNewB=await Building.findById(normalNewP?.buildingId)
-        const normalOldB=await Building.findById(normalOldP?.buildingId)
+        const boyNewB = await Building.findById(boyNewP?.buildingId)
+        const boyOldB = await Building.findById(boyOldP?.buildingId)
+        const girlNewB = await Building.findById(girlNewP?.buildingId)
+        const girlOldB = await Building.findById(girlOldP?.buildingId)
+        const normalNewB = await Building.findById(normalNewP?.buildingId)
+        const normalOldB = await Building.findById(normalOldP?.buildingId)
         await boyNewP?.updateOne({ boySleepBaanIds: swop(null, baan?.id, boyNewP.boySleepBaanIds) })
         await girlNewP?.updateOne({ girlSleepBaanIds: swop(null, baan?.id, girlNewP.girlSleepBaanIds) })
         await normalNewP?.updateOne({ normalBaanIds: swop(null, baan?.id, normalNewP.normalBaanIds) })
@@ -180,16 +181,32 @@ async function setDefalse(peeCampId: string) {
 }
 export async function createCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const { nameId, round, dateStart, dateEnd, boardIds } = req.body
-        const camp = await Camp.create({ nameId, round, dateStart, dateEnd, boardIds })
+        const { nameId, round, dateStart, dateEnd, boardIds, registerSheetLink, havePeto } = req.body
+        const camp = await Camp.create({ nameId, round, dateStart, dateEnd, boardIds, registerSheetLink, havePeto })
         const campStyle = await CampStyle.create({ refId: camp._id, types: 'camp' })
         await camp.updateOne({ campStyleId: campStyle.id })
+        const nameContainer = await NameContainer.findById(nameId)
+        await nameContainer?.updateOne({ campIds: swop(null, camp.id, nameContainer.campIds) })
+        var partNameContainer = await PartNameContainer.findOne({ name: 'board' })
+        if (!partNameContainer) {
+            partNameContainer = await PartNameContainer.create({ name: 'board' })
+        }
+        const part = await Part.create({ nameId: partNameContainer.id, campId: camp.id })
+        await partNameContainer.updateOne({
+            campIds: swop(null, camp.id, partNameContainer.campIds),
+            partIds: swop(null, part.id, partNameContainer.partIds)
+        })
+        const petoCamp = await PetoCamp.create({ partId: part.id, campId: camp.id })
+        await camp.updateOne({
+            partIds: [part.id],
+            petoModelIds: [petoCamp.id],
+        })
+        await part.updateOne({ petoModelId: petoCamp.id })
         boardIds.forEach(async (boardId: string) => {
             const user = await User.findById(boardId)
             await user?.updateOne({ authorizeIds: swop(null, camp.id, user.authorizeIds) })
         })
-        const nameContainer = await NameContainer.findById(nameId)
-        await nameContainer?.updateOne({ campIds: swop(null, camp.id, nameContainer.campIds) })
+        addPetoRaw(boardIds, part.id)
         res.status(201).json(conCampBackToFront(camp as InterCampBack))
     } catch (err) {
         res.status(400).json({ success: false })
@@ -200,10 +217,7 @@ export async function forceDeleteCamp(req: express.Request, res: express.Respons
     await forceDeleteCampRaw(campId, res)
 }
 async function forceDeleteCampRaw(campId: string, res: express.Response | null) {
-
-
     try {
-
         const camp = await Camp.findById(campId)
         if (!camp) {
             return res?.status(400).json({ success: false })
@@ -287,7 +301,7 @@ async function forceDeleteCampRaw(campId: string, res: express.Response | null) 
         camp.workItemIds.forEach(async (workItemId) => {
             await WorkItem.findByIdAndDelete(workItemId)
         })
-        camp.actionPlanIds.forEach( async (actionPlanId) => {
+        camp.actionPlanIds.forEach(async (actionPlanId) => {
             const actionPlan = await ActionPlan.findById(actionPlanId)
             actionPlan?.placeIds.forEach(async (placeId: string) => {
                 const place = await Place.findById(placeId)
@@ -628,7 +642,6 @@ async function forceDeletePartRaw(partId: string) {
         camp.peeShertSize.set(k, calculate(v, 0, part?.peeShertSize.get(k)))
     })
     part?.actionPlanIds.forEach(async (id) => {
-              //////////////////////////////////////////////////////
         const actionPlan = await ActionPlan.findById(id)
         actionPlan?.placeIds.forEach(async (placeId: string) => {
             const place = await Place.findById(placeId)
@@ -636,7 +649,7 @@ async function forceDeletePartRaw(partId: string) {
             const building = await Building.findById(place?.buildingId)
             await building?.updateOne({ actionPlanIds: swop(actionPlan.id, null, building.actionPlanIds) })
         })
-            actionPlanIds = swop(id, null, actionPlanIds)
+        actionPlanIds = swop(id, null, actionPlanIds)
     })
     part?.workItemIds.forEach(async (id) => {
         const workItem = await WorkItem.findById(id)
@@ -725,6 +738,11 @@ export async function getAllAdmin(req: express.Request, res: express.Response, n
     res.status(200).json(users)
 }
 export async function downRole(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const users = await User.find({ role: 'admin' })
+    if (users.length == 1) {
+        sendRes(res, false)
+        return
+    }
     const user = await getUser(req)
     await user?.updateOne({ role: req.params.id })
     res.status(200).json({ success: true })
@@ -774,4 +792,14 @@ export async function saveDeleteBuilding(req: express.Request, res: express.Resp
     }
     await building?.deleteOne()
     sendRes(res, true)
+}
+export async function updateCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const user = await getUser(req)
+    const camp = await Camp.findById(req.params.id)
+    if (user?.role != 'admin' && !user?.authorizeIds.includes(camp?.id)) {
+        return res.status(403).json({ success: false })
+    }
+    const update: UpdateCamp = req.body
+    const newCamp = await Camp.findByIdAndUpdate(req.params.id, update)
+    res.status(200).json(newCamp)
 }

@@ -8,12 +8,13 @@ import PetoCamp from "../models/PetoCamp";
 import User from "../models/User";
 import WorkItem from "../models/WorkItem";
 import ShertManage from "../models/ShertManage";
-import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, resError, resOk, sendRes, startSize, swop } from "./setup";
+import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, linkHash, linkSign, resError, resOk, sendRes, startSize, swop } from "./setup";
 import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
 import express from "express";
+import jwt from 'jsonwebtoken'
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterWorkingItem, IntreActionPlan } from "../models/intreface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterWorkingItem, IntreActionPlan } from "../models/intreface";
 // exports.getWorkingItem           protect pee up           params id                fix
 // exports.createWorkingItem        protect pee up
 // exports.updateWorkingItem        protect pee up           params id
@@ -63,7 +64,10 @@ import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPart
 // export async function nongRegister
 // export async function getCampName
 // export async function getPartName
+// export async function changeBaan
+// export async function changePart
 export async function getWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const user = await getUser(req)
     try {
         if (req.params.id === 'init') {
             return res.status(400).json({
@@ -81,20 +85,22 @@ export async function getWorkingItem(req: express.Request, res: express.Response
         if (!hospital) {
             return res.status(400).json(resError);
         }
-
-        res.status(200).json(hospital);
+        res.status(200).json(linkHash(hospital as InterWorkingItem, user?.linkHash as string));
     } catch (err) {
         res.status(400).json(resError);
     }
 }
 export async function createWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const camp = await Camp.findById(req.body.campId)
+    const { campId, token, linkOutIds, fromId, link, status, partId, name } = req.body
+    const camp = await Camp.findById(campId)
+
 
     if (camp?.allDone) {
         return res.status(400).json({ success: false, message: 'This camp is all done' })
     }
+    //const red=linkSign({id:'',campId,linkOutIds,link,fromId,partId,status,name},token)
 
-    const hospital = await WorkItem.create(req.body);
+    const hospital = await WorkItem.create({ campId, linkOutIds, fromId, status, partId, name, link: jwt.sign(link, token) });
     await camp?.updateOne({ workItemIds: swop(null, hospital.id, camp.workItemIds) })
     const part = await Part.findById(hospital.partId)
     await part?.updateOne({ workItemIds: swop(null, hospital.id, part.workItemIds) })
@@ -105,16 +111,21 @@ export async function createWorkingItem(req: express.Request, res: express.Respo
 }
 export async function updateWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const camp = await Camp.findById(req.body.campId)
+        const { campId, token, linkOutIds, fromId, link, status, partId, name, id } = req.body
+        const workItem = await WorkItem.findById(id)
+        if (!workItem) {
+            return res.status(400).json(resError);
+        }
+        jwt.verify(workItem.link as string, token)
+
+        const camp = await Camp.findById(campId)
 
         if (camp?.allDone) {
             return res.status(400).json({ success: false, message: 'This camp is all done' })
         }
-        const hospital = await WorkItem.findByIdAndUpdate(req.params.id, req.body);
-        if (!hospital) {
-            return res.status(400).json(resError);
-        }
-        res.status(200).json(hospital.toJSON());
+        await workItem.updateOne({ campId, link: jwt.sign(link, token), linkOutIds, fromId, status, partId, name });
+
+        res.status(200).json(workItem.toJSON());
     } catch (err) {
         res.status(400).json(resError);
     }
@@ -167,6 +178,10 @@ export async function getWorkingItems(req: express.Request, res: express.Respons
                 });
             });
         }
+        var out: InterWorkingItem[] = [];
+        bufe.forEach((input: InterWorkingItem) => {
+            out.push(linkHash(input, user?.linkHash as string))
+        })
         res.status(200).json(bufe);
     } catch (err) {
         res.status(400).json({
@@ -495,94 +510,82 @@ export async function addPee(req: express.Request, res: express.Response, next: 
 }
 export async function addPeto(req: express.Request, res: express.Response, next: express.NextFunction) {
     const {
-        campId,
         member,
         partId
     } = req.body;
-    await addPetoRaw(campId, member, partId, res);
+    await addPetoRaw(member, partId);
+    sendRes(res, true)
 }
-async function addPetoRaw(campId: string, member: string[], partId: string, res: express.Response) {
-    try {
-        const camp = await Camp.findById(campId);
-        const part = await Part.findById(partId);
-        var c = camp?.petoHaveBottle
-        var p = part?.petoHaveBottle
-        var count = 0
-        const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize()
-        const petoCamp = await PetoCamp.findById(part?.petoModelId)
-        member.forEach(async (userId: string) => {
-            count = count + 1;
-            camp?.petoIds.push(userId);
-            part?.petoIds.push(userId);
-            const user = await User.findById(userId);
-            const userSize = user?.shertSize as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL';
-            size.set(userSize, size.get(userSize) as number + 1);
-            petoCamp?.petoIds.push(userId);
-            if (user?.helthIsueId) {
-                camp?.petoHelthIsueIds.push(user.helthIsueId);
-                part?.petoHelthIsueIds.push(user.helthIsueId);
-            }
-            const shertManage = await ShertManage.create({
-                userId,
-                size: user?.shertSize,
-                campModelId: petoCamp?.id,
-                recive: 'part',
-                role: 'peto'
-            });
-            user?.shertManageIds.push(shertManage.id);
-            part?.petoShertManageIds.push(shertManage.id);
-            petoCamp?.petoShertManageIds.push(shertManage._id.toString());
-            if (user?.haveBottle) {
-                c = c as number + 1;
-                p = p as number + 1;
-            }
-            camp?.mapShertManageIdByUserId.set(user?.id, shertManage.id)
-            part?.mapShertManageIdByUserId.set(user?.id, shertManage.id)
-            camp?.petoHaveBottleMapIds.set(user?.id, user?.haveBottle);
-            part?.petoHaveBottleMapIds.set(user?.id, user?.haveBottle);
-            user?.petoCampIds.push(petoCamp?.id);
-            user?.updateOne({ petoCampIds: user.petoCampIds, shertManageIds: user.shertManageIds })
+export async function addPetoRaw(member: string[], partId: string,) {
+    const part = await Part.findById(partId);
+    const camp = await Camp.findById(part?.campId);
+    var c = camp?.petoHaveBottle
+    var p = part?.petoHaveBottle
+    var count = 0
+    const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize()
+    const petoCamp = await PetoCamp.findById(part?.petoModelId)
+    member.forEach(async (userId: string) => {
+        count = count + 1;
+        camp?.petoIds.push(userId);
+        part?.petoIds.push(userId);
+        const user = await User.findById(userId);
+        const userSize = user?.shertSize as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL';
+        size.set(userSize, size.get(userSize) as number + 1);
+        petoCamp?.petoIds.push(userId);
+        if (user?.helthIsueId) {
+            camp?.petoHelthIsueIds.push(user.helthIsueId);
+            part?.petoHelthIsueIds.push(user.helthIsueId);
+        }
+        const shertManage = await ShertManage.create({
+            userId,
+            size: user?.shertSize,
+            campModelId: petoCamp?.id,
+            recive: 'part',
+            role: 'peto'
+        });
+        user?.shertManageIds.push(shertManage.id);
+        part?.petoShertManageIds.push(shertManage.id);
+        petoCamp?.petoShertManageIds.push(shertManage._id.toString());
+        if (user?.haveBottle) {
+            c = c as number + 1;
+            p = p as number + 1;
+        }
+        camp?.mapShertManageIdByUserId.set(user?.id, shertManage.id)
+        part?.mapShertManageIdByUserId.set(user?.id, shertManage.id)
+        camp?.petoHaveBottleMapIds.set(user?.id, user?.haveBottle);
+        part?.petoHaveBottleMapIds.set(user?.id, user?.haveBottle);
+        user?.petoCampIds.push(petoCamp?.id);
+        user?.updateOne({ petoCampIds: user.petoCampIds, shertManageIds: user.shertManageIds })
 
-        });
-        size.forEach((v, k) => {
-            camp?.petoShertSize.set(k, camp.petoShertSize.get(k) as number + v)
-            part?.petoShertSize.set(k, part.petoShertSize.get(k) as number + v)
-        })
-        await camp?.updateOne({
-            petoHaveBottle: c,
-            petoHaveBottleMapIds: camp.petoHaveBottleMapIds,
-            petoHelthIsueIds: camp.petoHelthIsueIds,
-            petoIds: camp.petoIds,
-            petoShertManageIds: camp.petoShertManageIds,
-            petoShertSize: camp.petoShertSize,
-            mapShertManageIdByUserId: camp.mapShertManageIdByUserId
-        })
-        await part?.updateOne({
-            petoHaveBottle: p,
-            petoHaveBottleMapIds: part.petoHaveBottleMapIds,
-            petoHelthIsueIds: part.petoHelthIsueIds,
-            petoIds: part.petoIds,
-            petoShertManageIds: part.petoShertManageIds,
-            petoShertSize: part.petoShertSize,
-            mapShertManageIdByUserId: part.mapShertManageIdByUserId
-        })
-        res.status(200).json({
-            success: true,
-            count
-        });
-    } catch (err) {
-        return res.status(400).json({
-            success: false
-        });
-    }
+    });
+    size.forEach((v, k) => {
+        camp?.petoShertSize.set(k, camp.petoShertSize.get(k) as number + v)
+        part?.petoShertSize.set(k, part.petoShertSize.get(k) as number + v)
+    })
+    await camp?.updateOne({
+        petoHaveBottle: c,
+        petoHaveBottleMapIds: camp.petoHaveBottleMapIds,
+        petoHelthIsueIds: camp.petoHelthIsueIds,
+        petoIds: camp.petoIds,
+        petoShertManageIds: camp.petoShertManageIds,
+        petoShertSize: camp.petoShertSize,
+        mapShertManageIdByUserId: camp.mapShertManageIdByUserId
+    })
+    await part?.updateOne({
+        petoHaveBottle: p,
+        petoHaveBottleMapIds: part.petoHaveBottleMapIds,
+        petoHelthIsueIds: part.petoHelthIsueIds,
+        petoIds: part.petoIds,
+        petoShertManageIds: part.petoShertManageIds,
+        petoShertSize: part.petoShertSize,
+        mapShertManageIdByUserId: part.mapShertManageIdByUserId
+    })
 }
 export async function staffRegister(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const {
-        campId,
-        partId
-    } = req.body;
+    const partId: string = req.params.id
+    const part = await Part.findById(partId)
     const user = await getUser(req)
-    const camp = await Camp.findById(campId)
+    const camp = await Camp.findById(part?.campId)
     if (user?.role === 'pee' || !camp?.havePeto) {
         camp?.peePassIds.set(user?.id, partId)
         await camp?.updateOne({ peePassIds: camp.peePassIds })
@@ -590,7 +593,7 @@ export async function staffRegister(req: express.Request, res: express.Response,
             success: true
         })
     } else {
-        await addPetoRaw(campId, [user?.id], partId, res);
+        await addPetoRaw([user?.id], partId);
     }
 }
 /*export async function addNongPass(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -906,4 +909,48 @@ export async function changePart(req: express.Request, res: express.Response, ne
     })
     await camp?.updateOne({ mapShertManageIdByUserId: camp.mapShertManageIdByUserId })
     sendRes(res, true)
+}
+export async function getNongsFromBaanId(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const out: InterUser[] = []
+    const baan = await Baan.findById(req.params.id)
+    baan?.nongIds.forEach(async (userId) => {
+        const user: InterUser | null = await User.findById(userId)
+        if (user) {
+            out.push(user)
+        }
+    })
+    res.status(200).json(out)
+}
+export async function getPeesFromBaanId(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const out: InterUser[] = []
+    const baan = await Baan.findById(req.params.id)
+    baan?.peeIds.forEach(async (userId) => {
+        const user: InterUser | null = await User.findById(userId)
+        if (user) {
+            out.push(user)
+        }
+    })
+    res.status(200).json(out)
+}
+export async function getPeesFromPartId(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const out: InterUser[] = []
+    const part = await Part.findById(req.params.id)
+    part?.peeIds.forEach(async (userId) => {
+        const user: InterUser | null = await User.findById(userId)
+        if (user) {
+            out.push(user)
+        }
+    })
+    res.status(200).json(out)
+}
+export async function getPetosFromPartId(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const out: InterUser[] = []
+    const part = await Part.findById(req.params.id)
+    part?.petoIds.forEach(async (userId) => {
+        const user: InterUser | null = await User.findById(userId)
+        if (user) {
+            out.push(user)
+        }
+    })
+    res.status(200).json(out)
 }

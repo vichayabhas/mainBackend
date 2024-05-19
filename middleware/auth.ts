@@ -1,11 +1,10 @@
 
-import { testJwt } from "../../../backendTest/middleware/auth";
-import Customer from "../../../backendTest/models/Customer";
 import jwt from 'jsonwebtoken';
-import User from '../models/User';
+import User, { buf } from '../models/User';
 import { NextFunction } from 'express'
 import express from "express";
 import { resError } from "../controllers/setup";
+const testJwt = buf
 export async function protect(req: express.Request, res: express.Response, next: NextFunction) {
   let token: string | null | undefined;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -15,7 +14,7 @@ export async function protect(req: express.Request, res: express.Response, next:
     return res.status(401).json({ success: false, massage: 'Not authorize to access this route' });
   }
   try {
-    const decoded = jwt.verify(token.toString(), testJwt)
+    const decoded = jwt.verify(token, testJwt)
     const { id } = decoded as any
     const user = await User.findById(id)
     if (!user) {
@@ -37,8 +36,8 @@ export function authorize(...roles: String[]) {
       return res.status(401).json({ success: false, massage: 'Not authorize to access this route' });
     }
     const decoded = jwt.verify(token.toString(), testJwt)
-    const { id } = decoded as {id:string}
-    const user = await Customer.findById(id)
+    const { id } = decoded as { id: string }
+    const user = await User.findById(id)
     if (!user) {
       return res.status(401).json({ success: false, massage: 'Not authorize to access this route' });
     }
@@ -103,19 +102,19 @@ export async function peto(req: express.Request, res: express.Response, next: Ne
   }
   next();
 }
-export function isLogin(withIn:express.RequestHandler,withOut:express.RequestHandler|null) {
-  return async (req: express.Request, res: express.Response, next: NextFunction) =>{
+export function isLogin(withIn: express.RequestHandler, withOut: express.RequestHandler | null) {
+  return async (req: express.Request, res: express.Response, next: NextFunction) => {
     let token: string | null | undefined;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1]
     }
     if (!token) {
-      if(withOut){
-        withOut(req,res,next)
-      }else{
+      if (withOut) {
+        withOut(req, res, next)
+      } else {
         res.status(403).json(resError)
       }
-      
+
       return
     }
     try {
@@ -123,22 +122,22 @@ export function isLogin(withIn:express.RequestHandler,withOut:express.RequestHan
       const { id } = decoded as any
       const user = await User.findById(id)
       if (!user) {
-        if(withOut){
-          withOut(req,res,next)
-        }else{
+        if (withOut) {
+          withOut(req, res, next)
+        } else {
           res.status(403).json(resError)
         }
-        
-        return 
+
+        return
       }
-      withIn(req,res,next)
+      withIn(req, res, next)
     } catch (err: any) {
-      if(withOut){
-        withOut(req,res,next)
-      }else{
+      if (withOut) {
+        withOut(req, res, next)
+      } else {
         res.status(403).json(resError)
       }
-      return 
+      return
     }
   }
 }

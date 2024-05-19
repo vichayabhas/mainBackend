@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-export  const buf:string= process.env.JWT_SECECRET||'asdfjkl;;lkjfdsa'
+export const buf: string = process.env.JWT_SECECRET || 'asdfjkl;;lkjfdsa'
 const UserSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -37,8 +37,8 @@ const UserSchema = new mongoose.Schema({
         select: false
 
     },
-    tel:{
-        type:String
+    tel: {
+        type: String
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
@@ -132,13 +132,17 @@ const UserSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
-    lostAndFoundIds:{
+    lostAndFoundIds: {
         type: [String],
-        default: []      
+        default: []
     },
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    linkHash: {
+        type: String,
+        default: 'null'
     }
 });
 UserSchema.pre('save', async function (next) {
@@ -146,7 +150,4 @@ UserSchema.pre('save', async function (next) {
     this.password = await bcrypt.hash(this.password, salt);
     next()
 });
-UserSchema.methods.matchPassword=async function(enteredPassword:string){
-    return await bcrypt.compare(enteredPassword,this.password);
-}
 export default mongoose.model('User', UserSchema);

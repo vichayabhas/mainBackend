@@ -196,6 +196,13 @@ const campSchema = new mongoose.Schema({
     mapShertManageIdByUserId:{
         type: Map,
         default: new Map
+    },
+    peeLock:{
+        type:Boolean,
+        default:false
+    },
+    registerSheetLink:{
+        type:String
     }
 })
 export default mongoose.model('Camp', campSchema)

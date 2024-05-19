@@ -17,12 +17,12 @@ import jwt from 'jsonwebtoken'
 // exports.login
 // exports.getMe               protect
 // exports.logout
-// exports.getUser             protect lib
 // exports.updateMode          protect pee up
 // exports.updateSize          protect           params id
 // exports.getHelthIsue        protect           params id
 // exports.updateHelth         protect           params id
 // exports.updateBottle        protect
+// export async function getShertManageByCampId
 export async function register(req: express.Request, res: express.Response, next: express.NextFunction) {
 	try {
 		const buf: Register = req.body
@@ -79,10 +79,7 @@ const sendTokenResponse = (user: InterUser, statusCode: number, res: express.Res
 };
 export async function getMe(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const user = await getUser(req)
-	res.status(200).json({
-		success: true,
-		data: user
-	});
+	res.status(200).json(user);
 }
 export async function logout(req: express.Request, res: express.Response, next: express.NextFunction) {
 	//Clears cookie
@@ -108,6 +105,7 @@ export async function updateMode(req: express.Request, res: express.Response, ne
 }
 export async function updateSize(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const shertSize = req.params.id;
+	//console.log(shertSize)
 	const old = await getUser(req)
 	const oldSize = old?.shertSize;
 	if (shertSize) {
@@ -224,8 +222,6 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 			if (!camp?.dataLock) {
 				const baan = await Baan.findById(peeCamp?.baanId)
 				const part = await Part.findById(peeCamp?.partId)
-
-
 				await baan?.updateOne({
 					peeHelthIsueIds: swop(oldHelthId as string, helth.id, baan?.peeHelthIsueIds)
 				})
@@ -345,10 +341,59 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 		user,
 	});
 }
-export async function getShertManageByCampId(req: express.Request, res: express.Response, next: express.NextFunction){
-	const user=await getUser(req)
-	const campId:string=req.params.id
-	const camp=await Camp.findById(campId)
-	const shertManage=await ShertManage.findById(camp?.mapShertManageIdByUserId.get(user?.id))
+export async function getShertManageByCampId(req: express.Request, res: express.Response, next: express.NextFunction) {
+	const user = await getUser(req)
+	const campId: string = req.params.id
+	const camp = await Camp.findById(campId)
+	const shertManage = await ShertManage.findById(camp?.mapShertManageIdByUserId.get(user?.id))
 	res.status(200).json(shertManage)
+}
+export async function getSameWearing(req: express.Request, res: express.Response, next: express.NextFunction) {
+	const user = await getUser(req)
+	var sames: InterUser[] = []
+	user?.shertManageIds.forEach(async (shertManageId: string) => {
+		const shertManage = await ShertManage.findById(shertManageId);
+		switch (shertManage?.role) {
+			case 'nong': {
+				const nongCamp = await NongCamp.findById(shertManage.campModelId);
+				const nong = await getSameWearingRaw(nongCamp?.id, []);
+				nong.forEach((u) => {
+					sames.push(u);
+				});
+			}
+			case 'pee': {
+				const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+				const nong = await getSameWearingRaw(peeCamp?.id, []);
+				nong.forEach((u) => {
+					sames.push(u);
+				});
+			}
+			case 'peto': {
+				const peeCamp = await PetoCamp.findById(shertManage.campModelId)
+				const nong = await getSameWearingRaw(peeCamp?.id, []);
+				nong.forEach((u) => {
+					sames.push(u);
+				});
+			}
+		}
+	})
+}
+async function getSameWearingRaw(campId: string, sames: InterUser[]): Promise<InterUser[]> {
+	const camp = await Camp.findById(campId)
+	camp?.nongHelthIsueIds.forEach(async (helthIsueId: string) => {
+		const helthIsue = await HelthIsue.findById(helthIsueId)
+		if (helthIsue?.isWearing) {
+			const user: InterUser | null = await User.findById(helthIsue.userId)
+			if (user) {
+				sames.push(user)
+			}
+		}
+	})
+	return sames
+}
+export async function updateProfile(req: express.Request, res: express.Response, next: express.NextFunction) {
+	const user = await getUser(req)
+	const { email, tel } = req.body
+	await user?.updateOne({ email, tel })
+	res.status(200).json(user)
 }

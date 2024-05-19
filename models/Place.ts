@@ -38,7 +38,7 @@ const PeeCampSchema = new mongoose.Schema({
     studyCap:{
         type:Number
     },
-    lostAndFoundIds:{
+    lostAndFoundIds:{ 
         type: [String],
         default: []      
     },

@@ -34,7 +34,7 @@ export interface InterBaanBack {
     boySleepPlaceId: string | null,
     girlSleepPlaceId: string | null,
     nomalPlaceId: string | null,
-    mapShertManageIdByUserId:Map<string,string>
+    mapShertManageIdByUserId: Map<string, string>
 }
 export interface InterBuilding {
     id: string,
@@ -92,14 +92,15 @@ export interface InterCampBack {
     nongInterviewIds: Map<string, string>,                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
     havePeto: boolean,
-    logoUrl:string,
-    mapShertManageIdByUserId:Map<string,string>
+    logoUrl: string,
+    mapShertManageIdByUserId: Map<string, string>,
+    registerSheetLink:string,
+    peeLock:boolean
 }
 export interface InterCampStyle {
     id: string,
     refId: string,
     types: 'camp' | 'baan'
-    
 }
 export interface InterFrydayAct {
     id: string,
@@ -113,10 +114,10 @@ export interface InterFrydayAct {
 export interface InterHelthIsue {
     id: string,
     userId: string
-    foodIds:string[],
-    chronicDiseaseIds:string[],
-    medicineIds:string[],
-    isWearing:boolean
+    foodIds: string[],
+    chronicDiseaseIds: string[],
+    medicineIds: string[],
+    isWearing: boolean
 }
 export interface InterNameContainer {
     id: string,
@@ -152,8 +153,8 @@ export interface InterPartBack {
     petoShertManageIds: string[],
     actionPlanIds: string[],
     workItemIds: string[],
-    placeId: string|null,
-    mapShertManageIdByUserId:Map<string,string>
+    placeId: string | null,
+    mapShertManageIdByUserId: Map<string, string>
 }
 export interface InterPartNameContainer {
     id: string,
@@ -238,7 +239,8 @@ export interface InterUser {
     likeSongIds: string[],
     shertManageIds: string[],
     createdAt: Date,
-    tel:string
+    tel: string,
+    linkHash: string
 }
 export interface InterWorkingItem {
     id: string,
@@ -250,14 +252,14 @@ export interface InterWorkingItem {
     linkOutIds: string[],
     fromId: string
 }
-export interface InterSize{
-    id:string|null,
-    sizeS:number,
-    sizeM:number,
-    sizeL:number,
-    sizeXL:number,
-    sizeXXL:number,
-    size3XL:number
+export interface InterSize {
+    id: string | null,
+    sizeS: number,
+    sizeM: number,
+    sizeL: number,
+    sizeXL: number,
+    sizeXXL: number,
+    size3XL: number
 }
 
 //////////////////////////////////////////////////////////
@@ -287,7 +289,7 @@ export interface InterBaanFront {
     boySleepPlaceId: string | null,
     girlSleepPlaceId: string | null,
     nomalPlaceId: string | null,
-    mapShertManageIdByUserId:MyMap[]
+    mapShertManageIdByUserId: MyMap[]
 }
 
 export interface InterCampFront {
@@ -339,8 +341,10 @@ export interface InterCampFront {
     nongInterviewIds: MyMap[],                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
     havePeto: boolean,
-    logoUrl:string,
-    mapShertManageIdByUserId:MyMap[]
+    logoUrl: string,
+    mapShertManageIdByUserId: MyMap[],
+    registerSheetLink:string,
+    peeLock:boolean
 }
 export interface InterPartFront {
     id: string,
@@ -362,22 +366,22 @@ export interface InterPartFront {
     petoShertManageIds: string[],
     actionPlanIds: string[],
     workItemIds: string[],
-    placeId: string|null,
-    mapShertManageIdByUserId:MyMap[]
+    placeId: string | null,
+    mapShertManageIdByUserId: MyMap[]
 }
-export interface MyMap{
-    key:string,
-    value:string
+export interface MyMap {
+    key: string,
+    value: string
 }
-export interface InterLostAndFound{
-    campId:string|null,
-    type:'lost'|'found',
-    name:string,
-    detail:string,
-    userId:string,
-    placeId:string|null,
-    buildingId:string|null,
-    tel:string
+export interface InterLostAndFound {
+    campId: string | null,
+    type: 'lost' | 'found',
+    name: string,
+    detail: string,
+    userId: string,
+    placeId: string | null,
+    buildingId: string | null,
+    tel: string
 }
 export interface Register {
     name: string,
@@ -388,5 +392,18 @@ export interface Register {
     gender: 'Male' | 'Female',
     shertSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',
     haveBottle: boolean,
-    tel:string
+    tel: string
+}
+export interface UpdateCamp {
+    dataLock: boolean,
+    open: boolean,
+    link: string | null,
+    allDone: boolean,
+    lockChangePickup: boolean,
+    pictureUrls: string[],
+    logoUrl: string,
+    dateStart: Date,
+    dateEnd: Date,
+    registerSheetLink: string,
+    peeLock:boolean
 }
