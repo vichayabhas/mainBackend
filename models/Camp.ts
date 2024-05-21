@@ -182,27 +182,27 @@ const campSchema = new mongoose.Schema({
         type: String,
         enum: ['noPaid', 'noInterview', 'all']
     },
-    lostAndFoundIds:{
+    lostAndFoundIds: {
         type: [String],
-        default: []      
+        default: []
     },
-    havePeto: {
-        type: Boolean,
-        default: true
+    memberStructre: {
+        type: String,
+        enum: ['nong->highSchool,pee->1year,peto->2upYear', 'nong->highSchool,pee->2upYear', 'nong->1year,pee->2upYear', 'nong->highSchool,pee->allYear']
     },
-    logoUrl:{
-        type:String
+    logoUrl: {
+        type: String
     },
-    mapShertManageIdByUserId:{
+    mapShertManageIdByUserId: {
         type: Map,
         default: new Map
     },
-    peeLock:{
-        type:Boolean,
-        default:false
+    peeLock: {
+        type: Boolean,
+        default: false
     },
-    registerSheetLink:{
-        type:String
+    registerSheetLink: {
+        type: String
     }
 })
 export default mongoose.model('Camp', campSchema)

@@ -91,7 +91,7 @@ export interface InterCampBack {
     nongPaidIds: string[],
     nongInterviewIds: Map<string, string>,                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
-    havePeto: boolean,
+    memberStructre: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear'|'nong->highSchool,pee->allYear',
     logoUrl: string,
     mapShertManageIdByUserId: Map<string, string>,
     registerSheetLink:string,
@@ -340,7 +340,7 @@ export interface InterCampFront {
     nongPaidIds: string[],
     nongInterviewIds: MyMap[],                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
-    havePeto: boolean,
+    memberStructre: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear'|'nong->highSchool,pee->allYear',
     logoUrl: string,
     mapShertManageIdByUserId: MyMap[],
     registerSheetLink:string,
@@ -406,4 +406,13 @@ export interface UpdateCamp {
     dateEnd: Date,
     registerSheetLink: string,
     peeLock:boolean
+}
+export interface CreateCamp{
+    nameId: string,
+    round: number,
+    dateStart: Date,
+    dateEnd: Date,
+    boardIds: string[],                   
+    registerModel: 'noPaid' | 'noInterview' | 'all',
+    memberStructre: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear'|'nong->highSchool,pee->allYear',
 }

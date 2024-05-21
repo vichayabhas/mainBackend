@@ -9,7 +9,7 @@ const PeeCampSchema = new mongoose.Schema({
     },
     partIds: {
         type: [String],
-        default: []
+        default: [] 
     }
-})
+}) 
 export default mongoose.model('PartNameContainer', PeeCampSchema)

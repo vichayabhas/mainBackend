@@ -181,8 +181,8 @@ async function setDefalse(peeCampId: string) {
 }
 export async function createCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const { nameId, round, dateStart, dateEnd, boardIds, registerSheetLink, havePeto } = req.body
-        const camp = await Camp.create({ nameId, round, dateStart, dateEnd, boardIds, registerSheetLink, havePeto })
+        const { nameId, round, dateStart, dateEnd, boardIds, registerSheetLink, memberStructre } = req.body
+        const camp = await Camp.create({ nameId, round, dateStart, dateEnd, boardIds, registerSheetLink, memberStructre })
         const campStyle = await CampStyle.create({ refId: camp._id, types: 'camp' })
         await camp.updateOne({ campStyleId: campStyle.id })
         const nameContainer = await NameContainer.findById(nameId)
@@ -796,10 +796,18 @@ export async function saveDeleteBuilding(req: express.Request, res: express.Resp
 export async function updateCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     const user = await getUser(req)
     const camp = await Camp.findById(req.params.id)
-    if (user?.role != 'admin' && !user?.authorizeIds.includes(camp?.id)) {
+    if ((user?.role != 'admin' && !user?.authorizeIds.includes(camp?.id))) {
         return res.status(403).json({ success: false })
     }
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
     const update: UpdateCamp = req.body
-    const newCamp = await Camp.findByIdAndUpdate(req.params.id, update)
-    res.status(200).json(newCamp)
+    await camp.updateOne(update)
+    res.status(200).json(camp)
+}
+export async function getCampNames(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const nameContainers = await NameContainer.find()
+    res.status(200).json(nameContainers)
 }

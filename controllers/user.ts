@@ -8,7 +8,7 @@ import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import ShertManage from "../models/ShertManage";
 import User, { buf } from "../models/User";
-import { swop } from "./setup";
+import { sendRes, swop } from "./setup";
 import express from "express";
 import bcrypt from "bcrypt"
 import { InterBaanBack, InterPartBack, InterUser, Register } from "../models/intreface";
@@ -396,4 +396,29 @@ export async function updateProfile(req: express.Request, res: express.Response,
 	const { email, tel } = req.body
 	await user?.updateOne({ email, tel })
 	res.status(200).json(user)
+}
+export async function changeModeToPee(req: express.Request, res: express.Response, next: express.NextFunction) {
+	const user = await getUser(req)
+	try {
+		if (!user || user.role == 'nong') {
+			sendRes(res, false)
+			return
+		}
+		const password = req.params.id
+		//console.log(password)
+		//console.log(user)
+		const isMatch = await bcrypt.compare(password, user.password);
+		if (!isMatch) {
+			sendRes(res, false)
+			return
+		}
+		await user.updateOne({ mode: 'pee' })
+		sendRes(res,true)
+	} catch (err) {
+		console.log(err)
+		//console.log('tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt')
+		sendRes(res, false)
+	}
+
+
 }

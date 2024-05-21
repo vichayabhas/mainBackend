@@ -58,12 +58,11 @@ export async function getUser(req: express.Request) {
   }
   const decoded = jwt.verify(token.toString(), testJwt)
   const { id } = decoded as any
-  const user = await User.findById(id)
+  const user = await User.findById(id).select("+password");
   return user
 }
 export async function modePee(req: express.Request, res: express.Response, next: NextFunction) {
   const user = await getUser(req)
-
   if (user?.mode != 'pee') {
     return res.status(403).json({ success: false, message: `User role ${user?.mode} is not authorize to access this route` });
   }

@@ -416,8 +416,12 @@ export async function addNong(req: express.Request, res: express.Response, next:
 export async function addPee(req: express.Request, res: express.Response, next: express.NextFunction) {
     const {
         campId,
-        member,
+        members,
         baanId
+    }: {
+        campId: string,
+        members: string[],
+        baanId: string
     } = req.body;
     try {
         const baan = await Baan.findById(baanId);
@@ -426,7 +430,7 @@ export async function addPee(req: express.Request, res: express.Response, next: 
         var c = camp?.peeHaveBottle as number
         var count = 0
         const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize()
-        await member.forEach(async (userId: string) => {
+        await members.forEach(async (userId: string) => {
             const user = await User.findById(userId);
             const part = await Part.findById(camp?.peePassIds.get(userId));
             const peeCamp = await PeeCamp.findById(baan?.mapPeeCampIdByPartId.get(part?.id))
@@ -586,7 +590,7 @@ export async function staffRegister(req: express.Request, res: express.Response,
     const part = await Part.findById(partId)
     const user = await getUser(req)
     const camp = await Camp.findById(part?.campId)
-    if (user?.role === 'pee' || !camp?.havePeto) {
+    if (user?.role === 'pee' || camp?.memberStructre != 'nong->highSchool,pee->1year,peto->2upYear') {
         camp?.peePassIds.set(user?.id, partId)
         await camp?.updateOne({ peePassIds: camp.peePassIds })
         res.status(200).json({
@@ -594,6 +598,7 @@ export async function staffRegister(req: express.Request, res: express.Response,
         })
     } else {
         await addPetoRaw([user?.id], partId);
+        sendRes(res, true)
     }
 }
 /*export async function addNongPass(req: express.Request, res: express.Response, next: express.NextFunction) {
