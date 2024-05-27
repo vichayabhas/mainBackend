@@ -91,11 +91,13 @@ export interface InterCampBack {
     nongPaidIds: string[],
     nongInterviewIds: Map<string, string>,                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
-    memberStructre: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear'|'nong->highSchool,pee->allYear',
+    memberStructre: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear' | 'nong->highSchool,pee->allYear' | 'allYearMix' | 'allYearMix',
     logoUrl: string,
     mapShertManageIdByUserId: Map<string, string>,
-    registerSheetLink:string,
-    peeLock:boolean
+    registerSheetLink: string,
+    peeLock: boolean,
+    outRoundIds: string[],
+    campName:string
 }
 export interface InterCampStyle {
     id: string,
@@ -240,7 +242,8 @@ export interface InterUser {
     shertManageIds: string[],
     createdAt: Date,
     tel: string,
-    linkHash: string
+    linkHash: string,
+    citizenId: string
 }
 export interface InterWorkingItem {
     id: string,
@@ -250,7 +253,8 @@ export interface InterWorkingItem {
     partId: string,
     campId: string,
     linkOutIds: string[],
-    fromId: string
+    fromId: string,
+    createBy: string
 }
 export interface InterSize {
     id: string | null,
@@ -340,11 +344,13 @@ export interface InterCampFront {
     nongPaidIds: string[],
     nongInterviewIds: MyMap[],                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
-    memberStructre: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear'|'nong->highSchool,pee->allYear',
+    memberStructre: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear' | 'nong->highSchool,pee->allYear' | 'allYearMix',
     logoUrl: string,
     mapShertManageIdByUserId: MyMap[],
-    registerSheetLink:string,
-    peeLock:boolean
+    registerSheetLink: string,
+    peeLock: boolean,
+    outRoundIds: string[],
+    campName:string
 }
 export interface InterPartFront {
     id: string,
@@ -392,7 +398,8 @@ export interface Register {
     gender: 'Male' | 'Female',
     shertSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',
     haveBottle: boolean,
-    tel: string
+    tel: string,
+    citizenId: string
 }
 export interface UpdateCamp {
     dataLock: boolean,
@@ -405,14 +412,14 @@ export interface UpdateCamp {
     dateStart: Date,
     dateEnd: Date,
     registerSheetLink: string,
-    peeLock:boolean
+    peeLock: boolean
 }
-export interface CreateCamp{
+export interface CreateCamp {
     nameId: string,
     round: number,
     dateStart: Date,
     dateEnd: Date,
-    boardIds: string[],                   
+    boardIds: string[],
     registerModel: 'noPaid' | 'noInterview' | 'all',
-    memberStructre: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear'|'nong->highSchool,pee->allYear',
+    memberStructre: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear' | 'nong->highSchool,pee->allYear' | 'allYearMix',
 }

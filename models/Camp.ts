@@ -188,7 +188,7 @@ const campSchema = new mongoose.Schema({
     },
     memberStructre: {
         type: String,
-        enum: ['nong->highSchool,pee->1year,peto->2upYear', 'nong->highSchool,pee->2upYear', 'nong->1year,pee->2upYear', 'nong->highSchool,pee->allYear']
+        enum: ['nong->highSchool,pee->1year,peto->2upYear', 'nong->highSchool,pee->2upYear', 'nong->1year,pee->2upYear', 'nong->highSchool,pee->allYear','allYearMix']
     },
     logoUrl: {
         type: String
@@ -203,6 +203,13 @@ const campSchema = new mongoose.Schema({
     },
     registerSheetLink: {
         type: String
+    },
+    outRoundIds:{//น้องที่ตกรอบ
+        type:[String],
+        default:[]
+    },
+    campName:{
+        type:String
     }
 })
 export default mongoose.model('Camp', campSchema)

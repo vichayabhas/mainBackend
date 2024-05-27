@@ -11,7 +11,7 @@ import PetoCamp from "../models/PetoCamp"
 import ShertManage from "../models/ShertManage"
 import User from "../models/User"
 import WorkItem from "../models/WorkItem"
-import { InterBaanBack, InterCampBack, InterPartBack, InterShertManage, UpdateCamp } from "../models/intreface"
+import { CreateCamp, InterBaanBack, InterCampBack, InterPartBack, InterShertManage, UpdateCamp } from "../models/intreface"
 import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, sendRes, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
@@ -20,7 +20,7 @@ import Place from "../models/Place"
 import { getUser } from "../middleware/auth"
 import Building from "../models/Building"
 import LostAndFound from "../models/LostAndFound"
-import { addPetoRaw } from "./camp"
+import { addPeeRaw, addPetoRaw } from "./camp"
 // export async function addBaan
 // export async function addPart
 // export async function updateBaan
@@ -47,12 +47,17 @@ import { addPetoRaw } from "./camp"
 // export async function saveDeleteBuilding
 export async function addBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     const user = await getUser(req)
-    const { campId, name, fullName } = req.body
+    const { campId, name } = req.body
     const camp = await Camp.findById(campId)
     if (user?.role != 'admin' && !user?.authorizeIds.includes(camp?.id)) {
         return res.status(403).json({ success: false })
     }
-    const baan = await Baan.create({ campId, name, fullName })
+    const baan = await addBaanRaw(campId, name)
+    res.status(201).json(baan)
+}
+export async function addBaanRaw(campId: string, name: string) {
+    const camp = await Camp.findById(campId)
+    const baan = await Baan.create({ campId, name })
     const nongCamp = await NongCamp.create({ campId, baanId: baan._id })
     camp?.partIds.forEach(async (partId) => {
         const part = await Part.findById(partId)
@@ -68,7 +73,7 @@ export async function addBaan(req: express.Request, res: express.Response, next:
     await camp?.updateOne({ nongModelIds: swop(null, nongCamp.id, camp.nongModelIds), baanIds: swop(null, baan.id, camp.baanIds), peeModelIds: camp.peeModelIds })
     const campStyle = await CampStyle.create({ refId: baan._id, types: 'baan' })
     await baan.updateOne({ styleId: campStyle.id, mapPeeCampIdByPartId: baan.mapPeeCampIdByPartId, nongModelId: nongCamp.id, peeModelIds: baan.peeModelIds })
-    res.status(201).json(conBaanBackToFront(baan as InterBaanBack))
+    return (conBaanBackToFront(baan as InterBaanBack))
 }
 export async function addPart(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { campId, nameId } = req.body
@@ -102,6 +107,7 @@ export async function updateBaan(req: express.Request, res: express.Response, ne
         if (user?.role != 'admin' && !user?.authorizeIds.includes(baan?.campId as string)) {
             return res.status(401).json({ success: false })
         }
+
         var boyNewP = await Place.findById(boySleepPlaceId)
         var girlNewP = await Place.findById(girlSleepPlaceId)
         var normalNewP = await Place.findById(nomalPlaceId)
@@ -181,11 +187,15 @@ async function setDefalse(peeCampId: string) {
 }
 export async function createCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const { nameId, round, dateStart, dateEnd, boardIds, registerSheetLink, memberStructre } = req.body
-        const camp = await Camp.create({ nameId, round, dateStart, dateEnd, boardIds, registerSheetLink, memberStructre })
-        const campStyle = await CampStyle.create({ refId: camp._id, types: 'camp' })
+        const createCamp: CreateCamp = req.body
+        const camp = await Camp.create(createCamp)
+        const campStyle = await CampStyle.create({ refId: camp.id, types: 'camp' })
         await camp.updateOne({ campStyleId: campStyle.id })
-        const nameContainer = await NameContainer.findById(nameId)
+        const nameContainer = await NameContainer.findById(createCamp.nameId)
+        if(!nameContainer){
+            sendRes(res,false)
+            return
+        }
         await nameContainer?.updateOne({ campIds: swop(null, camp.id, nameContainer.campIds) })
         var partNameContainer = await PartNameContainer.findOne({ name: 'board' })
         if (!partNameContainer) {
@@ -200,14 +210,21 @@ export async function createCamp(req: express.Request, res: express.Response, ne
         await camp.updateOne({
             partIds: [part.id],
             petoModelIds: [petoCamp.id],
+            campName:`${nameContainer.name} ${camp.round}`
         })
         await part.updateOne({ petoModelId: petoCamp.id })
-        boardIds.forEach(async (boardId: string) => {
+        createCamp.boardIds.forEach(async (boardId: string) => {
             const user = await User.findById(boardId)
             await user?.updateOne({ authorizeIds: swop(null, camp.id, user.authorizeIds) })
         })
-        addPetoRaw(boardIds, part.id)
-        res.status(201).json(conCampBackToFront(camp as InterCampBack))
+        if (createCamp.memberStructre == 'nong->highSchool,pee->1year,peto->2upYear') {
+            await addPetoRaw(createCamp.boardIds, part.id,res)
+        }else{
+            const baan=await addBaanRaw(camp.id,'board')
+            await addPeeRaw(camp.id,createCamp.boardIds, baan.id,res)
+        }
+
+        //res.status(201).json(conCampBackToFront(camp as InterCampBack))
     } catch (err) {
         res.status(400).json({ success: false })
     }
@@ -348,8 +365,14 @@ export async function saveDeleteCamp(req: express.Request, res: express.Response
     res.status(200).json({ success: true })
 }
 export async function addCampName(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const name = await NameContainer.create({ name: req.params.id })
+    try{
+        const name = await NameContainer.create({ name: req.params.id })
     res.status(201).json(name)
+    }catch(err){
+        console.log(err)
+        sendRes(res,false)
+    }
+    
 }
 export async function saveDeleteCampName(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {

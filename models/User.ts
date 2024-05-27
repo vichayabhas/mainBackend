@@ -143,6 +143,9 @@ const UserSchema = new mongoose.Schema({
     linkHash: {
         type: String,
         default: 'null'
+    },
+    citizenId:{//รหัสประจำตัวประชาชน
+        type:String
     }
 });
 UserSchema.pre('save', async function (next) {

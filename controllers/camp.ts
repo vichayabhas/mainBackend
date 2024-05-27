@@ -92,28 +92,32 @@ export async function getWorkingItem(req: express.Request, res: express.Response
 }
 export async function createWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { campId, token, linkOutIds, fromId, link, status, partId, name } = req.body
+    const user = await getUser(req)
     const camp = await Camp.findById(campId)
-
-
-    if (camp?.allDone) {
+    if (!camp || !user) {
+        sendRes(res, false)
+        return
+    }
+    if (camp.allDone) {
         return res.status(400).json({ success: false, message: 'This camp is all done' })
     }
     //const red=linkSign({id:'',campId,linkOutIds,link,fromId,partId,status,name},token)
 
-    const hospital = await WorkItem.create({ campId, linkOutIds, fromId, status, partId, name, link: jwt.sign(link, token) });
+    const hospital = await WorkItem.create({ campId, linkOutIds, fromId, status, partId, name, link: jwt.sign(link, token), createBy: user.id });
     await camp?.updateOne({ workItemIds: swop(null, hospital.id, camp.workItemIds) })
     const part = await Part.findById(hospital.partId)
     await part?.updateOne({ workItemIds: swop(null, hospital.id, part.workItemIds) })
     const from = await WorkItem.findById(hospital.fromId)
     from?.linkOutIds.push(hospital.id)
     await from?.updateOne({ linkOutIds: from.linkOutIds })
-    res.status(200).json(hospital.toJSON());
+    res.status(200).json(hospital);
 }
 export async function updateWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const { campId, token, linkOutIds, fromId, link, status, partId, name, id } = req.body
+        const { campId, token, linkOutIds, link, status, partId, name, id } = req.body
+        const user = await getUser(req)
         const workItem = await WorkItem.findById(id)
-        if (!workItem) {
+        if (!workItem || !user) {
             return res.status(400).json(resError);
         }
         jwt.verify(workItem.link as string, token)
@@ -123,7 +127,7 @@ export async function updateWorkingItem(req: express.Request, res: express.Respo
         if (camp?.allDone) {
             return res.status(400).json({ success: false, message: 'This camp is all done' })
         }
-        await workItem.updateOne({ campId, link: jwt.sign(link, token), linkOutIds, fromId, status, partId, name });
+        await workItem.updateOne({ campId, link: jwt.sign(link, token), linkOutIds, status, partId, name });
 
         res.status(200).json(workItem.toJSON());
     } catch (err) {
@@ -220,6 +224,10 @@ export async function getCamp(req: express.Request, res: express.Response, next:
         //    data.nongShertSize.set('S',(data.nongShertSize.get('S') as number) +1)
         //    await data.updateOne({nongShertSize:data.nongShertSize})
         res.status(200).json(conCampBackToFront(data as InterCampBack));
+        console.log(req.params.id)
+        //const data=await Camp.findOne()
+        //res.status(200).json(conCampBackToFront(data as InterCampBack))
+        
     } catch (err) {
         console.log(err)
         res.status(400).json({
@@ -423,6 +431,17 @@ export async function addPee(req: express.Request, res: express.Response, next: 
         members: string[],
         baanId: string
     } = req.body;
+    await addPeeRaw(campId, members, baanId, res)
+
+
+}
+export async function addPeeRaw(campId: string, members: string[], baanId: string, res: express.Response) {
+
+
+
+
+
+
     try {
         const baan = await Baan.findById(baanId);
         const camp = await Camp.findById(campId);
@@ -517,10 +536,10 @@ export async function addPeto(req: express.Request, res: express.Response, next:
         member,
         partId
     } = req.body;
-    await addPetoRaw(member, partId);
-    sendRes(res, true)
+    await addPetoRaw(member, partId, res);
+
 }
-export async function addPetoRaw(member: string[], partId: string,) {
+export async function addPetoRaw(member: string[], partId: string, res: express.Response) {
     const part = await Part.findById(partId);
     const camp = await Camp.findById(part?.campId);
     var c = camp?.petoHaveBottle
@@ -584,6 +603,7 @@ export async function addPetoRaw(member: string[], partId: string,) {
         petoShertSize: part.petoShertSize,
         mapShertManageIdByUserId: part.mapShertManageIdByUserId
     })
+    sendRes(res, true)
 }
 export async function staffRegister(req: express.Request, res: express.Response, next: express.NextFunction) {
     const partId: string = req.params.id
@@ -597,8 +617,7 @@ export async function staffRegister(req: express.Request, res: express.Response,
             success: true
         })
     } else {
-        await addPetoRaw([user?.id], partId);
-        sendRes(res, true)
+        await addPetoRaw([user?.id], partId, res);
     }
 }
 /*export async function addNongPass(req: express.Request, res: express.Response, next: express.NextFunction) {

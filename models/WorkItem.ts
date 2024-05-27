@@ -24,6 +24,9 @@ const HospitalSchema = new mongoose.Schema({
     },
     fromId: {
         type: String
+    },
+    createBy:{
+        type:String
     }
 });
 export default mongoose.model('WorkItem', HospitalSchema);

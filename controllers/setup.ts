@@ -173,7 +173,9 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         mapShertManageIdByUserId,
         logoUrl,
         registerSheetLink,
-        peeLock
+        peeLock,
+        outRoundIds,
+        campName
     } = input
     return ({
         partIds,
@@ -227,7 +229,9 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         logoUrl,
         mapShertManageIdByUserId: mapStringToMyMap(mapShertManageIdByUserId),
         registerSheetLink,
-        peeLock
+        peeLock,
+        outRoundIds,
+        campName
     })
 }
 export function conPartBackToFront(input: InterPartBack): InterPartFront {
@@ -301,7 +305,8 @@ export function linkSign(input: InterWorkingItem, token: string): InterWorkingIt
         partId,
         campId,
         linkOutIds,
-        fromId
+        fromId,
+        createBy
     } = input
     return ({
         id,
@@ -311,7 +316,8 @@ export function linkSign(input: InterWorkingItem, token: string): InterWorkingIt
         linkOutIds,
         fromId,
         partId,
-        link: jwt.sign(link, token)
+        link: jwt.sign(link, token),
+        createBy
     })
 }
 function hashRaw(input:string,token:string):string{
@@ -331,7 +337,8 @@ export function linkHash(input: InterWorkingItem, token: string): InterWorkingIt
         partId,
         campId,
         linkOutIds,
-        fromId
+        fromId,
+        createBy
     } = input
     return ({
         id,
@@ -341,6 +348,7 @@ export function linkHash(input: InterWorkingItem, token: string): InterWorkingIt
         linkOutIds,
         fromId,
         partId,
-        link: hashRaw(link, token)
+        link: hashRaw(link, token),
+        createBy
     })
 }
