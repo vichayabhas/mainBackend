@@ -12,6 +12,7 @@ import NongCamp from "../models/NongCamp";
 import { InterLostAndFound } from "../models/intreface";
 import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
+import mongoose from "mongoose";
 // export async function addLikeSong
 // export async function getNongLikeSong
 // export async function getPeeLikeSong
@@ -24,14 +25,22 @@ import PetoCamp from "../models/PetoCamp";
 // export async function getLostAndFounds
 // export async function getLostAndFound
 export async function addLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { songIds } = req.body
+    const { songIds }: { songIds: string[] } = req.body
     const user = await getUser(req)
-    songIds.forEach(async (songId: string) => {
-        const song = await Song.findById(songId)
-        await song?.updateOne({ userLikeIds: swop(null, user?.id, song.userLikeIds) })
-        user?.likeSongIds.push(song?.id)
-    })
-    await user?.updateOne({ likeSongIds: user.likeSongIds })
+    if (!user) {
+        sendRes(res, false)
+        return
+    }
+    var i = 0
+    while (i < songIds.length) {
+        const song = await Song.findById(songIds[i++])
+        if (!song) {
+            continue
+        }
+        await song.updateOne({ userLikeIds: swop(null, user.id, song.userLikeIds) })
+        user.likeSongIds.push(song?.id)
+    }
+    await user.updateOne({ likeSongIds: user.likeSongIds })
     res.status(200).json({
         success: true
     })
@@ -39,88 +48,132 @@ export async function addLikeSong(req: express.Request, res: express.Response, n
 async function getAllSong() {
     const songs = await Song.find()
     const map: Map<string, number> = new Map
-    songs.forEach((song) => {
-        map.set(song.id, 0)
-    })
+    var i = 0
+    while (i < songs.length) {
+        map.set(songs[i++].id, 0)
+    }
     return map
 }
 export async function getNongLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const camp = await Camp.findById(req.params.id)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
     const songList: Map<string, number> = await getAllSong()
-    camp?.nongIds.forEach(async (nongId) => {
-        const nong = await User.findById(nongId)
-        nong?.likeSongIds.forEach((songId: string) => {
+    var i = 0
+    while (i < camp.nongIds.length) {
+        const user = await User.findById(camp.nongIds[i++])
+        if (!user) {
+            continue
+        }
+        var j = 0
+        while (j < user.likeSongIds.length) {
+            const songId = user.likeSongIds[j++]
             songList.set(songId, songList.get(songId) as number + 1)
-        })
-    })
+        }
+    }
     res.status(200).json({ songList })
 }
 export async function getPeeLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const camp = await Camp.findById(req.params.id)
-    const songList = await getAllSong()
-
-    camp?.peeIds.forEach(async (nongId) => {
-        const nong = await User.findById(nongId)
-
-        nong?.likeSongIds.forEach((songId) => {
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
+    const songList: Map<string, number> = await getAllSong()
+    var i = 0
+    while (i < camp.peeIds.length) {
+        const user = await User.findById(camp.peeIds[i++])
+        if (!user) {
+            continue
+        }
+        var j = 0
+        while (j < user.likeSongIds.length) {
+            const songId = user.likeSongIds[j++]
             songList.set(songId, songList.get(songId) as number + 1)
-        })
-    })
+        }
+    }
     res.status(200).json({ songList })
 }
 export async function getPetoLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const camp = await Camp.findById(req.params.id)
-    const songList = await getAllSong()
-
-    camp?.petoIds.forEach(async (nongId) => {
-        const nong = await User.findById(nongId)
-
-        nong?.likeSongIds.forEach((songId) => {
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
+    const songList: Map<string, number> = await getAllSong()
+    var i = 0
+    while (i < camp.petoIds.length) {
+        const user = await User.findById(camp.petoIds[i++])
+        if (!user) {
+            continue
+        }
+        var j = 0
+        while (j < user.likeSongIds.length) {
+            const songId = user.likeSongIds[j++]
             songList.set(songId, songList.get(songId) as number + 1)
-        })
-    })
+        }
+    }
     res.status(200).json({ songList })
 }
 export async function getAllCampLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const camp = await Camp.findById(req.params.id)
-    const songList = await getAllSong()
-
-    camp?.petoIds.forEach(async (nongId) => {
-        const nong = await User.findById(nongId)
-
-        nong?.likeSongIds.forEach((songId) => {
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
+    const songList: Map<string, number> = await getAllSong()
+    var i = 0
+    while (i < camp.nongIds.length) {
+        const user = await User.findById(camp.nongIds[i++])
+        if (!user) {
+            continue
+        }
+        var j = 0
+        while (j < user.likeSongIds.length) {
+            const songId = user.likeSongIds[j++]
             songList.set(songId, songList.get(songId) as number + 1)
-        })
-    })
-    camp?.peeIds.forEach(async (nongId) => {
-        const nong = await User.findById(nongId)
-
-        nong?.likeSongIds.forEach((songId) => {
+        }
+    }
+    while (i < camp.peeIds.length) {
+        const user = await User.findById(camp.peeIds[i++])
+        if (!user) {
+            continue
+        }
+        var j = 0
+        while (j < user.likeSongIds.length) {
+            const songId = user.likeSongIds[j++]
             songList.set(songId, songList.get(songId) as number + 1)
-        })
-    })
-    camp?.nongIds.forEach(async (nongId) => {
-        const nong = await User.findById(nongId)
-        nong?.likeSongIds.forEach((songId) => {
+        }
+    }
+    while (i < camp.petoIds.length) {
+        const user = await User.findById(camp.petoIds[i++])
+        if (!user) {
+            continue
+        }
+        var j = 0
+        while (j < user.likeSongIds.length) {
+            const songId = user.likeSongIds[j++]
             songList.set(songId, songList.get(songId) as number + 1)
-        })
-    })
+        }
+    }
     res.status(200).json({ songList })
 }
 export async function addBaanSong(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { baanId, songIds } = req.body
+    const { baanId, songIds }: { baanId: string, songIds: string[] } = req.body
     const baan = await Baan.findById(baanId)
     if (!baan) {
         return res.status(400).json({ success: false })
     }
-    const buf: string[] = songIds
-    buf.forEach(async (songId) => {
-        const song = await Song.findById(songId)
+    var i = 0
+    while (i < songIds.length) {
+        const song = await Song.findById(songIds[i++])
         if (song) {
             baan.songIds.push(song.id)
             await song.updateOne({ baanIds: swop(null, baan.id, song.baanIds) })
         }
-    })
+    }
     await baan.updateOne({ songIds: baan.songIds })
     res.status(200).json({ success: true })
 }
@@ -178,42 +231,71 @@ export async function deleteLostAndFound(req: express.Request, res: express.Resp
 }
 export async function getLostAndFounds(req: express.Request, res: express.Response, next: express.NextFunction) {
     const user = await getUser(req)
+    if (!user) {
+        sendRes(res, false)
+        return
+    }
     var out: InterLostAndFound[] = []
-    user?.nongCampIds.forEach(async (nongCampId: string) => {
-        const nongCamp = await NongCamp.findById(nongCampId)
-        const camp = await Camp.findById(nongCamp?.campId)
-        camp?.lostAndFoundIds.forEach(async (id) => {
-            const lostAndFound: InterLostAndFound | null = await LostAndFound.findById(id)
+    var i = 0
+    while (i < user.nongCampIds.length) {
+        const nongCamp = await NongCamp.findById(user.nongCampIds[i++])
+        if (!nongCamp) {
+            continue
+        }
+        const camp = await Camp.findById(nongCamp.campId)
+        if (!camp) {
+            continue
+        }
+        var j = 0
+        while (j < camp.lostAndFoundIds.length) {
+            const lostAndFound: InterLostAndFound | null = await LostAndFound.findById(camp.lostAndFoundIds[j++])
             if (lostAndFound) {
                 out.push(lostAndFound)
             }
-        })
-    })
-    if (user?.role != 'nong') {
-        user?.peeCampIds.forEach(async (peeCampId) => {
-            const peeCamp = await PeeCamp.findById(peeCampId)
-            const camp = await Camp.findById(peeCamp?.campId)
-            camp?.lostAndFoundIds.forEach(async (id) => {
-                const lostAndFound: InterLostAndFound | null = await LostAndFound.findById(id)
+        }
+    }
+    if (user.fridayActEn) {
+        i = 0
+        while (i < user.peeCampIds.length) {
+            const peeCamp = await PeeCamp.findById(user.peeCampIds[i++])
+            if (!peeCamp) {
+                continue
+            }
+            const camp = await Camp.findById(peeCamp.campId)
+            if (!camp) {
+                continue
+            }
+            var j = 0
+            while (j < camp.lostAndFoundIds.length) {
+                const lostAndFound: InterLostAndFound | null = await LostAndFound.findById(camp.lostAndFoundIds[j++])
                 if (lostAndFound) {
                     out.push(lostAndFound)
                 }
-            })
-        })
-        user?.petoCampIds.forEach(async (petoCampId) => {
-            const petoCamp = await PetoCamp.findById(petoCampId)
-            const camp = await Camp.findById(petoCamp?.campId)
-            camp?.lostAndFoundIds.forEach(async (id) => {
-                const lostAndFound: InterLostAndFound | null = await LostAndFound.findById(id)
+            }
+        }
+        i=0
+        while (i < user.petoCampIds.length) {
+            const petoCamp = await NongCamp.findById(user.petoCampIds[i++])
+            if (!petoCamp) {
+                continue
+            }
+            const camp = await Camp.findById(petoCamp.campId)
+            if (!camp) {
+                continue
+            }
+            var j = 0
+            while (j < camp.lostAndFoundIds.length) {
+                const lostAndFound: InterLostAndFound | null = await LostAndFound.findById(camp.lostAndFoundIds[j++])
                 if (lostAndFound) {
                     out.push(lostAndFound)
                 }
-            })
-        })
+            }
+        }
         const lostAndFounds: InterLostAndFound[] = await LostAndFound.find({ campId: null })
-        lostAndFounds.forEach((lostAndFound) => {
-            out.push(lostAndFound)
-        })
+        i=0
+        while(i<lostAndFounds.length){
+            out.push(lostAndFounds[i++])
+        }
     }
     res.status(200).json(out)
 }

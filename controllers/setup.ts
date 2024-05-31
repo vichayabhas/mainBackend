@@ -1,5 +1,5 @@
 import express from 'express'
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, InterWorkingItem, MyMap } from '../models/intreface'
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, InterWorkingItem, IntreActionPlan, MyMap } from '../models/intreface'
 import jwt from 'jsonwebtoken'
 
 
@@ -350,5 +350,32 @@ export function linkHash(input: InterWorkingItem, token: string): InterWorkingIt
         partId,
         link: hashRaw(link, token),
         createBy
+    })
+}
+export function isInTime(start:Date,end:Date):boolean{
+    const now=new Date(Date.now())
+    return(now>start&&now<end)
+}
+export function plusActionPlan(input:IntreActionPlan,minute:number):IntreActionPlan{
+    const millisecound=minute*1000*60
+    const {
+        start,
+        end,
+        partId,
+        placeIds,
+        id,
+        action,
+        headId,
+        body
+    }=input
+    return({
+        start:new Date(start.getTime()+millisecound),
+        end:new Date(end.getTime()+millisecound),
+        partId,
+        placeIds,
+        id,
+        action,
+        headId,
+        body
     })
 }

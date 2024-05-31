@@ -11,7 +11,7 @@ import PetoCamp from "../models/PetoCamp"
 import ShertManage from "../models/ShertManage"
 import User from "../models/User"
 import WorkItem from "../models/WorkItem"
-import { CreateCamp, InterBaanBack, InterCampBack, InterPartBack, InterShertManage, UpdateCamp } from "../models/intreface"
+import { CreateCamp, InterBaanBack, InterBaanFront, InterCampBack, InterPartBack, InterShertManage, UpdateCamp } from "../models/intreface"
 import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, sendRes, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
@@ -56,23 +56,27 @@ export async function addBaan(req: express.Request, res: express.Response, next:
     if (user?.role != 'admin' && !user?.authorizeIds.includes(camp.id)) {
         return res.status(403).json({ success: false })
     }
-    const baan = await addBaanRaw(camp, name)
+    const baan = await addBaanRaw(camp.id, name)
     res.status(201).json(baan)
-}
-export async function addBaanRaw(camp: InterCampBack, name: string) {
+}//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+export async function addBaanRaw(campId: string, name: string): Promise<InterBaanFront | null> {
+    const camp = await Camp.findById(campId)
+    if (!camp) {
+        return null
+    }
     const baan = await Baan.create({ campId: camp.id, name })
-    const nongCamp = await NongCamp.create({ campId: camp.id, baanId: baan._id })
+    const nongCamp = await NongCamp.create({ campId: camp.id, baanId: baan.id })
     var i = 0
-    while (i < camp.partIds.length) {
+    while (i < camp.partIds.length) { 
         const partId = camp.partIds[i]
         const part = await Part.findById(partId)
         const peeCamp = await PeeCamp.create({ campId: camp.id, baanId: baan.id, partId })
-        setDefalse(peeCamp.id)
+        setDefalse(peeCamp.id) 
         baan.peeModelIds.push(peeCamp.id)
         await part?.updateOne({ peeModelIds: swop(null, peeCamp.id, part.peeModelIds) })
         camp.peeModelIds.push(peeCamp.id)
         baan.mapPeeCampIdByPartId.set(partId, peeCamp.id)
-        part?.mapPeeCampIdByBaanId.set(baan.id, peeCamp.id)
+        part?.mapPeeCampIdByBaanId.set(baan.id, peeCamp.id) 
         await part?.updateOne({ mapPeeCampIdByBaanId: part.mapPeeCampIdByBaanId })
         i = i + 1
     }
@@ -243,11 +247,18 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             await addPetoRaw(createCamp.boardIds, part.id, res)
         } else {
             const baan = await addBaanRaw(camp.id, 'board')
-            await addPeeRaw(camp.id, createCamp.boardIds, baan.id, res)
+            i = 0
+            while (i < createCamp.boardIds.length) {
+                camp.peePassIds.set(createCamp.boardIds[i++], part.id)
+            }
+            await camp.updateOne({ peePassIds: camp.peePassIds })
+            if (baan) {
+                await addPeeRaw(createCamp.boardIds, baan.id, res)
+            }
         }
-
         //res.status(201).json(conCampBackToFront(camp as InterCampBack))
     } catch (err) {
+        console.log(err)
         res.status(400).json({ success: false })
     }
 }
@@ -1045,9 +1056,9 @@ export async function forceDeletePartName(req: express.Request, res: express.Res
 }
 export async function addAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { userIds }: { userIds: string[] } = req.body
-    var i=0
-    while(i<userIds.length){
-        await User.findByIdAndUpdate(userIds[i++],{role:'admin',fridayActEn:true,fridayAuth:true})
+    var i = 0
+    while (i < userIds.length) {
+        await User.findByIdAndUpdate(userIds[i++], { role: 'admin', fridayActEn: true, fridayAuth: true })
     }
     res.status(200).json({ success: true })
 }
@@ -1066,16 +1077,16 @@ export async function downRole(req: express.Request, res: express.Response, next
     res.status(200).json({ success: true })
 }
 export async function addMoreBoard(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { campId, userIds }:{campId:string,userIds:string[]} = req.body
+    const { campId, userIds }: { campId: string, userIds: string[] } = req.body
     const camp = await Camp.findById(campId)
-    if(!camp){
-        sendRes(res,false)
+    if (!camp) {
+        sendRes(res, false)
         return
     }
-    var i=0
-    while(i<userIds.length){
+    var i = 0
+    while (i < userIds.length) {
         const user = await User.findById(userIds[i++])
-        if(!user){
+        if (!user) {
             continue
         }
         await user.updateOne({ authorizeIds: swop(null, camp.id, user.authorizeIds) })
