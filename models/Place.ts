@@ -1,7 +1,7 @@
 import mongoose from "mongoose"
 const PeeCampSchema = new mongoose.Schema({
     buildingId: {//building
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     flore: {
         type: String
@@ -10,23 +10,23 @@ const PeeCampSchema = new mongoose.Schema({
         type: String
     },
     actionPlanIds: {//actionPlan
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     fridayActIds: {//fridayAct
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     boySleepBaanIds:{//baan
-        type:[String],
+        type:[mongoose.Schema.ObjectId],
         default:[]
     },
     girlSleepBaanIds:{//baan
-        type:[String],
+        type:[mongoose.Schema.ObjectId],
         default:[]
     },
     normalBaanIds:{//baan
-        type:[String],
+        type:[mongoose.Schema.ObjectId],
         default:[]
     },
     sleepCap:{
@@ -39,11 +39,11 @@ const PeeCampSchema = new mongoose.Schema({
         type:Number
     },
     lostAndFoundIds:{ 
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []      
     },
     partIds:{
-        type:[String],
+        type:[mongoose.Schema.ObjectId],
         default:[]
     }
 })

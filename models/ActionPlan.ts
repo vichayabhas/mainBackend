@@ -5,13 +5,13 @@ const HospitalSchema = new mongoose.Schema({
 
     },
     partId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     campId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     placeIds: {//place
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     start: {
@@ -21,7 +21,7 @@ const HospitalSchema = new mongoose.Schema({
         type: Date
     },
     headId: {//user
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     body: {
         type: String

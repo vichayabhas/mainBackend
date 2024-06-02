@@ -4,7 +4,7 @@ const PeeCampSchema = new mongoose.Schema({
         type:String
     },
     heltfIsueIds:{
-        type:[String],
+        type:[mongoose.Schema.ObjectId],
         default:[]
     }
     

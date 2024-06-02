@@ -1,17 +1,17 @@
 import mongoose from "mongoose"
 const PeeCampSchema = new mongoose.Schema({
     campId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     partId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     petoShertManageIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     petoIds:{
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     }
 })

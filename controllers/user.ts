@@ -13,6 +13,7 @@ import express from "express";
 import bcrypt from "bcrypt"
 import { InterBaanBack, InterPartBack, InterUser, Register } from "../models/intreface";
 import jwt from 'jsonwebtoken'
+import mongoose from "mongoose";
 // exports.register             
 // exports.login
 // exports.getMe               protect
@@ -65,7 +66,7 @@ export async function login(req: express.Request, res: express.Response, next: e
 	sendTokenResponse(user as InterUser, 200, res);
 }
 const sendTokenResponse = (user: InterUser, statusCode: number, res: express.Response) => {
-	const token = jwt.sign({ id: user.id }, buf, {
+	const token = jwt.sign({ id: user._id }, buf, {
 		expiresIn: process.env.JWT_EXPIRE
 	});
 	const options = {
@@ -97,7 +98,7 @@ export async function updateMode(req: express.Request, res: express.Response, ne
 		mode,
 		filter
 	} = req.body;
-	const user = await User.findByIdAndUpdate((await getUser(req))?.id, {
+	const user = await User.findByIdAndUpdate((await getUser(req))?._id, {
 		mode,
 		filter
 	});
@@ -112,7 +113,7 @@ export async function updateSize(req: express.Request, res: express.Response, ne
 	}
 	const oldSize = old.shertSize as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
 	if (shertSize) {
-		const user = await User.findByIdAndUpdate(old.id, {
+		const user = await User.findByIdAndUpdate(old._id, {
 			shertSize
 		});
 		if (!user) {
@@ -217,10 +218,10 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 		return
 	}
 	const oldHelthId = user.helthIsueId
-	if (await findLock(user.id, oldHelthId)) {
+	if (await findLock(user._id, oldHelthId)) {
 		const helth = await HelthIsue.create(req.body);
 		await user.updateOne({
-			helthIsueId: helth.id
+			helthIsueId: helth._id
 		});
 		var i = 0
 		while (i < user.nongCampIds.length) {
@@ -234,10 +235,10 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 				continue
 			}
 			await camp.updateOne({
-				nongHelthIsueIds: swop(oldHelthId, helth.id, camp.nongHelthIsueIds)
+				nongHelthIsueIds: swop(oldHelthId, helth._id, camp.nongHelthIsueIds)
 			});
 			await baan.updateOne({
-				nongHelthIsueIds: swop(oldHelthId, helth.id, baan.nongHelthIsueIds)
+				nongHelthIsueIds: swop(oldHelthId, helth._id, baan.nongHelthIsueIds)
 			});
 		}
 		i = 0
@@ -253,13 +254,13 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 				continue
 			}
 			await camp.updateOne({
-				peeHelthIsueIds: swop(oldHelthId, helth.id, camp.peeHelthIsueIds)
+				peeHelthIsueIds: swop(oldHelthId, helth._id, camp.peeHelthIsueIds)
 			});
 			await baan.updateOne({
-				peeHelthIsueIds: swop(oldHelthId, helth.id, baan.peeHelthIsueIds)
+				peeHelthIsueIds: swop(oldHelthId, helth._id, baan.peeHelthIsueIds)
 			});
 			await part.updateOne({
-				peeHelthIsueIds: swop(oldHelthId, helth.id, part.peeHelthIsueIds)
+				peeHelthIsueIds: swop(oldHelthId, helth._id, part.peeHelthIsueIds)
 			});
 		}
 		i = 0
@@ -274,10 +275,10 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 				continue
 			}
 			await camp.updateOne({
-				petoHelthIsueIds: swop(oldHelthId, helth.id, camp.petoHelthIsueIds)
+				petoHelthIsueIds: swop(oldHelthId, helth._id, camp.petoHelthIsueIds)
 			});
 			await part.updateOne({
-				petoHelthIsueIds: swop(oldHelthId, helth.id, part.petoHelthIsueIds)
+				petoHelthIsueIds: swop(oldHelthId, helth._id, part.petoHelthIsueIds)
 			});
 		}
 		res.status(200).json({
@@ -286,54 +287,54 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 		});
 	} else {
 		const helth = await HelthIsue.findByIdAndUpdate(user?.helthIsueId, req.body);
-		res.status(200).json(helth);
+		res.status(200).json(helth?.toObject());
 	}
 }
-async function findLock(userId: string | null | undefined, oldHelthId: string | null):Promise<boolean> {
+async function findLock(userId: mongoose.Types.ObjectId | null | undefined, oldHelthId: mongoose.Types.ObjectId | null): Promise<boolean> {
 	const user = await User.findById(userId);
-	if (!oldHelthId||!user) {
+	if (!oldHelthId || !user) {
 		return true
 	}
-	var i:number
-	i=0
-	while(i<user.nongCampIds.length){
-		const nongCamp =await NongCamp.findById(user.nongCampIds[i++])
-		if(!nongCamp){
+	var i: number
+	i = 0
+	while (i < user.nongCampIds.length) {
+		const nongCamp = await NongCamp.findById(user.nongCampIds[i++])
+		if (!nongCamp) {
 			continue
 		}
-		const camp=await Camp.findById(nongCamp.campId)
-		if(!camp){
+		const camp = await Camp.findById(nongCamp.campId)
+		if (!camp) {
 			continue
 		}
-		if(camp.nongHelthIsueIds.includes(oldHelthId)&&camp.dataLock){
+		if (camp.nongHelthIsueIds.includes(oldHelthId) && camp.dataLock) {
 			return true
 		}
 	}
-	i=0
-	while(i<user.peeCampIds.length){
-		const peeCamp =await PeeCamp.findById(user.peeCampIds[i++])
-		if(!peeCamp){
+	i = 0
+	while (i < user.peeCampIds.length) {
+		const peeCamp = await PeeCamp.findById(user.peeCampIds[i++])
+		if (!peeCamp) {
 			continue
 		}
-		const camp=await Camp.findById(peeCamp.campId)
-		if(!camp){
+		const camp = await Camp.findById(peeCamp.campId)
+		if (!camp) {
 			continue
 		}
-		if(camp.peeHelthIsueIds.includes(oldHelthId)&&camp.dataLock){
+		if (camp.peeHelthIsueIds.includes(oldHelthId) && camp.dataLock) {
 			return true
 		}
 	}
-	i=0
-	while(i<user.petoCampIds.length){
-		const petoCamp =await PetoCamp.findById(user.petoCampIds[i++])
-		if(!petoCamp){
+	i = 0
+	while (i < user.petoCampIds.length) {
+		const petoCamp = await PetoCamp.findById(user.petoCampIds[i++])
+		if (!petoCamp) {
 			continue
 		}
-		const camp=await Camp.findById(petoCamp.campId)
-		if(!camp){
+		const camp = await Camp.findById(petoCamp.campId)
+		if (!camp) {
 			continue
 		}
-		if(camp.petoHelthIsueIds.includes(oldHelthId)&&camp.dataLock){
+		if (camp.petoHelthIsueIds.includes(oldHelthId) && camp.dataLock) {
 			return true
 		}
 	}
@@ -341,8 +342,8 @@ async function findLock(userId: string | null | undefined, oldHelthId: string | 
 }
 export async function updateBottle(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const old = await getUser(req)
-	if(!old){
-		sendRes(res,false)
+	if (!old) {
+		sendRes(res, false)
 		return
 	}
 	const oldBottle = old?.haveBottle
@@ -350,11 +351,11 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 	if (oldBottle) {
 		change = -1
 	}
-	const user = await User.findByIdAndUpdate(old.id, {
+	const user = await User.findByIdAndUpdate(old._id, {
 		haveBottle: !oldBottle
 	});
-	if(!user){
-		sendRes(res,false)
+	if (!user) {
+		sendRes(res, false)
 		return
 	}
 	var i = 0
@@ -369,10 +370,10 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 			continue
 		}
 		await camp.updateOne({
-			nongHaveBottle:camp.nongHaveBottle+change
+			nongHaveBottle: camp.nongHaveBottle + change
 		});
 		await baan.updateOne({
-			nongHaveBottle:baan.nongHaveBottle+change
+			nongHaveBottle: baan.nongHaveBottle + change
 		});
 	}
 	i = 0
@@ -388,13 +389,13 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 			continue
 		}
 		await camp.updateOne({
-			peeHaveBottle:camp.peeHaveBottle+change
+			peeHaveBottle: camp.peeHaveBottle + change
 		});
 		await baan.updateOne({
-			peeHaveBottle:baan.peeHaveBottle+change
+			peeHaveBottle: baan.peeHaveBottle + change
 		});
 		await part.updateOne({
-			peeHaveBottle:part.peeHaveBottle+change
+			peeHaveBottle: part.peeHaveBottle + change
 		});
 	}
 	i = 0
@@ -409,10 +410,10 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 			continue
 		}
 		await camp.updateOne({
-			petoHaveBottle:camp.petoHaveBottle+change
+			petoHaveBottle: camp.petoHaveBottle + change
 		});
 		await part.updateOne({
-			petoHaveBottle:part.petoHaveBottle+change
+			petoHaveBottle: part.petoHaveBottle + change
 		});
 	}
 	res.status(200).json({
@@ -435,21 +436,21 @@ export async function getSameWearing(req: express.Request, res: express.Response
 		switch (shertManage?.role) {
 			case 'nong': {
 				const nongCamp = await NongCamp.findById(shertManage.campModelId);
-				const nong = await getSameWearingRaw(nongCamp?.id, []);
+				const nong = await getSameWearingRaw(nongCamp?._id, []);
 				nong.forEach((u) => {
 					sames.push(u);
 				});
 			}
 			case 'pee': {
 				const peeCamp = await PeeCamp.findById(shertManage.campModelId)
-				const nong = await getSameWearingRaw(peeCamp?.id, []);
+				const nong = await getSameWearingRaw(peeCamp?._id, []);
 				nong.forEach((u) => {
 					sames.push(u);
 				});
 			}
 			case 'peto': {
 				const peeCamp = await PetoCamp.findById(shertManage.campModelId)
-				const nong = await getSameWearingRaw(peeCamp?.id, []);
+				const nong = await getSameWearingRaw(peeCamp?._id, []);
 				nong.forEach((u) => {
 					sames.push(u);
 				});
@@ -496,7 +497,66 @@ export async function changeModeToPee(req: express.Request, res: express.Respons
 		//console.log('tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt')
 		sendRes(res, false)
 	}
-
-
 }
-
+/*export async function checkTel(req: express.Request, res: express.Response, next: express.NextFunction) {
+	const findUser = await User.findOne({ tel: req.params.id })
+	const host = await getUser(req)
+	var relation: string[] = []
+	if (!host || !findUser) {
+		res.status(400).json({ relation })
+		return
+	}
+	var i = 0
+	while (i < host.nongCampIds.length) {
+		const nongCamp = await NongCamp.findById(host.nongCampIds[i++])
+		if (!nongCamp) {
+			continue
+		}
+		const camp = await Camp.findById(nongCamp.campId)
+		if (!camp || !camp.mapShertManageIdByUserId.has(findUser._id)) {
+			continue
+		}
+		const shertManage = await ShertManage.findById(camp.mapShertManageIdByUserId.get(findUser._id))
+		if (!shertManage) {
+			continue
+		}
+		switch (shertManage.role) {
+			case 'nong': {
+				relation.push(`เพื่อนชื่อ${findUser.nickname} จากค่าย${camp.campName}`)
+			}
+			case 'pee': {
+				relation.push(`พี่ชื่อ${findUser.nickname} จากค่าย${camp.campName}`)
+			}
+			case 'peto': {
+				relation.push(`พี่ชื่อ${findUser.nickname} จากค่าย${camp.campName}`)
+			}
+		}
+	}
+	i=0
+	while (i < host.peeCampIds.length) {
+		const nongCamp = await NongCamp.findById(host.nongCampIds[i++])
+		if (!nongCamp) {
+			continue
+		}
+		const camp = await Camp.findById(nongCamp.campId)
+		if (!camp || !camp.mapShertManageIdByUserId.has(findUser._id)) {
+			continue
+		}
+		const shertManage = await ShertManage.findById(camp.mapShertManageIdByUserId.get(findUser._id))
+		if (!shertManage) {
+			continue
+		}
+		switch (shertManage.role) {
+			case 'nong': {
+				relation.push(`เพื่อนชื่อ${findUser.nickname} จากค่าย${camp.campName}`)
+			}
+			case 'pee': {
+				relation.push(`พี่ชื่อ${findUser.nickname} จากค่าย${camp.campName}`)
+			}
+			case 'peto': {
+				relation.push(`พี่ชื่อ${findUser.nickname} จากค่าย${camp.campName}`)
+			}
+		}
+	}
+}
+*/

@@ -1,7 +1,7 @@
 import mongoose from "mongoose"
 const PeeCampSchema = new mongoose.Schema({
     refId: {//camp
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     types: {
         type: String,

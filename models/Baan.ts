@@ -8,22 +8,22 @@ const BaanSchema = new mongoose.Schema({
         type: String
     },
     campId: {//camp
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     peeIds: {//user
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     nongIds: {//user
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     nongHelthIsueIds: {//helth
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     peeHelthIsueIds: {//helth
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     nongShertSize: {// size    count
@@ -35,7 +35,7 @@ const BaanSchema = new mongoose.Schema({
         default: startSize()
     },
     songIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     nongHaveBottle: {
@@ -48,49 +48,49 @@ const BaanSchema = new mongoose.Schema({
     },
     nongHaveBottleMapIds: {
         type: Map,
-        default: new Map
+        default: new Map<mongoose.ObjectId,boolean>()
     },
     peeHaveBottleMapIds: {
         type: Map,
-        default: new Map
+        default: new Map<mongoose.ObjectId,boolean>()
     },
     mapPeeCampIdByPartId: {
         type: Map,
-        default: new Map
+        default: new Map<mongoose.ObjectId,mongoose.ObjectId>()
     },
     peeModelIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     nongModelId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     nongShertManageIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     peeShertManageIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     link: {
         type: String
     },
     styleId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     boySleepPlaceId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     girlSleepPlaceId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     nomalPlaceId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     mapShertManageIdByUserId:{
         type: Map,
-        default: new Map
+        default: new Map<mongoose.ObjectId,mongoose.ObjectId>()
     }
 })
 export default mongoose.model('Baan', BaanSchema)

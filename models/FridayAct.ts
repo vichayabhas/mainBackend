@@ -10,18 +10,18 @@ const fridayActSchema = new mongoose.Schema({
         type: Date
     },
     staffId: {//user
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     limit: {
         type: Number
     },
     studentId: {//user
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     placeId: {//place
-        type: String
+        type: mongoose.Schema.ObjectId
     }
 })
 export default mongoose.model('FridayAct', fridayActSchema)

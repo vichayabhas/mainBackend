@@ -13,20 +13,20 @@ const HospitalSchema = new mongoose.Schema({
         default: 'not start'
     },
     partId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     campId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     linkOutIds: {//workItem
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     fromId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     createBy:{
-        type:String
+        type:mongoose.Schema.ObjectId
     }
 });
 export default mongoose.model('WorkItem', HospitalSchema);

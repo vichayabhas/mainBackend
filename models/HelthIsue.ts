@@ -1,18 +1,18 @@
 import mongoose from "mongoose";
 const PeeCampSchema = new mongoose.Schema({
     userId: {//user
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     foodIds:{
-        type:[String],
+        type:[mongoose.Schema.ObjectId],
         default:[]
     },
     chronicDiseaseIds:{
-        type:[String],
+        type:[mongoose.Schema.ObjectId],
         default:[]
     },
     medicineIds:{
-        type:[String],
+        type:[mongoose.Schema.ObjectId],
         default:[]
     },
     isWearing:{

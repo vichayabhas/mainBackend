@@ -56,7 +56,7 @@ const UserSchema = new mongoose.Schema({
         enum: ['S', 'M', 'L', 'XL', 'XXL', '3XL']
     },
     helthIsueId: {//helthIsue
-        type: String,
+        type: mongoose.Schema.ObjectId,
         default: null
 
     },
@@ -71,17 +71,17 @@ const UserSchema = new mongoose.Schema({
         default: 'nong'
     },
     nongCampIds: {//nongCamp
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
 
     },
     peeCampIds: {//peeCamp
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
 
     },
     petoCampIds: {//petoCamp
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
 
     }
@@ -98,21 +98,21 @@ const UserSchema = new mongoose.Schema({
 
     },
     filterIds: {//camp
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
 
     },
     registerIds: {//camp          //nong
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
 
     },
     authorizeIds: {//camp
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     fridayActIds: {//fridayAct
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
 
     },
@@ -125,15 +125,15 @@ const UserSchema = new mongoose.Schema({
         default: false
     },
     likeSongIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     shertManageIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     lostAndFoundIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     createdAt: {

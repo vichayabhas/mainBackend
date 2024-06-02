@@ -4,11 +4,11 @@ const PartSchema = new mongoose.Schema({
         type: String
     },
     campIds: {//camp
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     baanIds: {//baan
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     auther: {
@@ -21,7 +21,7 @@ const PartSchema = new mongoose.Schema({
         type: String
     },
     userLikeIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     }
 })

@@ -1,26 +1,26 @@
 import mongoose from "mongoose";
-const LostAndFoundSchema=new mongoose.Schema({
-    campId:{
-        type:String
+const LostAndFoundSchema = new mongoose.Schema({
+    campId: {
+        type: mongoose.Schema.ObjectId
     },
-    type:{
-        type:String,
-        enum:['lost','found']
+    type: {
+        type: String,
+        enum: ['lost', 'found']
     },
-    name:{
-        type:String
+    name: {
+        type: String
     },
-    detail:{
-        type:String
+    detail: {
+        type: String
     },
-    userId:{
-        type:String
+    userId: {
+        type: mongoose.Schema.ObjectId
     },
-    placeId:{
-        type:String
+    placeId: {
+        type: mongoose.Schema.ObjectId
     },
-    buildingId:{
-        type:String
+    buildingId: {
+        type: mongoose.Schema.ObjectId
     }
 })
-export default mongoose.model('LostAndFound',LostAndFoundSchema)
+export default mongoose.model('LostAndFound', LostAndFoundSchema)

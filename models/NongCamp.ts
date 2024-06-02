@@ -1,17 +1,17 @@
 import mongoose from "mongoose"
 const PeeCampSchema = new mongoose.Schema({
     campId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     baanId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     nongIds: {//user
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     nongShertManageIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     mapNongCampIdByUserId: {//user    รหัสประจำตัวน้องค่าย    

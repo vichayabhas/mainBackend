@@ -1,14 +1,14 @@
 import mongoose from "mongoose"
 const PeeCampSchema = new mongoose.Schema({
     userId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     size: {
         type: String,
         enum: ['S', 'M', 'L', 'XL', 'XXL', '3XL']
     },
     campModelId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     role: {
         type: String,

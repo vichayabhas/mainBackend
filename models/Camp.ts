@@ -3,7 +3,7 @@ import { startSize } from "../controllers/setup";
 
 const campSchema = new mongoose.Schema({
     nameId: {//nameContainer
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     round: {
         type: Number
@@ -15,39 +15,39 @@ const campSchema = new mongoose.Schema({
         type: Date
     },
     boardIds: {//user            
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     peeIds: {//user
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     nongIds: {//user
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     partIds: {//part           
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     petoIds: {//user
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     authorizeIds: {//user
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     nongHelthIsueIds: {//helth
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     peeHelthIsueIds: {//helth
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     petoHelthIsueIds: {//helth
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     dataLock: {
@@ -69,15 +69,15 @@ const campSchema = new mongoose.Schema({
         default: startSize()
     },
     nongModelIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     peeModelIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     petoModelIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     nongPendingIds: {//user
@@ -97,7 +97,7 @@ const campSchema = new mongoose.Schema({
         default: new Map
     },
     songIds: {//song
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     nongHaveBottle: {
@@ -114,34 +114,34 @@ const campSchema = new mongoose.Schema({
     },
     nongHaveBottleMapIds: {
         type: Map,
-        default: new Map
+        default: new Map<mongoose.ObjectId,boolean>()
     },
     peeHaveBottleMapIds: {
         type: Map,
-        default: new Map
+        default: new Map<mongoose.ObjectId,boolean>()
     },
     petoHaveBottleMapIds: {
         type: Map,
-        default: new Map
+        default: new Map<mongoose.ObjectId,boolean>()
     },
     nongSureIds: {//user
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     baanIds: {//baan
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     nongShertManageIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     peeShertManageIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     petoShertManageIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     link: {
@@ -160,30 +160,30 @@ const campSchema = new mongoose.Schema({
         default: []
     },
     campStyleId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     actionPlanIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     workItemIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     nongPaidIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     nongInterviewIds: {
         type: Map,
-        default: new Map
+        default: new Map<mongoose.ObjectId,string>()
     },
     registerModel: {
         type: String,
         enum: ['noPaid', 'noInterview', 'all']
     },
     lostAndFoundIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     memberStructre: {
@@ -205,12 +205,28 @@ const campSchema = new mongoose.Schema({
         type: String
     },
     outRoundIds:{//น้องที่ตกรอบ
-        type:[String],
+        type:[mongoose.Schema.ObjectId],
         default:[]
     },
     campName:{
         type:String
-    }
+    },
+    nongSleepIds: {//น้องที่ตกรอบ
+        type:[mongoose.Schema.ObjectId],
+        default:[]
+    },
+    peeSleepIds: {//น้องที่ตกรอบ
+        type:[mongoose.Schema.ObjectId],
+        default:[]
+    },
+    nongSleepModel:{
+        type:String,
+        enum:['นอนทุกคน' , 'เลือกได้ว่าจะค้างคืนหรือไม่' , 'ไม่มีการค้างคืน']
+    } ,
+    peeSleepModel: {
+        type:String,
+        enum:['นอนทุกคน' , 'เลือกได้ว่าจะค้างคืนหรือไม่' , 'ไม่มีการค้างคืน']
+    } ,
 })
 export default mongoose.model('Camp', campSchema)
 

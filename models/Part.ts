@@ -2,25 +2,25 @@ import mongoose from "mongoose";
 import { startSize } from "../controllers/setup";
 const PartSchema = new mongoose.Schema({
     nameId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     campId: {//camp
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     peeIds: {//user
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     petoIds: {//user
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     peeHelthIsueIds: {//helth
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     petoHelthIsueIds: {//helth
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     peeShertSize: {// size    count
@@ -48,38 +48,41 @@ const PartSchema = new mongoose.Schema({
         default: new Map
     },
     peeModelIds: {//peeCamp
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     petoModelId: {
-        type: String
+        type: mongoose.Schema.ObjectId
     },
     mapPeeCampIdByBaanId: {
         type: Map,
         default: new Map
     },
     peeShertManageIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     petoShertManageIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     actionPlanIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     workItemIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     placeId:{
-        type:String
+        type:mongoose.Schema.ObjectId
     },
     mapShertManageIdByUserId:{
         type: Map,
         default: new Map
+    },
+    partName:{
+        type:String
     }
 })
 export default mongoose.model('Part', PartSchema)

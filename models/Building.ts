@@ -4,35 +4,35 @@ const PeeCampSchema = new mongoose.Schema({
         type: String
     },
     placeIds: {//place
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     actionPlanIds: {//actionPlan
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     fridayActIds: {//fridayAct
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     },
     lostAndFoundIds:{
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []      
     },
     boySleepBaanIds:{//baan
-        type:[String],
+        type:[mongoose.Schema.ObjectId],
         default:[]
     },
     girlSleepBaanIds:{//baan
-        type:[String],
+        type:[mongoose.Schema.ObjectId],
         default:[]
     },
     normalBaanIds:{//baan
-        type:[String],
+        type:[mongoose.Schema.ObjectId],
         default:[]
     },
     partIds: {
-        type: [String],
+        type: [mongoose.Schema.ObjectId],
         default: []
     }
 })
