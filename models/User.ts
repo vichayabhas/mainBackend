@@ -146,6 +146,9 @@ const UserSchema = new mongoose.Schema({
     },
     citizenId:{//รหัสประจำตัวประชาชน
         type:String
+    },
+    likeToSleepAtCamp:{
+        type:Boolean
     }
 });
 UserSchema.pre('save', async function (next) {

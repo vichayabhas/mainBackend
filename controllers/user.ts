@@ -57,6 +57,8 @@ export async function login(req: express.Request, res: express.Response, next: e
 		});
 	}
 	const isMatch = await bcrypt.compare(password, user.password);
+	console.log(email)
+	console.log(password)
 	if (!isMatch) {
 		return res.status(401).json({
 			success: false,
@@ -359,62 +361,80 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 		return
 	}
 	var i = 0
-	while (i < user.nongCampIds.length) {
-		const nongCamp = await NongCamp.findById(user.nongCampIds[i++])
-		if (!nongCamp) {
+	while (i < user.shertManageIds.length) {
+		const shertManage = await ShertManage.findById(user.shertManageIds[i++])
+		if (!shertManage) {
 			continue
 		}
-		const baan = await Baan.findById(nongCamp.baanId);
-		const camp = await Camp.findById(nongCamp.campId);
-		if (!camp || camp.dataLock || !baan) {
-			continue
+		switch (shertManage.role) {
+			case 'nong': {
+				const nongCamp = await NongCamp.findById(shertManage.campModelId)
+				if (!nongCamp) {
+					continue
+				}
+				const camp = await Camp.findById(nongCamp.campId)
+				if (!camp || camp.dataLock) {
+					continue
+				}
+				const baan = await Baan.findById(nongCamp.baanId);
+				if (!baan) {
+					continue
+				}
+				await shertManage.updateOne({ haveBottle: !oldBottle })
+				await camp.updateOne({
+					nongHaveBottle: camp.nongHaveBottle + change
+				});
+				await baan.updateOne({
+					nongHaveBottle: baan.nongHaveBottle + change
+				});
+			}
+			case 'pee': {
+				const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+				if (!peeCamp) {
+					continue
+				}
+				const camp = await Camp.findById(peeCamp.campId)
+				if (!camp || camp.dataLock) {
+					continue
+				}
+				const baan = await Baan.findById(peeCamp.baanId);
+				const part = await Part.findById(peeCamp.partId)
+				if (!baan || !part) {
+					continue
+				}
+				await shertManage.updateOne({ haveBottle:!oldBottle })
+				await camp.updateOne({
+					peeHaveBottle: camp.peeHaveBottle + change
+				});
+				await baan.updateOne({
+					peeHaveBottle: baan.peeHaveBottle + change
+				});
+				await part.updateOne({
+					peeHaveBottle: part.peeHaveBottle + change
+				});
+			}
+			case 'peto': {
+				const petoCamp = await PetoCamp.findById(shertManage.campModelId)
+				if (!petoCamp) {
+					continue
+				}
+				const camp = await Camp.findById(petoCamp.campId)
+				if (!camp || camp.dataLock) {
+					continue
+				}
+				const part = await Part.findById(petoCamp.partId)
+				if (!part) {
+					continue
+				}
+				await shertManage.updateOne({ haveBottle:!oldBottle })
+				await camp.updateOne({
+					petoHaveBottle: camp.petoHaveBottle + change
+				});
+				await part.updateOne({
+					petoHaveBottle: part.petoHaveBottle + change
+				});
+			}
 		}
-		await camp.updateOne({
-			nongHaveBottle: camp.nongHaveBottle + change
-		});
-		await baan.updateOne({
-			nongHaveBottle: baan.nongHaveBottle + change
-		});
-	}
-	i = 0
-	while (i < user.peeCampIds.length) {
-		const peeCamp = await PeeCamp.findById(user.peeCampIds[i++])
-		if (!peeCamp) {
-			continue
-		}
-		const baan = await Baan.findById(peeCamp.baanId);
-		const camp = await Camp.findById(peeCamp.campId);
-		const part = await Part.findById(peeCamp.partId)
-		if (!camp || camp.dataLock || !baan || !part) {
-			continue
-		}
-		await camp.updateOne({
-			peeHaveBottle: camp.peeHaveBottle + change
-		});
-		await baan.updateOne({
-			peeHaveBottle: baan.peeHaveBottle + change
-		});
-		await part.updateOne({
-			peeHaveBottle: part.peeHaveBottle + change
-		});
-	}
-	i = 0
-	while (i < user.petoCampIds.length) {
-		const petoCamp = await PetoCamp.findById(user.petoCampIds[i++])
-		if (!petoCamp) {
-			continue
-		}
-		const camp = await Camp.findById(petoCamp.campId);
-		const part = await Part.findById(petoCamp.partId)
-		if (!camp || camp.dataLock || !part) {
-			continue
-		}
-		await camp.updateOne({
-			petoHaveBottle: camp.petoHaveBottle + change
-		});
-		await part.updateOne({
-			petoHaveBottle: part.petoHaveBottle + change
-		});
 	}
 	res.status(200).json({
 		success: true,

@@ -221,7 +221,9 @@ export interface InterShertManage {
     role: 'nong' | 'pee' | 'peto',
     recive: number,
     recived: number,
-    _id: mongoose.Types.ObjectId
+    _id: mongoose.Types.ObjectId,
+    haveBottle: boolean,
+    sleepAtCamp:boolean
 }
 export interface InterSong {
     
@@ -266,7 +268,8 @@ export interface InterUser {
     tel: string,   //                      เบอร์โทรศัพท์
     linkHash: string,//                    รหัสการเข้าถึงลิ้งในการทำงาน default 'null'
     citizenId: string,//                     รหัสประจำตัวประชาชน
-    _id: mongoose.Types.ObjectId
+    _id: mongoose.Types.ObjectId,
+    likeToSleepAtCamp:boolean
 }
 export interface InterWorkingItem {
     
@@ -464,4 +467,20 @@ export interface CreateCamp {
 export  interface MapObjectId{
     key:mongoose.Types.ObjectId,
     value:mongoose.Types.ObjectId
+}
+export interface ShowMember {
+    //                          id ของ mongodb
+    name: string,//                        ชื่อจริง
+    lastname: string,//                    นามสกุล
+    nickname: string,//                    ชื่อเล่น
+    email: string,//updateable             email
+    studentId: string | null,//            รหัสประจำตัวนิสิต
+    gender: 'Male' | 'Female',//           เพศ
+    shertSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',//ขนาดเสื้อ
+    helthIsueId: mongoose.Types.ObjectId | null,//          รหัสปัญหาสุขภาพ
+    haveBottle: boolean,//                 มีกระติกน้ำหรือไม่
+    group: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | null,//กรุปของนิสิต           
+    likeSongs: string[],//               ชอบเพลงอะไรบ้าง
+    tel: string,   //                      เบอร์โทรศัพท์
+    _id: mongoose.Types.ObjectId
 }

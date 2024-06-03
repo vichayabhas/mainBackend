@@ -416,3 +416,6 @@ export function plusActionPlan(input:IntreActionPlan,minute:number):IntreActionP
         _id
     })
 }
+export const backendUrl = 'http://localhost:5000'
+export const userPath = 'api/v1/auth'
+

@@ -21,6 +21,14 @@ const PeeCampSchema = new mongoose.Schema({
     recived: {
         type: Number,
         default: 0
+    },
+    haveBottle: {
+        type: Boolean,
+        default: false
+    },
+    sleepAtCamp:{
+        type:Boolean,
+        
     }
 })
 export default mongoose.model('ShertManage', PeeCampSchema)

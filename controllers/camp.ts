@@ -137,8 +137,8 @@ export async function deleteWorkingItem(req: express.Request, res: express.Respo
             return res.status(400).json({ success: false, message: 'This camp is all done' })
         }
         const hospital = await WorkItem.findById(req.params.id);
-        if(!hospital){
-            sendRes(res,false)
+        if (!hospital) {
+            sendRes(res, false)
             return
         }
         const from = await WorkItem.findById(hospital?.fromId)
@@ -221,12 +221,14 @@ export async function getBaan(req: express.Request, res: express.Response, next:
 }
 export async function getCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
+        console.log(req.params.id)
         const data = await Camp.findById(req.params.id);
         if (!data) {
             return res.status(400).json({
                 success: false
             });
         }
+        console.log(data.toObject())
         res.status(200).json(conCampBackToFront(data.toObject()));
         console.log(req.params.id)
     } catch (err) {
@@ -370,7 +372,8 @@ export async function addNong(req: express.Request, res: express.Response, next:
                 size: user.shertSize,
                 campModelId: nongCamp?._id,
                 recive: 'baan',
-                role: 'nong'
+                role: 'nong',
+                haveBottle: user.haveBottle
             })
             nongCamp.nongShertManageIds.push(shertManage._id)
             baan.nongShertManageIds.push(shertManage._id)
@@ -438,12 +441,12 @@ export async function addPee(req: express.Request, res: express.Response, next: 
         members: mongoose.Types.ObjectId[]
         baanId: mongoose.Types.ObjectId
     } = req.body;
-    const success=await addPeeRaw(members, baanId)
-    sendRes(res,success)
+    const success = await addPeeRaw(members, baanId)
+    sendRes(res, success)
 
 
 }
-export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mongoose.Types.ObjectId ) {
+export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mongoose.Types.ObjectId) {
     try {
         const baan = await Baan.findById(baanId);
         if (!baan) {
@@ -476,7 +479,8 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
                 size: user.shertSize,
                 campModelId: peeCamp._id,
                 recive: 'baan',
-                role: 'pee'
+                role: 'pee',
+                haveBottle: user.haveBottle
             })
             part.peeShertManageIds.push(shertManage._id)
             camp.peeShertManageIds.push(shertManage._id)
@@ -506,6 +510,7 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
             camp.peeHaveBottleMapIds.set(user.id, user.haveBottle)
             part.peeHaveBottleMapIds.set(user.id, user?.haveBottle)
             user.peeCampIds.push(peeCamp._id);
+            user.registerIds.push(camp._id)
             camp.peePassIds.delete(user.id);
             peeCamp.peeIds.push(user._id)
             camp.mapShertManageIdByUserId.set(user.id, shertManage._id)
@@ -517,7 +522,8 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
             })
             await user.updateOne({
                 peeCampIds: user.peeCampIds,
-                shertManageIds: user.shertManageIds
+                shertManageIds: user.shertManageIds,
+                registerIds: user.registerIds
             })
             await part.updateOne({
                 peeHaveBottle: part.peeHaveBottle,
@@ -603,7 +609,8 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
             size: user.shertSize,
             campModelId: petoCamp._id,
             recive: 'part',
-            role: 'peto'
+            role: 'peto',
+            haveBottle: user.haveBottle
         })
         petoCamp.petoShertManageIds.push(shertManage._id)
         part.petoShertManageIds.push(shertManage._id)
@@ -622,9 +629,14 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
         camp.petoHaveBottleMapIds.set(user.id, user.haveBottle)
         part.petoHaveBottleMapIds.set(user.id, user.haveBottle)
         user.petoCampIds.push(petoCamp._id)
+        user.registerIds.push(camp._id)
         camp.mapShertManageIdByUserId.set(user.id, shertManage._id)
         part.mapShertManageIdByUserId.set(user.id, shertManage._id)
-        await user.updateOne({ petoCampIds: user.petoCampIds, shertManageIds: user.shertManageIds })
+        await user.updateOne({
+            petoCampIds: user.petoCampIds,
+            shertManageIds: user.shertManageIds,
+            registerIds: user.registerIds
+        })
     }
     size.forEach((v, k) => {
         camp.petoShertSize.set(k, camp.petoShertSize.get(k) as number + v)
@@ -654,8 +666,8 @@ export async function staffRegister(req: express.Request, res: express.Response,
     const partId: string = req.params.id
     const part = await Part.findById(partId)
     const user = await getUser(req)
-    if(!user||!part){
-        sendRes(res,false)
+    if (!user || !part) {
+        sendRes(res, false)
         return
     }
     const camp = await Camp.findById(part.campId)
@@ -744,8 +756,8 @@ export async function deleteActionPlan(req: express.Request, res: express.Respon
             return
         }
         const part = await Part.findById(hospital.partId)
-        if(!part){
-            sendRes(res,false)
+        if (!part) {
+            sendRes(res, false)
             return
         }
         const buf = swop(hospital._id, null, part.actionPlanIds)
