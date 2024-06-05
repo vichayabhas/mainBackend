@@ -14,8 +14,9 @@ import NameContainer from "../models/NameContainer";
 import express from "express";
 import jwt from 'jsonwebtoken'
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterWorkingItem, IntreActionPlan } from "../models/intreface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterWorkingItem, IntreActionPlan, ShowMember } from "../models/intreface";
 import mongoose from "mongoose";
+import Song from "../models/Song";
 // exports.getWorkingItem           protect pee up           params id                fix
 // exports.createWorkingItem        protect pee up
 // exports.updateWorkingItem        protect pee up           params id
@@ -367,13 +368,26 @@ export async function addNong(req: express.Request, res: express.Response, next:
             }
             baan.nongIds.push(user._id)
             camp.nongIds.push(user._id)
+            var sleepAtCamp: boolean
+            switch (camp.toObject().nongSleepModel) {
+                case 'นอนทุกคน': sleepAtCamp = true
+                case 'เลือกได้ว่าจะค้างคืนหรือไม่': sleepAtCamp = user.likeToSleepAtCamp as boolean
+                case 'ไม่มีการค้างคืน': sleepAtCamp = false
+                case null: sleepAtCamp = false
+                case undefined: sleepAtCamp = false
+            }
+            if (sleepAtCamp) {
+                camp.nongSleepIds.push(user._id)
+                baan.nongSleepIds.push(user._id)
+            }
             const shertManage = await ShertManage.create({
                 userId: user._id,
                 size: user.shertSize,
-                campModelId: nongCamp?._id,
+                campModelId: nongCamp._id,
                 recive: 'baan',
                 role: 'nong',
-                haveBottle: user.haveBottle
+                haveBottle: user.haveBottle,
+                sleepAtCamp
             })
             nongCamp.nongShertManageIds.push(shertManage._id)
             baan.nongShertManageIds.push(shertManage._id)
@@ -474,13 +488,27 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
             if (!peeCamp) {
                 continue
             }
+            var sleepAtCamp: boolean
+            switch (camp.toObject().peeSleepModel) {
+                case 'นอนทุกคน': sleepAtCamp = true
+                case 'เลือกได้ว่าจะค้างคืนหรือไม่': sleepAtCamp = user.likeToSleepAtCamp as boolean
+                case 'ไม่มีการค้างคืน': sleepAtCamp = false
+                case null: sleepAtCamp = false
+                case undefined: sleepAtCamp = false
+            }
+            if (sleepAtCamp) {
+                camp.peeSleepIds.push(user._id)
+                baan.peeSleepIds.push(user._id)
+                part.peeSleepIds.push(user._id)
+            }
             const shertManage = await ShertManage.create({
                 userId: user._id,
                 size: user.shertSize,
                 campModelId: peeCamp._id,
                 recive: 'baan',
                 role: 'pee',
-                haveBottle: user.haveBottle
+                haveBottle: user.haveBottle,
+                sleepAtCamp
             })
             part.peeShertManageIds.push(shertManage._id)
             camp.peeShertManageIds.push(shertManage._id)
@@ -593,8 +621,6 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
         sendRes(res, false)
         return
     }
-
-
     var i = 0
     while (i < member.length) {
         count = count + 1
@@ -604,13 +630,26 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
         }
         part.petoIds.push(user._id)
         camp.petoIds.push(user._id)
+        var sleepAtCamp: boolean
+        switch (camp.toObject().peeSleepModel) {
+            case 'นอนทุกคน': sleepAtCamp = true
+            case 'เลือกได้ว่าจะค้างคืนหรือไม่': sleepAtCamp = user.likeToSleepAtCamp as boolean
+            case 'ไม่มีการค้างคืน': sleepAtCamp = false
+            case null: sleepAtCamp = false
+            case undefined: sleepAtCamp = false
+        }
+        if (sleepAtCamp) {
+            camp.peeSleepIds.push(user._id)
+            part.peeSleepIds.push(user._id)
+        }
         const shertManage = await ShertManage.create({
             userId: user._id,
             size: user.shertSize,
             campModelId: petoCamp._id,
             recive: 'part',
             role: 'peto',
-            haveBottle: user.haveBottle
+            haveBottle: user.haveBottle,
+            sleepAtCamp
         })
         petoCamp.petoShertManageIds.push(shertManage._id)
         part.petoShertManageIds.push(shertManage._id)
@@ -1086,7 +1125,7 @@ export async function changePart(req: express.Request, res: express.Response, ne
     sendRes(res, true)
 }
 export async function getNongsFromBaanId(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const out: InterUser[] = []
+    const out: ShowMember[] = []
     const baan = await Baan.findById(req.params.id)
     if (!baan) {
         sendRes(res, false)
@@ -1096,13 +1135,30 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
     while (i < baan.nongIds.length) {
         const user: InterUser | null = await User.findById(baan.nongIds[i++])
         if (user) {
-            out.push(user)
+            const shertManage = await ShertManage.findById(baan.mapShertManageIdByUserId.get(user._id.toString()))
+            if (!shertManage) {
+                continue
+            }
+            var j = 0
+            var likeSongs: string[] = []
+
+            const { name, lastname, nickname, _id, email, tel, group, gender, studentId, helthIsueId, haveBottle, likeSongIds } = user
+            while (j < likeSongIds.length) {
+                const song = await Song.findById(likeSongs[j++])
+                if (!song) {
+                    continue
+                }
+                likeSongs.push(song.name as string)
+
+
+            }
+            out.push({ name, nickname, lastname, _id, shertSize: (shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), email, studentId, sleep: (shertManage.sleepAtCamp as boolean), tel, gender, group, helthIsueId, haveBottle, likeSongs })
         }
     }
     res.status(200).json(out)
 }
 export async function getPeesFromBaanId(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const out: InterUser[] = []
+    const out: ShowMember[] = []
     const baan = await Baan.findById(req.params.id)
     if (!baan) {
         sendRes(res, false)
@@ -1112,13 +1168,30 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
     while (i < baan.peeIds.length) {
         const user: InterUser | null = await User.findById(baan.peeIds[i++])
         if (user) {
-            out.push(user)
+            const shertManage = await ShertManage.findById(baan.mapShertManageIdByUserId.get(user._id.toString()))
+            if (!shertManage) {
+                continue
+            }
+            var j = 0
+            var likeSongs: string[] = []
+
+            const { name, lastname, nickname, _id, email, tel, group, gender, studentId, helthIsueId, haveBottle, likeSongIds } = user
+            while (j < likeSongIds.length) {
+                const song = await Song.findById(likeSongs[j++])
+                if (!song) {
+                    continue
+                }
+                likeSongs.push(song.name as string)
+
+
+            }
+            out.push({ name, nickname, lastname, _id, shertSize: (shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), email, studentId, sleep: (shertManage.sleepAtCamp as boolean), tel, gender, group, helthIsueId, haveBottle, likeSongs })
         }
     }
     res.status(200).json(out)
 }
 export async function getPeesFromPartId(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const out: InterUser[] = []
+    const out: ShowMember[] = []
     const part = await Part.findById(req.params.id)
     if (!part) {
         sendRes(res, false)
@@ -1128,13 +1201,30 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
     while (i < part.peeIds.length) {
         const user: InterUser | null = await User.findById(part.peeIds[i++])
         if (user) {
-            out.push(user)
+            const shertManage = await ShertManage.findById(part.mapShertManageIdByUserId.get(user._id.toString()))
+            if (!shertManage) {
+                continue
+            }
+            var j = 0
+            var likeSongs: string[] = []
+
+            const { name, lastname, nickname, _id, email, tel, group, gender, studentId, helthIsueId, haveBottle, likeSongIds } = user
+            while (j < likeSongIds.length) {
+                const song = await Song.findById(likeSongs[j++])
+                if (!song) {
+                    continue
+                }
+                likeSongs.push(song.name as string)
+
+
+            }
+            out.push({ name, nickname, lastname, _id, shertSize: (shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), email, studentId, sleep: (shertManage.sleepAtCamp as boolean), tel, gender, group, helthIsueId, haveBottle, likeSongs })
         }
     }
     res.status(200).json(out)
 }
 export async function getPetosFromPartId(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const out: InterUser[] = []
+    const out: ShowMember[] = []
     const part = await Part.findById(req.params.id)
     if (!part) {
         sendRes(res, false)
@@ -1144,7 +1234,22 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
     while (i < part.petoIds.length) {
         const user: InterUser | null = await User.findById(part.petoIds[i++])
         if (user) {
-            out.push(user)
+            const shertManage = await ShertManage.findById(part.mapShertManageIdByUserId.get(user._id.toString()))
+            if (!shertManage) {
+                continue
+            }
+            var j = 0
+            var likeSongs: string[] = []
+
+            const { name, lastname, nickname, _id, email, tel, group, gender, studentId, helthIsueId, haveBottle, likeSongIds } = user
+            while (j < likeSongIds.length) {
+                const song = await Song.findById(likeSongs[j++])
+                if (!song) {
+                    continue
+                }
+                likeSongs.push(song.name as string)
+            }
+            out.push({ name, nickname, lastname, _id, shertSize: (shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), email, studentId, sleep: (shertManage.sleepAtCamp as boolean), tel, gender, group, helthIsueId, haveBottle, likeSongs })
         }
     }
     res.status(200).json(out)

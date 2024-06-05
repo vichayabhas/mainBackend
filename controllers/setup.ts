@@ -36,7 +36,7 @@ export function sendRes(res: express.Response, success: boolean) {
 }
 export function sizeMapToJson(input: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number>): InterSize {
     const out: InterSize = {
-        id: null,
+        _id: null,
         sizeS: input.get('S') as number,
         sizeM: input.get('M') as number,
         sizeL: input.get('L') as number,
@@ -96,7 +96,8 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
         nomalPlaceId,
         _id,
         peeSleepIds,
-        nongSleepIds
+        nongSleepIds,
+        groupRef
      } = input
     return ({
         name,
@@ -120,13 +121,13 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
         styleId,
         boySleepPlaceId,
         girlSleepPlaceId,
-        
         peeHaveBottleMapIds: mapBoolToArray(peeHaveBottleMapIds),
         nongHaveBottleMapIds: mapBoolToArray(nongHaveBottleMapIds),
         mapShertManageIdByUserId: mapObjectIdToMyMap(mapShertManageIdByUserId),
         _id,
         peeSleepIds,
-        nongSleepIds
+        nongSleepIds,
+        groupRef
     })
 }
 export function conCampBackToFront(input: InterCampBack): InterCampFront {
@@ -398,7 +399,6 @@ export function plusActionPlan(input:IntreActionPlan,minute:number):IntreActionP
         end,
         partId,
         placeIds,
-        
         action,
         headId,
         body,
@@ -409,7 +409,6 @@ export function plusActionPlan(input:IntreActionPlan,minute:number):IntreActionP
         end:new Date(end.getTime()+millisecound),
         partId,
         placeIds,
-        
         action,
         headId,
         body,

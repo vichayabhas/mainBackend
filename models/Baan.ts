@@ -80,17 +80,33 @@ const BaanSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId
     },
     boySleepPlaceId: {
-        type: mongoose.Schema.ObjectId
+        type: mongoose.Schema.ObjectId,
+        default: null
     },
     girlSleepPlaceId: {
-        type: mongoose.Schema.ObjectId
+        type: mongoose.Schema.ObjectId,
+        default:null
     },
     nomalPlaceId: {
-        type: mongoose.Schema.ObjectId
+        type: mongoose.Schema.ObjectId,
+        default:null
     },
     mapShertManageIdByUserId:{
         type: Map,
         default: new Map<mongoose.ObjectId,mongoose.ObjectId>()
-    }
+    },
+    groupRef:{
+        type: String,
+        enum: ['A', 'B', 'C', 'Dog', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', null],
+        default: null
+    },nongSleepIds: {
+        type:[mongoose.Schema.ObjectId],
+        default:[]
+    },
+    peeSleepIds: {
+        type:[mongoose.Schema.ObjectId],
+        default:[]
+    },
+    
 })
 export default mongoose.model('Baan', BaanSchema)

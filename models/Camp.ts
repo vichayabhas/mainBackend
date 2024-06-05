@@ -211,11 +211,11 @@ const campSchema = new mongoose.Schema({
     campName:{
         type:String
     },
-    nongSleepIds: {//น้องที่ตกรอบ
+    nongSleepIds: {
         type:[mongoose.Schema.ObjectId],
         default:[]
     },
-    peeSleepIds: {//น้องที่ตกรอบ
+    peeSleepIds: {
         type:[mongoose.Schema.ObjectId],
         default:[]
     },

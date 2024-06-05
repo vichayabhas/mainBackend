@@ -74,15 +74,19 @@ const PartSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    placeId:{
-        type:mongoose.Schema.ObjectId
+    placeId: {
+        type: mongoose.Schema.ObjectId
     },
-    mapShertManageIdByUserId:{
+    mapShertManageIdByUserId: {
         type: Map,
         default: new Map
     },
-    partName:{
-        type:String
-    }
+    partName: {
+        type: String
+    },
+    peeSleepIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
 })
 export default mongoose.model('Part', PartSchema)

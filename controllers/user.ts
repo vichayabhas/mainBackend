@@ -402,7 +402,7 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 				if (!baan || !part) {
 					continue
 				}
-				await shertManage.updateOne({ haveBottle:!oldBottle })
+				await shertManage.updateOne({ haveBottle: !oldBottle })
 				await camp.updateOne({
 					peeHaveBottle: camp.peeHaveBottle + change
 				});
@@ -426,7 +426,7 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 				if (!part) {
 					continue
 				}
-				await shertManage.updateOne({ haveBottle:!oldBottle })
+				await shertManage.updateOne({ haveBottle: !oldBottle })
 				await camp.updateOne({
 					petoHaveBottle: camp.petoHaveBottle + change
 				});
@@ -580,3 +580,112 @@ export async function changeModeToPee(req: express.Request, res: express.Respons
 	}
 }
 */
+export async function updateSleep(req: express.Request, res: express.Response, next: express.NextFunction) {
+	const old = await getUser(req)
+	if (!old) {
+		sendRes(res, false)
+		return
+	}
+	const oldSleep = old?.likeToSleepAtCamp
+	const user = await User.findByIdAndUpdate(old._id, {
+		likeToSleepAtCamp: !oldSleep
+	});
+	if (!user) {
+		sendRes(res, false)
+		return
+	}
+	var i = 0
+	while (i < user.shertManageIds.length) {
+		const shertManage = await ShertManage.findById(user.shertManageIds[i++])
+		if (!shertManage) {
+			continue
+		}
+		switch (shertManage.role) {
+			case 'nong': {
+				const nongCamp = await NongCamp.findById(shertManage.campModelId)
+				if (!nongCamp) {
+					continue
+				}
+				const camp = await Camp.findById(nongCamp.campId)
+				if (!camp || camp.dataLock || camp.nongSleepModel !== 'เลือกได้ว่าจะค้างคืนหรือไม่') {
+					continue
+				}
+				const baan = await Baan.findById(nongCamp.baanId);
+				if (!baan) {
+					continue
+				}
+				await shertManage.updateOne({ sleepAtCamp: !oldSleep })
+				if (oldSleep) {
+					await camp.updateOne({
+						nongSleepIds: swop(user._id, null, camp.nongSleepIds)
+
+					});
+					await baan.updateOne({
+						nongSleepIds: swop(user._id, null, baan.nongSleepIds)
+					})
+
+				} else {
+					await camp.updateOne({
+						nongSleepIds: swop(null, user._id, camp.nongSleepIds)
+
+					});
+					await baan.updateOne({
+						nongSleepIds: swop(null, user._id, baan.nongSleepIds)
+					})
+				}
+
+			}
+			case 'pee': {
+				const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+				if (!peeCamp) {
+					continue
+				}
+				const camp = await Camp.findById(peeCamp.campId)
+				if (!camp || camp.dataLock || camp.peeSleepModel != 'เลือกได้ว่าจะค้างคืนหรือไม่') {
+					continue
+				}
+				const baan = await Baan.findById(peeCamp.baanId);
+				const part = await Part.findById(peeCamp.partId)
+				if (!baan || !part) {
+					continue
+				}
+				await shertManage.updateOne({ sleepAtCamp: !oldSleep })
+				if (oldSleep) {
+					await camp.updateOne({ peeSleepIds: swop(user._id, null, camp.peeSleepIds) })
+					await baan.updateOne({ peeSleepIds: swop(user._id, null, baan.peeSleepIds) })
+					await part.updateOne({ peeSleepIds: swop(user._id, null, part.peeSleepIds) })
+				} else {
+					await camp.updateOne({ peeSleepIds: swop(null, user._id, camp.peeSleepIds) })
+					await baan.updateOne({ peeSleepIds: swop(null, user._id, baan.peeSleepIds) })
+					await part.updateOne({ peeSleepIds: swop(null, user._id, part.peeSleepIds) })
+				}
+			}
+			case 'peto': {
+				const petoCamp = await PetoCamp.findById(shertManage.campModelId)
+				if (!petoCamp) {
+					continue
+				}
+				const camp = await Camp.findById(petoCamp.campId)
+				if (!camp || camp.dataLock || camp.peeSleepModel !== 'เลือกได้ว่าจะค้างคืนหรือไม่') {
+					continue
+				}
+				const part = await Part.findById(petoCamp.partId)
+				if (!part) {
+					continue
+				}
+				await shertManage.updateOne({ sleepAtCamp: !oldSleep })
+				if (oldSleep) {
+					await camp.updateOne({ peeSleepIds: swop(user._id, null, camp.peeSleepIds) })
+					await part.updateOne({ peeSleepIds: swop(user._id, null, part.peeSleepIds) })
+				} else {
+					await camp.updateOne({ peeSleepIds: swop(null, user._id, camp.peeSleepIds) })
+					await part.updateOne({ peeSleepIds: swop(null, user._id, part.peeSleepIds) })
+				}
+			}
+		}
+	}
+	res.status(200).json({
+		success: true,
+		user,
+	});
+}

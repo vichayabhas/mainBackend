@@ -1,7 +1,27 @@
+export interface HospitalItem {
+    __id: string,
+    name: string,
+    address: string,
+    district: string,
+    province: string,
+    postalcode: string,
+    tel: string,
+    picture: string,
+    __v: number,
+    _id: string
+}
+
+export interface HospitalJson {
+    success: boolean,
+    count: number,
+    pagination: Object,
+    data: HospitalItem[]
+}
+
 import mongoose from "mongoose"
 
 export interface IntreActionPlan {
-    
+
     action: string,
     partId: mongoose.Types.ObjectId,
     placeIds: mongoose.Types.ObjectId[],
@@ -9,10 +29,10 @@ export interface IntreActionPlan {
     end: Date,
     headId: mongoose.Types.ObjectId,
     body: string,
-    _id:mongoose.Types.ObjectId
+    _id: mongoose.Types.ObjectId
 }
 export interface InterBaanBack {
-    
+
     name: string,
     fullName: string | null,
     campId: mongoose.Types.ObjectId,
@@ -40,10 +60,11 @@ export interface InterBaanBack {
     mapShertManageIdByUserId: Map<mongoose.Types.ObjectId, mongoose.Types.ObjectId>,
     _id: mongoose.Types.ObjectId,
     nongSleepIds: mongoose.Types.ObjectId[],
-    peeSleepIds: mongoose.Types.ObjectId[]
+    peeSleepIds: mongoose.Types.ObjectId[],
+    groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | null
 }
 export interface InterBuilding {
-    
+
     name: string,
     placeIds: mongoose.Types.ObjectId[],
     actionPlanIds: mongoose.Types.ObjectId[],
@@ -51,7 +72,7 @@ export interface InterBuilding {
     _id: mongoose.Types.ObjectId
 }
 export interface InterCampBack {
-    
+
     nameId: mongoose.Types.ObjectId,
     round: number,
     dateStart: Date,
@@ -99,9 +120,9 @@ export interface InterCampBack {
     nongInterviewIds: Map<mongoose.Types.ObjectId, string>,                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
     memberStructre: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear' | 'nong->highSchool,pee->allYear' | 'allYearMix',
-    logoUrl: string,
+    logoUrl: string | null,
     mapShertManageIdByUserId: Map<mongoose.Types.ObjectId, mongoose.Types.ObjectId>,
-    registerSheetLink: string,
+    registerSheetLink: string | null,
     peeLock: boolean,
     outRoundIds: mongoose.Types.ObjectId[],
     _id: mongoose.Types.ObjectId,
@@ -112,13 +133,13 @@ export interface InterCampBack {
     peeSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน'
 }
 export interface InterCampStyle {
-    
+
     refId: mongoose.Types.ObjectId,
     types: 'camp' | 'baan',
     _id: mongoose.Types.ObjectId
 }
 export interface InterFrydayAct {
-    
+
     company: string,
     date: Date,
     staffId: mongoose.Types.ObjectId[],
@@ -128,18 +149,18 @@ export interface InterFrydayAct {
     _id: mongoose.Types.ObjectId
 }
 export interface InterHelthIsue {
-    
+
     userId: mongoose.Types.ObjectId,
     _id: mongoose.Types.ObjectId
 }
 export interface InterNameContainer {
-    
+
     campIds: mongoose.Types.ObjectId[],
     name: string,
     _id: mongoose.Types.ObjectId
 }
 export interface InterNongCampBack {
-    
+
     campId: mongoose.Types.ObjectId,
     baanId: mongoose.Types.ObjectId,
     nongIds: mongoose.Types.ObjectId[],
@@ -148,7 +169,7 @@ export interface InterNongCampBack {
     //mapNongCampIdByUserId: Map<string, string>
 }
 export interface InterPartBack {
-    
+
     nameId: mongoose.Types.ObjectId,
     campId: mongoose.Types.ObjectId,
     peeIds: mongoose.Types.ObjectId[],
@@ -175,14 +196,14 @@ export interface InterPartBack {
     peeSleepIds: mongoose.Types.ObjectId[]
 }
 export interface InterPartNameContainer {
-    
+
     campIds: mongoose.Types.ObjectId[],
     name: string,
     partIds: mongoose.Types.ObjectId[],
     _id: mongoose.Types.ObjectId
 }
 export interface InterPeeCamp {
-    
+
     campId: mongoose.Types.ObjectId,
     partId: mongoose.Types.ObjectId,
     baanId: mongoose.Types.ObjectId, peeIds: mongoose.Types.ObjectId[],
@@ -191,7 +212,7 @@ export interface InterPeeCamp {
 
 }
 export interface InterPetoCamp {
-    
+
     campId: mongoose.Types.ObjectId,
     partId: mongoose.Types.ObjectId,
     petoShertManageIds: mongoose.Types.ObjectId,
@@ -199,7 +220,7 @@ export interface InterPetoCamp {
     _id: mongoose.Types.ObjectId
 }
 export interface InterPlace {
-    
+
     buildingId: mongoose.Types.ObjectId,
     flore: string,
     room: string,
@@ -214,7 +235,7 @@ export interface InterPlace {
     _id: mongoose.Types.ObjectId
 }
 export interface InterShertManage {
-    
+
     userId: mongoose.Types.ObjectId,
     size: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',
     campModelId: mongoose.Types.ObjectId,
@@ -223,10 +244,10 @@ export interface InterShertManage {
     recived: number,
     _id: mongoose.Types.ObjectId,
     haveBottle: boolean,
-    sleepAtCamp:boolean
+    sleepAtCamp: boolean
 }
 export interface InterSong {
-    
+
     name: string,
     campIds: mongoose.Types.ObjectId[],
     baanIds: mongoose.Types.ObjectId[],
@@ -245,7 +266,7 @@ export interface InterUser {
     password: string,//                    รหัสผ่าน
     resetPasswordToken: string,
     resetPasswordExpire: Date,
-    studentId: string| null,//            รหัสประจำตัวนิสิต
+    studentId: string | null,//            รหัสประจำตัวนิสิต
     gender: 'Male' | 'Female',//           เพศ
     shertSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',//ขนาดเสื้อ
     helthIsueId: mongoose.Types.ObjectId | null,//          รหัสปัญหาสุขภาพ
@@ -269,10 +290,10 @@ export interface InterUser {
     linkHash: string,//                    รหัสการเข้าถึงลิ้งในการทำงาน default 'null'
     citizenId: string,//                     รหัสประจำตัวประชาชน
     _id: mongoose.Types.ObjectId,
-    likeToSleepAtCamp:boolean
+    likeToSleepAtCamp: boolean
 }
 export interface InterWorkingItem {
-    
+
     name: string,
     link: string,
     status: 'not start' | 'in process' | 'done',
@@ -284,7 +305,7 @@ export interface InterWorkingItem {
     _id: mongoose.Types.ObjectId
 }
 export interface InterSize {
-    id: string | null,
+    _id: mongoose.Types.ObjectId | null,
     sizeS: number,
     sizeM: number,
     sizeL: number,
@@ -297,7 +318,7 @@ export interface InterSize {
 //////////////////////////////////////////////////////////
 
 export interface InterBaanFront {
-    
+
     name: string,
     fullName: string | null,
     campId: mongoose.Types.ObjectId,
@@ -321,14 +342,15 @@ export interface InterBaanFront {
     boySleepPlaceId: mongoose.Types.ObjectId | null,
     girlSleepPlaceId: mongoose.Types.ObjectId | null,
     nomalPlaceId: mongoose.Types.ObjectId | null,
-    mapShertManageIdByUserId:MapObjectId[],
+    mapShertManageIdByUserId: MapObjectId[],
     _id: mongoose.Types.ObjectId,
     nongSleepIds: mongoose.Types.ObjectId[],
     peeSleepIds: mongoose.Types.ObjectId[],
+    groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | null
 }
 
 export interface InterCampFront {
-    
+
     nameId: mongoose.Types.ObjectId,
     round: number,
     dateStart: Date,
@@ -376,9 +398,9 @@ export interface InterCampFront {
     nongInterviewIds: MyMap[],                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
     memberStructre: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear' | 'nong->highSchool,pee->allYear' | 'allYearMix',
-    logoUrl: string,
+    logoUrl: string | null,
     mapShertManageIdByUserId: MapObjectId[],
-    registerSheetLink: string,
+    registerSheetLink: string | null,
     peeLock: boolean,
     outRoundIds: mongoose.Types.ObjectId[],
     _id: mongoose.Types.ObjectId,
@@ -389,7 +411,7 @@ export interface InterCampFront {
     peeSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน'
 }
 export interface InterPartFront {
-    
+
     nameId: mongoose.Types.ObjectId,
     campId: mongoose.Types.ObjectId,
     peeIds: mongoose.Types.ObjectId[],
@@ -438,7 +460,8 @@ export interface Register {
     shertSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',
     haveBottle: boolean,
     tel: string,
-    citizenId: string
+    citizenId: string,
+    likeToSleepAtCamp: boolean
 }
 export interface UpdateCamp {
     dataLock: boolean,
@@ -447,10 +470,10 @@ export interface UpdateCamp {
     allDone: boolean,
     lockChangePickup: boolean,
     pictureUrls: string[],
-    logoUrl: string,
+    logoUrl: string | null,
     dateStart: Date,
     dateEnd: Date,
-    registerSheetLink: string,
+    registerSheetLink: string | null,
     peeLock: boolean
 }
 export interface CreateCamp {
@@ -464,9 +487,9 @@ export interface CreateCamp {
     nongSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
     peeSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน'
 }
-export  interface MapObjectId{
-    key:mongoose.Types.ObjectId,
-    value:mongoose.Types.ObjectId
+export interface MapObjectId {
+    key: mongoose.Types.ObjectId,
+    value: mongoose.Types.ObjectId
 }
 export interface ShowMember {
     //                          id ของ mongodb
@@ -482,5 +505,6 @@ export interface ShowMember {
     group: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | null,//กรุปของนิสิต           
     likeSongs: string[],//               ชอบเพลงอะไรบ้าง
     tel: string,   //                      เบอร์โทรศัพท์
-    _id: mongoose.Types.ObjectId
+    _id: mongoose.Types.ObjectId,
+    sleep: boolean
 }
