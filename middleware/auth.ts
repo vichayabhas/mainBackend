@@ -140,6 +140,10 @@ export function isLogin(withIn: express.RequestHandler, withOut: express.Request
     }
   }
 }
+export async function isPass(req: express.Request, res: express.Response, next: NextFunction){
+  console.log('hhhhhhnjmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmppppppppppppppppppppppppppppppppppppp')
+  next()
+}
 
 
 

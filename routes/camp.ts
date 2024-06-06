@@ -2,7 +2,7 @@ import express from 'express';
 
 const router = express.Router();
 
-import { protect, modePee, peto, pee } from '../middleware/auth';
+import { protect, modePee, peto, pee, isPass } from '../middleware/auth';
 import { getWorkingItems, createWorkingItem, getWorkingItem, updateWorkingItem, deleteWorkingItem, getCamps, getCampName, getCamp, getNongCamp, getPeeCamp, getBaan, getPart, getPartName, nongRegister, staffRegister, getNongsFromBaanId, getPeesFromBaanId, getPeesFromPartId, getPetosFromPartId, getBaans } from '../controllers/camp';
 
 
@@ -24,8 +24,8 @@ router.get('/getNongsFromBaanId/params/:id', getNongsFromBaanId)
 router.get('/getPeesFromBaanId/params/:id', getPeesFromBaanId)
 router.get('/getPeesFromPartId/params/:id', getPeesFromPartId)
 router.get('/getPetosFromPartId/params/:id', getPetosFromPartId)
-router.get('/getBaans/params/:id',getBaans)
-
+router.get('/getBaans/params/:id',isPass,getBaans)
+//(`${backendUrl}/camp/getBaans/params/${campId}`)
 export default router;
 
 

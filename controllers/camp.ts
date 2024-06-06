@@ -229,9 +229,9 @@ export async function getCamp(req: express.Request, res: express.Response, next:
                 success: false
             });
         }
-        console.log(data.toObject())
+        //console.log(data.toObject())
         res.status(200).json(conCampBackToFront(data.toObject()));
-        console.log(req.params.id)
+        //console.log(req.params.id)
     } catch (err) {
         console.log(err)
         res.status(400).json({
@@ -240,6 +240,7 @@ export async function getCamp(req: express.Request, res: express.Response, next:
     }
 }
 export async function getBaans(req: express.Request, res: express.Response, next: express.NextFunction) {
+    console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjttttttttttttttttttttttttttttttt')
     try {
         const camp = await Camp.findById(req.params.id);
         if (!camp) {
@@ -255,8 +256,11 @@ export async function getBaans(req: express.Request, res: express.Response, next
                 baans.push(conBaanBackToFront(baan))
             }
         }
+        console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
         res.status(200).json(baans);
+        console.log(baans.length)
     } catch (err) {
+        console.log('gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg')
         res.status(400).json(resError);
     }
 }
