@@ -43,9 +43,6 @@ import mongoose from "mongoose"
 // export async function downRole
 // export async function addMoreBoard
 // export async function removeBoard
-// export async function createPlace
-// export async function saveDeletePlace
-// export async function saveDeleteBuilding
 export async function addBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     const user = await getUser(req)
     const { campId, name } = req.body
@@ -1105,33 +1102,6 @@ export async function removeBoard(req: express.Request, res: express.Response, n
     }
     await camp?.updateOne({ boardIds: swop(user._id, null, camp.boardIds) })
     await user?.updateOne({ authorizeIds: swop(camp._id, null, user.authorizeIds) })
-    sendRes(res, true)
-}
-export async function createPlace(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { room, buildingId } = req.body
-    const place = await Place.create({ room, buildingId })
-    const building = await Building.findById(buildingId)
-    await building?.updateOne({ placeIds: swop(null, place._id, building.placeIds) })
-    res.status(201).json(place)
-}
-export async function saveDeletePlace(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const place = await Place.findById(req.params.id)
-    if (place?.actionPlanIds.length || place?.boySleepBaanIds.length || place?.girlSleepBaanIds.length || place?.normalBaanIds.length || place?.fridayActIds.length || place?.partIds.length || place?.lostAndFoundIds.length) {
-        return res.status(400).json({ success: false })
-    }
-    await place?.deleteOne()
-    res.status(200).json({ success: true })
-}
-export async function createBuilding(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const building = await Building.create({ name: req.params.id })
-    res.status(201).json(building)
-}
-export async function saveDeleteBuilding(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const building = await Building.findById(req.params.id)
-    if (building?.placeIds.length) {
-        return res.status(400).json({ success: false })
-    }
-    await building?.deleteOne()
     sendRes(res, true)
 }
 export async function updateCamp(req: express.Request, res: express.Response, next: express.NextFunction) {

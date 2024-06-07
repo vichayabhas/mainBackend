@@ -30,13 +30,16 @@ const PeeCampSchema = new mongoose.Schema({
         default:[]
     },
     sleepCap:{
-        type:Number
+        type:Number,
+        default :0
     },
     actCap:{
-        type:Number
+        type:Number,
+        default:0
     },
     studyCap:{
-        type:Number
+        type:Number,
+        default:0
     },
     lostAndFoundIds:{ 
         type: [mongoose.Schema.ObjectId],

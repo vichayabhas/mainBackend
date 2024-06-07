@@ -69,7 +69,12 @@ export interface InterBuilding {
     placeIds: mongoose.Types.ObjectId[],
     actionPlanIds: mongoose.Types.ObjectId[],
     fridayActIds: mongoose.Types.ObjectId[],
-    _id: mongoose.Types.ObjectId
+    _id: mongoose.Types.ObjectId,
+    lostAndFoundIds: mongoose.Types.ObjectId[],
+    boySleepBaanIds: mongoose.Types.ObjectId[],
+    girlSleepBaanIds: mongoose.Types.ObjectId[],
+    normalBaanIds: mongoose.Types.ObjectId[],
+    partIds: mongoose.Types.ObjectId[]
 }
 export interface InterCampBack {
 

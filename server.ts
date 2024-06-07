@@ -7,6 +7,7 @@ import connectDB from './config/db';
 import cookieParser from 'cookie-parser';
 import camp from './routes/camp';
 import admin from './routes/admin'
+import randomthing from './routes/randomthing'
 
 
 config({ path: './config/config.env' });
@@ -19,6 +20,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use(cors());
+app.use('/randomthing',randomthing)
 app.use('/admin', admin)
 
 /*app.get('/', (req,res) => {
