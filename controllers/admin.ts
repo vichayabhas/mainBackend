@@ -642,7 +642,6 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
         peeModelIds = swop(peeCamp._id, null, peeModelIds)
         await peeCamp.deleteOne()
     }
-
     const nongCamp = await NongCamp.findById(baan.nongModelId)
     if (!nongCamp) {
         sendRes(res, false)
@@ -869,9 +868,6 @@ async function forceDeletePartRaw(partId: mongoose.Types.ObjectId) {
     camp?.peeShertSize.forEach((v, k) => {
         camp.peeShertSize.set(k, calculate(v, 0, part?.peeShertSize.get(k)))
     })
-
-
-
     i = 0
     while (i < part.actionPlanIds.length) {
         const actionPlan = await ActionPlan.findById(part.actionPlanIds[i++])
@@ -1016,7 +1012,6 @@ async function forceDeletePartRaw(partId: mongoose.Types.ObjectId) {
     await part.deleteOne()
 }
 export async function addPartName(req: express.Request, res: express.Response, next: express.NextFunction) {
-    console.log('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh')
     const name = await PartNameContainer.create({ name: req.params.id })
     res.status(201).json(name)
 }
