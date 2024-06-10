@@ -11,7 +11,7 @@ import PetoCamp from "../models/PetoCamp"
 import ShertManage from "../models/ShertManage"
 import User from "../models/User"
 import WorkItem from "../models/WorkItem"
-import { CreateCamp, InterBaanBack, InterBaanFront, InterCampBack, InterPartBack, InterShertManage, UpdateCamp } from "../models/intreface"
+import { CreateCamp, InterBaanBack, InterBaanFront, InterCampBack, InterPartBack, InterShertManage, UpdateCamp, UpdateBaan } from "../models/intreface"
 import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, sendRes, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
@@ -124,7 +124,7 @@ export async function addPart(req: express.Request, res: express.Response, next:
 }
 export async function updateBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        var { name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId } = req.body
+        var { name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId }:UpdateBaan = req.body
         const baan = await Baan.findById(baanId)
         if (!baan) {
             sendRes(res, false)
@@ -150,13 +150,13 @@ export async function updateBaan(req: express.Request, res: express.Response, ne
             normalNewP = normalOldP
         }
         if (!name) {
-            name = baan?.name
+            name = baan.name as string
         }
         if (!fullName) {
-            fullName = baan?.fullName
+            fullName = baan.fullName as string|null
         }
         if (!link) {
-            link = baan?.link
+            link = baan.link as string|null
         }
         const boyNewB = await Building.findById(boyNewP?.buildingId)
         const boyOldB = await Building.findById(boyOldP?.buildingId)

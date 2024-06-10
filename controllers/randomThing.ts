@@ -354,3 +354,7 @@ export async function getPlaces(req: express.Request, res: express.Response, nex
     }
     res.status(200).json(places)
 }
+export async function getPlace(req: express.Request, res: express.Response, next: express.NextFunction){
+    const place=await Place.findById(req.params.id)
+    res.status(200).json(place)
+}

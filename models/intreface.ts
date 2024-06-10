@@ -513,3 +513,12 @@ export interface ShowMember {
     _id: mongoose.Types.ObjectId,
     sleep: boolean
 }
+export interface UpdateBaan {
+    name: string,
+    fullName: string | null,
+    baanId: mongoose.Types.ObjectId,
+    link: string | null,
+    girlSleepPlaceId: mongoose.Types.ObjectId | null,
+    boySleepPlaceId: mongoose.Types.ObjectId | null,
+    nomalPlaceId: mongoose.Types.ObjectId | null,
+}
