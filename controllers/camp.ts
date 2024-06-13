@@ -374,8 +374,14 @@ export async function addNong(req: express.Request, res: express.Response, next:
             camp.nongIds.push(user._id)
             var sleepAtCamp: boolean
             switch (camp.toObject().nongSleepModel) {
-                case 'นอนทุกคน': sleepAtCamp = true
-                case 'เลือกได้ว่าจะค้างคืนหรือไม่': sleepAtCamp = user.likeToSleepAtCamp as boolean
+                case 'นอนทุกคน':{
+                    sleepAtCamp = true
+                    break
+                } 
+                case 'เลือกได้ว่าจะค้างคืนหรือไม่':{
+                    sleepAtCamp = user.likeToSleepAtCamp as boolean
+                    break
+                } 
                 case 'ไม่มีการค้างคืน': sleepAtCamp = false
                 case null: sleepAtCamp = false
                 case undefined: sleepAtCamp = false
@@ -494,8 +500,14 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
             }
             var sleepAtCamp: boolean
             switch (camp.toObject().peeSleepModel) {
-                case 'นอนทุกคน': sleepAtCamp = true
-                case 'เลือกได้ว่าจะค้างคืนหรือไม่': sleepAtCamp = user.likeToSleepAtCamp as boolean
+                case 'นอนทุกคน':{
+                    sleepAtCamp = true
+                    break
+                } 
+                case 'เลือกได้ว่าจะค้างคืนหรือไม่':{
+                    sleepAtCamp = user.likeToSleepAtCamp as boolean
+                    break
+                } 
                 case 'ไม่มีการค้างคืน': sleepAtCamp = false
                 case null: sleepAtCamp = false
                 case undefined: sleepAtCamp = false
@@ -636,8 +648,14 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
         camp.petoIds.push(user._id)
         var sleepAtCamp: boolean
         switch (camp.toObject().peeSleepModel) {
-            case 'นอนทุกคน': sleepAtCamp = true
-            case 'เลือกได้ว่าจะค้างคืนหรือไม่': sleepAtCamp = user.likeToSleepAtCamp as boolean
+            case 'นอนทุกคน':{
+                sleepAtCamp = true
+                break
+            } 
+            case 'เลือกได้ว่าจะค้างคืนหรือไม่':{
+                sleepAtCamp = user.likeToSleepAtCamp as boolean
+                break
+            } 
             case 'ไม่มีการค้างคืน': sleepAtCamp = false
             case null: sleepAtCamp = false
             case undefined: sleepAtCamp = false
@@ -888,7 +906,10 @@ export async function getPartName(req: express.Request, res: express.Response, n
     }
 }
 export async function changeBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { userIds, baanId }: { userIds: string[], baanId: string } = req.body
+    const { userIds, baanId }: { userIds: mongoose.Types.ObjectId[], baanId: mongoose.Types.ObjectId } = req.body
+    await changeBaanRaw(userIds, baanId, res)
+}
+export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: mongoose.Types.ObjectId, res: express.Response) {
     const baan = await Baan.findById(baanId)
     if (!baan) {
         sendRes(res, false)
@@ -944,6 +965,7 @@ export async function changeBaan(req: express.Request, res: express.Response, ne
                 })
                 newNongCamp.nongIds.push(user._id)
                 camp.mapShertManageIdByUserId.set(user.id, newNongCamp._id)
+                break
             }
             case 'pee': {
                 const oldPeeCamp = await PeeCamp.findById(shertManage.campModelId)
@@ -984,6 +1006,7 @@ export async function changeBaan(req: express.Request, res: express.Response, ne
                     peeIds: swop(user._id, null, oldPeeCamp.peeIds)
                 })
                 camp.mapShertManageIdByUserId.set(user.id, newPeeCamp._id)
+                break
             }
         }
     }
@@ -1068,7 +1091,7 @@ export async function changePart(req: express.Request, res: express.Response, ne
                 })
                 newPetoCamp.petoIds.push(user._id)
                 camp.mapShertManageIdByUserId.set(user.id, newPetoCamp._id)
-
+                break
             }
             case 'pee': {
                 const oldPeeCamp = await PeeCamp.findById(shertManage.campModelId)
@@ -1109,6 +1132,7 @@ export async function changePart(req: express.Request, res: express.Response, ne
                     peeIds: swop(user._id, null, oldPeeCamp.peeIds)
                 })
                 camp.mapShertManageIdByUserId.set(user.id, newPeeCamp._id)
+                break
             }
         }
     }

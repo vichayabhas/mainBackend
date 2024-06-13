@@ -11,7 +11,7 @@ import PetoCamp from "../models/PetoCamp"
 import ShertManage from "../models/ShertManage"
 import User from "../models/User"
 import WorkItem from "../models/WorkItem"
-import { CreateCamp, InterBaanBack, InterBaanFront, InterCampBack, InterPartBack, InterShertManage, UpdateCamp, UpdateBaan } from "../models/intreface"
+import { CreateCamp, InterBaanBack, InterBaanFront, InterCampBack, InterPartBack, InterShertManage, UpdateCamp, UpdateBaan, Group } from "../models/intreface"
 import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, sendRes, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
@@ -20,7 +20,7 @@ import Place from "../models/Place"
 import { getUser } from "../middleware/auth"
 import Building from "../models/Building"
 import LostAndFound from "../models/LostAndFound"
-import { addPeeRaw, addPetoRaw } from "./camp"
+import { addPeeRaw, addPetoRaw, changeBaanRaw } from "./camp"
 import mongoose from "mongoose"
 // export async function addBaan
 // export async function addPart
@@ -124,7 +124,7 @@ export async function addPart(req: express.Request, res: express.Response, next:
 }
 export async function updateBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        var { name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId }:UpdateBaan = req.body
+        var { name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId }: UpdateBaan = req.body
         const baan = await Baan.findById(baanId)
         if (!baan) {
             sendRes(res, false)
@@ -153,10 +153,10 @@ export async function updateBaan(req: express.Request, res: express.Response, ne
             name = baan.name as string
         }
         if (!fullName) {
-            fullName = baan.fullName as string|null
+            fullName = baan.fullName as string | null
         }
         if (!link) {
-            link = baan.link as string|null
+            link = baan.link as string | null
         }
         const boyNewB = await Building.findById(boyNewP?.buildingId)
         const boyOldB = await Building.findById(boyOldP?.buildingId)
@@ -231,16 +231,19 @@ export async function createCamp(req: express.Request, res: express.Response, ne
         if (!partNameContainer) {
             partNameContainer = await PartNameContainer.create({ name: 'board' })
         }
-        const part = await Part.create({ nameId: partNameContainer._id, campId: camp._id, partName: `${partNameContainer.name} ${camp.campName}` })
+        console.log('hjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
+        console.log(`${partNameContainer.name} ${camp.campName}`)
+        const part = await Part.create({ nameId: partNameContainer._id, campId: camp._id, partName: `${partNameContainer.name} ${nameContainer.name} ${camp.round}` })
         await partNameContainer.updateOne({
             campIds: swop(null, camp._id, partNameContainer.campIds),
-            partIds: swop(null, part._id, partNameContainer.partIds)
+            partIds: swop(null, part._id, partNameContainer.partIds),
         })
         const petoCamp = await PetoCamp.create({ partId: part._id, campId: camp._id })
         await camp.updateOne({
             partIds: [part._id],
             petoModelIds: [petoCamp._id],
-            campName: `${nameContainer.name} ${camp.round}`
+            campName: `${nameContainer.name} ${camp.round}`,
+            baanBordId:null
         })
         await part.updateOne({ petoModelId: petoCamp._id })
         var i = 0
@@ -262,15 +265,15 @@ export async function createCamp(req: express.Request, res: express.Response, ne
                 sendRes(res, false)
                 return
             }
-            const baan = await addBaanRaw(newCamp, 'board',null)
+            const baan = await addBaanRaw(newCamp, 'board', null)
             i = 0
             while (i < createCamp.boardIds.length) {
                 camp.peePassIds.set(createCamp.boardIds[i++].toString(), part._id)
             }
-            await camp.updateOne({ peePassIds: camp.peePassIds })
-            if (baan) {
-                await addPeeRaw(createCamp.boardIds, baan._id)
-            }
+            await camp.updateOne({ peePassIds: camp.peePassIds,baanBordId:baan._id })
+
+            await addPeeRaw(createCamp.boardIds, baan._id)
+
         }
         res.status(201).json(conCampBackToFront(camp.toObject()))
     } catch (err) {
@@ -1127,9 +1130,9 @@ export async function createBaanByGroup(req: express.Request, res: express.Respo
         sendRes(res, false)
         return
     }
-    const allGroup: ('A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T')[] = ['A', 'B', 'C', 'Dog', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T']
+    const allGroup: Group[] = ['A', 'B', 'C', 'Dog', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T']
     //var baans: Map<'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T', InterBaanFront> = new Map<'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T', InterBaanFront>()
-    var memberMap = new Map<'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T', mongoose.Types.ObjectId[]>()
+    var memberMap = new Map<Group, mongoose.Types.ObjectId[]>()
     var i = 0
     while (i < 18) {
         memberMap.set(allGroup[i++], [])
@@ -1150,8 +1153,23 @@ export async function createBaanByGroup(req: express.Request, res: express.Respo
     }
     i = 0
     while (i < 18) {
-        const baan = await addBaanRaw(camp, allGroup[i],allGroup[i])
+        const baan = await addBaanRaw(camp, allGroup[i], allGroup[i])
         await addPeeRaw(memberMap.get(allGroup[i++]) as mongoose.Types.ObjectId[], baan._id)
+    }
+    i = 0
+    const baan=await Baan.findById(camp.baanBordId)
+    if(!baan){
+        sendRes(res,true)
+        return
+    }
+    const buf=baan.peeIds.map((e)=>(e))
+    while (i < buf.length) {
+        const user = await User.findById(buf[i++])
+        if (!user || !user.group) {
+            continue
+        }
+        const baanId: mongoose.Types.ObjectId = camp.groupRefMap.get(user.group) as mongoose.Types.ObjectId
+        await changeBaanRaw([user._id], baanId, res)
     }
     sendRes(res, true)
 }
@@ -1176,27 +1194,26 @@ async function deleteWorkingItemRaw(workItemId: mongoose.Types.ObjectId) {
     await workItem.deleteOne()
 }
 export async function getPartNames(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const partNames=await PartNameContainer.find()
+    const partNames = await PartNameContainer.find()
     res.status(200).json(partNames)
 }
-export async function addAllGroup(req: express.Request, res: express.Response, next: express.NextFunction){
-    const camp=await Camp.findById(req.params.id)
-    const user=await getUser(req)
-    if(!camp||!user||!camp.boardIds.includes(user._id)){
-        sendRes(res,false)
+export async function addAllGroup(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const camp = await Camp.findById(req.params.id)
+    const user = await getUser(req)
+    if (!camp || !user || !camp.boardIds.includes(user._id)) {
+        sendRes(res, false)
         return
     }
-    var i=0
-    while(i<camp.baanIds.length){
-        const baan=await Baan.findById(camp.baanIds[i++])
-        if(!baan||!baan.groupRef){
+    var i = 0
+    while (i < camp.baanIds.length) {
+        const baan = await Baan.findById(camp.baanIds[i++])
+        if (!baan || !baan.groupRef) {
             continue
         }
-        var j=0
-        while(j<baan.nongIds.length){
-            const user=await User.findById(baan.nongIds[j++])
-            await user?.updateOne({group:baan.groupRef})
+        var j = 0
+        while (j < baan.nongIds.length) {
+            const user = await User.findById(baan.nongIds[j++])
+            await user?.updateOne({ group: baan.groupRef })
         }
-
     }
 }

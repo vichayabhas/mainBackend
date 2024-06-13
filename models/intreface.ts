@@ -136,6 +136,8 @@ export interface InterCampBack {
     peeSleepIds: mongoose.Types.ObjectId[],
     nongSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
     peeSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน'
+    groupRefMap: Map<Group, mongoose.Types.ObjectId>,
+    baanBordId: mongoose.Types.ObjectId|null
 }
 export interface InterCampStyle {
 
@@ -413,7 +415,8 @@ export interface InterCampFront {
     nongSleepIds: mongoose.Types.ObjectId[],
     peeSleepIds: mongoose.Types.ObjectId[],
     nongSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
-    peeSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน'
+    peeSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
+    baanBordId: mongoose.Types.ObjectId|null
 }
 export interface InterPartFront {
 
@@ -522,3 +525,8 @@ export interface UpdateBaan {
     boySleepPlaceId: mongoose.Types.ObjectId | null,
     nomalPlaceId: mongoose.Types.ObjectId | null,
 }
+export type Group = 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T'
+export type Size = 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
+export type RoleCamp = Mode | 'peto'
+export type Role = RoleCamp | 'admin'
+export type Mode='nong' | 'pee'

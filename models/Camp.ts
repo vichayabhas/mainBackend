@@ -114,15 +114,15 @@ const campSchema = new mongoose.Schema({
     },
     nongHaveBottleMapIds: {
         type: Map,
-        default: new Map<mongoose.ObjectId,boolean>()
+        default: new Map<mongoose.ObjectId, boolean>()
     },
     peeHaveBottleMapIds: {
         type: Map,
-        default: new Map<mongoose.ObjectId,boolean>()
+        default: new Map<mongoose.ObjectId, boolean>()
     },
     petoHaveBottleMapIds: {
         type: Map,
-        default: new Map<mongoose.ObjectId,boolean>()
+        default: new Map<mongoose.ObjectId, boolean>()
     },
     nongSureIds: {//user
         type: [mongoose.Schema.ObjectId],
@@ -176,7 +176,7 @@ const campSchema = new mongoose.Schema({
     },
     nongInterviewIds: {
         type: Map,
-        default: new Map<mongoose.ObjectId,string>()
+        default: new Map<mongoose.ObjectId, string>()
     },
     registerModel: {
         type: String,
@@ -188,7 +188,7 @@ const campSchema = new mongoose.Schema({
     },
     memberStructre: {
         type: String,
-        enum: ['nong->highSchool,pee->1year,peto->2upYear', 'nong->highSchool,pee->2upYear', 'nong->1year,pee->2upYear', 'nong->highSchool,pee->allYear','allYearMix']
+        enum: ['nong->highSchool,pee->1year,peto->2upYear', 'nong->highSchool,pee->2upYear', 'nong->1year,pee->2upYear', 'nong->highSchool,pee->allYear', 'allYearMix']
     },
     logoUrl: {
         type: String
@@ -204,29 +204,36 @@ const campSchema = new mongoose.Schema({
     registerSheetLink: {
         type: String
     },
-    outRoundIds:{//น้องที่ตกรอบ
-        type:[mongoose.Schema.ObjectId],
-        default:[]
+    outRoundIds: {//น้องที่ตกรอบ
+        type: [mongoose.Schema.ObjectId],
+        default: []
     },
-    campName:{
-        type:String
+    campName: {
+        type: String
     },
     nongSleepIds: {
-        type:[mongoose.Schema.ObjectId],
-        default:[]
+        type: [mongoose.Schema.ObjectId],
+        default: []
     },
     peeSleepIds: {
-        type:[mongoose.Schema.ObjectId],
-        default:[]
+        type: [mongoose.Schema.ObjectId],
+        default: []
     },
-    nongSleepModel:{
-        type:String,
-        enum:['นอนทุกคน' , 'เลือกได้ว่าจะค้างคืนหรือไม่' , 'ไม่มีการค้างคืน']
-    } ,
+    nongSleepModel: {
+        type: String,
+        enum: ['นอนทุกคน', 'เลือกได้ว่าจะค้างคืนหรือไม่', 'ไม่มีการค้างคืน']
+    },
     peeSleepModel: {
-        type:String,
-        enum:['นอนทุกคน' , 'เลือกได้ว่าจะค้างคืนหรือไม่' , 'ไม่มีการค้างคืน']
-    } ,
+        type: String,
+        enum: ['นอนทุกคน', 'เลือกได้ว่าจะค้างคืนหรือไม่', 'ไม่มีการค้างคืน']
+    },
+    groupRefMap:{
+        type :Map,
+        default:new Map
+    },
+    baanBordId:{
+        type:mongoose.Schema.ObjectId
+    }
 })
 export default mongoose.model('Camp', campSchema)
 
