@@ -222,7 +222,7 @@ export async function getBaan(req: express.Request, res: express.Response, next:
 }
 export async function getCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        console.log(req.params.id)
+        //console.log(req.params.id)
         const data = await Camp.findById(req.params.id);
         if (!data) {
             return res.status(400).json({
@@ -240,7 +240,7 @@ export async function getCamp(req: express.Request, res: express.Response, next:
     }
 }
 export async function getBaans(req: express.Request, res: express.Response, next: express.NextFunction) {
-    console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjttttttttttttttttttttttttttttttt')
+    //console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjttttttttttttttttttttttttttttttt')
     try {
         const camp = await Camp.findById(req.params.id);
         if (!camp) {
@@ -256,7 +256,7 @@ export async function getBaans(req: express.Request, res: express.Response, next
                 baans.push(conBaanBackToFront(baan))
             }
         }
-        console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
+        //console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
         res.status(200).json(baans);
         console.log(baans.length)
     } catch (err) {

@@ -202,7 +202,8 @@ const campSchema = new mongoose.Schema({
         default: false
     },
     registerSheetLink: {
-        type: String
+        type: String,
+        default:null
     },
     outRoundIds: {//น้องที่ตกรอบ
         type: [mongoose.Schema.ObjectId],

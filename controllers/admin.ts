@@ -231,8 +231,8 @@ export async function createCamp(req: express.Request, res: express.Response, ne
         if (!partNameContainer) {
             partNameContainer = await PartNameContainer.create({ name: 'board' })
         }
-        console.log('hjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
-        console.log(`${partNameContainer.name} ${camp.campName}`)
+        //console.log('hjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
+        //console.log(`${partNameContainer.name} ${camp.campName}`)
         const part = await Part.create({ nameId: partNameContainer._id, campId: camp._id, partName: `${partNameContainer.name} ${nameContainer.name} ${camp.round}` })
         await partNameContainer.updateOne({
             campIds: swop(null, camp._id, partNameContainer.campIds),

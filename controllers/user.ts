@@ -528,7 +528,7 @@ export async function checkTel(req: express.Request, res: express.Response, next
 	//type FindMode='h=>nong,f=>nong'|'h=>nong,f=>pee'|'h=>nong,f=>peto'|'h=>pee,f=>nong'|'h=>pee,f=>pee'|'h=>pee,f=>peto'|'h=>peto,f=>nong'|'h=>peto,f=>pee'|'h=>peto,f=>peto'
 	const findUser = await User.findOne({ tel: req.params.id })
 	const host = await getUser(req)
-	console.log(findUser)
+	//console.log(findUser)
 	var relation: string[] = []
 	if (!host || !findUser) {
 		res.status(400).json({ relation })
