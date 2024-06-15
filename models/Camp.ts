@@ -234,6 +234,10 @@ const campSchema = new mongoose.Schema({
     },
     baanBordId:{
         type:mongoose.Schema.ObjectId
+    },
+    partNameIds:{
+        type: [mongoose.Schema.ObjectId],
+        default: []
     }
 })
 export default mongoose.model('Camp', campSchema)

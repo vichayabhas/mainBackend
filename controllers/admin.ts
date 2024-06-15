@@ -11,8 +11,8 @@ import PetoCamp from "../models/PetoCamp"
 import ShertManage from "../models/ShertManage"
 import User from "../models/User"
 import WorkItem from "../models/WorkItem"
-import { CreateCamp, InterBaanBack, InterBaanFront, InterCampBack, InterPartBack, InterShertManage, UpdateCamp, UpdateBaan, Group } from "../models/intreface"
-import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, sendRes, swop } from "./setup"
+import { CreateCamp, InterBaanFront, InterCampBack, InterShertManage, UpdateCamp, UpdateBaan, Group, MyMap } from "../models/intreface"
+import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, removeDupicate, sendRes, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
 import PartNameContainer from '../models/PartNameContainer'
@@ -118,8 +118,18 @@ export async function addPart(req: express.Request, res: express.Response, next:
         part.mapPeeCampIdByBaanId.set(baanId.toString(), peeCamp._id)
         await baan?.updateOne({ mapPeeCampIdByPartId: baan.mapPeeCampIdByPartId })
     }
-    await camp.updateOne({ partIds: swop(null, part._id, camp.partIds), petoModelIds: swop(null, petoCamp._id, camp.petoModelIds), peeModelIds: camp.peeModelIds })
-    await part.updateOne({ petoModelId: petoCamp._id, mapPeeCampIdByBaanId: part.mapPeeCampIdByBaanId, peeModelIds: part.peeModelIds, partName: `${partNameContainer?.name} ${camp.campName}` })
+    await camp.updateOne({
+        partIds: swop(null, part._id, camp.partIds),
+        petoModelIds: swop(null, petoCamp._id, camp.petoModelIds),
+        peeModelIds: camp.peeModelIds,
+        partNameIds: swop(null, partNameContainer._id, camp.partNameIds)
+    })
+    await part.updateOne({
+        petoModelId: petoCamp._id,
+        mapPeeCampIdByBaanId: part.mapPeeCampIdByBaanId,
+        peeModelIds: part.peeModelIds,
+        partName: `${partNameContainer?.name} ${camp.campName}`
+    })
     res.status(201).json(conPartBackToFront(part.toObject()))
 }
 export async function updateBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -243,7 +253,8 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             partIds: [part._id],
             petoModelIds: [petoCamp._id],
             campName: `${nameContainer.name} ${camp.round}`,
-            baanBordId:null
+            baanBordId: null,
+            partNameIds: [partNameContainer._id]
         })
         await part.updateOne({ petoModelId: petoCamp._id })
         var i = 0
@@ -270,7 +281,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             while (i < createCamp.boardIds.length) {
                 camp.peePassIds.set(createCamp.boardIds[i++].toString(), part._id)
             }
-            await camp.updateOne({ peePassIds: camp.peePassIds,baanBordId:baan._id })
+            await camp.updateOne({ peePassIds: camp.peePassIds, baanBordId: baan._id })
 
             await addPeeRaw(createCamp.boardIds, baan._id)
 
@@ -1157,12 +1168,12 @@ export async function createBaanByGroup(req: express.Request, res: express.Respo
         await addPeeRaw(memberMap.get(allGroup[i++]) as mongoose.Types.ObjectId[], baan._id)
     }
     i = 0
-    const baan=await Baan.findById(camp.baanBordId)
-    if(!baan){
-        sendRes(res,true)
+    const baan = await Baan.findById(camp.baanBordId)
+    if (!baan) {
+        sendRes(res, true)
         return
     }
-    const buf=baan.peeIds.map((e)=>(e))
+    const buf = baan.peeIds.map((e) => (e))
     while (i < buf.length) {
         const user = await User.findById(buf[i++])
         if (!user || !user.group) {
@@ -1216,4 +1227,26 @@ export async function addAllGroup(req: express.Request, res: express.Response, n
             await user?.updateOne({ group: baan.groupRef })
         }
     }
+}
+export async function getAllRemainPartName(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const camp = await Camp.findById(req.params.id)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
+    const partNameContainers = await PartNameContainer.find()
+    const partNameIds = partNameContainers.map((partNameContainer) => (partNameContainer._id))
+    const buf = removeDupicate(partNameIds, camp.partNameIds)
+    var i = 0
+    const out: MyMap[] = []
+    while (i < buf.length) {
+        const partNameContainer = await PartNameContainer.findById(buf[i++])
+        if (!partNameContainer) {
+            continue
+        }
+        const { _id: key, name } = partNameContainer
+        const value = name as string
+        out.push({ key, value })
+    }
+    res.status(200).json(out)
 }

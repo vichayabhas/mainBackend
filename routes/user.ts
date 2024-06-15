@@ -16,6 +16,6 @@ router.put('/updateBottle/', protect, updateBottle)
 router.post('/changeModeToPee/params/:id',protect,pee,changeModeToPee)
 router.put('/updateSleep/',protect,updateSleep)
 router.get('/getHelthIsue/params/:id',getHelthIsue)
-router.get('/checkTel/params/:id',isPass,checkTel)
+router.get('/checkTel/params/:id',protect,checkTel)
 
 export default router;

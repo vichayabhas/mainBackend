@@ -69,7 +69,7 @@ export function mapBoolToArray(input: Map<mongoose.Types.ObjectId, boolean>): mo
 
 }
 export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
-    const { 
+    const {
         name,
         fullName,
         campId,
@@ -98,7 +98,7 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
         peeSleepIds,
         nongSleepIds,
         groupRef
-     } = input
+    } = input
     return ({
         name,
         fullName,
@@ -131,7 +131,7 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
     })
 }
 export function conCampBackToFront(input: InterCampBack): InterCampFront {
-    const { 
+    const {
         nameId,
         round,
         dateStart,
@@ -190,7 +190,8 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         peeSleepModel,
         nongSleepIds,
         nongSleepModel,
-        baanBordId
+        baanBordId,
+        partNameIds
     } = input
     return ({
         partIds,
@@ -240,7 +241,7 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         memberStructre,
         workItemIds,
         songIds,
-
+        partNameIds,
         logoUrl,
         mapShertManageIdByUserId: mapObjectIdToMyMap(mapShertManageIdByUserId),
         registerSheetLink,
@@ -256,7 +257,7 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
     })
 }
 export function conPartBackToFront(input: InterPartBack): InterPartFront {
-    const { 
+    const {
         nameId,
         campId,
         peeIds,
@@ -276,7 +277,7 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         actionPlanIds,
         workItemIds,
         mapShertManageIdByUserId,
-        placeId ,
+        placeId,
         partName,
         peeSleepIds,
         _id
@@ -332,7 +333,7 @@ export function mapObjectIdToMyMap(input: Map<mongoose.Types.ObjectId, mongoose.
 }*/
 export function linkSign(input: InterWorkingItem, token: string): InterWorkingItem {
     const {
-        
+
         name,
         link,
         status,
@@ -344,7 +345,6 @@ export function linkSign(input: InterWorkingItem, token: string): InterWorkingIt
         _id
     } = input
     return ({
-        
         name,
         status,
         campId,
@@ -356,9 +356,9 @@ export function linkSign(input: InterWorkingItem, token: string): InterWorkingIt
         _id
     })
 }
-function hashRaw(input:string,token:string):string{
+function hashRaw(input: string, token: string): string {
     try {
-        const out=jwt.verify(input,token)
+        const out = jwt.verify(input, token)
         return out.toString()
     } catch (error) {
         return 'null'
@@ -366,7 +366,7 @@ function hashRaw(input:string,token:string):string{
 }
 export function linkHash(input: InterWorkingItem, token: string): InterWorkingItem {
     const {
-        
+
         name,
         link,
         status,
@@ -378,7 +378,7 @@ export function linkHash(input: InterWorkingItem, token: string): InterWorkingIt
         _id
     } = input
     return ({
-        
+
         name,
         status,
         campId,
@@ -390,12 +390,12 @@ export function linkHash(input: InterWorkingItem, token: string): InterWorkingIt
         _id
     })
 }
-export function isInTime(start:Date,end:Date):boolean{
-    const now=new Date(Date.now())
-    return(now>start&&now<end)
+export function isInTime(start: Date, end: Date): boolean {
+    const now = new Date(Date.now())
+    return (now > start && now < end)
 }
-export function plusActionPlan(input:IntreActionPlan,minute:number):IntreActionPlan{
-    const millisecound=minute*1000*60
+export function plusActionPlan(input: IntreActionPlan, minute: number): IntreActionPlan {
+    const millisecound = minute * 1000 * 60
     const {
         start,
         end,
@@ -405,10 +405,10 @@ export function plusActionPlan(input:IntreActionPlan,minute:number):IntreActionP
         headId,
         body,
         _id
-    }=input
-    return({
-        start:new Date(start.getTime()+millisecound),
-        end:new Date(end.getTime()+millisecound),
+    } = input
+    return ({
+        start: new Date(start.getTime() + millisecound),
+        end: new Date(end.getTime() + millisecound),
         partId,
         placeIds,
         action,
@@ -419,4 +419,8 @@ export function plusActionPlan(input:IntreActionPlan,minute:number):IntreActionP
 }
 export const backendUrl = 'http://localhost:5000'
 export const userPath = 'api/v1/auth'
-
+export function removeDupicate(input: mongoose.Types.ObjectId[], compare: mongoose.Types.ObjectId[]): mongoose.Types.ObjectId[] {
+    return input.filter((e) => {
+        return !compare.includes(e)
+    })
+}

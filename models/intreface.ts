@@ -137,7 +137,8 @@ export interface InterCampBack {
     nongSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
     peeSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน'
     groupRefMap: Map<Group, mongoose.Types.ObjectId>,
-    baanBordId: mongoose.Types.ObjectId|null
+    baanBordId: mongoose.Types.ObjectId|null,
+    partNameIds:mongoose.Types.ObjectId[]
 }
 export interface InterCampStyle {
 
@@ -416,7 +417,8 @@ export interface InterCampFront {
     peeSleepIds: mongoose.Types.ObjectId[],
     nongSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
     peeSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
-    baanBordId: mongoose.Types.ObjectId|null
+    baanBordId: mongoose.Types.ObjectId|null,
+    partNameIds:mongoose.Types.ObjectId[]
 }
 export interface InterPartFront {
 
