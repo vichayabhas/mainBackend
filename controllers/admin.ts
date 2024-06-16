@@ -1165,12 +1165,13 @@ export async function createBaanByGroup(req: express.Request, res: express.Respo
     i = 0
     while (i < 18) {
         const baan = await addBaanRaw(camp, allGroup[i], allGroup[i])
+        camp.groupRefMap.set(allGroup[i],baan._id)
         await addPeeRaw(memberMap.get(allGroup[i++]) as mongoose.Types.ObjectId[], baan._id)
     }
     i = 0
     const baan = await Baan.findById(camp.baanBordId)
     if (!baan) {
-        sendRes(res, true)
+        sendRes(res, false)
         return
     }
     const buf = baan.peeIds.map((e) => (e))
@@ -1209,10 +1210,22 @@ export async function getPartNames(req: express.Request, res: express.Response, 
     res.status(200).json(partNames)
 }
 export async function addAllGroup(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const camp = await Camp.findById(req.params.id)
+    const { campId, group }: { campId: mongoose.Types.ObjectId, group: Group } = req.body
+    const camp = await Camp.findById(campId)
     const user = await getUser(req)
     if (!camp || !user || !camp.boardIds.includes(user._id)) {
         sendRes(res, false)
+        return
+    }
+    if (!camp.ready.includes(group)) {
+        sendRes(res, false)
+        return
+    }
+    const { ready } = camp
+    ready.push(group)
+    await camp.updateOne({ ready })
+    if (ready.length < 18) {
+        sendRes(res, true)
         return
     }
     var i = 0

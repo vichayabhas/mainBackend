@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { startSize } from "../controllers/setup";
+import { Group } from "./intreface";
 
 const campSchema = new mongoose.Schema({
     nameId: {//nameContainer
@@ -203,7 +204,7 @@ const campSchema = new mongoose.Schema({
     },
     registerSheetLink: {
         type: String,
-        default:null
+        default: null
     },
     outRoundIds: {//น้องที่ตกรอบ
         type: [mongoose.Schema.ObjectId],
@@ -228,15 +229,22 @@ const campSchema = new mongoose.Schema({
         type: String,
         enum: ['นอนทุกคน', 'เลือกได้ว่าจะค้างคืนหรือไม่', 'ไม่มีการค้างคืน']
     },
-    groupRefMap:{
-        type :Map,
-        default:new Map
+    groupRefMap: {
+        type: Map,
+        default: new Map
     },
-    baanBordId:{
-        type:mongoose.Schema.ObjectId
+    baanBordId: {
+        type: mongoose.Schema.ObjectId
     },
-    partNameIds:{
+    partNameIds: {
         type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    ready: {
+        type: [{
+            type: String,
+            enum: ['A', 'B', 'C', 'Dog', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T']
+        }],
         default: []
     }
 })

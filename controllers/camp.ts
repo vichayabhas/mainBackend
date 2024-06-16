@@ -258,7 +258,7 @@ export async function getBaans(req: express.Request, res: express.Response, next
         }
         //console.log('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
         res.status(200).json(baans);
-        console.log(baans.length)
+        //console.log(baans.length)
     } catch (err) {
         console.log('gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg')
         res.status(400).json(resError);
@@ -964,7 +964,6 @@ export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: 
                     nongShertManageIds: swop(shertManage._id, null, oldNongCamp.nongShertManageIds)
                 })
                 newNongCamp.nongIds.push(user._id)
-                camp.mapShertManageIdByUserId.set(user.id, newNongCamp._id)
                 break
             }
             case 'pee': {
@@ -1005,7 +1004,6 @@ export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: 
                     peeShertManageIds: swop(shertManage._id, null, oldPeeCamp.peeShertManageIds),
                     peeIds: swop(user._id, null, oldPeeCamp.peeIds)
                 })
-                camp.mapShertManageIdByUserId.set(user.id, newPeeCamp._id)
                 break
             }
         }
@@ -1027,7 +1025,6 @@ export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: 
         nongShertManageIds: baan.nongShertManageIds,
         nongShertSize: baan.nongShertSize
     })
-    await camp?.updateOne({ mapShertManageIdByUserId: camp.mapShertManageIdByUserId })
     sendRes(res, true)
 }
 export async function changePart(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -1090,7 +1087,6 @@ export async function changePart(req: express.Request, res: express.Response, ne
                     petoShertManageIds: swop(shertManage._id, null, oldPetoCamp.petoShertManageIds)
                 })
                 newPetoCamp.petoIds.push(user._id)
-                camp.mapShertManageIdByUserId.set(user.id, newPetoCamp._id)
                 break
             }
             case 'pee': {
@@ -1131,7 +1127,6 @@ export async function changePart(req: express.Request, res: express.Response, ne
                     peeShertManageIds: swop(shertManage._id, null, oldPeeCamp.peeShertManageIds),
                     peeIds: swop(user._id, null, oldPeeCamp.peeIds)
                 })
-                camp.mapShertManageIdByUserId.set(user.id, newPeeCamp._id)
                 break
             }
         }

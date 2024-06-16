@@ -1,6 +1,6 @@
 import express from "express";
-import { addBaan, addCampName, addPart, addPartName, createCamp, getAllRemainPartName, getCampNames, getPartNames, updateCamp, updatePart } from "../controllers/admin";
-import { admin, isPass, pee, protect } from "../middleware/auth";
+import { addBaan, addCampName, addPart, addPartName, createBaanByGroup, createCamp, getAllRemainPartName, getCampNames, getPartNames, updateBaan, updateCamp, updatePart } from "../controllers/admin";
+import { admin, pee, protect } from "../middleware/auth";
 
 const router=express.Router()
 router.get('/getCampNames/',getCampNames)
@@ -13,6 +13,8 @@ router.post('/addBaan/',protect,addBaan)
 router.put('/updatePart/',protect,updatePart)
 router.get('/getAllRemainPartName/params/:id',protect,pee,getAllRemainPartName)
 router.post('/addPart/',protect,addPart)
+router.post('/createBaanByGroup/params/:id',protect,createBaanByGroup)
+router.put('/updateBaan/',protect,updateBaan)
 export default router/**import mongoose from "mongoose";
 import { UpdateCamp } from "../../../interface";
 import { backendUrl } from "@/components/setup";
