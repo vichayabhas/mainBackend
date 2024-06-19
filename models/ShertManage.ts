@@ -5,7 +5,8 @@ const PeeCampSchema = new mongoose.Schema({
     },
     size: {
         type: String,
-        enum: ['S', 'M', 'L', 'XL', 'XXL', '3XL']
+        enum: ['S', 'M', 'L', 'XL', 'XXL', '3XL'],
+        default:'L'
     },
     campModelId: {
         type: mongoose.Schema.ObjectId
@@ -28,7 +29,7 @@ const PeeCampSchema = new mongoose.Schema({
     },
     sleepAtCamp:{
         type:Boolean,
-        
+        default:false
     }
 })
 export default mongoose.model('ShertManage', PeeCampSchema)

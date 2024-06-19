@@ -11,5 +11,5 @@ const PeeCampSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: [] 
     }
-}) 
+})  
 export default mongoose.model('PartNameContainer', PeeCampSchema)

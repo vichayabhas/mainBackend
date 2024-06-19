@@ -20,7 +20,7 @@ export interface HospitalJson {
 
 import mongoose from "mongoose"
 
-export interface IntreActionPlan {
+export interface InterActionPlan {
 
     action: string,
     partId: mongoose.Types.ObjectId,
@@ -29,7 +29,9 @@ export interface IntreActionPlan {
     end: Date,
     headId: mongoose.Types.ObjectId,
     body: string,
-    _id: mongoose.Types.ObjectId
+    _id: mongoose.Types.ObjectId,
+    partName: string,
+
 }
 export interface InterBaanBack {
 
@@ -137,8 +139,12 @@ export interface InterCampBack {
     nongSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
     peeSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน'
     groupRefMap: Map<Group, mongoose.Types.ObjectId>,
-    baanBordId: mongoose.Types.ObjectId|null,
-    partNameIds:mongoose.Types.ObjectId[]
+    baanBordId: mongoose.Types.ObjectId | null,
+    partNameIds: mongoose.Types.ObjectId[],
+    partBoardId: mongoose.Types.ObjectId,
+    partCoopId: mongoose.Types.ObjectId,
+    partRegiterId: mongoose.Types.ObjectId,
+    partPeeBaanId: mongoose.Types.ObjectId
 }
 export interface InterCampStyle {
 
@@ -156,8 +162,7 @@ export interface InterFrydayAct {
     placeId: mongoose.Types.ObjectId,
     _id: mongoose.Types.ObjectId
 }
-export interface InterHelthIsue {
-
+export interface InterHelthIsue extends HelthIsueBody {
     userId: mongoose.Types.ObjectId,
     _id: mongoose.Types.ObjectId
 }
@@ -298,7 +303,8 @@ export interface InterUser {
     linkHash: string,//                    รหัสการเข้าถึงลิ้งในการทำงาน default 'null'
     citizenId: string,//                     รหัสประจำตัวประชาชน
     _id: mongoose.Types.ObjectId,
-    likeToSleepAtCamp: boolean
+    likeToSleepAtCamp: boolean,
+    authPartIds: mongoose.Types.ObjectId[]
 }
 export interface InterWorkingItem {
 
@@ -417,8 +423,12 @@ export interface InterCampFront {
     peeSleepIds: mongoose.Types.ObjectId[],
     nongSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
     peeSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
-    baanBordId: mongoose.Types.ObjectId|null,
-    partNameIds:mongoose.Types.ObjectId[]
+    baanBordId: mongoose.Types.ObjectId | null,
+    partNameIds: mongoose.Types.ObjectId[],
+    partBoardId: mongoose.Types.ObjectId,
+    partCoopId: mongoose.Types.ObjectId,
+    partRegiterId: mongoose.Types.ObjectId,
+    partPeeBaanId: mongoose.Types.ObjectId
 }
 export interface InterPartFront {
 
@@ -516,7 +526,9 @@ export interface ShowMember {
     likeSongs: string[],//               ชอบเพลงอะไรบ้าง
     tel: string,   //                      เบอร์โทรศัพท์
     _id: mongoose.Types.ObjectId,
-    sleep: boolean
+    sleep: boolean,
+    isWearing: boolean,
+    spicy: boolean
 }
 export interface UpdateBaan {
     name: string,
@@ -531,4 +543,83 @@ export type Group = 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' 
 export type Size = 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
 export type RoleCamp = Mode | 'peto'
 export type Role = RoleCamp | 'admin'
-export type Mode='nong' | 'pee'
+export type Mode = 'nong' | 'pee'
+export interface HelthIsueBody {
+    foodIds: mongoose.Types.ObjectId[],
+    chronicDiseaseIds: mongoose.Types.ObjectId[],
+    medicineIds: mongoose.Types.ObjectId[],
+    extra: string,
+    isWearing: boolean,
+    spicy: boolean
+}
+export interface createActionPlan {
+    action: string,
+    partId: mongoose.Types.ObjectId,
+    placeIds: mongoose.Types.ObjectId[],
+    start: Date,
+    end: Date,
+    headId: mongoose.Types.ObjectId,
+    body: string
+}
+export interface showActionPlan {
+    _id: mongoose.Types.ObjectId,
+    action: string,
+    partId: mongoose.Types.ObjectId,
+    placeIds: mongoose.Types.ObjectId[],
+    start: Date,
+    end: Date,
+    headId: mongoose.Types.ObjectId,
+    body: string,
+    headName: string,
+    headTel: string,
+    partName: string,
+    placeName: string[]
+
+}
+export interface ChoiseAnswer extends Answer {
+    userId: mongoose.Types.ObjectId,
+    _id: mongoose.Types.ObjectId
+}
+export type Choise = 'A' | 'B' | 'C' | "D" | "E"
+export interface ChoiseQuasion {
+    choiseAnswerIds: mongoose.Types.ObjectId[],
+    campId: mongoose.Types.ObjectId,
+    userIds: mongoose.Types.ObjectId[],
+    quasion: string,
+    a: string,
+    b: string,
+    c: string,
+    d: string,
+    e: string,
+    _id: mongoose.Types.ObjectId,
+    score: number,
+    correct: Choise
+}
+export interface Answer {
+    quasionId: mongoose.Types.ObjectId,
+    campId: mongoose.Types.ObjectId,
+    answer: Choise | null
+}
+export interface CreateQuation {
+    campId: mongoose.Types.ObjectId,
+    quasion: string,
+    a: string,
+    b: string,
+    c: string,
+    d: string,
+    e: string,
+    score: number,
+    correct: Choise
+
+}
+export interface EditQuation {
+    _id: mongoose.Types.ObjectId,
+    quasion: string,
+    a: string,
+    b: string,
+    c: string,
+    d: string,
+    e: string,
+    score: number,
+    correct: Choise
+}

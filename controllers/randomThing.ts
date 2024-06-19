@@ -9,7 +9,7 @@ import LostAndFound from "../models/LostAndFound";
 import Building from "../models/Building";
 import Place from "../models/Place";
 import NongCamp from "../models/NongCamp";
-import { InterLostAndFound, InterPlace } from "../models/intreface";
+import { InterCampBack, InterLostAndFound, InterPlace } from "../models/intreface";
 import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import mongoose from "mongoose";
@@ -218,7 +218,7 @@ export async function deleteLostAndFound(req: express.Request, res: express.Resp
         return
     }
     const camp = await Camp.findById(lostAndFound.campId)
-    if (user?.role != 'admin' && (lostAndFound.userId !== (user._id)) && (camp ? !user.authorizeIds.includes(camp._id) : true) && !camp?.boardIds.includes(user._id)) {
+    if (!user||(user.role != 'admin' && (lostAndFound.userId !== (user._id)) && (camp ? !user.authPartIds.includes(camp.partBoardId as mongoose.Types.ObjectId) && !user.authPartIds.includes(camp.partRegiterId as mongoose.Types.ObjectId) : true) && !camp?.boardIds.includes(user._id))) {
         res.status(403).json(resError)
     }
     const owner = await User.findById(lostAndFound?.userId)
@@ -312,8 +312,8 @@ export async function getAllBuilding(req: express.Request, res: express.Response
     res.status(200).json(buildings)
 }
 export async function createPlace(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { room, buildingId,flore } = req.body
-    const place = await Place.create({ room, buildingId,flore })
+    const { room, buildingId, flore } = req.body
+    const place = await Place.create({ room, buildingId, flore })
     const building = await Building.findById(buildingId)
     await building?.updateOne({ placeIds: swop(null, place._id, building.placeIds) })
     res.status(201).json(place)
@@ -338,23 +338,23 @@ export async function saveDeleteBuilding(req: express.Request, res: express.Resp
     await building?.deleteOne()
     sendRes(res, true)
 }
-export async function getPlaces(req: express.Request, res: express.Response, next: express.NextFunction){
-    const building=await Building.findById(req.params.id)
-    if(!building){
-        sendRes(res,false)
+export async function getPlaces(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const building = await Building.findById(req.params.id)
+    if (!building) {
+        sendRes(res, false)
         return
     }
-    var places:InterPlace[]=[]
-    var i=0
-    while(i<building.placeIds.length){
-        const place=await Place.findById(building.placeIds[i++])
-        if(place){
+    var places: InterPlace[] = []
+    var i = 0
+    while (i < building.placeIds.length) {
+        const place = await Place.findById(building.placeIds[i++])
+        if (place) {
             places.push(place.toObject())
         }
     }
     res.status(200).json(places)
 }
-export async function getPlace(req: express.Request, res: express.Response, next: express.NextFunction){
-    const place=await Place.findById(req.params.id)
+export async function getPlace(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const place = await Place.findById(req.params.id)
     res.status(200).json(place)
 }

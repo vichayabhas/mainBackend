@@ -24,7 +24,11 @@ const HospitalSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId
     },
     body: {
-        type: String
+        type: String,
+        default:''
+    },
+    partName:{
+        type:String,
     }
 });
 export default mongoose.model('ActionPlan', HospitalSchema);

@@ -14,9 +14,14 @@ import NameContainer from "../models/NameContainer";
 import express from "express";
 import jwt from 'jsonwebtoken'
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterWorkingItem, IntreActionPlan, ShowMember } from "../models/intreface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterWorkingItem, InterActionPlan, ShowMember, createActionPlan, showActionPlan, Answer, CreateQuation, EditQuation } from "../models/intreface";
 import mongoose from "mongoose";
 import Song from "../models/Song";
+import HelthIsue from "../models/HelthIsue";
+import Place from "../models/Place";
+import Building from "../models/Building";
+import ChoiseAnswer from "../models/ChoiseAnswer";
+import ChoiseQuasion from "../models/ChoiseQuasion";
 // exports.getWorkingItem           protect pee up           params id                fix
 // exports.createWorkingItem        protect pee up
 // exports.updateWorkingItem        protect pee up           params id
@@ -275,6 +280,7 @@ export async function getCamps(req: express.Request, res: express.Response, next
         })
         res.status(200).json(out);
     } catch (err) {
+        console.log(err)
         res.status(400).json({
             success: false
         });
@@ -374,14 +380,14 @@ export async function addNong(req: express.Request, res: express.Response, next:
             camp.nongIds.push(user._id)
             var sleepAtCamp: boolean
             switch (camp.toObject().nongSleepModel) {
-                case 'นอนทุกคน':{
+                case 'นอนทุกคน': {
                     sleepAtCamp = true
                     break
-                } 
-                case 'เลือกได้ว่าจะค้างคืนหรือไม่':{
+                }
+                case 'เลือกได้ว่าจะค้างคืนหรือไม่': {
                     sleepAtCamp = user.likeToSleepAtCamp as boolean
                     break
-                } 
+                }
                 case 'ไม่มีการค้างคืน': sleepAtCamp = false
                 case null: sleepAtCamp = false
                 case undefined: sleepAtCamp = false
@@ -500,14 +506,14 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
             }
             var sleepAtCamp: boolean
             switch (camp.toObject().peeSleepModel) {
-                case 'นอนทุกคน':{
+                case 'นอนทุกคน': {
                     sleepAtCamp = true
                     break
-                } 
-                case 'เลือกได้ว่าจะค้างคืนหรือไม่':{
+                }
+                case 'เลือกได้ว่าจะค้างคืนหรือไม่': {
                     sleepAtCamp = user.likeToSleepAtCamp as boolean
                     break
-                } 
+                }
                 case 'ไม่มีการค้างคืน': sleepAtCamp = false
                 case null: sleepAtCamp = false
                 case undefined: sleepAtCamp = false
@@ -648,14 +654,14 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
         camp.petoIds.push(user._id)
         var sleepAtCamp: boolean
         switch (camp.toObject().peeSleepModel) {
-            case 'นอนทุกคน':{
+            case 'นอนทุกคน': {
                 sleepAtCamp = true
                 break
-            } 
-            case 'เลือกได้ว่าจะค้างคืนหรือไม่':{
+            }
+            case 'เลือกได้ว่าจะค้างคืนหรือไม่': {
                 sleepAtCamp = user.likeToSleepAtCamp as boolean
                 break
-            } 
+            }
             case 'ไม่มีการค้างคืน': sleepAtCamp = false
             case null: sleepAtCamp = false
             case undefined: sleepAtCamp = false
@@ -771,25 +777,73 @@ export async function staffRegister(req: express.Request, res: express.Response,
 }*/
 export async function getActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const hospital = await ActionPlan.findById(req.params.id);
-        if (!hospital) {
-            return res.status(400).json({
-                success: false
-            });
+        const part = await Part.findById(req.params.id)
+        var data: showActionPlan[] = [];
+        if (!part) {
+            sendRes(res, false)
+            return
         }
-        res.status(200).json(hospital);
+        var j = 0
+        while (j < part.actionPlanIds.length) {
+            const actionPlan: InterActionPlan | null = await ActionPlan.findById(part.actionPlanIds[j++])
+            if (!actionPlan) {
+                continue
+            }
+            const {
+                action,
+                partId,
+                placeIds,
+                start,
+                end,
+                headId,
+                body,
+                partName,
+                _id
+            } = actionPlan
+            const user = await User.findById(headId)
+            var k = 0
+            const placeName: string[] = []
+            while (k < placeIds.length) {
+                const place = await Place.findById(placeIds[k++])
+                const building = await Building.findById(place?.buildingId)
+                placeName.push(`${building?.name} ${place?.flore} ${place?.room}`)
+            }
+            data.push({
+                action,
+                partId,
+                placeIds,
+                start,
+                end,
+                headId,
+                body,
+                headName: user?.nickname as string,
+                headTel: user?.tel as string,
+                partName,
+                placeName,
+                _id
+            })
+        }
+        data.sort((a, b) => (a.start.getTime() - b.start.getTime()))
+        res.status(200).json(data)
     } catch (err) {
-        res.status(400).json({
-            success: false
-        });
+        console.log(err)
     }
 }
 export async function createActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const hospital = await ActionPlan.create(req.body);
-    const part = await Part.findById(req.body.partId)
+    const create: createActionPlan = req.body
+    const hospital = await ActionPlan.create(create);
+    const part = await Part.findById(create.partId)
     const camp = await Camp.findById(part?.campId)
     await part?.updateOne({ actionPlanIds: swop(null, hospital._id, part.actionPlanIds) })
     await camp?.updateOne({ actionPlanIds: swop(null, hospital._id, camp.actionPlanIds) })
+    await hospital.updateOne({ partName: part?.partName })
+    var i = 0
+    while (i < hospital.placeIds.length) {
+        const place = await Place.findById(create.placeIds[i++])
+        const building = await Building.findById(place?.buildingId)
+        await place?.updateOne({ actionPlanIds: swop(null, hospital._id, place.actionPlanIds) })
+        await building?.updateOne({ actionPlanIds: swop(null, hospital._id, building.actionPlanIds) })
+    }
     res.status(200).json(hospital);
 }
 export async function updateActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -836,26 +890,112 @@ export async function deleteActionPlan(req: express.Request, res: express.Respon
 }
 export async function getActionPlans(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        var data: IntreActionPlan[] = [];
+        var data: showActionPlan[] = [];
         const user = await getUser(req)
         if (!user) {
             sendRes(res, false)
             return
         }
         if (user.filterIds.length == 0) {
-            data = await ActionPlan.find();
+            var i = 0
+            while (i < user.registerIds.length) {
+                const camp = await Camp.findById(user.registerIds[i++])
+                if (!camp) {
+                    continue
+                }
+                var j = 0
+                while (j < camp.actionPlanIds.length) {
+                    const actionPlan: InterActionPlan | null = await ActionPlan.findById(camp.actionPlanIds[j++])
+                    if (!actionPlan) {
+                        continue
+                    }
+                    const {
+                        action,
+                        partId,
+                        placeIds,
+                        start,
+                        end,
+                        headId,
+                        body,
+                        partName,
+                        _id
+
+                    } = actionPlan
+                    const user = await User.findById(headId)
+                    var k = 0
+                    const placeName: string[] = []
+                    while (k < placeIds.length) {
+                        const place = await Place.findById(placeIds[k++])
+                        const building = await Building.findById(place?.buildingId)
+                        placeName.push(`${building?.name} ${place?.flore} ${place?.room}`)
+                    }
+                    data.push({
+                        action,
+                        partId,
+                        placeIds,
+                        start,
+                        end,
+                        headId,
+                        body,
+                        headName: user?.nickname as string,
+                        headTel: user?.tel as string,
+                        partName,
+                        placeName,
+                        _id
+                    })
+                }
+            }
         } else {
             var i = 0
             while (i < user.filterIds.length) {
-                const buf: IntreActionPlan[] = await ActionPlan.find({
-                    campId: user.filterIds[i++]
-                });
+                const camp = await Camp.findById(user.filterIds[i++])
+                if (!camp) {
+                    continue
+                }
                 var j = 0
-                while (j < buf.length) {
-                    data.push(buf[j++])
+                while (j < camp.actionPlanIds.length) {
+                    const actionPlan: InterActionPlan | null = await ActionPlan.findById(camp.actionPlanIds[j++])
+                    if (!actionPlan) {
+                        continue
+                    }
+                    const {
+                        action,
+                        partId,
+                        placeIds,
+                        start,
+                        end,
+                        headId,
+                        body,
+                        partName,
+                        _id
+
+                    } = actionPlan
+                    const user = await User.findById(headId)
+                    var k = 0
+                    const placeName: string[] = []
+                    while (k < placeIds.length) {
+                        const place = await Place.findById(placeIds[k++])
+                        const building = await Building.findById(place?.buildingId)
+                        placeName.push(`${building?.name} ${place?.flore} ${place?.room}`)
+                    }
+                    data.push({
+                        action,
+                        partId,
+                        placeIds,
+                        start,
+                        end,
+                        headId,
+                        body,
+                        headName: user?.nickname as string,
+                        headTel: user?.tel as string,
+                        partName,
+                        placeName,
+                        _id
+                    })
                 }
             }
         }
+        data.sort((a, b) => (a.start.getTime() - b.start.getTime()))
         res.status(200).json(data);
     } catch (err) {
         res.status(400).json({
@@ -907,6 +1047,17 @@ export async function getPartName(req: express.Request, res: express.Response, n
 }
 export async function changeBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { userIds, baanId }: { userIds: mongoose.Types.ObjectId[], baanId: mongoose.Types.ObjectId } = req.body
+    const user = await getUser(req)
+    const baan = await Baan.findById(baanId)
+    if (!baan) {
+        sendRes(res, false)
+        return
+    }
+    const camp: InterCampBack | null = await Camp.findById(baan.campId)
+    if (!user || !camp || (!user.authPartIds.includes(camp.partBoardId) && !user.authPartIds.includes(camp.partRegiterId))) {
+        sendRes(res, false)
+        return
+    }
     await changeBaanRaw(userIds, baanId, res)
 }
 export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: mongoose.Types.ObjectId, res: express.Response) {
@@ -1028,21 +1179,27 @@ export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: 
     sendRes(res, true)
 }
 export async function changePart(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { userIds, partId }: { userIds: string[], partId: string } = req.body
+    const { userIds, partId }: { userIds: mongoose.Types.ObjectId[], partId: mongoose.Types.ObjectId } = req.body
+    const out = await changePartRaw(userIds, partId)
+    sendRes(res, out)
+}
+export async function changePartRaw(userIds: mongoose.Types.ObjectId[], partId: mongoose.Types.ObjectId) {
+
+
     const part = await Part.findById(partId)
     if (!part) {
-        sendRes(res, false)
-        return
+
+        return false
     }
     const camp = await Camp.findById(part.campId)
     if (!camp) {
-        sendRes(res, false)
-        return
+
+        return false
     }
     const newPetoCamp = await PetoCamp.findById(part.petoModelId)
     if (!newPetoCamp) {
-        sendRes(res, false)
-        return
+
+        return false
     }
     var i = 0
     while (i < userIds.length) {
@@ -1145,7 +1302,7 @@ export async function changePart(req: express.Request, res: express.Response, ne
         petoShertManageIds: part.petoShertManageIds
     })
     await camp?.updateOne({ mapShertManageIdByUserId: camp.mapShertManageIdByUserId })
-    sendRes(res, true)
+    return true
 }
 export async function getNongsFromBaanId(req: express.Request, res: express.Response, next: express.NextFunction) {
     const out: ShowMember[] = []
@@ -1165,17 +1322,52 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
             var j = 0
             var likeSongs: string[] = []
 
-            const { name, lastname, nickname, _id, email, tel, group, gender, studentId, helthIsueId, haveBottle, likeSongIds } = user
+            const {
+                name,
+                lastname,
+                nickname,
+                _id,
+                email,
+                tel,
+                group,
+                gender,
+                studentId,
+                helthIsueId,
+                haveBottle,
+                likeSongIds
+            } = user
             while (j < likeSongIds.length) {
                 const song = await Song.findById(likeSongs[j++])
                 if (!song) {
                     continue
                 }
                 likeSongs.push(song.name as string)
-
-
             }
-            out.push({ name, nickname, lastname, _id, shertSize: (shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), email, studentId, sleep: (shertManage.sleepAtCamp as boolean), tel, gender, group, helthIsueId, haveBottle, likeSongs })
+            var isWearing = false
+            var spicy = false
+            const helthIsue = await HelthIsue.findById(helthIsueId)
+            if (helthIsue) {
+                isWearing = helthIsue.isWearing
+                spicy = helthIsue.spicy
+            }
+            out.push({
+                name,
+                nickname,
+                lastname,
+                _id,
+                shertSize: shertManage.size,
+                email,
+                studentId,
+                sleep: shertManage.sleepAtCamp,
+                tel,
+                gender,
+                group,
+                helthIsueId,
+                haveBottle,
+                likeSongs,
+                isWearing,
+                spicy
+            })
         }
     }
     res.status(200).json(out)
@@ -1208,7 +1400,31 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
 
 
             }
-            out.push({ name, nickname, lastname, _id, shertSize: (shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), email, studentId, sleep: (shertManage.sleepAtCamp as boolean), tel, gender, group, helthIsueId, haveBottle, likeSongs })
+            var isWearing = false
+            var spicy = false
+            const helthIsue = await HelthIsue.findById(helthIsueId)
+            if (helthIsue) {
+                isWearing = helthIsue.isWearing
+                spicy = helthIsue.spicy
+            }
+            out.push({
+                name,
+                nickname,
+                lastname,
+                _id,
+                shertSize: shertManage.size,
+                email,
+                studentId,
+                sleep: shertManage.sleepAtCamp,
+                tel,
+                gender,
+                group,
+                helthIsueId,
+                haveBottle,
+                likeSongs,
+                isWearing,
+                spicy
+            })
         }
     }
     res.status(200).json(out)
@@ -1241,7 +1457,31 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
 
 
             }
-            out.push({ name, nickname, lastname, _id, shertSize: (shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), email, studentId, sleep: (shertManage.sleepAtCamp as boolean), tel, gender, group, helthIsueId, haveBottle, likeSongs })
+            var isWearing = false
+            var spicy = false
+            const helthIsue = await HelthIsue.findById(helthIsueId)
+            if (helthIsue) {
+                isWearing = helthIsue.isWearing
+                spicy = helthIsue.spicy
+            }
+            out.push({
+                name,
+                nickname,
+                lastname,
+                _id,
+                shertSize: shertManage.size,
+                email,
+                studentId,
+                sleep: shertManage.sleepAtCamp,
+                tel,
+                gender,
+                group,
+                helthIsueId,
+                haveBottle,
+                likeSongs,
+                isWearing,
+                spicy
+            })
         }
     }
     res.status(200).json(out)
@@ -1272,7 +1512,31 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
                 }
                 likeSongs.push(song.name as string)
             }
-            out.push({ name, nickname, lastname, _id, shertSize: (shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), email, studentId, sleep: (shertManage.sleepAtCamp as boolean), tel, gender, group, helthIsueId, haveBottle, likeSongs })
+            var isWearing = false
+            var spicy = false
+            const helthIsue = await HelthIsue.findById(helthIsueId)
+            if (helthIsue) {
+                isWearing = helthIsue.isWearing
+                spicy = helthIsue.spicy
+            }
+            out.push({
+                name,
+                nickname,
+                lastname,
+                _id,
+                shertSize: shertManage.size,
+                email,
+                studentId,
+                sleep: shertManage.sleepAtCamp,
+                tel,
+                gender,
+                group,
+                helthIsueId,
+                haveBottle,
+                likeSongs,
+                isWearing,
+                spicy
+            })
         }
     }
     res.status(200).json(out)
@@ -1286,4 +1550,68 @@ export async function getLinkRegister(req: express.Request, res: express.Respons
         return
     }
     res.status(200).json({ link: camp.nongPendingIds.get(user.id) })
+}
+export async function getImpotentPartIdBCRP(campId: mongoose.Types.ObjectId) {
+    const camp = await Camp.findById(campId)
+    if (!camp) {
+        return []
+    }
+    return [camp.partBoardId, camp.partCoopId, camp.partRegiterId, camp.partPeeBaanId] as mongoose.Types.ObjectId[]
+}
+export async function answerTheQuasion(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const answers: Answer[] = req.body
+    var i = 0
+    const user = await getUser(req)
+    if (!user) {
+        sendRes(res, false)
+        return
+    }
+
+    while (i < answers.length) {
+        const quasion = await ChoiseQuasion.findById(answers[i].quasionId)
+        if (!quasion) {
+            continue
+        }
+        if (quasion.mapAwnserIdByUserId.has(user._id.toString())) {
+            const answer = await ChoiseAnswer.findByIdAndUpdate(quasion.mapAwnserIdByUserId.get(user._id.toString()), answers[i])
+            if (answers[i].answer === quasion.correct) {
+                await answer?.updateOne({ score: quasion.score })
+            } else {
+                await answer?.updateOne({ score: 0 })
+            }
+            i++
+
+        } else {
+            const choiseAnswer = await ChoiseAnswer.create(answers[i])
+            await choiseAnswer.updateOne({ userId: user._id })
+            const camp = await Camp.findById(answers[i++].campId)
+            await camp?.updateOne({ choiseAnswerIds: swop(null, choiseAnswer._id, camp.choiseAnswerIds) })
+            await user.updateOne({
+                choiseAnswerIds: swop(null, choiseAnswer._id, user.choiseAnswerIds),
+                quasionIds: swop(null, quasion._id, user.quasionIds)
+            })
+            await quasion.updateOne({ choiseAnswerIds: swop(null, choiseAnswer._id, quasion.choiseAnswerIds) })
+            if (answers[i].answer === quasion.correct) {
+                await choiseAnswer.updateOne({ score: quasion.score })
+            } else {
+                await choiseAnswer.updateOne({ score: 0 })
+            }
+        }
+    }
+    sendRes(res, true)
+}
+export async function createAllQuasion(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const create: CreateQuation[] = req.body
+    var i = 0
+    while (i < create.length) {
+        const choiseQuasion = await ChoiseQuasion.create(create[i++])
+        const camp = await Camp.findById(choiseQuasion.campId)
+        await camp?.updateOne({ quasionIds: swop(null, choiseQuasion._id, camp.quasionIds) })
+    }
+    res.status(201).json(resOk)
+}
+export async function updateQuasion(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { _id, a, b, c, d, e, quasion, correct, score }: EditQuation = req.body
+    await ChoiseQuasion.findByIdAndUpdate(_id, { a, b, c, d, e, quasion, correct, score })
+    res.status(200).json(resOk)
 }

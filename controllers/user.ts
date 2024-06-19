@@ -11,9 +11,11 @@ import User, { buf } from "../models/User";
 import { calculate, sendRes, swop } from "./setup";
 import express from "express";
 import bcrypt from "bcrypt"
-import { InterUser, Register } from "../models/intreface";
+import { Answer, CreateQuation, HelthIsueBody, InterUser, Register } from "../models/intreface";
 import jwt from 'jsonwebtoken'
 import mongoose from "mongoose";
+import ChoiseQuasion from "../models/ChoiseQuasion";
+import ChoiseAnswer from "../models/ChoiseAnswer";
 // exports.register             
 // exports.login
 // exports.getMe               protect
@@ -57,8 +59,6 @@ export async function login(req: express.Request, res: express.Response, next: e
 		});
 	}
 	const isMatch = await bcrypt.compare(password, user.password);
-	console.log(email)
-	console.log(password)
 	if (!isMatch) {
 		return res.status(401).json({
 			success: false,
@@ -218,13 +218,14 @@ export async function getHelthIsue(req: express.Request, res: express.Response, 
 }
 export async function updateHelth(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const user = await getUser(req)
+	const helthIsueBody: HelthIsueBody = req.body
 	if (!user) {
 		sendRes(res, false)
 		return
 	}
 	const oldHelthId = user.helthIsueId
 	if (await findLock(user._id, oldHelthId)) {
-		const helth = await HelthIsue.create(req.body);
+		const helth = await HelthIsue.create(helthIsueBody);
 		await user.updateOne({
 			helthIsueId: helth._id
 		});
@@ -291,7 +292,7 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 			data: helth
 		});
 	} else {
-		const helth = await HelthIsue.findByIdAndUpdate(user?.helthIsueId, req.body);
+		const helth = await HelthIsue.findByIdAndUpdate(user?.helthIsueId, helthIsueBody);
 		res.status(200).json(helth?.toObject());
 	}
 }

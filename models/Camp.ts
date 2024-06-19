@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { startSize } from "../controllers/setup";
-import { Group } from "./intreface";
 
 const campSchema = new mongoose.Schema({
     nameId: {//nameContainer
@@ -246,7 +245,27 @@ const campSchema = new mongoose.Schema({
             enum: ['A', 'B', 'C', 'Dog', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T']
         }],
         default: []
-    }
+    },
+    partBoardId: {
+        type: mongoose.Schema.ObjectId
+    },
+    partCoopId: {
+        type: mongoose.Schema.ObjectId
+    },
+    partRegiterId: {
+        type: mongoose.Schema.ObjectId
+    },
+    partPeeBaanId: {
+        type: mongoose.Schema.ObjectId
+    },
+    choiseAnswerIds:{
+        type:[mongoose.Schema.ObjectId],
+        default:[]
+    },
+    quasionIds:{
+        type:[mongoose.Schema.ObjectId],
+        default:[]
+    },
 })
 export default mongoose.model('Camp', campSchema)
 

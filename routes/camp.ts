@@ -3,7 +3,7 @@ import express from 'express';
 const router = express.Router();
 
 import { protect, modePee, peto, pee } from '../middleware/auth';
-import { getWorkingItems, createWorkingItem, getWorkingItem, updateWorkingItem, deleteWorkingItem, getCamps, getCampName, getCamp, getNongCamp, getPeeCamp, getBaan, getPart, getPartName, nongRegister, staffRegister, getNongsFromBaanId, getPeesFromBaanId, getPeesFromPartId, getPetosFromPartId, getBaans } from '../controllers/camp';
+import { getWorkingItems, createWorkingItem, getWorkingItem, updateWorkingItem, deleteWorkingItem, getCamps, getCampName, getCamp, getNongCamp, getPeeCamp, getBaan, getPart, getPartName, nongRegister, staffRegister, getNongsFromBaanId, getPeesFromBaanId, getPeesFromPartId, getPetosFromPartId, getBaans, getActionPlans } from '../controllers/camp';
 
 
 
@@ -25,7 +25,7 @@ router.get('/getPeesFromBaanId/params/:id', getPeesFromBaanId)
 router.get('/getPeesFromPartId/params/:id', getPeesFromPartId)
 router.get('/getPetosFromPartId/params/:id', getPetosFromPartId)
 router.get('/getBaans/params/:id',getBaans)
-//(`${backendUrl}/camp/getBaans/params/${campId}`)
+router.get('/getActionPlans/',protect,pee,getActionPlans)
 export default router;
 
 

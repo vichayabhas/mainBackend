@@ -39,7 +39,7 @@ const UserSchema = new mongoose.Schema({
     },
     tel: {
         type: String,
-        unique:true
+        unique: true
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
@@ -145,12 +145,24 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: 'null'
     },
-    citizenId:{//รหัสประจำตัวประชาชน
-        type:String
+    citizenId: {//รหัสประจำตัวประชาชน
+        type: String
     },
-    likeToSleepAtCamp:{
-        type:Boolean
-    }
+    likeToSleepAtCamp: {
+        type: Boolean
+    },
+    authPartIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    choiseAnswerIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    quasionIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
 });
 UserSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10);

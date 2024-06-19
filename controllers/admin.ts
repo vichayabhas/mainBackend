@@ -11,7 +11,7 @@ import PetoCamp from "../models/PetoCamp"
 import ShertManage from "../models/ShertManage"
 import User from "../models/User"
 import WorkItem from "../models/WorkItem"
-import { CreateCamp, InterBaanFront, InterCampBack, InterShertManage, UpdateCamp, UpdateBaan, Group, MyMap } from "../models/intreface"
+import { CreateCamp, InterBaanFront, InterCampBack, InterShertManage, UpdateCamp, UpdateBaan, Group, MyMap, InterPartBack } from "../models/intreface"
 import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, removeDupicate, sendRes, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
@@ -51,7 +51,7 @@ export async function addBaan(req: express.Request, res: express.Response, next:
         sendRes(res, false)
         return
     }
-    if (user?.role != 'admin' && !user?.authorizeIds.includes(camp._id)) {
+    if (!user || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId))) {
         return res.status(403).json({ success: false })
     }
     const baan = await addBaanRaw(camp, name, null)
@@ -59,11 +59,7 @@ export async function addBaan(req: express.Request, res: express.Response, next:
 }//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function addBaanRaw(camp: InterCampBack, name: string,
     groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | null): Promise<InterBaanFront> {
-    // const camp = await Camp.findById(campId)
-    // if (!camp) {
-    //     return null
-    // }
-    const baan = await Baan.create({ campId: camp._id, name })
+    const baan = await Baan.create({ campId: camp._id, name, groupRef })
     const nongCamp = await NongCamp.create({ campId: camp._id, baanId: baan._id })
     var i = 0
     while (i < camp.partIds.length) {
@@ -86,15 +82,28 @@ export async function addBaanRaw(camp: InterCampBack, name: string,
 }
 export async function addPart(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { campId, nameId } = req.body
-    const camp = await Camp.findById(campId)
     const user = await getUser(req)
-    const partNameContainer = await PartNameContainer.findById(nameId)
-    if (!camp || !partNameContainer) {
+    const camp = await Camp.findById(campId)
+    if (!user || !camp) {
         sendRes(res, false)
         return
     }
-    if (user?.role != 'admin' && !user?.authorizeIds.includes(camp?._id)) {
+    const part = await Part.findById(camp?.partBoardId)
+    if (user.role != 'admin' && !part?.peeIds.includes(user._id) && !part?.petoIds.includes(user._id)) {
         return res.status(403).json({ success: false })
+    }
+    const newPart = await addPartRaw(camp._id, nameId)
+    if (!newPart) {
+        sendRes(res, false)
+        return
+    }
+    res.status(201).json(conPartBackToFront(newPart))
+}
+async function addPartRaw(campId: mongoose.Types.ObjectId, nameId: mongoose.Types.ObjectId): Promise<InterPartBack | null> {
+    const camp = await Camp.findById(campId)
+    const partNameContainer = await PartNameContainer.findById(nameId)
+    if (!camp || !partNameContainer) {
+        return null
     }
     const part = await Part.create({ campId: camp._id, nameId })
     await partNameContainer.updateOne({ partIds: swop(null, part._id, partNameContainer.partIds) })
@@ -130,7 +139,7 @@ export async function addPart(req: express.Request, res: express.Response, next:
         peeModelIds: part.peeModelIds,
         partName: `${partNameContainer?.name} ${camp.campName}`
     })
-    res.status(201).json(conPartBackToFront(part.toObject()))
+    return part.toObject()
 }
 export async function updateBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
@@ -140,8 +149,9 @@ export async function updateBaan(req: express.Request, res: express.Response, ne
             sendRes(res, false)
             return
         }
+        const camp: InterCampBack | null = await Camp.findById(baan.campId)
         const user = await getUser(req)
-        if (user?.role != 'admin' && !user?.authorizeIds.includes(baan.campId as mongoose.Types.ObjectId)) {
+        if (!user || !camp || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId) && !user.authPartIds.includes(camp.partCoopId))) {
             return res.status(401).json({ success: false })
         }
         var boyNewP = await Place.findById(boySleepPlaceId)
@@ -195,17 +205,18 @@ export async function updateBaan(req: express.Request, res: express.Response, ne
 export async function updatePart(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const { placeId, partId } = req.body
-        const baan = await Part.findById(partId)
-        if (!baan) {
+        const part = await Part.findById(partId)
+        if (!part) {
             sendRes(res, false)
             return
         }
+        const camp: InterCampBack | null = await Camp.findById(part.campId)
         const user = await getUser(req)
-        if (user?.role != 'admin' && !user?.authorizeIds.includes(baan.campId as mongoose.Types.ObjectId)) {
+        if (!user || !camp || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId) && !user.authPartIds.includes(camp.partCoopId))) {
             return res.status(401).json({ success: false })
         }
-        await baan?.updateOne({ placeId })
-        res.status(200).json(conPartBackToFront(baan.toObject()))
+        await part.updateOne({ placeId })
+        res.status(200).json(conPartBackToFront(part.toObject()))
     } catch (err) {
         res.status(400).json({ success: false })
     }
@@ -241,8 +252,19 @@ export async function createCamp(req: express.Request, res: express.Response, ne
         if (!partNameContainer) {
             partNameContainer = await PartNameContainer.create({ name: 'board' })
         }
-        //console.log('hjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
-        //console.log(`${partNameContainer.name} ${camp.campName}`)
+        var partNameContainerCoop = await PartNameContainer.findOne({ name: 'ประสาน' })
+        if (!partNameContainerCoop) {
+            partNameContainerCoop = await PartNameContainer.create({ name: 'ประสาน' })
+        }
+        var partNameContainerRegis = await PartNameContainer.findOne({ name: 'ทะเบียน' })
+        if (!partNameContainerRegis) {
+            partNameContainerRegis = await PartNameContainer.create({ name: 'ทะเบียน' })
+        }
+        var partNameContainerPeeBaan = await PartNameContainer.findOne({ name: 'พี่บ้าน' })
+        if (!partNameContainerPeeBaan) {
+            partNameContainerPeeBaan = await PartNameContainer.create({ name: 'พี่บ้าน' })
+        }
+
         const part = await Part.create({ nameId: partNameContainer._id, campId: camp._id, partName: `${partNameContainer.name} ${nameContainer.name} ${camp.round}` })
         await partNameContainer.updateOne({
             campIds: swop(null, camp._id, partNameContainer.campIds),
@@ -254,6 +276,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             petoModelIds: [petoCamp._id],
             campName: `${nameContainer.name} ${camp.round}`,
             baanBordId: null,
+            partBoardId: part._id,
             partNameIds: [partNameContainer._id]
         })
         await part.updateOne({ petoModelId: petoCamp._id })
@@ -264,9 +287,23 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             if (!user) {
                 continue
             }
-            await user.updateOne({ authorizeIds: swop(null, camp._id, user.authorizeIds) })
-
+            await user.updateOne({
+                authorizeIds: swop(null, camp._id, user.authorizeIds),
+                authPartIds: swop(null, part._id, user.authPartIds)
+            })
         }
+        const coop = await addPartRaw(camp._id, partNameContainerCoop._id)
+        const regis = await addPartRaw(camp._id, partNameContainerRegis._id)
+        const peeBaan = await addPartRaw(camp._id, partNameContainerPeeBaan._id)
+        if (!coop || !regis||!peeBaan) {
+            sendRes(res, false)
+            return
+        }
+        await camp.updateOne({
+            partCoopId: coop._id,
+            partRegiterId: regis._id,
+            partPeeBaanId:peeBaan._id
+        })
 
         if (createCamp.memberStructre == 'nong->highSchool,pee->1year,peto->2upYear') {
             await addPetoRaw(createCamp.boardIds, part._id, res)
@@ -322,7 +359,10 @@ async function forceDeleteCampRaw(campId: mongoose.Types.ObjectId, res: express.
                 continue
             }
             const news = swop(camp._id, null, user.authorizeIds)
-            await user.updateOne({ authorizeIds: news })
+            await user.updateOne({
+                authorizeIds: news,
+                authPartIds: swop(camp.partBoardId as mongoose.Types.ObjectId, null, user.authPartIds)
+            })
         }
         i = 0
         while (i < camp.nongModelIds.length) {
@@ -619,7 +659,7 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
         }
         await part.updateOne({ peeHelthIsueIds: swop(helthIsue._id, null, part.peeHelthIsueIds) })
         if (user?.helthIsueId !== (helthIsue?._id)) {
-            await helthIsue?.deleteOne()
+            await helthIsue?.deleteOne() 
         }
     }
     i = 0
@@ -733,8 +773,8 @@ export async function saveDeleteBaan(req: express.Request, res: express.Response
         sendRes(res, false)
         return
     }
-    if (user.role != 'admin' && !user.authorizeIds.includes(camp._id)) {
-        return res.status(401).json({ success: false })
+    if (!user || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId as mongoose.Types.ObjectId))) {
+        return res.status(403).json({ success: false })
     }
     if (baan.nongIds.length || baan.peeIds.length || baan.songIds.length) {
         return res.status(400).json({ success: false, message: 'this baan is not save to delete' })
@@ -791,8 +831,8 @@ export async function saveDeletePart(req: express.Request, res: express.Response
         sendRes(res, false)
         return
     }
-    if (user.role != 'admin' && !user.authorizeIds.includes(camp._id)) {
-        return res.status(401).json({ success: false })
+    if (!user || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId as mongoose.Types.ObjectId))) {
+        return res.status(403).json({ success: false })
     }
     if (part.petoIds.length || part.peeIds.length || part.actionPlanIds.length || part.workItemIds.length) {
         return res.status(400).json({ success: false, message: 'this baan is not save to delete' })
@@ -1095,9 +1135,14 @@ export async function addMoreBoard(req: express.Request, res: express.Response, 
         if (!user) {
             continue
         }
-        await user.updateOne({ authorizeIds: swop(null, camp._id, user.authorizeIds) })
+        await user.updateOne({
+            authorizeIds: swop(null, camp._id, user.authorizeIds),
+            authPartIds: swop(null, camp.partBoardId as mongoose.Types.ObjectId, user.authPartIds)
+        })
         camp.boardIds.push(user._id)
+
     }
+
     await camp.updateOne({ boardIds: camp.boardIds })
     res.status(200).json({ success: true })
 }
@@ -1110,7 +1155,10 @@ export async function removeBoard(req: express.Request, res: express.Response, n
         return
     }
     await camp?.updateOne({ boardIds: swop(user._id, null, camp.boardIds) })
-    await user?.updateOne({ authorizeIds: swop(camp._id, null, user.authorizeIds) })
+    await user?.updateOne({
+        authorizeIds: swop(camp._id, null, user.authorizeIds),
+        authPartIds: swop(camp.partBoardId as mongoose.Types.ObjectId, null, user.authPartIds)
+    })
     sendRes(res, true)
 }
 export async function updateCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -1120,12 +1168,8 @@ export async function updateCamp(req: express.Request, res: express.Response, ne
         sendRes(res, false)
         return
     }
-    if ((user?.role != 'admin' && !user?.authorizeIds.includes(camp._id))) {
+    if (!user || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId as mongoose.Types.ObjectId))) {
         return res.status(403).json({ success: false })
-    }
-    if (!camp) {
-        sendRes(res, false)
-        return
     }
     const update: UpdateCamp = req.body
     await camp.updateOne(update)
@@ -1165,7 +1209,7 @@ export async function createBaanByGroup(req: express.Request, res: express.Respo
     i = 0
     while (i < 18) {
         const baan = await addBaanRaw(camp, allGroup[i], allGroup[i])
-        camp.groupRefMap.set(allGroup[i],baan._id)
+        camp.groupRefMap.set(allGroup[i], baan._id)
         await addPeeRaw(memberMap.get(allGroup[i++]) as mongoose.Types.ObjectId[], baan._id)
     }
     i = 0

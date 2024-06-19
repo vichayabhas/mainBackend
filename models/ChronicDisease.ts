@@ -4,4 +4,4 @@ const PeeCampSchema = new mongoose.Schema({
         type:String
     }
 })
-export default mongoose.model('Food', PeeCampSchema)
+export default mongoose.model('ChronicDisease', PeeCampSchema)

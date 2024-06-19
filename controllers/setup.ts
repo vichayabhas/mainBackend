@@ -1,5 +1,5 @@
 import express from 'express'
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, InterWorkingItem, IntreActionPlan, MapObjectId, MyMap } from '../models/intreface'
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, InterWorkingItem, InterActionPlan, MapObjectId, MyMap } from '../models/intreface'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 
@@ -20,7 +20,7 @@ export function swop(olds: mongoose.Types.ObjectId | null, news: mongoose.Types.
         }
         return array
     }
-    const re = array.filter(e => e != olds)
+    const re = array.filter(e => !e.equals(olds))
     if (news) {
         re.push(news)
     }
@@ -191,7 +191,11 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         nongSleepIds,
         nongSleepModel,
         baanBordId,
-        partNameIds
+        partNameIds,
+        partBoardId,
+        partCoopId,
+        partRegiterId,
+        partPeeBaanId
     } = input
     return ({
         partIds,
@@ -253,7 +257,11 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         peeSleepModel,
         nongSleepIds,
         nongSleepModel,
-        baanBordId
+        baanBordId,
+        partBoardId,
+        partCoopId,
+        partRegiterId,
+        partPeeBaanId
     })
 }
 export function conPartBackToFront(input: InterPartBack): InterPartFront {
@@ -394,7 +402,7 @@ export function isInTime(start: Date, end: Date): boolean {
     const now = new Date(Date.now())
     return (now > start && now < end)
 }
-export function plusActionPlan(input: IntreActionPlan, minute: number): IntreActionPlan {
+export function plusActionPlan(input: InterActionPlan, minute: number): InterActionPlan {
     const millisecound = minute * 1000 * 60
     const {
         start,
@@ -404,7 +412,8 @@ export function plusActionPlan(input: IntreActionPlan, minute: number): IntreAct
         action,
         headId,
         body,
-        _id
+        _id,
+        partName
     } = input
     return ({
         start: new Date(start.getTime() + millisecound),
@@ -414,7 +423,8 @@ export function plusActionPlan(input: IntreActionPlan, minute: number): IntreAct
         action,
         headId,
         body,
-        _id
+        _id,
+        partName
     })
 }
 export const backendUrl = 'http://localhost:5000'

@@ -3,20 +3,28 @@ const PeeCampSchema = new mongoose.Schema({
     userId: {//user
         type: mongoose.Schema.ObjectId
     },
-    foodIds:{
-        type:[mongoose.Schema.ObjectId],
-        default:[]
+    foodIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
     },
-    chronicDiseaseIds:{
-        type:[mongoose.Schema.ObjectId],
-        default:[]
+    chronicDiseaseIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
     },
-    medicineIds:{
-        type:[mongoose.Schema.ObjectId],
-        default:[]
+    medicineIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
     },
-    isWearing:{
-        type:Boolean,
+    extra: {
+        type: String,
+        default: ''
+    },
+    isWearing: {
+        type: Boolean,
+        default: false
+    },
+    spicy: {
+        type: Boolean,
         default:false
     }
 })
