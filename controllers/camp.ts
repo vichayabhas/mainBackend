@@ -14,7 +14,7 @@ import NameContainer from "../models/NameContainer";
 import express from "express";
 import jwt from 'jsonwebtoken'
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterWorkingItem, InterActionPlan, ShowMember, createActionPlan, showActionPlan, Answer, CreateQuation, EditQuation } from "../models/intreface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterWorkingItem, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation } from "../models/intreface";
 import mongoose from "mongoose";
 import Song from "../models/Song";
 import HelthIsue from "../models/HelthIsue";
@@ -775,7 +775,7 @@ export async function staffRegister(req: express.Request, res: express.Response,
         })
     }
 }*/
-export async function getActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getActionPlanByPartId(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const part = await Part.findById(req.params.id)
         var data: showActionPlan[] = [];
@@ -830,7 +830,7 @@ export async function getActionPlan(req: express.Request, res: express.Response,
     }
 }
 export async function createActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const create: createActionPlan = req.body
+    const create: CreateActionPlan = req.body
     const hospital = await ActionPlan.create(create);
     const part = await Part.findById(create.partId)
     const camp = await Camp.findById(part?.campId)
@@ -996,6 +996,7 @@ export async function getActionPlans(req: express.Request, res: express.Response
             }
         }
         data.sort((a, b) => (a.start.getTime() - b.start.getTime()))
+        //console.log(data)
         res.status(200).json(data);
     } catch (err) {
         res.status(400).json({
@@ -1615,3 +1616,19 @@ export async function updateQuasion(req: express.Request, res: express.Response,
     await ChoiseQuasion.findByIdAndUpdate(_id, { a, b, c, d, e, quasion, correct, score })
     res.status(200).json(resOk)
 }
+/*export async function getActionPlanByPartId(req: express.Request, res: express.Response, next: express.NextFunction){
+    const part=await Part.findById(req.params.id)
+    if(!part){
+        sendRes(res,false)
+        return
+    }
+    var i=0
+    const actionPlans:InterActionPlan[]=[]
+    while(i<part.actionPlanIds.length){
+        const actionPlan=await ActionPlan.findById(part.actionPlanIds[i++])
+        if(actionPlan){
+            actionPlans.push(actionPlan.toObject())
+        }
+    }
+    res.status(200).json(actionPlans)
+}*/

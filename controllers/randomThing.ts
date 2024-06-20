@@ -358,3 +358,7 @@ export async function getPlace(req: express.Request, res: express.Response, next
     const place = await Place.findById(req.params.id)
     res.status(200).json(place)
 }
+export async function getBuilding(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const building = await Building.findById(req.params.id)
+    res.status(200).json(building)
+}

@@ -552,7 +552,7 @@ export interface HelthIsueBody {
     isWearing: boolean,
     spicy: boolean
 }
-export interface createActionPlan {
+export interface CreateActionPlan {
     action: string,
     partId: mongoose.Types.ObjectId,
     placeIds: mongoose.Types.ObjectId[],

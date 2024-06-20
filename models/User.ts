@@ -45,7 +45,8 @@ const UserSchema = new mongoose.Schema({
     resetPasswordExpire: Date,
     studentId: {//รหัสประจำตัวนิสิต
         type: String,
-        default: null
+        default: null,
+        unique:true
     },
     gender: {
         type: String,
