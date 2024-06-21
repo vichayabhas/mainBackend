@@ -14,8 +14,6 @@ import bcrypt from "bcrypt"
 import { Answer, CreateQuation, HelthIsueBody, InterUser, Register } from "../models/intreface";
 import jwt from 'jsonwebtoken'
 import mongoose from "mongoose";
-import ChoiseQuasion from "../models/ChoiseQuasion";
-import ChoiseAnswer from "../models/ChoiseAnswer";
 // exports.register             
 // exports.login
 // exports.getMe               protect
@@ -500,8 +498,8 @@ async function getSameWearingRaw(campId: string, sames: InterUser[]): Promise<In
 }*/
 export async function updateProfile(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const user = await getUser(req)
-	const { email, tel } = req.body
-	await user?.updateOne({ email, tel })
+	const { email, tel, name, nickname, lastname, citizenId } = req.body
+	await user?.updateOne({ email, tel, name, nickname, lastname, citizenId })
 	res.status(200).json(user)
 }
 export async function changeModeToPee(req: express.Request, res: express.Response, next: express.NextFunction) {

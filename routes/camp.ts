@@ -3,7 +3,7 @@ import express from 'express';
 const router = express.Router();
 
 import { protect, modePee, peto, pee } from '../middleware/auth';
-import { getWorkingItems, createWorkingItem, getWorkingItem, updateWorkingItem, deleteWorkingItem, getCamps, getCampName, getCamp, getNongCamp, getPeeCamp, getBaan, getPart, getPartName, nongRegister, staffRegister, getNongsFromBaanId, getPeesFromBaanId, getPeesFromPartId, getPetosFromPartId, getBaans, getActionPlans, getActionPlanByPartId, createActionPlan } from '../controllers/camp';
+import { getWorkingItems, createWorkingItem, getWorkingItem, updateWorkingItem, deleteWorkingItem, getCamps, getCampName, getCamp, getNongCamp, getPeeCamp, getBaan, getPart, getPartName, nongRegister, staffRegister, getNongsFromBaanId, getPeesFromBaanId, getPeesFromPartId, getPetosFromPartId, getBaans, getActionPlans, getActionPlanByPartId, createActionPlan, getActionPlan, updateActionPlan } from '../controllers/camp';
 
 
 
@@ -28,6 +28,8 @@ router.get('/getBaans/params/:id',getBaans)
 router.get('/getActionPlans/',protect,pee,getActionPlans)
 router.get('/getActionPlanByPartId/params/:id',protect,pee,getActionPlanByPartId)
 router.post('/createActionPlan/',protect,pee,createActionPlan)
+router.get('/getActionPlan/params/:id',protect,pee,getActionPlan)
+router.put('/updateActionPlan/params/:id',protect,pee,updateActionPlan)
 export default router;
 
 

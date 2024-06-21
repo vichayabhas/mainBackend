@@ -848,7 +848,27 @@ export async function createActionPlan(req: express.Request, res: express.Respon
 }
 export async function updateActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const hospital = await ActionPlan.findByIdAndUpdate(req.params.id, req.body);
+        const hospital = await ActionPlan.findById(req.params.id);
+        if (!hospital) {
+            sendRes(res, false)
+            return
+        }
+        var i = 0
+        while (i < hospital.placeIds.length) {
+            const place = await Place.findById(hospital.placeIds[i++])
+            const building = await Building.findById(place?.buildingId)
+            await place?.updateOne({ actionPlanIds: swop(hospital._id, null, place.actionPlanIds) })
+            await building?.updateOne({ actionPlanIds: swop(hospital._id, null, building.actionPlanIds) })
+        }
+        await hospital?.updateOne(req.body)
+        while (i < hospital.placeIds.length) {
+            const place = await Place.findById(hospital.placeIds[i++])
+            const building = await Building.findById(place?.buildingId)
+            await place?.updateOne({ actionPlanIds: swop(null, hospital._id, place.actionPlanIds) })
+            await building?.updateOne({ actionPlanIds: swop(null, hospital._id, building.actionPlanIds) })
+        }
+
+
         if (!hospital) {
             return res.status(400).json({
                 success: false
@@ -877,6 +897,16 @@ export async function deleteActionPlan(req: express.Request, res: express.Respon
         }
         const buf = swop(hospital._id, null, part.actionPlanIds)
         await part?.updateOne({ actionPlanIds: buf })
+        const camp = await Camp.findById(part.campId)
+        await camp?.updateOne({ actionPlanIds: swop(hospital._id, null, camp.actionPlanIds) })
+        var i = 0
+        while (i < hospital.placeIds.length) {
+            const place = await Place.findById(hospital.placeIds[i++])
+            const building = await Building.findById(place?.buildingId)
+            await place?.updateOne({ actionPlanIds: swop(hospital._id, null, place.actionPlanIds) })
+            await building?.updateOne({ actionPlanIds: swop(hospital._id, null, building.actionPlanIds) })
+        }
+
         await hospital?.deleteOne()
         res.status(200).json({
             success: true,
@@ -1632,3 +1662,48 @@ export async function updateQuasion(req: express.Request, res: express.Response,
     }
     res.status(200).json(actionPlans)
 }*/
+export async function getActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        const actionPlan: InterActionPlan | null = await ActionPlan.findById(req.params.id)
+        if (!actionPlan) {
+            sendRes(res, false)
+            return
+        }
+        const {
+            action,
+            partId,
+            placeIds,
+            start,
+            end,
+            headId,
+            body,
+            partName,
+            _id
+        } = actionPlan
+        const user = await User.findById(headId)
+        var k = 0
+        const placeName: string[] = []
+        while (k < placeIds.length) {
+            const place = await Place.findById(placeIds[k++])
+            const building = await Building.findById(place?.buildingId)
+            placeName.push(`${building?.name} ${place?.flore} ${place?.room}`)
+        }
+        const show: showActionPlan = ({
+            action,
+            partId,
+            placeIds,
+            start,
+            end,
+            headId,
+            body,
+            headName: user?.nickname as string,
+            headTel: user?.tel as string,
+            partName,
+            placeName,
+            _id
+        })
+        res.status(200).json(show)
+    } catch (err) {
+        console.log(err)
+    }
+}
