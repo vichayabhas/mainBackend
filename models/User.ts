@@ -9,11 +9,11 @@ const UserSchema = new mongoose.Schema({
     },
     lastname: {
         type: String,
-        require: [true, 'Please add a lastname']
+        required: [true, 'Please add a lastname']
     },
     nickname: {
         type: String,
-        require: [true, 'Please add a nickname']
+        required: [true, 'Please add a nickname']
     },
     email: {
         type: String,
@@ -140,7 +140,7 @@ const UserSchema = new mongoose.Schema({
     },
     createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now()
     },
     linkHash: {
         type: String,
@@ -150,7 +150,8 @@ const UserSchema = new mongoose.Schema({
         type: String
     },
     likeToSleepAtCamp: {
-        type: Boolean
+        type: Boolean,
+        required:[true]
     },
     authPartIds: {
         type: [mongoose.Schema.ObjectId],

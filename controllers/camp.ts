@@ -6,15 +6,13 @@ import Part from "../models/Part";
 import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import User from "../models/User";
-import WorkItem from "../models/WorkItem";
 import ShertManage from "../models/ShertManage";
-import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, linkHash, linkSign, resError, resOk, sendRes, startSize, swop } from "./setup";
+import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, resError, resOk, sendRes, startSize, swop } from "./setup";
 import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
 import express from "express";
-import jwt from 'jsonwebtoken'
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterWorkingItem, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation } from "../models/intreface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem } from "../models/intreface";
 import mongoose from "mongoose";
 import Song from "../models/Song";
 import HelthIsue from "../models/HelthIsue";
@@ -22,6 +20,8 @@ import Place from "../models/Place";
 import Building from "../models/Building";
 import ChoiseAnswer from "../models/ChoiseAnswer";
 import ChoiseQuasion from "../models/ChoiseQuasion";
+import WorkItem from "../models/WorkItem";
+import { deleteWorkingItemRaw } from "./admin";
 // exports.getWorkingItem           protect pee up           params id                fix
 // exports.createWorkingItem        protect pee up
 // exports.updateWorkingItem        protect pee up           params id
@@ -73,7 +73,7 @@ import ChoiseQuasion from "../models/ChoiseQuasion";
 // export async function getPartName
 // export async function changeBaan
 // export async function changePart
-export async function getWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
+/*export async function getWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
     const user = await getUser(req)
     try {
         if (req.params.id === 'init') {
@@ -98,7 +98,7 @@ export async function getWorkingItem(req: express.Request, res: express.Response
     }
 }
 export async function createWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { campId, token, linkOutIds, fromId, link, status, partId, name } = req.body
+    const { campId, token, fromId, partId, name } = req.body
     const user = await getUser(req)
     const camp = await Camp.findById(campId)
     if (!camp || !user) {
@@ -108,7 +108,7 @@ export async function createWorkingItem(req: express.Request, res: express.Respo
     if (camp.allDone) {
         return res.status(400).json({ success: false, message: 'This camp is all done' })
     }
-    const hospital = await WorkItem.create({ campId, linkOutIds, fromId, status, partId, name, link: jwt.sign(link, token), createBy: user._id });
+    const hospital = await WorkItem.create({ campId, fromId, partId, name, link: jwt.sign({link:null}, token), createBy: user._id });
     await camp?.updateOne({ workItemIds: swop(null, hospital._id, camp.workItemIds) })
     const part = await Part.findById(hospital.partId)
     await part?.updateOne({ workItemIds: swop(null, hospital._id, part.workItemIds) })
@@ -209,7 +209,7 @@ export async function getWorkingItems(req: express.Request, res: express.Respons
             success: false
         });
     }
-}
+}*/
 export async function getBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const data = await Baan.findById(req.params.id);
@@ -1703,6 +1703,140 @@ export async function getActionPlan(req: express.Request, res: express.Response,
             _id
         })
         res.status(200).json(show)
+    } catch (err) {
+        console.log(err)
+    }
+}
+export async function getWorkingItemByPartId(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        const part = await Part.findById(req.params.id)
+        var data: InterWorkingItem[] = [];
+        if (!part) {
+            sendRes(res, false)
+            return
+        }
+        var j = 0
+        while (j < part.workItemIds.length) {
+            const workItem: InterWorkingItem | null = await WorkItem.findById(part.workItemIds[j++])
+            if (!workItem) {
+                continue
+            }
+            data.push(workItem)
+        }
+        res.status(200).json(data)
+    } catch (err) {
+        console.log(err)
+    }
+}
+export async function createWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const create: CreateWorkingItem = req.body
+    const hospital = await WorkItem.create(create);
+    const user = await getUser(req)
+   
+    const part = await Part.findById(create.partId)
+    const camp = await Camp.findById(part?.campId)
+    await part?.updateOne({ workItemIds: swop(null, hospital._id, part.workItemIds) })
+    await camp?.updateOne({ workItemIds: swop(null, hospital._id, camp.workItemIds) })
+    await hospital.updateOne({ partName: part?.partName })
+    if (create.fromId) {
+        const from = await WorkItem.findById(create.fromId)
+        await from?.updateOne({ linkOutIds: swop(null, hospital._id, from.linkOutIds) })
+    }
+     await hospital.updateOne({ createBy: user?._id,partName:part?.partName })
+    var i = 0
+    res.status(200).json(hospital);
+}
+export async function updateWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        const { status, link, name } = req.body
+
+        const hospital = await WorkItem.findById(req.params.id);
+        if (!hospital) {
+            sendRes(res, false)
+            return
+        }
+        await hospital.updateOne({ status, link, name })
+        if (!hospital) {
+            return res.status(400).json({
+                success: false
+            });
+        }
+        res.status(200).json(hospital);
+    } catch (err) {
+        res.status(400).json({
+            success: false
+        });
+    }
+}
+export async function deleteWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        await deleteWorkingItemRaw(new mongoose.Types.ObjectId(req.params.id))
+        res.status(200).json({
+            success: true,
+            data: {}
+        });
+    } catch {
+        res.status(400).json({
+            success: false
+        });
+    }
+}
+export async function getWorkingItems(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        var data: InterWorkingItem[] = [];
+        const user = await getUser(req)
+        if (!user) {
+            sendRes(res, false)
+            return
+        }
+        if (user.filterIds.length == 0) {
+            var i = 0
+            while (i < user.registerIds.length) {
+                const camp = await Camp.findById(user.registerIds[i++])
+                if (!camp) {
+                    continue
+                }
+                var j = 0
+                while (j < camp.workItemIds.length) {
+                    const workItem: InterWorkingItem | null = await WorkItem.findById(camp.workItemIds[j++])
+                    if (!workItem) {
+                        continue
+                    }
+                    data.push(workItem)
+                }
+            }
+        } else {
+            var i = 0
+            while (i < user.filterIds.length) {
+                const camp = await Camp.findById(user.filterIds[i++])
+                if (!camp) {
+                    continue
+                }
+                var j = 0
+                while (j < camp.workItemIds.length) {
+                    const workItem: InterWorkingItem | null = await WorkItem.findById(camp.workItemIds[j++])
+                    if (!workItem) {
+                        continue
+                    }
+                    data.push(workItem)
+                }
+            }
+        }
+        res.status(200).json(data);
+    } catch (err) {
+        res.status(400).json({
+            success: false
+        });
+    }
+}
+export async function getWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+        const workItem: InterWorkingItem | null = await WorkItem.findById(req.params.id)
+        if (!workItem) {
+            sendRes(res, false)
+            return
+        }
+        res.status(200).json(workItem)
     } catch (err) {
         console.log(err)
     }

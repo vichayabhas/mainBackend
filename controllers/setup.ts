@@ -20,7 +20,9 @@ export function swop(olds: mongoose.Types.ObjectId | null, news: mongoose.Types.
         }
         return array
     }
-    const re = array.filter(e => !e.equals(olds))
+    const re = array.filter(e => {
+        return e.toString().localeCompare(olds.toString())
+    })
     if (news) {
         re.push(news)
     }
@@ -339,7 +341,7 @@ export function mapObjectIdToMyMap(input: Map<mongoose.Types.ObjectId, mongoose.
     return map
 
 }*/
-export function linkSign(input: InterWorkingItem, token: string): InterWorkingItem {
+/*export function linkSign(input: InterWorkingItem, token: string): InterWorkingItem {
     const {
 
         name,
@@ -364,10 +366,10 @@ export function linkSign(input: InterWorkingItem, token: string): InterWorkingIt
         _id
     })
 }
-function hashRaw(input: string, token: string): string {
+function hashRaw(input: string, token: string): string|null {
     try {
         const out = jwt.verify(input, token)
-        return out.toString()
+        return(out as {link:string|null}) .link
     } catch (error) {
         return 'null'
     }
@@ -397,7 +399,7 @@ export function linkHash(input: InterWorkingItem, token: string): InterWorkingIt
         createBy,
         _id
     })
-}
+}*/
 export function isInTime(start: Date, end: Date): boolean {
     const now = new Date(Date.now())
     return (now > start && now < end)
@@ -438,4 +440,4 @@ export function notEmpty<TValue>(value: TValue | null | undefined): value is TVa
     if (value === null || value === undefined) return false;
     const testDummy: TValue = value;
     return true;
-  }
+}

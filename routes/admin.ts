@@ -1,5 +1,5 @@
 import express from "express";
-import { addBaan, addCampName, addPart, addPartName, createBaanByGroup, createCamp, getAllRemainPartName, getCampNames, getPartNames, updateBaan, updateCamp, updatePart } from "../controllers/admin";
+import { addBaan, addCampName, addPart, addPartName, createBaanByGroup, createCamp, getAllRemainPartName, getCampNames, getPartNames, saveDeleteCamp, updateBaan, updateCamp, updatePart } from "../controllers/admin";
 import { admin, pee, protect } from "../middleware/auth";
 
 const router=express.Router()
@@ -15,6 +15,7 @@ router.get('/getAllRemainPartName/params/:id',protect,pee,getAllRemainPartName)
 router.post('/addPart/',protect,addPart)
 router.post('/createBaanByGroup/params/:id',protect,createBaanByGroup)
 router.put('/updateBaan/',protect,updateBaan)
+router.delete('/saveDeleteCamp/params/:id',protect,saveDeleteCamp)
 export default router/**import mongoose from "mongoose";
 import { UpdateCamp } from "../../../interface";
 import { backendUrl } from "@/components/setup";

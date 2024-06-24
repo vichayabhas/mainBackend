@@ -96,11 +96,12 @@ export async function logout(req: express.Request, res: express.Response, next: 
 export async function updateMode(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const {
 		mode,
-		filter
+		filter,
+		linkHash
 	} = req.body;
 	const user = await User.findByIdAndUpdate((await getUser(req))?._id, {
 		mode,
-		filter
+		filter,linkHash
 	});
 	res.status(200).json(user);
 }

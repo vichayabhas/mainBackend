@@ -309,14 +309,15 @@ export interface InterUser {
 export interface InterWorkingItem {
 
     name: string,
-    link: string,
+    link: string|null,
     status: 'not start' | 'in process' | 'done',
     partId: mongoose.Types.ObjectId,
-    campId: mongoose.Types.ObjectId,
     linkOutIds: mongoose.Types.ObjectId[],
-    fromId: mongoose.Types.ObjectId,
+    fromId: mongoose.Types.ObjectId | null,
     createBy: mongoose.Types.ObjectId,
-    _id: mongoose.Types.ObjectId
+    _id: mongoose.Types.ObjectId,
+    password:string,
+    partName:string
 }
 export interface InterSize {
     _id: mongoose.Types.ObjectId | null,
@@ -622,4 +623,11 @@ export interface EditQuation {
     e: string,
     score: number,
     correct: Choise
+}
+export interface CreateWorkingItem {
+    name: string,
+    link: string|null,
+    partId: mongoose.Types.ObjectId,
+    fromId: mongoose.Types.ObjectId | null,
+    password:string
 }
