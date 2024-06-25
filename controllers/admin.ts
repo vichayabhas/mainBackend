@@ -288,7 +288,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             }
             await user.updateOne({
                 authorizeIds: swop(null, camp._id, user.authorizeIds),
-                authPartIds: swop(null, part._id, user.authPartIds)
+                authPartIds:swop(null,part._id,user.authPartIds)
             })
         }
         const coop = await addPartRaw(camp._id, partNameContainerCoop._id)

@@ -46,7 +46,7 @@ const UserSchema = new mongoose.Schema({
     studentId: {//รหัสประจำตัวนิสิต
         type: String,
         default: null,
-        unique:true
+        unique:false
     },
     gender: {
         type: String,
@@ -96,7 +96,7 @@ const UserSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: ['pee', 'nong', 'admin', 'peto'],
-        default: 'nong'
+        default: 'pee'
 
     },
     filterIds: {//camp
@@ -120,7 +120,7 @@ const UserSchema = new mongoose.Schema({
     },
     fridayActEn: {
         type: Boolean,
-        default: false
+        default: true
     },
     fridayAuth: {
         type: Boolean,

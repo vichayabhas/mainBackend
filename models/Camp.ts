@@ -258,14 +258,30 @@ const campSchema = new mongoose.Schema({
     partPeeBaanId: {
         type: mongoose.Schema.ObjectId
     },
-    choiseAnswerIds:{
-        type:[mongoose.Schema.ObjectId],
-        default:[]
+    choiseAnswerIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
     },
-    quasionIds:{
-        type:[mongoose.Schema.ObjectId],
-        default:[]
+    quasionIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
     },
+    groupName: {
+        type: String,
+        default: 'บ้าน'
+    },
+    peeDataLock:{
+        type:Boolean,
+        default:false
+    },
+    petoDataLock:{
+        type:Boolean,
+        default:false
+    },
+    haveCloth:{
+        type:Boolean,
+        default:true
+    }
 })
 export default mongoose.model('Camp', campSchema)
 

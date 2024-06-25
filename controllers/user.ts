@@ -8,12 +8,13 @@ import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import ShertManage from "../models/ShertManage";
 import User, { buf } from "../models/User";
-import { calculate, sendRes, swop } from "./setup";
-import express from "express";
+import { calculate, resOk, sendRes, swop } from "./setup";
+import express, { json } from "express";
 import bcrypt from "bcrypt"
-import { Answer, CreateQuation, HelthIsueBody, InterUser, Register } from "../models/intreface";
+import { HelthIsueBody, InterUser, Register, ShowMember } from "../models/intreface";
 import jwt from 'jsonwebtoken'
 import mongoose from "mongoose";
+import Song from "../models/Song";
 // exports.register             
 // exports.login
 // exports.getMe               protect
@@ -101,7 +102,7 @@ export async function updateMode(req: express.Request, res: express.Response, ne
 	} = req.body;
 	const user = await User.findByIdAndUpdate((await getUser(req))?._id, {
 		mode,
-		filter,linkHash
+		filter, linkHash
 	});
 	res.status(200).json(user);
 }
@@ -154,7 +155,7 @@ export async function updateSize(req: express.Request, res: express.Response, ne
 						continue
 					}
 					const camp = await Camp.findById(peeCamp.campId)
-					if (!camp || camp.dataLock) {
+					if (!camp || camp.peeDataLock) {
 						continue
 					}
 					const baan = await Baan.findById(peeCamp.baanId);
@@ -177,7 +178,7 @@ export async function updateSize(req: express.Request, res: express.Response, ne
 						continue
 					}
 					const camp = await Camp.findById(petoCamp.campId)
-					if (!camp || camp.dataLock) {
+					if (!camp || camp.petoDataLock) {
 						continue
 					}
 					const part = await Part.findById(petoCamp.partId)
@@ -325,7 +326,7 @@ async function findLock(userId: mongoose.Types.ObjectId | null | undefined, oldH
 		if (!camp) {
 			continue
 		}
-		if (camp.peeHelthIsueIds.includes(oldHelthId) && camp.dataLock) {
+		if (camp.peeHelthIsueIds.includes(oldHelthId) && camp.peeDataLock) {
 			return true
 		}
 	}
@@ -339,7 +340,7 @@ async function findLock(userId: mongoose.Types.ObjectId | null | undefined, oldH
 		if (!camp) {
 			continue
 		}
-		if (camp.petoHelthIsueIds.includes(oldHelthId) && camp.dataLock) {
+		if (camp.petoHelthIsueIds.includes(oldHelthId) && camp.petoDataLock) {
 			return true
 		}
 	}
@@ -398,7 +399,7 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 					continue
 				}
 				const camp = await Camp.findById(peeCamp.campId)
-				if (!camp || camp.dataLock) {
+				if (!camp || camp.peeDataLock) {
 					continue
 				}
 				const baan = await Baan.findById(peeCamp.baanId);
@@ -424,7 +425,7 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 					continue
 				}
 				const camp = await Camp.findById(petoCamp.campId)
-				if (!camp || camp.dataLock) {
+				if (!camp || camp.petoDataLock) {
 					continue
 				}
 				const part = await Part.findById(petoCamp.partId)
@@ -712,7 +713,7 @@ export async function updateSleep(req: express.Request, res: express.Response, n
 					continue
 				}
 				const camp = await Camp.findById(peeCamp.campId)
-				if (!camp || camp.dataLock || camp.peeSleepModel != 'เลือกได้ว่าจะค้างคืนหรือไม่') {
+				if (!camp || camp.peeDataLock || camp.peeSleepModel != 'เลือกได้ว่าจะค้างคืนหรือไม่') {
 					continue
 				}
 				const baan = await Baan.findById(peeCamp.baanId);
@@ -738,7 +739,7 @@ export async function updateSleep(req: express.Request, res: express.Response, n
 					continue
 				}
 				const camp = await Camp.findById(petoCamp.campId)
-				if (!camp || camp.dataLock || camp.peeSleepModel !== 'เลือกได้ว่าจะค้างคืนหรือไม่') {
+				if (!camp || camp.petoDataLock || camp.peeSleepModel !== 'เลือกได้ว่าจะค้างคืนหรือไม่') {
 					continue
 				}
 				const part = await Part.findById(petoCamp.partId)
@@ -762,3 +763,24 @@ export async function updateSleep(req: express.Request, res: express.Response, n
 		user,
 	});
 }
+export async function getUsers(req: express.Request, res: express.Response, next: express.NextFunction) {
+	try {
+		const user = await User.findById(req.params.id)
+
+		//console.log(user)
+		res.status(200).json(user)
+	} catch (err) {
+		console.log(err)
+		sendRes(res, false)
+	}
+}
+export async function getShertmanage(req: express.Request, res: express.Response, next: express.NextFunction) {
+	try {
+		const shertManage = await ShertManage.findById(req.params.id)
+		res.status(200).json(shertManage)
+	} catch (err) {
+		console.log(err)
+		sendRes(res, false)
+	}
+
+} 

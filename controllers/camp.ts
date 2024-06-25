@@ -665,6 +665,16 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
             case 'ไม่มีการค้างคืน': sleepAtCamp = false
             case null: sleepAtCamp = false
             case undefined: sleepAtCamp = false
+            switch (partId) {
+                case camp.partCoopId: {
+                    await user.updateOne({ authPartIds: swop(null, partId, user.authPartIds) })
+                    break
+                }
+                case camp.partRegiterId: {
+                    await user.updateOne({ authPartIds: swop(null, partId, user.authPartIds) })
+                    break
+                }    
+            }
         }
         if (sleepAtCamp) {
             camp.peeSleepIds.push(user._id)
@@ -704,6 +714,16 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
             shertManageIds: user.shertManageIds,
             registerIds: user.registerIds
         })
+        switch (partId) {
+            case camp.partCoopId: {
+                await user.updateOne({ authPartIds: swop(null, partId, user.authPartIds) })
+                break
+            }
+            case camp.partRegiterId: {
+                await user.updateOne({ authPartIds: swop(null, partId, user.authPartIds) })
+                break
+            }
+        }
     }
     size.forEach((v, k) => {
         camp.petoShertSize.set(k, camp.petoShertSize.get(k) as number + v)
@@ -730,7 +750,7 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
     sendRes(res, true)
 }
 export async function staffRegister(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const partId: string = req.params.id
+    const partId = new mongoose.Types.ObjectId(req.params.id)
     const part = await Part.findById(partId)
     const user = await getUser(req)
     if (!user || !part) {
@@ -738,6 +758,15 @@ export async function staffRegister(req: express.Request, res: express.Response,
         return
     }
     const camp = await Camp.findById(part.campId)
+    if (!camp) {
+        sendRes(res, false)
+        return
+
+    }
+    const impotantParts = await getImpotentPartIdBCRP(camp._id)
+    if (impotantParts.includes(partId)) {
+        
+    }
     if (user?.role === 'pee' || camp?.memberStructre != 'nong->highSchool,pee->1year,peto->2upYear') {
         camp?.peePassIds.set(user.id, partId)
         await camp?.updateOne({ peePassIds: camp.peePassIds })
@@ -1732,7 +1761,7 @@ export async function createWorkingItem(req: express.Request, res: express.Respo
     const create: CreateWorkingItem = req.body
     const hospital = await WorkItem.create(create);
     const user = await getUser(req)
-   
+
     const part = await Part.findById(create.partId)
     const camp = await Camp.findById(part?.campId)
     await part?.updateOne({ workItemIds: swop(null, hospital._id, part.workItemIds) })
@@ -1742,7 +1771,7 @@ export async function createWorkingItem(req: express.Request, res: express.Respo
         const from = await WorkItem.findById(create.fromId)
         await from?.updateOne({ linkOutIds: swop(null, hospital._id, from.linkOutIds) })
     }
-     await hospital.updateOne({ createBy: user?._id,partName:part?.partName })
+    await hospital.updateOne({ createBy: user?._id, partName: part?.partName })
     var i = 0
     res.status(200).json(hospital);
 }

@@ -2,8 +2,8 @@ import express from 'express';
 
 const router = express.Router();
 
-import { protect, pee } from '../middleware/auth';
-import { getCamps, getCampName, getCamp, getNongCamp, getPeeCamp, getBaan, getPart, getPartName, nongRegister, staffRegister, getNongsFromBaanId, getPeesFromBaanId, getPeesFromPartId, getPetosFromPartId, getBaans, getActionPlans, getActionPlanByPartId, createActionPlan, getActionPlan, updateActionPlan, deleteActionPlan, createWorkingItem, getWorkingItems, getWorkingItemByPartId, getWorkingItem, updateWorkingItem, deleteWorkingItem } from '../controllers/camp';
+import { protect, pee, isPass } from '../middleware/auth';
+import { getCamps, getCampName, getCamp, getNongCamp, getPeeCamp, getBaan, getPart, getPartName, nongRegister, staffRegister, getNongsFromBaanId, getPeesFromBaanId, getPeesFromPartId, getPetosFromPartId, getBaans, getActionPlans, getActionPlanByPartId, createActionPlan, getActionPlan, updateActionPlan, deleteActionPlan, createWorkingItem, getWorkingItems, getWorkingItemByPartId, getWorkingItem, updateWorkingItem, deleteWorkingItem, getPetoCamp } from '../controllers/camp';
 
 
 
@@ -13,6 +13,7 @@ router.get('/getCampName/params/:id', getCampName)
 router.get('/getCamp/params/:id', getCamp)
 router.get('/nongCamp/params/:id', getNongCamp)
 router.get('/peeCamp/params/:id', getPeeCamp)
+router.get('/PetoCamp/params/:id',getPetoCamp)
 router.get('/baan/params/:id', getBaan)
 router.get('/part/params/:id', getPart)
 router.get('/partName/params/:id', getPartName)

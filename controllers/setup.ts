@@ -197,7 +197,12 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         partBoardId,
         partCoopId,
         partRegiterId,
-        partPeeBaanId
+        partPeeBaanId,
+        peeDataLock,
+        petoDataLock,
+        groupName,
+        haveCloth
+
     } = input
     return ({
         partIds,
@@ -263,7 +268,12 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         partBoardId,
         partCoopId,
         partRegiterId,
-        partPeeBaanId
+        partPeeBaanId,
+        groupName,
+        peeDataLock,
+        petoDataLock,
+        haveCloth
+        
     })
 }
 export function conPartBackToFront(input: InterPartBack): InterPartFront {

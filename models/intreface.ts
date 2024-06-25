@@ -144,7 +144,11 @@ export interface InterCampBack {
     partBoardId: mongoose.Types.ObjectId,
     partCoopId: mongoose.Types.ObjectId,
     partRegiterId: mongoose.Types.ObjectId,
-    partPeeBaanId: mongoose.Types.ObjectId
+    partPeeBaanId: mongoose.Types.ObjectId,
+    groupName: string,
+    peeDataLock: boolean,
+    petoDataLock: boolean,
+    haveCloth: boolean
 }
 export interface InterCampStyle {
 
@@ -309,15 +313,15 @@ export interface InterUser {
 export interface InterWorkingItem {
 
     name: string,
-    link: string|null,
+    link: string | null,
     status: 'not start' | 'in process' | 'done',
     partId: mongoose.Types.ObjectId,
     linkOutIds: mongoose.Types.ObjectId[],
     fromId: mongoose.Types.ObjectId | null,
     createBy: mongoose.Types.ObjectId,
     _id: mongoose.Types.ObjectId,
-    password:string,
-    partName:string
+    password: string,
+    partName: string
 }
 export interface InterSize {
     _id: mongoose.Types.ObjectId | null,
@@ -429,7 +433,11 @@ export interface InterCampFront {
     partBoardId: mongoose.Types.ObjectId,
     partCoopId: mongoose.Types.ObjectId,
     partRegiterId: mongoose.Types.ObjectId,
-    partPeeBaanId: mongoose.Types.ObjectId
+    partPeeBaanId: mongoose.Types.ObjectId,
+    groupName: string,
+    peeDataLock: boolean,
+    petoDataLock: boolean,
+    haveCloth: boolean
 }
 export interface InterPartFront {
 
@@ -495,7 +503,11 @@ export interface UpdateCamp {
     dateStart: Date,
     dateEnd: Date,
     registerSheetLink: string | null,
-    peeLock: boolean
+    peeLock: boolean,
+    groupName: string,
+    peeDataLock: boolean,
+    petoDataLock: boolean,
+    haveCloth: boolean
 }
 export interface CreateCamp {
     nameId: mongoose.Types.ObjectId,
@@ -626,8 +638,8 @@ export interface EditQuation {
 }
 export interface CreateWorkingItem {
     name: string,
-    link: string|null,
+    link: string | null,
     partId: mongoose.Types.ObjectId,
     fromId: mongoose.Types.ObjectId | null,
-    password:string
+    password: string
 }
