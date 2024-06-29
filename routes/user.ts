@@ -17,7 +17,7 @@ router.post('/changeModeToPee/params/:id', protect, pee, changeModeToPee)
 router.put('/updateSleep/', protect, updateSleep)
 router.get('/getHelthIsue/params/:id', getHelthIsue)
 router.get('/checkTel/params/:id', protect, checkTel)
-router.get('/getUser/params/:id',isPass, getUsers)
-router.get('/getShertmanage/params/:id',getShertmanage)
+router.get('/getUser/params/:id', getUsers)
+router.get('/getShertmanage/params/:id', getShertmanage)
 
 export default router;

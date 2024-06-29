@@ -273,7 +273,7 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         peeDataLock,
         petoDataLock,
         haveCloth
-        
+
     })
 }
 export function conPartBackToFront(input: InterPartBack): InterPartFront {
@@ -451,3 +451,32 @@ export function notEmpty<TValue>(value: TValue | null | undefined): value is TVa
     const testDummy: TValue = value;
     return true;
 }
+
+
+import nodemailer from 'nodemailer';
+import { MailOptions } from 'nodemailer/lib/json-transport'
+
+// Create a transport for sending emails (replace with your email service's data)
+/*const transporter = nodemailer.createTransport({
+    service: '', // Use your email service
+    auth: {
+     user: '6633227421@student.chula.ac.th', // Your email address
+     pass: '67CM37Da', // Your password
+    },
+});
+// Set email options
+const mailOptions = {
+    from: '6633227421@student.chula.ac.th', // Sender
+    to: 'arifmini64@gmail.com', // Recipient
+    subject: 'Email Subject', // Email subject
+    html: '<></>', // Email HTML content
+};
+
+// Send the email
+transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+        console.error('Email sending failed:', error);
+    } else {
+        console.log('Email sent: ' + info.response);
+    }
+})//nodemailer.createTransport('smtps://user%40gmail.com:pass@smtp.gmail.com');*/

@@ -7,12 +7,12 @@ import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import User from "../models/User";
 import ShertManage from "../models/ShertManage";
-import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, resError, resOk, sendRes, startSize, swop } from "./setup";
+import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, mapObjectIdToMyMap, resError, resOk, sendRes, startSize, swop } from "./setup";
 import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
 import express from "express";
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem } from "../models/intreface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem, ShowRegister } from "../models/intreface";
 import mongoose from "mongoose";
 import Song from "../models/Song";
 import HelthIsue from "../models/HelthIsue";
@@ -346,8 +346,8 @@ export async function addNong(req: express.Request, res: express.Response, next:
     try {
         const {
             baanId,
-            member
-        }: { baanId: string, member: string[] } = req.body;
+            members
+        }: { baanId: mongoose.Types.ObjectId, members: mongoose.Types.ObjectId[] } = req.body;
         const baan = await Baan.findById(baanId);
         if (!baan) {
             sendRes(res, false)
@@ -370,9 +370,9 @@ export async function addNong(req: express.Request, res: express.Response, next:
         var c = camp.nongHaveBottle
         const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize()
         var i = 0
-        while (i < member.length) {
+        while (i < members.length) {
             count = count + 1
-            const user = await User.findById(member[i++])
+            const user = await User.findById(members[i++])
             if (!user) {
                 continue
             }
@@ -438,7 +438,8 @@ export async function addNong(req: express.Request, res: express.Response, next:
             nongShertSize: camp.nongShertSize,
             nongHaveBottleMapIds: camp.nongHaveBottleMapIds,
             nongHelthIsueIds: camp.nongHelthIsueIds,
-            nongIds: camp.nongIds
+            nongIds: camp.nongIds,
+            mapShertManageIdByUserId:camp.mapShertManageIdByUserId
         })
         await baan.updateOne({
             nongHaveBottle: b,
@@ -446,7 +447,8 @@ export async function addNong(req: express.Request, res: express.Response, next:
             nongShertSize: baan.nongShertSize,
             nongHelthIsueIds: baan.nongHelthIsueIds,
             nongHaveBottleMapIds: baan.nongHaveBottleMapIds,
-            nongIds: baan.nongIds
+            nongIds: baan.nongIds,
+            mapShertManageIdByUserId:baan.mapShertManageIdByUserId
         })
         await nongCamp?.updateOne({
             nongIds: nongCamp.nongIds,
@@ -1869,4 +1871,28 @@ export async function getWorkingItem(req: express.Request, res: express.Response
     } catch (err) {
         console.log(err)
     }
+}
+export async function getShowRegisters(req: express.Request, res: express.Response, next: express.NextFunction){
+    const camp:InterCampBack|null=await Camp.findById(req.params.id)
+    if(!camp){
+        sendRes(res,false)
+        return
+    }
+    const bufs=mapObjectIdToMyMap(camp.peePassIds)
+    var i=0
+    const out:ShowRegister[]=[]
+    while(i<bufs.length){
+        const user=await User.findById(bufs[i].key)
+        const part=await Part.findById(bufs[i++].value)
+        if(!user||!part){
+            continue
+        }
+        out.push({
+            fullName: `ชื่อจริง ${user.name} นามสกุล ${user.lastname} ชื่อเล่น ${user.nickname}`,
+            userId:user._id,
+            partId: part._id,
+            partName: part.partName as string
+        })
+    }
+    res.status(200).json(out)
 }

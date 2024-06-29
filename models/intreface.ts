@@ -643,3 +643,19 @@ export interface CreateWorkingItem {
     fromId: mongoose.Types.ObjectId | null,
     password: string
 }
+export interface ShowRegister{
+    fullName:string,
+    userId:mongoose.Types.ObjectId,
+    partId:mongoose.Types.ObjectId,
+    partName:string
+}
+export interface RegisBaan{
+    pees:ShowMember[],
+    nongs:ShowMember[],
+    baan:InterBaanFront
+}
+export interface RegisPart{
+    pees:ShowMember[],
+    petos:ShowMember[],
+    part:InterPartFront
+}

@@ -8,11 +8,11 @@ import { changePart, changePartRaw, getImpotentPartIdBCRP } from "./camp";
 export async function interview(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { members, campId } = req.body
     const i = await interviewRaw(members, campId)
-    if(i==0){
-        sendRes(res,false)
+    if (i == 0) {
+        sendRes(res, false)
         return
     }
-    res.status(200).json({count:i})
+    res.status(200).json({ count: i })
 }
 async function interviewRaw(members: mongoose.Types.ObjectId[], campId: mongoose.Types.ObjectId) {
     const camp = await Camp.findById(campId)
@@ -68,10 +68,12 @@ export async function paid(req: express.Request, res: express.Response, next: ex
         await camp.updateOne({ nongPaidIds: swop(null, user._id, camp.nongPaidIds) })
     }
 }
-async function sureRaw(members: mongoose.Types.ObjectId[], campId: mongoose.Types.ObjectId) {
+export async function sure(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { members, campId }: { members: mongoose.Types.ObjectId[], campId: mongoose.Types.ObjectId } = req.body
     const camp = await Camp.findById(campId)
     if (!camp) {
-        return 0
+        sendRes(res, false)
+        return
     }
     var {
         nongPaidIds,
@@ -79,53 +81,75 @@ async function sureRaw(members: mongoose.Types.ObjectId[], campId: mongoose.Type
     } = camp
     var i = 0
     while (i < members.length) {
-        if (!camp.nongPaidIds.includes(members[i])) {
+        if (!camp.nongPaidIds.includes(new mongoose.Types.ObjectId(members[i].toString()))) {
             i++
+            console.log('jjjjjjjjjjjjjjjjjjjjjjjj')
             continue
         }
+        camp.nongPassIds.delete(members[i].toString())
         nongPaidIds = swop(members[i], null, nongPaidIds)
         nongSureIds.push(members[i++])
     }
     await camp.updateOne({
         nongPaidIds,
-        nongSureIds
+        nongSureIds,
+        nongPassIds: camp.nongPassIds
     })
-    return i
+    //console.log(members)
+    //console.log(camp)
+    res.status(200).json({ count: i })
+
 }
-export async function pass(req: express.Request, res: express.Response, next: express.NextFunction){
-    const {campId,members}=req.body
-    const camp=await Camp.findById(campId)
-    if(!camp){
-        sendRes(res,false)
+export async function pass(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { campId, members } = req.body
+    const camp = await Camp.findById(campId)
+    if (!camp) {
+        sendRes(res, false)
         return
     }
-    if(camp.registerModel!=='all'){
-        await interviewRaw(members,campId)
+    if (camp.registerModel !== 'all') {
+        await interviewRaw(members, campId)
     }
     const i = await passRaw(members, campId)
-    if(i==0){
-        sendRes(res,false)
+    if (i == 0) {
+        sendRes(res, false)
         return
     }
-    res.status(200).json({count:i})
+    res.status(200).json({ count: i })
 }
-export async function kick(req: express.Request, res: express.Response, next: express.NextFunction){
-    const {partId,member}=req.body
-    const part=await Part.findById(partId)
-    if(!part){
-        sendRes(res,false)
+export async function kickPee(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { campId, members } = req.body
+    const camp = await Camp.findById(campId)
+    if (!camp) {
+        sendRes(res, false)
         return
     }
-    const camp=await Camp.findById(part.campId)
-    if(!camp){
-        sendRes(res,false)
+    const im = await getImpotentPartIdBCRP(camp._id)
+    await changePartRaw(members, im[3])
+}
+export async function kickNong(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { members, campId }: { members: mongoose.Types.ObjectId[], campId: mongoose.Types.ObjectId } = req.body
+    const camp = await Camp.findById(campId)
+    if (!camp) {
+        sendRes(res, false)
         return
     }
-    const im=await getImpotentPartIdBCRP(camp._id)
-    if(!im.includes(partId)){
-        sendRes(res,false)
-        return
+    var i = 0
+    var { nongPaidIds } = camp
+    while (i < members.length) {
+        camp.nongInterviewIds.delete(members[i].toString())
+        camp.nongPendingIds.delete(members[i].toString())
+        camp.nongPassIds.delete(members[i].toString())
+        camp.outRoundIds.push(members[i])
+        nongPaidIds = swop(members[i++], null, nongPaidIds)
+
     }
-    await changePartRaw([member],im[3])
+    await camp.updateOne({
+        nongPendingIds: camp.nongPendingIds,
+        nongInterviewIds: camp.nongInterviewIds,
+        nongPaidIds,
+        nongPassIds: camp.nongPassIds,
+        outRoundIds:camp.outRoundIds
+    })
 
 }
