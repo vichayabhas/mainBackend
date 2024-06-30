@@ -11,10 +11,11 @@ import User, { buf } from "../models/User";
 import { calculate, resOk, sendRes, swop } from "./setup";
 import express, { json } from "express";
 import bcrypt from "bcrypt"
-import { HelthIsueBody, InterUser, Register, ShowMember } from "../models/intreface";
+import { HelthIsueBody, InterUser, Register, ShowMember, UpdateTimeOffset } from "../models/intreface";
 import jwt from 'jsonwebtoken'
 import mongoose from "mongoose";
 import Song from "../models/Song";
+import TimeOffset from "../models/TimeOffset";
 // exports.register             
 // exports.login
 // exports.getMe               protect
@@ -29,6 +30,9 @@ export async function register(req: express.Request, res: express.Response, next
 	try {
 		const buf: Register = req.body
 		const user = await User.create(buf);
+		const select = await TimeOffset.create({ userId: user._id })
+		const display = await TimeOffset.create({ userId: user._id })
+		await user.updateOne({ displayOffsetId: display._id, selectOffsetId: select._id })
 		sendTokenResponse(user as InterUser, 200, res);
 	} catch (err) {
 		res.status(400).json({
@@ -784,3 +788,18 @@ export async function getShertmanage(req: express.Request, res: express.Response
 	}
 
 } 
+export async function updateTimeOffset(req: express.Request, res: express.Response, next: express.NextFunction){
+	const update:UpdateTimeOffset=req.body
+	const user=await getUser(req)
+	if(!user){
+		sendRes(res,false)
+		return
+	}
+	await TimeOffset.findByIdAndUpdate(user.displayOffsetId,update.display)
+	await TimeOffset.findByIdAndUpdate(user.selectOffsetId,update.select)
+	sendRes(res,true)
+}
+export async function getTimeOffset(req: express.Request, res: express.Response, next: express.NextFunction){
+	const buf=await TimeOffset.findById(req.params.id)
+	res.status(200).json(buf)
+}

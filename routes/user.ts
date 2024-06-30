@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, getMe, updateSize, updateMode, getShertManageByCampId, updateProfile, updateBottle, changeModeToPee, updateSleep, getHelthIsue, checkTel, getUsers, getShertmanage, } from '../controllers/user';
+import { register, login, getMe, updateSize, updateMode, getShertManageByCampId, updateProfile, updateBottle, changeModeToPee, updateSleep, getHelthIsue, checkTel, getUsers, getShertmanage, updateTimeOffset, getTimeOffset, } from '../controllers/user';
 
 const router = express.Router();
 
@@ -19,5 +19,7 @@ router.get('/getHelthIsue/params/:id', getHelthIsue)
 router.get('/checkTel/params/:id', protect, checkTel)
 router.get('/getUser/params/:id', getUsers)
 router.get('/getShertmanage/params/:id', getShertmanage)
+router.put('/updateTimeOffset/', protect, updateTimeOffset)
+router.get('/getTimeOffset/params/:id', getTimeOffset)
 
 export default router;

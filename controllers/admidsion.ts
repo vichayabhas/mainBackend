@@ -83,7 +83,7 @@ export async function sure(req: express.Request, res: express.Response, next: ex
     while (i < members.length) {
         if (!camp.nongPaidIds.includes(new mongoose.Types.ObjectId(members[i].toString()))) {
             i++
-            console.log('jjjjjjjjjjjjjjjjjjjjjjjj')
+            //console.log('jjjjjjjjjjjjjjjjjjjjjjjj')
             continue
         }
         camp.nongPassIds.delete(members[i].toString())
@@ -126,6 +126,7 @@ export async function kickPee(req: express.Request, res: express.Response, next:
     }
     const im = await getImpotentPartIdBCRP(camp._id)
     await changePartRaw(members, im[3])
+    sendRes(res,true)
 }
 export async function kickNong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { members, campId }: { members: mongoose.Types.ObjectId[], campId: mongoose.Types.ObjectId } = req.body
@@ -151,5 +152,6 @@ export async function kickNong(req: express.Request, res: express.Response, next
         nongPassIds: camp.nongPassIds,
         outRoundIds:camp.outRoundIds
     })
+    sendRes(res,true)
 
 }

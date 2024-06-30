@@ -54,7 +54,7 @@ const UserSchema = new mongoose.Schema({
     },
     shertSize: {
         type: String,
-        require: [true, 'Plese choose shert size'],
+        required: [true, 'Plese choose shert size'],
         enum: ['S', 'M', 'L', 'XL', 'XXL', '3XL']
     },
     helthIsueId: {//helthIsue
@@ -96,7 +96,7 @@ const UserSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: ['pee', 'nong', 'admin', 'peto'],
-        default: 'pee'
+        default: 'nong'
 
     },
     filterIds: {//camp
@@ -120,7 +120,7 @@ const UserSchema = new mongoose.Schema({
     },
     fridayActEn: {
         type: Boolean,
-        default: true
+        default: false
     },
     fridayAuth: {
         type: Boolean,
@@ -165,6 +165,12 @@ const UserSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
+    selectOffsetId:{
+        type:mongoose.Schema.ObjectId
+    },
+    displayOffsetId:{
+        type:mongoose.Schema.ObjectId
+    }
 });
 UserSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10);

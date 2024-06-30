@@ -281,6 +281,10 @@ const campSchema = new mongoose.Schema({
     haveCloth:{
         type:Boolean,
         default:true
+    },
+    actionPlanOffset:{
+        type:Number,
+        default:0
     }
 })
 export default mongoose.model('Camp', campSchema)

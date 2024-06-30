@@ -201,6 +201,7 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         peeDataLock,
         petoDataLock,
         groupName,
+        actionPlanOffset,
         haveCloth
 
     } = input
@@ -272,6 +273,7 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         groupName,
         peeDataLock,
         petoDataLock,
+        actionPlanOffset,
         haveCloth
 
     })

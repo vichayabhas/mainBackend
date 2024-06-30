@@ -148,7 +148,8 @@ export interface InterCampBack {
     groupName: string,
     peeDataLock: boolean,
     petoDataLock: boolean,
-    haveCloth: boolean
+    haveCloth: boolean,
+    actionPlanOffset: number,
 }
 export interface InterCampStyle {
 
@@ -308,6 +309,8 @@ export interface InterUser {
     citizenId: string,//                     รหัสประจำตัวประชาชน
     _id: mongoose.Types.ObjectId,
     likeToSleepAtCamp: boolean,
+    selectOffsetId: mongoose.Types.ObjectId,
+    displayOffsetId: mongoose.Types.ObjectId,
     authPartIds: mongoose.Types.ObjectId[]
 }
 export interface InterWorkingItem {
@@ -437,7 +440,8 @@ export interface InterCampFront {
     groupName: string,
     peeDataLock: boolean,
     petoDataLock: boolean,
-    haveCloth: boolean
+    haveCloth: boolean,
+    actionPlanOffset: number,
 }
 export interface InterPartFront {
 
@@ -643,19 +647,35 @@ export interface CreateWorkingItem {
     fromId: mongoose.Types.ObjectId | null,
     password: string
 }
-export interface ShowRegister{
-    fullName:string,
-    userId:mongoose.Types.ObjectId,
-    partId:mongoose.Types.ObjectId,
-    partName:string
+export interface ShowRegister {
+    fullName: string,
+    userId: mongoose.Types.ObjectId,
+    partId: mongoose.Types.ObjectId,
+    partName: string
 }
-export interface RegisBaan{
-    pees:ShowMember[],
-    nongs:ShowMember[],
-    baan:InterBaanFront
+export interface RegisBaan {
+    pees: ShowMember[],
+    nongs: ShowMember[],
+    baan: InterBaanFront
 }
-export interface RegisPart{
-    pees:ShowMember[],
-    petos:ShowMember[],
-    part:InterPartFront
+export interface RegisPart {
+    pees: ShowMember[],
+    petos: ShowMember[],
+    part: InterPartFront
+}
+export interface InterTimeOffset {
+    userId: mongoose.Types.ObjectId,
+    day: number,
+    hour: number,
+    minute: number,
+    _id: mongoose.Types.ObjectId
+}
+export interface UpdateTimeOffsetRaw {
+    day: number,
+    hour: number,
+    minute: number,
+}
+export interface UpdateTimeOffset {
+    display: UpdateTimeOffsetRaw,
+    select: UpdateTimeOffsetRaw
 }
