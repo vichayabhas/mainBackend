@@ -288,7 +288,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             }
             await user.updateOne({
                 authorizeIds: swop(null, camp._id, user.authorizeIds),
-                authPartIds:swop(null,part._id,user.authPartIds)
+                authPartIds: swop(null, part._id, user.authPartIds)
             })
         }
         const coop = await addPartRaw(camp._id, partNameContainerCoop._id)
@@ -1276,7 +1276,7 @@ export async function deleteWorkingItemRaw(workItemId: mongoose.Types.ObjectId) 
     }
 
     const part = await Part.findById(workItem.partId)
-        const camp = await Camp.findById(part?.campId)
+    const camp = await Camp.findById(part?.campId)
     if (!camp || !part) {
         return
     }
@@ -1295,19 +1295,24 @@ export async function getPartNames(req: express.Request, res: express.Response, 
     res.status(200).json(partNames)
 }
 export async function addAllGroup(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { campId, group }: { campId: mongoose.Types.ObjectId, group: Group } = req.body
-    const camp = await Camp.findById(campId)
-    const user = await getUser(req)
-    if (!camp || !user || !camp.boardIds.includes(user._id)) {
+   
+    const baan = await Baan.findById(req.params.id)
+    if (!baan) {
         sendRes(res, false)
         return
     }
-    if (!camp.ready.includes(group)) {
+    const camp = await Camp.findById(baan.campId)
+    const user = await getUser(req)
+    if (!camp || !user || !baan.groupRef) {
+        sendRes(res, false)
+        return
+    }
+    if (!camp.ready.includes(baan.groupRef)) {
         sendRes(res, false)
         return
     }
     const { ready } = camp
-    ready.push(group)
+    ready.push(baan.groupRef)
     await camp.updateOne({ ready })
     if (ready.length < 18) {
         sendRes(res, true)
@@ -1348,3 +1353,19 @@ export async function getAllRemainPartName(req: express.Request, res: express.Re
     }
     res.status(200).json(out)
 }
+export async function peeToPeto(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const users = await User.find({ role: 'pee' })
+    var i = 0
+    while (i < users.length) {
+        await users[i++].updateOne({ role: 'peto' })
+    }
+    sendRes(res, true)
+}
+export async function afterVisnuToPee(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const users = await User.find({ fridayActEn: true })
+    var i = 0
+    while (i < users.length) {
+        await users[i++].updateOne({ role: 'pee' })
+    }
+}
+

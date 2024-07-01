@@ -9,5 +9,5 @@ router.post('/createBuilding/params/:id', protect, pee, createBuilding)
 router.get('/getPlaces/params/:id', getPlaces)
 router.get('/getPlace/params/:id', getPlace)
 router.post('/createPlace/', protect, pee, createPlace)
-router.get('/getBuilding/params/:id',getBuilding)
+router.get('/getBuilding/params/:id', getBuilding)
 export default router

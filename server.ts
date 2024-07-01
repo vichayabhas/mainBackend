@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 import camp from './routes/camp';
 import admin from './routes/admin'
 import randomthing from './routes/randomthing'
-
+import subFrontend from './routes/subFrontend'
 
 config({ path: './config/config.env' });
 
@@ -22,6 +22,7 @@ app.use(express.json());
 app.use(cors());
 app.use('/randomthing',randomthing)
 app.use('/admin', admin)
+app.use('/subFunction',subFrontend)
 
 /*app.get('/', (req,res) => {
     //1. res.send('<h1>Hello from express<h1>');
