@@ -562,9 +562,9 @@ export type RoleCamp = Mode | 'peto'
 export type Role = RoleCamp | 'admin'
 export type Mode = 'nong' | 'pee'
 export interface HelthIsueBody {
-    foodIds: mongoose.Types.ObjectId[],
-    chronicDiseaseIds: mongoose.Types.ObjectId[],
-    medicineIds: mongoose.Types.ObjectId[],
+    food:string,
+    chronicDisease:string,
+    medicine:string,
     extra: string,
     isWearing: boolean,
     spicy: boolean

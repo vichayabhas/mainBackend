@@ -3,17 +3,17 @@ const PeeCampSchema = new mongoose.Schema({
     userId: {//user
         type: mongoose.Schema.ObjectId
     },
-    foodIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
+    food: {
+        type: String,
+        default: ''
     },
-    chronicDiseaseIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
+    chronicDisease: {
+        type: String,
+        default: ''
     },
-    medicineIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
+    medicine: {
+        type: String,
+        default: ''
     },
     extra: {
         type: String,
@@ -25,7 +25,7 @@ const PeeCampSchema = new mongoose.Schema({
     },
     spicy: {
         type: Boolean,
-        default:false
+        default: false
     }
 })
 export default mongoose.model('HelthIsue', PeeCampSchema)
