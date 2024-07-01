@@ -1295,7 +1295,7 @@ export async function getPartNames(req: express.Request, res: express.Response, 
     res.status(200).json(partNames)
 }
 export async function addAllGroup(req: express.Request, res: express.Response, next: express.NextFunction) {
-   
+
     const baan = await Baan.findById(req.params.id)
     if (!baan) {
         sendRes(res, false)

@@ -126,7 +126,7 @@ export async function kickPee(req: express.Request, res: express.Response, next:
     }
     const im = await getImpotentPartIdBCRP(camp._id)
     await changePartRaw(members, im[3])
-    sendRes(res,true)
+    sendRes(res, true)
 }
 export async function kickNong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { members, campId }: { members: mongoose.Types.ObjectId[], campId: mongoose.Types.ObjectId } = req.body
@@ -150,8 +150,8 @@ export async function kickNong(req: express.Request, res: express.Response, next
         nongInterviewIds: camp.nongInterviewIds,
         nongPaidIds,
         nongPassIds: camp.nongPassIds,
-        outRoundIds:camp.outRoundIds
+        outRoundIds: camp.outRoundIds
     })
-    sendRes(res,true)
+    sendRes(res, true)
 
 }

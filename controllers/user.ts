@@ -787,19 +787,19 @@ export async function getShertmanage(req: express.Request, res: express.Response
 		sendRes(res, false)
 	}
 
-} 
-export async function updateTimeOffset(req: express.Request, res: express.Response, next: express.NextFunction){
-	const update:UpdateTimeOffset=req.body
-	const user=await getUser(req)
-	if(!user){
-		sendRes(res,false)
+}
+export async function updateTimeOffset(req: express.Request, res: express.Response, next: express.NextFunction) {
+	const update: UpdateTimeOffset = req.body
+	const user = await getUser(req)
+	if (!user) {
+		sendRes(res, false)
 		return
 	}
-	await TimeOffset.findByIdAndUpdate(user.displayOffsetId,update.display)
-	await TimeOffset.findByIdAndUpdate(user.selectOffsetId,update.select)
-	sendRes(res,true)
+	await TimeOffset.findByIdAndUpdate(user.displayOffsetId, update.display)
+	await TimeOffset.findByIdAndUpdate(user.selectOffsetId, update.select)
+	sendRes(res, true)
 }
-export async function getTimeOffset(req: express.Request, res: express.Response, next: express.NextFunction){
-	const buf=await TimeOffset.findById(req.params.id)
+export async function getTimeOffset(req: express.Request, res: express.Response, next: express.NextFunction) {
+	const buf = await TimeOffset.findById(req.params.id)
 	res.status(200).json(buf)
 }

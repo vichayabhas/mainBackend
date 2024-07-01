@@ -439,7 +439,7 @@ export async function addNong(req: express.Request, res: express.Response, next:
             nongHaveBottleMapIds: camp.nongHaveBottleMapIds,
             nongHelthIsueIds: camp.nongHelthIsueIds,
             nongIds: camp.nongIds,
-            mapShertManageIdByUserId:camp.mapShertManageIdByUserId
+            mapShertManageIdByUserId: camp.mapShertManageIdByUserId
         })
         await baan.updateOne({
             nongHaveBottle: b,
@@ -448,7 +448,7 @@ export async function addNong(req: express.Request, res: express.Response, next:
             nongHelthIsueIds: baan.nongHelthIsueIds,
             nongHaveBottleMapIds: baan.nongHaveBottleMapIds,
             nongIds: baan.nongIds,
-            mapShertManageIdByUserId:baan.mapShertManageIdByUserId
+            mapShertManageIdByUserId: baan.mapShertManageIdByUserId
         })
         await nongCamp?.updateOne({
             nongIds: nongCamp.nongIds,
@@ -667,16 +667,16 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
             case 'ไม่มีการค้างคืน': sleepAtCamp = false
             case null: sleepAtCamp = false
             case undefined: sleepAtCamp = false
-            switch (partId) {
-                case camp.partCoopId: {
-                    await user.updateOne({ authPartIds: swop(null, partId, user.authPartIds) })
-                    break
+                switch (partId) {
+                    case camp.partCoopId: {
+                        await user.updateOne({ authPartIds: swop(null, partId, user.authPartIds) })
+                        break
+                    }
+                    case camp.partRegiterId: {
+                        await user.updateOne({ authPartIds: swop(null, partId, user.authPartIds) })
+                        break
+                    }
                 }
-                case camp.partRegiterId: {
-                    await user.updateOne({ authPartIds: swop(null, partId, user.authPartIds) })
-                    break
-                }    
-            }
         }
         if (sleepAtCamp) {
             camp.peeSleepIds.push(user._id)
@@ -767,7 +767,7 @@ export async function staffRegister(req: express.Request, res: express.Response,
     }
     const impotantParts = await getImpotentPartIdBCRP(camp._id)
     if (impotantParts.includes(partId)) {
-        
+
     }
     if (user?.role === 'pee' || camp?.memberStructre != 'nong->highSchool,pee->1year,peto->2upYear') {
         camp?.peePassIds.set(user.id, partId)
@@ -1872,24 +1872,24 @@ export async function getWorkingItem(req: express.Request, res: express.Response
         console.log(err)
     }
 }
-export async function getShowRegisters(req: express.Request, res: express.Response, next: express.NextFunction){
-    const camp:InterCampBack|null=await Camp.findById(req.params.id)
-    if(!camp){
-        sendRes(res,false)
+export async function getShowRegisters(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const camp: InterCampBack | null = await Camp.findById(req.params.id)
+    if (!camp) {
+        sendRes(res, false)
         return
     }
-    const bufs=mapObjectIdToMyMap(camp.peePassIds)
-    var i=0
-    const out:ShowRegister[]=[]
-    while(i<bufs.length){
-        const user=await User.findById(bufs[i].key)
-        const part=await Part.findById(bufs[i++].value)
-        if(!user||!part){
+    const bufs = mapObjectIdToMyMap(camp.peePassIds)
+    var i = 0
+    const out: ShowRegister[] = []
+    while (i < bufs.length) {
+        const user = await User.findById(bufs[i].key)
+        const part = await Part.findById(bufs[i++].value)
+        if (!user || !part) {
             continue
         }
         out.push({
             fullName: `ชื่อจริง ${user.name} นามสกุล ${user.lastname} ชื่อเล่น ${user.nickname}`,
-            userId:user._id,
+            userId: user._id,
             partId: part._id,
             partName: part.partName as string
         })

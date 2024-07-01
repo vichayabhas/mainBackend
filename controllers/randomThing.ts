@@ -218,7 +218,7 @@ export async function deleteLostAndFound(req: express.Request, res: express.Resp
         return
     }
     const camp = await Camp.findById(lostAndFound.campId)
-    if (!user||(user.role != 'admin' && (lostAndFound.userId !== (user._id)) && (camp ? !user.authPartIds.includes(camp.partBoardId as mongoose.Types.ObjectId) && !user.authPartIds.includes(camp.partRegiterId as mongoose.Types.ObjectId) : true) && !camp?.boardIds.includes(user._id))) {
+    if (!user || (user.role != 'admin' && (lostAndFound.userId !== (user._id)) && (camp ? !user.authPartIds.includes(camp.partBoardId as mongoose.Types.ObjectId) && !user.authPartIds.includes(camp.partRegiterId as mongoose.Types.ObjectId) : true) && !camp?.boardIds.includes(user._id))) {
         res.status(403).json(resError)
     }
     const owner = await User.findById(lostAndFound?.userId)
