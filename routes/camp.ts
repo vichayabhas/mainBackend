@@ -3,7 +3,7 @@ import express from 'express';
 const router = express.Router();
 
 import { protect, pee, isPass } from '../middleware/auth';
-import { getCamps, getCampName, getCamp, getNongCamp, getPeeCamp, getBaan, getPart, getPartName, nongRegister, staffRegister, getNongsFromBaanId, getPeesFromBaanId, getPeesFromPartId, getPetosFromPartId, getBaans, getActionPlans, getActionPlanByPartId, createActionPlan, getActionPlan, updateActionPlan, deleteActionPlan, createWorkingItem, getWorkingItems, getWorkingItemByPartId, getWorkingItem, updateWorkingItem, deleteWorkingItem, getPetoCamp, getShowRegisters, addNong, addPee, changeBaan, changePart } from '../controllers/camp';
+import { getCamps, getCampName, getCamp, getNongCamp, getPeeCamp, getBaan, getPart, getPartName, nongRegister, staffRegister, getNongsFromBaanId, getPeesFromBaanId, getPeesFromPartId, getPetosFromPartId, getBaans, getActionPlans, getActionPlanByPartId, createActionPlan, getActionPlan, updateActionPlan, deleteActionPlan, createWorkingItem, getWorkingItems, getWorkingItemByPartId, getWorkingItem, updateWorkingItem, deleteWorkingItem, getPetoCamp, getShowRegisters, addNong, addPee, changeBaan, changePart, plusActionPlan } from '../controllers/camp';
 import { interview, kickNong, kickPee, paid, pass, sure } from '../controllers/admidsion';
 
 
@@ -48,6 +48,7 @@ router.post('/kick/pee/', protect, pee, kickPee)
 router.post('/kick/nong/', protect, pee, kickNong)
 router.post('/changeBaan/', protect, pee, changeBaan)
 router.post('/changePart/', protect, pee, changePart)
+router.post('/plusActionPlan/', protect, pee, plusActionPlan)
 export default router;
 
 

@@ -2,7 +2,8 @@ import express from 'express'
 import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, InterWorkingItem, InterActionPlan, MapObjectId, MyMap } from '../models/intreface'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
-
+import * as nodemailer from "nodemailer"
+import { MailOptions } from 'nodemailer/lib/json-transport'
 
 export function startSize(): Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> {
     const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = new Map()
@@ -416,7 +417,7 @@ export function isInTime(start: Date, end: Date): boolean {
     const now = new Date(Date.now())
     return (now > start && now < end)
 }
-export function plusActionPlan(input: InterActionPlan, minute: number): InterActionPlan {
+export function plusActionPlanRaw(input: InterActionPlan, minute: number): InterActionPlan {
     const millisecound = minute * 1000 * 60
     const {
         start,
@@ -455,30 +456,25 @@ export function notEmpty<TValue>(value: TValue | null | undefined): value is TVa
 }
 
 
-import nodemailer from 'nodemailer';
-import { MailOptions } from 'nodemailer/lib/json-transport'
-
-// Create a transport for sending emails (replace with your email service's data)
-/*const transporter = nodemailer.createTransport({
-    service: '', // Use your email service
-    auth: {
-     user: '6633227421@student.chula.ac.th', // Your email address
-     pass: '67CM37Da', // Your password
-    },
-});
-// Set email options
-const mailOptions = {
-    from: '6633227421@student.chula.ac.th', // Sender
-    to: 'arifmini64@gmail.com', // Recipient
-    subject: 'Email Subject', // Email subject
-    html: '<></>', // Email HTML content
-};
-
-// Send the email
-transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-        console.error('Email sending failed:', error);
-    } else {
-        console.log('Email sent: ' + info.response);
-    }
-})//nodemailer.createTransport('smtps://user%40gmail.com:pass@smtp.gmail.com');*/
+export function sendingEmail(email: string, text: string) {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'arifmini64@gmail.com', 
+            pass: 'mtekbmbboehothcy',
+        },
+    });
+    const mailOptions: MailOptions = {
+        from: 'arifmini64@gmail.com',
+        to:email, 
+        subject: "verify email",
+        text,
+    };
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error('Email sending failed:', error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    })
+}

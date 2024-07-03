@@ -7,7 +7,7 @@ import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import User from "../models/User";
 import ShertManage from "../models/ShertManage";
-import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, mapObjectIdToMyMap, resError, resOk, sendRes, startSize, swop } from "./setup";
+import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, mapObjectIdToMyMap, plusActionPlanRaw, resError, resOk, sendRes, startSize, swop } from "./setup";
 import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
 import express from "express";
@@ -1895,4 +1895,21 @@ export async function getShowRegisters(req: express.Request, res: express.Respon
         })
     }
     res.status(200).json(out)
+}
+export async function plusActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { campId, plus } = req.body
+    const camp = await Camp.findById(campId)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
+    var i = 0
+    while (i < camp.actionPlanIds.length) {
+        const actionPlan = await ActionPlan.findById(camp.actionPlanIds[i++])
+        if (!actionPlan) {
+            continue
+        }
+        await actionPlan.updateOne(plusActionPlanRaw(actionPlan.toObject(), plus))
+    }
+    await camp.updateOne({ actionPlanOffset: camp.actionPlanOffset + plus })
 }
