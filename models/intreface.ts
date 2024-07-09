@@ -270,7 +270,7 @@ export interface InterSong {
     campIds: mongoose.Types.ObjectId[],
     baanIds: mongoose.Types.ObjectId[],
     auther: string,
-    time: TimeRanges,
+    time: number,
     link: string,
     userLikeIds: mongoose.Types.ObjectId[],
     _id: mongoose.Types.ObjectId
