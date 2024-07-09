@@ -4,10 +4,12 @@ const PeeCampSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId
     },
     flore: {
-        type: String
+        type: String,
+        required:true
     },
     room: {
-        type: String
+        type: String,
+        required:true
     },
     actionPlanIds: {//actionPlan
         type: [mongoose.Schema.ObjectId],
