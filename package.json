@@ -2,15 +2,12 @@
   "name": "a-4-vichayabhas",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
-  "type": "module",
-  
+  "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.ts",
-    "start": "node index.ts"
+    "dev": "nodemon server.ts",
+        "start": "node server.ts"
   },
-  
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -34,6 +31,6 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/nodemailer": "^6.4.15",
     "nodemon": "^3.0.3",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.2"
   }
 }
