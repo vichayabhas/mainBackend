@@ -8,7 +8,6 @@
     "dev": "nodemon index.js",
     "start": "nodemon index.js"
   },
-  "module": "esnext",
   "type": "commonjs",
   "author": "",
   "license": "ISC",
