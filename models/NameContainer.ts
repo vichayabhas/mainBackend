@@ -6,8 +6,7 @@ const PeeCampSchema = new mongoose.Schema({
     },
     name: {
         type: String,
-        unique:true,
-        required:true,
+        unique:true
     }
 })
 export default mongoose.model('NameContainer', PeeCampSchema)

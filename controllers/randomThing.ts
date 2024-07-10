@@ -9,7 +9,7 @@ import LostAndFound from "../models/LostAndFound";
 import Building from "../models/Building";
 import Place from "../models/Place";
 import NongCamp from "../models/NongCamp";
-import { InterCampBack, InterLostAndFound, InterPlace, ShowLostAndFound } from "../models/intreface";
+import { InterCampBack, InterLostAndFound, InterPlace } from "../models/intreface";
 import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import mongoose from "mongoose";
@@ -198,18 +198,15 @@ export async function addLostAndFound(req: express.Request, res: express.Respons
     } = req.body
     const user = await getUser(req)
     const place = await Place.findById(placeId)
-    if (!user || !place) {
-        sendRes(res, false)
-        return
-    }
-    const lostAndFound = await LostAndFound.create({ campId, type, name, detail, userId: user._id, placeId, buildingId: place.buildingId })
-    await user.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, user.lostAndFoundIds) })
+    const lostAndFound = await LostAndFound.create({ campId, type, name, detail, userId: user?._id, placeId, buildingId: place?.buildingId })
+    user?.lostAndFoundIds.push(lostAndFound._id)
     if (campId) {
         const camp = await Camp.findById(campId)
         await camp?.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, camp.lostAndFoundIds) })
     }
-    await place.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, place.lostAndFoundIds) })
-    const building = await Building.findById(place.buildingId)
+    await place?.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, place.lostAndFoundIds) })
+    const building = await Building.findById(place?.buildingId)
+    building?.lostAndFoundIds.push(lostAndFound._id)
     await building?.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, building.lostAndFoundIds) })
     res.status(201).json(lostAndFound)
 }
@@ -224,8 +221,8 @@ export async function deleteLostAndFound(req: express.Request, res: express.Resp
     if (!user || (user.role != 'admin' && (lostAndFound.userId !== (user._id)) && (camp ? !user.authPartIds.includes(camp.partBoardId as mongoose.Types.ObjectId) && !user.authPartIds.includes(camp.partRegiterId as mongoose.Types.ObjectId) : true) && !camp?.boardIds.includes(user._id))) {
         res.status(403).json(resError)
     }
-    const owner = await User.findById(lostAndFound.userId)
-    const place = await Place.findById(lostAndFound.placeId)
+    const owner = await User.findById(lostAndFound?.userId)
+    const place = await Place.findById(lostAndFound?.placeId)
     const building = await Building.findById(lostAndFound?.buildingId)
     await owner?.updateOne({ lostAndFoundIds: swop(lostAndFound._id, null, owner.lostAndFoundIds) })
     await place?.updateOne({ lostAndFoundIds: swop(lostAndFound._id, null, place.lostAndFoundIds) })
@@ -233,7 +230,7 @@ export async function deleteLostAndFound(req: express.Request, res: express.Resp
     if (camp) {
         camp.updateOne({ lostAndFoundIds: swop(lostAndFound._id, null, camp.lostAndFoundIds) })
     }
-    await lostAndFound.deleteOne()
+    await lostAndFound?.deleteOne()
     sendRes(res, true)
 }
 export async function getLostAndFounds(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -244,15 +241,31 @@ export async function getLostAndFounds(req: express.Request, res: express.Respon
     }
     var out: InterLostAndFound[] = []
     var i = 0
+    while (i < user.nongCampIds.length) {
+        const nongCamp = await NongCamp.findById(user.nongCampIds[i++])
+        if (!nongCamp) {
+            continue
+        }
+        const camp = await Camp.findById(nongCamp.campId)
+        if (!camp) {
+            continue
+        }
+        var j = 0
+        while (j < camp.lostAndFoundIds.length) {
+            const lostAndFound: InterLostAndFound | null = await LostAndFound.findById(camp.lostAndFoundIds[j++])
+            if (lostAndFound) {
+                out.push(lostAndFound)
+            }
+        }
+    }
     if (user.fridayActEn) {
-        out = await LostAndFound.find()
-    } else {
-        while (i < user.nongCampIds.length) {
-            const nongCamp = await NongCamp.findById(user.nongCampIds[i++])
-            if (!nongCamp) {
+        i = 0
+        while (i < user.peeCampIds.length) {
+            const peeCamp = await PeeCamp.findById(user.peeCampIds[i++])
+            if (!peeCamp) {
                 continue
             }
-            const camp = await Camp.findById(nongCamp.campId)
+            const camp = await Camp.findById(peeCamp.campId)
             if (!camp) {
                 continue
             }
@@ -264,25 +277,35 @@ export async function getLostAndFounds(req: express.Request, res: express.Respon
                 }
             }
         }
-    }
-    i=0
-    var output:ShowLostAndFound[]=[]
-    while(i<out.length){
-        const buf=await fillLostAndFound(out[i++])
-        if(buf){
-            output.push(buf)
+        i = 0
+        while (i < user.petoCampIds.length) {
+            const petoCamp = await PetoCamp.findById(user.petoCampIds[i++])
+            if (!petoCamp) {
+                continue
+            }
+            const camp = await Camp.findById(petoCamp.campId)
+            if (!camp) {
+                continue
+            }
+            var j = 0
+            while (j < camp.lostAndFoundIds.length) {
+                const lostAndFound: InterLostAndFound | null = await LostAndFound.findById(camp.lostAndFoundIds[j++])
+                if (lostAndFound) {
+                    out.push(lostAndFound)
+                }
+            }
+        }
+        const lostAndFounds: InterLostAndFound[] = await LostAndFound.find({ campId: null })
+        i = 0
+        while (i < lostAndFounds.length) {
+            out.push(lostAndFounds[i++])
         }
     }
-    res.status(200).json(output)
+    res.status(200).json(out)
 }
 export async function getLostAndFound(req: express.Request, res: express.Response, next: express.NextFunction) {
     const lostAndFound = await LostAndFound.findById(req.params.id)
-    if(!lostAndFound){
-        sendRes(res,false)
-        return
-    }
-    const buf=await fillLostAndFound(lostAndFound.toObject())
-    res.status(200).json(buf)
+    res.status(200).json(lostAndFound)
 }
 export async function getAllBuilding(req: express.Request, res: express.Response, next: express.NextFunction) {
     const buildings = await Building.find()
@@ -338,43 +361,4 @@ export async function getPlace(req: express.Request, res: express.Response, next
 export async function getBuilding(req: express.Request, res: express.Response, next: express.NextFunction) {
     const building = await Building.findById(req.params.id)
     res.status(200).json(building)
-}
-async function fillLostAndFound(input: InterLostAndFound): Promise<ShowLostAndFound | null> {
-    const {
-        _id,
-        name,
-        buildingId,
-        placeId,
-        userId,
-        detail,
-        campId,
-        type
-
-
-    } = input
-    const user = await User.findById(userId)
-    const building = await Building.findById(buildingId)
-    const place = await Place.findById(placeId)
-    const camp=await Camp.findById(campId)
-    if (!user || !building || !place) {
-        return null
-    }
-    return {
-        _id,
-        name,
-        buildingId,
-        placeId,
-        detail,
-        userId,
-        userLastName: user.lastname,
-        userName: user.name,
-        userNickname: user.nickname,
-        tel: user.tel,
-        room: place.room,
-        floor: place.flore,
-        buildingName: building.name,
-        campId,
-        type,
-        campName:camp?camp.campName:'null'
-    }
 }

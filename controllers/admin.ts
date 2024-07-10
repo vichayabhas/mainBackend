@@ -237,38 +237,15 @@ async function setDefalse(peeCampId: mongoose.Types.ObjectId) {
 }
 export async function createCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        const {
-            nameId,
-            round,
-            dateStart,
-            dateEnd,
-            boardIds,
-            registerModel,
-            memberStructre,
-            nongSleepModel,
-            peeSleepModel
-        }: CreateCamp = req.body
-        const nameContainer = await NameContainer.findById(nameId)
+        const createCamp: CreateCamp = req.body
+        const camp = await Camp.create(createCamp)
+        const campStyle = await CampStyle.create({ refId: camp._id, types: 'camp' })
+        await camp.updateOne({ campStyleId: campStyle._id })
+        const nameContainer = await NameContainer.findById(createCamp.nameId)
         if (!nameContainer) {
             sendRes(res, false)
             return
         }
-        const camp = await Camp.create({ 
-            nameId, 
-            round, 
-            dateStart, 
-            dateEnd, 
-            boardIds, 
-            registerModel, 
-            memberStructre, 
-            nongSleepModel, 
-            peeSleepModel ,
-            campName:`${nameContainer.name} ${round}`
-        })
-        const campStyle = await CampStyle.create({ refId: camp._id, types: 'camp' })
-        await camp.updateOne({ campStyleId: campStyle._id })
-
-
         await nameContainer?.updateOne({ campIds: swop(null, camp._id, nameContainer.campIds) })
         var partNameContainer = await PartNameContainer.findOne({ name: 'board' })
         if (!partNameContainer) {
@@ -303,8 +280,8 @@ export async function createCamp(req: express.Request, res: express.Response, ne
         })
         await part.updateOne({ petoModelId: petoCamp._id })
         var i = 0
-        while (i < boardIds.length) {
-            const boardId = boardIds[i++]
+        while (i < createCamp.boardIds.length) {
+            const boardId = createCamp.boardIds[i++]
             const user = await User.findById(boardId)
             if (!user) {
                 continue
@@ -327,8 +304,8 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             partPeeBaanId: peeBaan._id
         })
 
-        if (memberStructre == 'nong->highSchool,pee->1year,peto->2upYear') {
-            await addPetoRaw(boardIds, part._id, res)
+        if (createCamp.memberStructre == 'nong->highSchool,pee->1year,peto->2upYear') {
+            await addPetoRaw(createCamp.boardIds, part._id, res)
         } else {
             const newCamp: InterCampBack | null = await Camp.findById(camp._id)
             if (!newCamp) {
@@ -337,12 +314,12 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             }
             const baan = await addBaanRaw(newCamp, 'board', null)
             i = 0
-            while (i < boardIds.length) {
-                camp.peePassIds.set(boardIds[i++].toString(), part._id)
+            while (i < createCamp.boardIds.length) {
+                camp.peePassIds.set(createCamp.boardIds[i++].toString(), part._id)
             }
             await camp.updateOne({ peePassIds: camp.peePassIds, baanBordId: baan._id })
 
-            await addPeeRaw(boardIds, baan._id)
+            await addPeeRaw(createCamp.boardIds, baan._id)
 
         }
         res.status(201).json(conCampBackToFront(camp.toObject()))

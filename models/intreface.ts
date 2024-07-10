@@ -562,9 +562,9 @@ export type RoleCamp = Mode | 'peto'
 export type Role = RoleCamp | 'admin'
 export type Mode = 'nong' | 'pee'
 export interface HelthIsueBody {
-    food: string,
-    chronicDisease: string,
-    medicine: string,
+    food:string,
+    chronicDisease:string,
+    medicine:string,
     extra: string,
     isWearing: boolean,
     spicy: boolean
@@ -678,21 +678,4 @@ export interface UpdateTimeOffsetRaw {
 export interface UpdateTimeOffset {
     display: UpdateTimeOffsetRaw,
     select: UpdateTimeOffsetRaw
-}
-export interface AddLostAndFound {
-    campId: mongoose.Types.ObjectId | null,
-    type: 'lost' | 'found',
-    name: string,
-    detail: string,
-    placeId: mongoose.Types.ObjectId|null,
-}
-export interface ShowLostAndFound extends InterLostAndFound {
-    userName:string,
-    userLastName:string,
-    userNickname:string,
-    buildingName:string,
-    room:string,
-    floor:string,
-    tel:string,
-    campName:string
 }

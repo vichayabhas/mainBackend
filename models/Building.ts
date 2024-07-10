@@ -1,8 +1,7 @@
 import mongoose from "mongoose"
 const PeeCampSchema = new mongoose.Schema({
     name: {
-        type: String,
-        required:true
+        type: String
     },
     placeIds: {//place
         type: [mongoose.Schema.ObjectId],
