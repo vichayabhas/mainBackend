@@ -1899,22 +1899,44 @@ export async function getShowRegisters(req: express.Request, res: express.Respon
 export async function getAllUserCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     const user = await getUser(req)
     var out: MyMap[] = []
+    if(!user){
+        sendRes(res,false)
+        return
+    }
     var i = 0
     while (i < user.nongCampIds.length) {
         const nongCamp = await NongCamp.findById(user.nongCampIds[i++])
+        if(!nongCamp){
+            continue
+        }
         const camp = await Camp.findById(nongCamp.campId)
+        if(!camp){
+            continue
+        }
         out.push({ key: camp._id, value: camp.campName })
     }
     i=0
     while (i < user.peeCampIds.length) {
         const peeCamp = await PeeCamp.findById(user.peeCampIds[i++])
+        if(!peeCamp){
+            continue
+        }
         const camp = await Camp.findById(peeCamp.campId)
+        if(!camp){
+            continue
+        }
         out.push({ key: camp._id, value: camp.campName })
     }
     i=0
     while (i < user.petoCampIds.length) {
         const petoCamp = await PetoCamp.findById(user.petoCampIds[i++])
+        if(!petoCamp){
+            continue
+        }
         const camp = await Camp.findById(petoCamp.campId)
+        if(!camp){
+            continue
+        }
         out.push({ key: camp._id, value: camp.campName })
     }
     res.status(200).json(out)

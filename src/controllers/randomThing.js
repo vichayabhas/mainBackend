@@ -383,57 +383,66 @@ function removeBaanSong(req, res, next) {
 }
 function addLostAndFound(req, res, next) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, campId, type, name, detail, placeId, user, buildingId, _b, place, lostAndFound, camp, building;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        var _a, campId, type, name, detail, placeId, user, buildingId, _b, place, _c, lostAndFound, camp, building;
+        var _d;
+        return __generator(this, function (_e) {
+            switch (_e.label) {
                 case 0:
                     _a = req.body, campId = _a.campId, type = _a.type, name = _a.name, detail = _a.detail, placeId = _a.placeId;
                     return [4 /*yield*/, (0, auth_1.getUser)(req)];
                 case 1:
-                    user = _c.sent();
+                    user = _e.sent();
                     if (!placeId) return [3 /*break*/, 3];
                     return [4 /*yield*/, Place_1.default.findById(placeId)];
                 case 2:
-                    _b = (_c.sent()).buildingId;
+                    _b = (_d = (_e.sent())) === null || _d === void 0 ? void 0 : _d.buildingId;
                     return [3 /*break*/, 4];
                 case 3:
                     _b = null;
-                    _c.label = 4;
+                    _e.label = 4;
                 case 4:
                     buildingId = _b;
-                    place = null // =placeId? await Place.findById(placeId):null
-                    ;
+                    if (!placeId) return [3 /*break*/, 6];
+                    return [4 /*yield*/, Place_1.default.findById(placeId)];
+                case 5:
+                    _c = _e.sent();
+                    return [3 /*break*/, 7];
+                case 6:
+                    _c = null;
+                    _e.label = 7;
+                case 7:
+                    place = _c;
                     if (!user) {
                         (0, setup_1.sendRes)(res, false);
                         return [2 /*return*/];
                     }
                     return [4 /*yield*/, LostAndFound_1.default.create({ campId: campId, type: type, name: name, detail: detail, userId: user._id, placeId: placeId, buildingId: buildingId })];
-                case 5:
-                    lostAndFound = _c.sent();
-                    return [4 /*yield*/, user.updateOne({ lostAndFoundIds: (0, setup_1.swop)(null, lostAndFound._id, user.lostAndFoundIds) })];
-                case 6:
-                    _c.sent();
-                    if (!campId) return [3 /*break*/, 9];
-                    return [4 /*yield*/, Camp_1.default.findById(campId)];
-                case 7:
-                    camp = _c.sent();
-                    return [4 /*yield*/, (camp === null || camp === void 0 ? void 0 : camp.updateOne({ lostAndFoundIds: (0, setup_1.swop)(null, lostAndFound._id, camp.lostAndFoundIds) }))];
                 case 8:
-                    _c.sent();
-                    _c.label = 9;
+                    lostAndFound = _e.sent();
+                    return [4 /*yield*/, user.updateOne({ lostAndFoundIds: (0, setup_1.swop)(null, lostAndFound._id, user.lostAndFoundIds) })];
                 case 9:
-                    if (!place) return [3 /*break*/, 13];
-                    return [4 /*yield*/, place.updateOne({ lostAndFoundIds: (0, setup_1.swop)(null, lostAndFound._id, place.lostAndFoundIds) })];
+                    _e.sent();
+                    if (!campId) return [3 /*break*/, 12];
+                    return [4 /*yield*/, Camp_1.default.findById(campId)];
                 case 10:
-                    _c.sent();
-                    return [4 /*yield*/, Building_1.default.findById(place.buildingId)];
+                    camp = _e.sent();
+                    return [4 /*yield*/, (camp === null || camp === void 0 ? void 0 : camp.updateOne({ lostAndFoundIds: (0, setup_1.swop)(null, lostAndFound._id, camp.lostAndFoundIds) }))];
                 case 11:
-                    building = _c.sent();
-                    return [4 /*yield*/, building.updateOne({ lostAndFoundIds: (0, setup_1.swop)(null, lostAndFound._id, building.lostAndFoundIds) })];
+                    _e.sent();
+                    _e.label = 12;
                 case 12:
-                    _c.sent();
-                    _c.label = 13;
+                    if (!place) return [3 /*break*/, 16];
+                    return [4 /*yield*/, place.updateOne({ lostAndFoundIds: (0, setup_1.swop)(null, lostAndFound._id, place.lostAndFoundIds) })];
                 case 13:
+                    _e.sent();
+                    return [4 /*yield*/, Building_1.default.findById(place.buildingId)];
+                case 14:
+                    building = _e.sent();
+                    return [4 /*yield*/, (building === null || building === void 0 ? void 0 : building.updateOne({ lostAndFoundIds: (0, setup_1.swop)(null, lostAndFound._id, building.lostAndFoundIds) }))];
+                case 15:
+                    _e.sent();
+                    _e.label = 16;
+                case 16:
                     res.status(201).json({});
                     return [2 /*return*/];
             }

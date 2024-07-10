@@ -197,8 +197,8 @@ export async function addLostAndFound(req: express.Request, res: express.Respons
         placeId,
     } = req.body
     const user = await getUser(req)
-    const buildingId = placeId ? (await Place.findById(placeId)).buildingId : null
-    const place = null// =placeId? await Place.findById(placeId):null
+    const buildingId = placeId ? (await Place.findById(placeId))?.buildingId : null
+    const place  =placeId? await Place.findById(placeId):null
     if (!user) {
         sendRes(res, false)
         return
@@ -212,7 +212,7 @@ export async function addLostAndFound(req: express.Request, res: express.Respons
     if (place) {
         await place.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, place.lostAndFoundIds) })
         const building = await Building.findById(place.buildingId)
-        await building.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, building.lostAndFoundIds) })
+        await building?.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, building.lostAndFoundIds) })
     }
 
     res.status(201).json({})

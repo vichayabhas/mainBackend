@@ -2875,6 +2875,10 @@ function getAllUserCamp(req, res, next) {
                 case 1:
                     user = _a.sent();
                     out = [];
+                    if (!user) {
+                        (0, setup_1.sendRes)(res, false);
+                        return [2 /*return*/];
+                    }
                     i = 0;
                     _a.label = 2;
                 case 2:
@@ -2882,9 +2886,15 @@ function getAllUserCamp(req, res, next) {
                     return [4 /*yield*/, NongCamp_1.default.findById(user.nongCampIds[i++])];
                 case 3:
                     nongCamp = _a.sent();
+                    if (!nongCamp) {
+                        return [3 /*break*/, 2];
+                    }
                     return [4 /*yield*/, Camp_1.default.findById(nongCamp.campId)];
                 case 4:
                     camp = _a.sent();
+                    if (!camp) {
+                        return [3 /*break*/, 2];
+                    }
                     out.push({ key: camp._id, value: camp.campName });
                     return [3 /*break*/, 2];
                 case 5:
@@ -2895,9 +2905,15 @@ function getAllUserCamp(req, res, next) {
                     return [4 /*yield*/, PeeCamp_1.default.findById(user.peeCampIds[i++])];
                 case 7:
                     peeCamp = _a.sent();
+                    if (!peeCamp) {
+                        return [3 /*break*/, 6];
+                    }
                     return [4 /*yield*/, Camp_1.default.findById(peeCamp.campId)];
                 case 8:
                     camp = _a.sent();
+                    if (!camp) {
+                        return [3 /*break*/, 6];
+                    }
                     out.push({ key: camp._id, value: camp.campName });
                     return [3 /*break*/, 6];
                 case 9:
@@ -2908,9 +2924,15 @@ function getAllUserCamp(req, res, next) {
                     return [4 /*yield*/, PetoCamp_1.default.findById(user.petoCampIds[i++])];
                 case 11:
                     petoCamp = _a.sent();
+                    if (!petoCamp) {
+                        return [3 /*break*/, 10];
+                    }
                     return [4 /*yield*/, Camp_1.default.findById(petoCamp.campId)];
                 case 12:
                     camp = _a.sent();
+                    if (!camp) {
+                        return [3 /*break*/, 10];
+                    }
                     out.push({ key: camp._id, value: camp.campName });
                     return [3 /*break*/, 10];
                 case 13:
