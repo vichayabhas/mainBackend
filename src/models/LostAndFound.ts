@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 const LostAndFoundSchema = new mongoose.Schema({
     campId: {
-        type: mongoose.Schema.ObjectId
+        type: mongoose.Schema.ObjectId,
+        default:null
     },
     type: {
         type: String,
@@ -22,11 +23,13 @@ const LostAndFoundSchema = new mongoose.Schema({
     },
     placeId: {
         type: mongoose.Schema.ObjectId,
-        required:true
+        //required:true,
+        default:null
     },
     buildingId: {
         type: mongoose.Schema.ObjectId,
-        required:true
+       // required:true,
+        default:null
     }
 })
 export default mongoose.model('LostAndFound', LostAndFoundSchema)

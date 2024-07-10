@@ -197,21 +197,25 @@ export async function addLostAndFound(req: express.Request, res: express.Respons
         placeId,
     } = req.body
     const user = await getUser(req)
-    const place = await Place.findById(placeId)
-    if (!user || !place) {
+    const buildingId = placeId ? (await Place.findById(placeId)).buildingId : null
+    const place = null// =placeId? await Place.findById(placeId):null
+    if (!user) {
         sendRes(res, false)
         return
     }
-    const lostAndFound = await LostAndFound.create({ campId, type, name, detail, userId: user._id, placeId, buildingId: place.buildingId })
+    const lostAndFound = await LostAndFound.create({ campId, type, name, detail, userId: user._id, placeId, buildingId })
     await user.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, user.lostAndFoundIds) })
     if (campId) {
         const camp = await Camp.findById(campId)
         await camp?.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, camp.lostAndFoundIds) })
     }
-    await place.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, place.lostAndFoundIds) })
-    const building = await Building.findById(place.buildingId)
-    await building?.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, building.lostAndFoundIds) })
-    res.status(201).json(lostAndFound)
+    if (place) {
+        await place.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, place.lostAndFoundIds) })
+        const building = await Building.findById(place.buildingId)
+        await building.updateOne({ lostAndFoundIds: swop(null, lostAndFound._id, building.lostAndFoundIds) })
+    }
+
+    res.status(201).json({})
 }
 export async function deleteLostAndFound(req: express.Request, res: express.Response, next: express.NextFunction) {
     const user = await getUser(req)
@@ -265,11 +269,11 @@ export async function getLostAndFounds(req: express.Request, res: express.Respon
             }
         }
     }
-    i=0
-    var output:ShowLostAndFound[]=[]
-    while(i<out.length){
-        const buf=await fillLostAndFound(out[i++])
-        if(buf){
+    i = 0
+    var output: ShowLostAndFound[] = []
+    while (i < out.length) {
+        const buf = await fillLostAndFound(out[i++])
+        if (buf) {
             output.push(buf)
         }
     }
@@ -277,11 +281,11 @@ export async function getLostAndFounds(req: express.Request, res: express.Respon
 }
 export async function getLostAndFound(req: express.Request, res: express.Response, next: express.NextFunction) {
     const lostAndFound = await LostAndFound.findById(req.params.id)
-    if(!lostAndFound){
-        sendRes(res,false)
+    if (!lostAndFound) {
+        sendRes(res, false)
         return
     }
-    const buf=await fillLostAndFound(lostAndFound.toObject())
+    const buf = await fillLostAndFound(lostAndFound.toObject())
     res.status(200).json(buf)
 }
 export async function getAllBuilding(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -355,8 +359,8 @@ async function fillLostAndFound(input: InterLostAndFound): Promise<ShowLostAndFo
     const user = await User.findById(userId)
     const building = await Building.findById(buildingId)
     const place = await Place.findById(placeId)
-    const camp=await Camp.findById(campId)
-    if (!user || !building || !place) {
+    const camp = await Camp.findById(campId)
+    if (!user) {
         return null
     }
     return {
@@ -370,11 +374,11 @@ async function fillLostAndFound(input: InterLostAndFound): Promise<ShowLostAndFo
         userName: user.name,
         userNickname: user.nickname,
         tel: user.tel,
-        room: place.room,
-        floor: place.flore,
-        buildingName: building.name,
+        room: place ? place.room : 'null',
+        floor: place ? place.flore : 'null',
+        buildingName: building ? building.name : 'null',
         campId,
         type,
-        campName:camp?camp.campName:'null'
+        campName: camp ? camp.campName : 'null'
     }
 }

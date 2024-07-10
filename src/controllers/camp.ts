@@ -12,7 +12,7 @@ import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
 import express from "express";
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem, ShowRegister } from "../models/intreface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap } from "../models/intreface";
 import mongoose from "mongoose";
 import Song from "../models/Song";
 import HelthIsue from "../models/HelthIsue";
@@ -1893,6 +1893,29 @@ export async function getShowRegisters(req: express.Request, res: express.Respon
             partId: part._id,
             partName: part.partName as string
         })
+    }
+    res.status(200).json(out)
+}
+export async function getAllUserCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const user = await getUser(req)
+    var out: MyMap[] = []
+    var i = 0
+    while (i < user.nongCampIds.length) {
+        const nongCamp = await NongCamp.findById(user.nongCampIds[i++])
+        const camp = await Camp.findById(nongCamp.campId)
+        out.push({ key: camp._id, value: camp.campName })
+    }
+    i=0
+    while (i < user.peeCampIds.length) {
+        const peeCamp = await PeeCamp.findById(user.peeCampIds[i++])
+        const camp = await Camp.findById(peeCamp.campId)
+        out.push({ key: camp._id, value: camp.campName })
+    }
+    i=0
+    while (i < user.petoCampIds.length) {
+        const petoCamp = await PetoCamp.findById(user.petoCampIds[i++])
+        const camp = await Camp.findById(petoCamp.campId)
+        out.push({ key: camp._id, value: camp.campName })
     }
     res.status(200).json(out)
 }
