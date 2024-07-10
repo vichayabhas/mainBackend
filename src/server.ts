@@ -1,4 +1,4 @@
-import express from 'express';
+/*import express from 'express';
 import { config, configDotenv } from 'dotenv';
 import cors from 'cors';
 
@@ -24,14 +24,7 @@ app.use('/randomthing',randomthing)
 app.use('/admin', admin)
 app.use('/subFunction',subFrontend)
 
-/*app.get('/', (req,res) => {
-    //1. res.send('<h1>Hello from express<h1>');
-    //2. res.send({name:'Brad'});
-    //3. res.json({name:'Brad'});
-    //4. res.sendStatus(400);
-    //5. res.status(400).json({success:false});
-    res.status(200).json({success:true, data:{id:1}});
-});*/
+
 
 app.use('/camp', camp);
 app.use('/api/v1/auth', user);
@@ -42,4 +35,5 @@ const server = app.listen(PORT, () => console.log('Server running in ', process.
 process.on('unhandledRejection', (err: Error, Promise) => {
     console.log(`Error: ${err.message}`);
     server.close(() => process.exit(1));
-});
+});*/
+console.log('jjjjjjjjjjjjjjjjjjjjjjjj')
