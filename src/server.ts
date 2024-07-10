@@ -1,9 +1,9 @@
-/*import express from 'express';
+import express from 'express';
 import { config, configDotenv } from 'dotenv';
 import cors from 'cors';
 
 import user from './routes/user';
-import connectDB from './config/db';
+import connectDB from '../config/db';
 import cookieParser from 'cookie-parser';
 import camp from './routes/camp';
 import admin from './routes/admin'
@@ -35,5 +35,5 @@ const server = app.listen(PORT, () => console.log('Server running in ', process.
 process.on('unhandledRejection', (err: Error, Promise) => {
     console.log(`Error: ${err.message}`);
     server.close(() => process.exit(1));
-});*/
-console.log('jjjjjjjjjjjjjjjjjjjjjjjj')
+});
+//console.log('jjjjjjjjjjjjjjjjjjjbutfyiknjjjjj')
