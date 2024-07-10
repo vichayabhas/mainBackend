@@ -3,16 +3,20 @@ import { startSize } from "../controllers/setup";
 
 const campSchema = new mongoose.Schema({
     nameId: {//nameContainer
-        type: mongoose.Schema.ObjectId
+        type: mongoose.Schema.ObjectId,
+        required:true,
     },
     round: {
-        type: Number
+        type: Number,
+        required:true,
     },
     dateStart: {
-        type: Date
+        type: Date,
+        required:true,
     },
     dateEnd: {
-        type: Date
+        type: Date,
+        required:true,
     },
     boardIds: {//user            
         type: [mongoose.Schema.ObjectId],
@@ -210,7 +214,8 @@ const campSchema = new mongoose.Schema({
         default: []
     },
     campName: {
-        type: String
+        type: String,
+        required:true,
     },
     nongSleepIds: {
         type: [mongoose.Schema.ObjectId],
@@ -222,11 +227,13 @@ const campSchema = new mongoose.Schema({
     },
     nongSleepModel: {
         type: String,
-        enum: ['นอนทุกคน', 'เลือกได้ว่าจะค้างคืนหรือไม่', 'ไม่มีการค้างคืน']
+        enum: ['นอนทุกคน', 'เลือกได้ว่าจะค้างคืนหรือไม่', 'ไม่มีการค้างคืน'],
+        required:true,
     },
     peeSleepModel: {
         type: String,
-        enum: ['นอนทุกคน', 'เลือกได้ว่าจะค้างคืนหรือไม่', 'ไม่มีการค้างคืน']
+        enum: ['นอนทุกคน', 'เลือกได้ว่าจะค้างคืนหรือไม่', 'ไม่มีการค้างคืน'],
+        required:true,
     },
     groupRefMap: {
         type: Map,

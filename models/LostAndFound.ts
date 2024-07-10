@@ -5,22 +5,28 @@ const LostAndFoundSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['lost', 'found']
+        enum: ['lost', 'found'],
+        required:true
     },
     name: {
-        type: String
+        type: String,
+        required:true
     },
     detail: {
-        type: String
+        type: String,
+        required:true
     },
     userId: {
-        type: mongoose.Schema.ObjectId
+        type: mongoose.Schema.ObjectId,
+        required:true
     },
     placeId: {
-        type: mongoose.Schema.ObjectId
+        type: mongoose.Schema.ObjectId,
+        required:true
     },
     buildingId: {
-        type: mongoose.Schema.ObjectId
+        type: mongoose.Schema.ObjectId,
+        required:true
     }
 })
 export default mongoose.model('LostAndFound', LostAndFoundSchema)
