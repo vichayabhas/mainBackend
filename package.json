@@ -8,6 +8,7 @@
     "dev": "nodemon server.ts",
         "start": "node server.ts"
   },
+  "type": "commonjs",
   "author": "",
   "license": "ISC",
   "dependencies": {
