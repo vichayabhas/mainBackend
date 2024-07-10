@@ -9,11 +9,6 @@ export async function peeBypass(req: express.Request, res: express.Response, nex
         sendRes(res, false)
         return
     }
-    const last = user.email.split('@')[1]
-    if (last.localeCompare('student.chula.ac.th')) {
-        sendRes(res, false)
-        return
-    }
     await user.updateOne({
         studentId,
         group,
@@ -21,17 +16,11 @@ export async function peeBypass(req: express.Request, res: express.Response, nex
         role: 'pee',
         mode: 'pee'
     })
-    sendRes(res, true)
 }
 export async function petoBypass(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { studentId, group }: { studentId: string, group: Group } = req.body
     const user = await getUser(req)
     if (!user) {
-        sendRes(res, false)
-        return
-    }
-    const last = user.email.split('@')[1]
-    if (last.localeCompare('student.chula.ac.th')) {
         sendRes(res, false)
         return
     }
@@ -42,7 +31,6 @@ export async function petoBypass(req: express.Request, res: express.Response, ne
         role: 'peto',
         mode: 'pee'
     })
-    sendRes(res, true)
 }
 export async function nongBypass(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { studentId }: { studentId: string } = req.body
@@ -51,26 +39,15 @@ export async function nongBypass(req: express.Request, res: express.Response, ne
         sendRes(res, false)
         return
     }
-    const last = user.email.split('@')[1]
-    if (last.localeCompare('student.chula.ac.th')) {
-        sendRes(res, false)
-        return
-    }
     await user.updateOne({
         studentId,
         fridayActEn: true,
     })
-    sendRes(res, true)
 }
 export async function adminBypass(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { studentId, group }: { studentId: string, group: Group } = req.body
     const user = await getUser(req)
     if (!user) {
-        sendRes(res, false)
-        return
-    }
-    const last = user.email.split('@')[1]
-    if (last.localeCompare('student.chula.ac.th')) {
         sendRes(res, false)
         return
     }
@@ -81,5 +58,4 @@ export async function adminBypass(req: express.Request, res: express.Response, n
         role: 'admin',
         mode: 'pee'
     })
-    sendRes(res, true)
 }

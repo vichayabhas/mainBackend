@@ -8,7 +8,7 @@ import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import ShertManage from "../models/ShertManage";
 import User, { buf } from "../models/User";
-import { calculate, resOk, sendRes, sendingEmail, swop } from "./setup";
+import { calculate, resOk, sendRes, swop } from "./setup";
 import express, { json } from "express";
 import bcrypt from "bcrypt"
 import { HelthIsueBody, InterUser, Register, ShowMember, UpdateTimeOffset } from "../models/intreface";
@@ -81,7 +81,6 @@ const sendTokenResponse = (user: InterUser, statusCode: number, res: express.Res
 	res.status(statusCode).cookie("token", token, options).json({
 		success: true,
 		token,
-		user
 	});
 };
 export async function getMe(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -803,38 +802,4 @@ export async function updateTimeOffset(req: express.Request, res: express.Respon
 export async function getTimeOffset(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const buf = await TimeOffset.findById(req.params.id)
 	res.status(200).json(buf)
-}
-export async function signId(req: express.Request, res: express.Response, next: express.NextFunction) {
-	const user = await getUser(req)
-	if (!user || user.email.split('@')[1].localeCompare('student.chula.ac.th')) {
-		sendRes(res, false)
-		return
-	}
-	const salt = await bcrypt.genSalt(10)
-	const text = await bcrypt.hash(user._id.toString(), salt)
-	sendingEmail(user.email, jwt.sign({ password: text }, buf))
-	sendRes(res, true)
-}
-export async function verifyEmail(req: express.Request, res: express.Response, next: express.NextFunction) {
-	const user = await getUser(req)
-	if (!user) {
-		sendRes(res, false)
-		return
-	}
-	try {
-		const { password } = jwt.verify(req.body.password, buf) as any
-		const correct = await bcrypt.compare(user._id.toString(), password)
-		if (!correct) {
-			sendRes(res, false)
-			return
-		}
-		await user.updateOne({
-			fridayActEn: true,
-			studentId: user.email.split('@')[0]
-		})
-	} catch (error) {
-		console.error(error)
-		sendRes(res, false)
-	}
-
 }
