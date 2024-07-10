@@ -2,13 +2,13 @@ import express from 'express';
 import { config, configDotenv } from 'dotenv';
 import cors from 'cors';
 
-import user from './routes/user';
-import connectDB from '../config/db';
+import user from './src/routes/user';
+import connectDB from './config/db';
 import cookieParser from 'cookie-parser';
-import camp from './routes/camp';
-import admin from './routes/admin'
-import randomthing from './routes/randomthing'
-import subFrontend from './routes/subFrontend'
+import camp from './src/routes/camp';
+import admin from './src/routes/admin'
+import randomthing from './src/routes/randomthing'
+import subFrontend from './src/routes/subFrontend'
 
 config({ path: './config/config.env' });
 
