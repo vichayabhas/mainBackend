@@ -7,4 +7,3 @@
 *.sql
 node_modules/*
 config/config.env
-*.ts
