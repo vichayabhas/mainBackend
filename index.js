@@ -31,4 +31,5 @@ process.on('unhandledRejection', function (err, Promise) {
     console.log("Error: ".concat(err.message));
     server.close(function () { return process.exit(1); });
 });
+exports.default = app;
 //console.log('jjjjjjjjjjjjjjjjjjjbutfyiknjjjjj')
