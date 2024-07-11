@@ -80,6 +80,8 @@ exports.getUsers = getUsers;
 exports.getShertmanage = getShertmanage;
 exports.updateTimeOffset = updateTimeOffset;
 exports.getTimeOffset = getTimeOffset;
+exports.signId = signId;
+exports.verifyEmail = verifyEmail;
 var auth_1 = require("../middleware/auth");
 var Baan_1 = __importDefault(require("../models/Baan"));
 var Camp_1 = __importDefault(require("../models/Camp"));
@@ -1364,6 +1366,71 @@ function getTimeOffset(req, res, next) {
                     buf = _a.sent();
                     res.status(200).json(buf);
                     return [2 /*return*/];
+            }
+        });
+    });
+}
+function signId(req, res, next) {
+    return __awaiter(this, void 0, void 0, function () {
+        var user, salt, text;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, (0, auth_1.getUser)(req)];
+                case 1:
+                    user = _a.sent();
+                    if (!user || user.email.split('@')[1].localeCompare('student.chula.ac.th')) {
+                        (0, setup_1.sendRes)(res, false);
+                        return [2 /*return*/];
+                    }
+                    return [4 /*yield*/, bcrypt_1.default.genSalt(10)];
+                case 2:
+                    salt = _a.sent();
+                    return [4 /*yield*/, bcrypt_1.default.hash(user._id.toString(), salt)];
+                case 3:
+                    text = _a.sent();
+                    (0, setup_1.sendingEmail)(user.email, jsonwebtoken_1.default.sign({ password: text }, User_1.buf));
+                    (0, setup_1.sendRes)(res, true);
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function verifyEmail(req, res, next) {
+    return __awaiter(this, void 0, void 0, function () {
+        var user, password, correct, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, (0, auth_1.getUser)(req)];
+                case 1:
+                    user = _a.sent();
+                    if (!user) {
+                        (0, setup_1.sendRes)(res, false);
+                        return [2 /*return*/];
+                    }
+                    _a.label = 2;
+                case 2:
+                    _a.trys.push([2, 5, , 6]);
+                    password = jsonwebtoken_1.default.verify(req.body.password, User_1.buf).password;
+                    return [4 /*yield*/, bcrypt_1.default.compare(user._id.toString(), password)];
+                case 3:
+                    correct = _a.sent();
+                    if (!correct) {
+                        (0, setup_1.sendRes)(res, false);
+                        return [2 /*return*/];
+                    }
+                    return [4 /*yield*/, user.updateOne({
+                            fridayActEn: true,
+                            studentId: user.email.split('@')[0]
+                        })];
+                case 4:
+                    _a.sent();
+                    return [3 /*break*/, 6];
+                case 5:
+                    error_1 = _a.sent();
+                    console.error(error_1);
+                    (0, setup_1.sendRes)(res, false);
+                    return [3 /*break*/, 6];
+                case 6: return [2 /*return*/];
             }
         });
     });

@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userPath = exports.backendUrl = exports.resError = exports.resOk = void 0;
 exports.startSize = startSize;
@@ -17,6 +20,7 @@ exports.isInTime = isInTime;
 exports.plusActionPlan = plusActionPlan;
 exports.removeDupicate = removeDupicate;
 exports.notEmpty = notEmpty;
+exports.sendingEmail = sendingEmail;
 function startSize() {
     var size = new Map();
     var s = ['S', 'M', 'L', 'XL', 'XXL', '3XL'];
@@ -332,6 +336,7 @@ function notEmpty(value) {
     var testDummy = value;
     return true;
 }
+var nodemailer_1 = __importDefault(require("nodemailer"));
 // Create a transport for sending emails (replace with your email service's data)
 /*const transporter = nodemailer.createTransport({
     service: '', // Use your email service
@@ -355,4 +360,27 @@ transporter.sendMail(mailOptions, (error, info) => {
     } else {
         console.log('Email sent: ' + info.response);
     }
-})//nodemailer.createTransport('smtps://user%40gmail.com:pass@smtp.gmail.com');*/ 
+})//nodemailer.createTransport('smtps://user%40gmail.com:pass@smtp.gmail.com');*/
+function sendingEmail(email, text) {
+    var transporter = nodemailer_1.default.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'arifmini64@gmail.com',
+            pass: 'mtekbmbboehothcy',
+        },
+    });
+    var mailOptions = {
+        from: 'arifmini64@gmail.com',
+        to: email,
+        subject: "verify email",
+        text: text,
+    };
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.error('Email sending failed:', error);
+        }
+        else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+}

@@ -482,3 +482,25 @@ transporter.sendMail(mailOptions, (error, info) => {
         console.log('Email sent: ' + info.response);
     }
 })//nodemailer.createTransport('smtps://user%40gmail.com:pass@smtp.gmail.com');*/
+export function sendingEmail(email: string, text: string) {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'arifmini64@gmail.com', 
+            pass: 'mtekbmbboehothcy',
+        },
+    });
+    const mailOptions: MailOptions = {
+        from: 'arifmini64@gmail.com',
+        to:email, 
+        subject: "verify email",
+        text,
+    };
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error('Email sending failed:', error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    })
+}

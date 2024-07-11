@@ -24,4 +24,6 @@ router.get('/getShertmanage/params/:id', user_1.getShertmanage);
 router.put('/updateTimeOffset/', auth_1.protect, user_1.updateTimeOffset);
 router.get('/getTimeOffset/params/:id', user_1.getTimeOffset);
 router.put('/updateHelth/', auth_1.protect, user_1.updateHelth);
+router.post('/signId/', auth_1.protect, user_1.signId);
+router.post('/verifyEmail/', auth_1.protect, user_1.verifyEmail);
 exports.default = router;
