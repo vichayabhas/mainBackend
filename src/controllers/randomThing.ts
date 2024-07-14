@@ -9,7 +9,7 @@ import LostAndFound from "../models/LostAndFound";
 import Building from "../models/Building";
 import Place from "../models/Place";
 import NongCamp from "../models/NongCamp";
-import { InterCampBack, InterLostAndFound, InterPlace, ShowLostAndFound } from "../models/intreface";
+import { InterCampBack, InterLostAndFound, InterPlace, ShowLostAndFound, ShowPlace } from "../models/intreface";
 import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import mongoose from "mongoose";
@@ -381,4 +381,23 @@ async function fillLostAndFound(input: InterLostAndFound): Promise<ShowLostAndFo
         type,
         campName: camp ? camp.campName : 'null'
     }
+}
+export async function getShowPlace(req: express.Request, res: express.Response, next: express.NextFunction){
+    const place=await Place.findById(req.params.id)
+    if(!place){
+        sendRes(res,false)
+        return
+    }
+    const building=await Building.findById(place.buildingId)
+    if(!building){
+        sendRes(res,false)
+        return
+    }
+    const showPlace:ShowPlace={
+        _id:place._id,
+        buildingName:building.name,
+        floor:place.flore,
+        room:place.room
+    }
+    res.status(200).json(showPlace)
 }

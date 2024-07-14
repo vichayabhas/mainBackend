@@ -696,3 +696,9 @@ export interface ShowLostAndFound extends InterLostAndFound {
     tel:string,
     campName:string
 }
+export interface ShowPlace {
+    buildingName:string,
+    floor:string,
+    room:string,
+    _id:mongoose.Types.ObjectId
+}
