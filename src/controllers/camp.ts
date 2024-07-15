@@ -1301,7 +1301,7 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
                 likeSongs,
                 isWearing,
                 spicy,
-                id: camp.nongMapIdGtoL.get(_id.toString()) as number
+                //id: camp.nongMapIdGtoL.get(_id.toString()) as number
 
             })
         }
@@ -1365,7 +1365,7 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
                 likeSongs,
                 isWearing,
                 spicy,
-                id: camp.peeMapIdGtoL.get(_id.toString()) as number
+                //id: camp.peeMapIdGtoL.get(_id.toString()) as number
             })
         }
     }
@@ -1428,7 +1428,7 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
                 likeSongs,
                 isWearing,
                 spicy,
-                id: camp.peeMapIdGtoL.get(_id.toString()) as number
+                //id: camp.peeMapIdGtoL.get(_id.toString()) as number
             })
         }
     }
@@ -1488,7 +1488,7 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
                 likeSongs,
                 isWearing,
                 spicy,
-                id: camp.peeMapIdGtoL.get(_id.toString()) as number
+                //id: camp.peeMapIdGtoL.get(_id.toString()) as number
             })
         }
     }

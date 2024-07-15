@@ -1970,7 +1970,7 @@ function getNongsFromBaanId(req, res, next) {
                         likeSongs: likeSongs,
                         isWearing: isWearing,
                         spicy: spicy,
-                        id: camp.nongMapIdGtoL.get(_id.toString())
+                        //id: camp.nongMapIdGtoL.get(_id.toString()) as number
                     });
                     _a.label = 10;
                 case 10: return [3 /*break*/, 3];
@@ -2057,7 +2057,7 @@ function getPeesFromBaanId(req, res, next) {
                         likeSongs: likeSongs,
                         isWearing: isWearing,
                         spicy: spicy,
-                        id: camp.peeMapIdGtoL.get(_id.toString())
+                        //id: camp.peeMapIdGtoL.get(_id.toString()) as number
                     });
                     _a.label = 10;
                 case 10: return [3 /*break*/, 3];
@@ -2144,7 +2144,7 @@ function getPeesFromPartId(req, res, next) {
                         likeSongs: likeSongs,
                         isWearing: isWearing,
                         spicy: spicy,
-                        id: camp.peeMapIdGtoL.get(_id.toString())
+                        //id: camp.peeMapIdGtoL.get(_id.toString()) as number
                     });
                     _a.label = 10;
                 case 10: return [3 /*break*/, 3];
@@ -2231,7 +2231,7 @@ function getPetosFromPartId(req, res, next) {
                         likeSongs: likeSongs,
                         isWearing: isWearing,
                         spicy: spicy,
-                        id: camp.peeMapIdGtoL.get(_id.toString())
+                        //id: camp.peeMapIdGtoL.get(_id.toString()) as number
                     });
                     _a.label = 10;
                 case 10: return [3 /*break*/, 3];
