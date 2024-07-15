@@ -150,6 +150,12 @@ export interface InterCampBack {
     petoDataLock: boolean,
     haveCloth: boolean,
     actionPlanOffset: number,
+    nongMapIdLtoG: Map<number, mongoose.Types.ObjectId>,
+    peeMapIdLtoG: Map<number, mongoose.Types.ObjectId>,
+    nongMapIdGtoL: Map<mongoose.Types.ObjectId, number>,
+    peeMapIdGtoL: Map<mongoose.Types.ObjectId, number>,
+    currentNong: number,
+    currentPee: number,
 }
 export interface InterCampStyle {
 
@@ -442,6 +448,8 @@ export interface InterCampFront {
     petoDataLock: boolean,
     haveCloth: boolean,
     actionPlanOffset: number,
+    currentNong: number,
+    currentPee: number,
 }
 export interface InterPartFront {
 
@@ -545,7 +553,8 @@ export interface ShowMember {
     _id: mongoose.Types.ObjectId,
     sleep: boolean,
     isWearing: boolean,
-    spicy: boolean
+    spicy: boolean,
+    id:number
 }
 export interface UpdateBaan {
     name: string,
@@ -684,21 +693,21 @@ export interface AddLostAndFound {
     type: 'lost' | 'found',
     name: string,
     detail: string,
-    placeId: mongoose.Types.ObjectId|null,
+    placeId: mongoose.Types.ObjectId | null,
 }
 export interface ShowLostAndFound extends InterLostAndFound {
-    userName:string,
-    userLastName:string,
-    userNickname:string,
-    buildingName:string,
-    room:string,
-    floor:string,
-    tel:string,
-    campName:string
+    userName: string,
+    userLastName: string,
+    userNickname: string,
+    buildingName: string,
+    room: string,
+    floor: string,
+    tel: string,
+    campName: string
 }
 export interface ShowPlace {
-    buildingName:string,
-    floor:string,
-    room:string,
-    _id:mongoose.Types.ObjectId
+    buildingName: string,
+    floor: string,
+    room: string,
+    _id: mongoose.Types.ObjectId
 }

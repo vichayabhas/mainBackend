@@ -296,6 +296,30 @@ var campSchema = new mongoose_1.default.Schema({
     actionPlanOffset: {
         type: Number,
         default: 0
-    }
+    },
+    nongMapIdLtoG: {
+        type: Map,
+        default: new Map()
+    },
+    peeMapIdLtoG: {
+        type: Map,
+        default: new Map()
+    },
+    nongMapIdGtoL: {
+        type: Map,
+        default: new Map()
+    },
+    peeMapIdGtoL: {
+        type: Map,
+        default: new Map()
+    },
+    currentNong: {
+        type: Number,
+        default: 0
+    },
+    currentPee: {
+        type: Number,
+        default: 0
+    },
 });
 exports.default = mongoose_1.default.model('Camp', campSchema);

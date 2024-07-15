@@ -122,7 +122,7 @@ function conCampBackToFront(input) {
     nongPassIds = input.nongPassIds, ////////////////////i
     open = input.open, peePassIds = input.peePassIds, //<userId,partId>               ////////////////////////i
     songIds = input.songIds, nongHaveBottle = input.nongHaveBottle, peeHaveBottle = input.peeHaveBottle, petoHaveBottle = input.petoHaveBottle, nongHaveBottleMapIds = input.nongHaveBottleMapIds, peeHaveBottleMapIds = input.peeHaveBottleMapIds, petoHaveBottleMapIds = input.petoHaveBottleMapIds, nongSureIds = input.nongSureIds, baanIds = input.baanIds, nongShertManageIds = input.nongShertManageIds, peeShertManageIds = input.peeShertManageIds, petoShertManageIds = input.petoShertManageIds, link = input.link, allDone = input.allDone, lockChangePickup = input.lockChangePickup, pictureUrls = input.pictureUrls, campStyleId = input.campStyleId, actionPlanIds = input.actionPlanIds, workItemIds = input.workItemIds, nongPaidIds = input.nongPaidIds, nongInterviewIds = input.nongInterviewIds, ////////////////////////////////i
-    registerModel = input.registerModel, memberStructre = input.memberStructre, mapShertManageIdByUserId = input.mapShertManageIdByUserId, logoUrl = input.logoUrl, registerSheetLink = input.registerSheetLink, peeLock = input.peeLock, outRoundIds = input.outRoundIds, campName = input.campName, _id = input._id, peeSleepIds = input.peeSleepIds, peeSleepModel = input.peeSleepModel, nongSleepIds = input.nongSleepIds, nongSleepModel = input.nongSleepModel, baanBordId = input.baanBordId, partNameIds = input.partNameIds, partBoardId = input.partBoardId, partCoopId = input.partCoopId, partRegiterId = input.partRegiterId, partPeeBaanId = input.partPeeBaanId, peeDataLock = input.peeDataLock, petoDataLock = input.petoDataLock, groupName = input.groupName, actionPlanOffset = input.actionPlanOffset, haveCloth = input.haveCloth;
+    registerModel = input.registerModel, memberStructre = input.memberStructre, mapShertManageIdByUserId = input.mapShertManageIdByUserId, logoUrl = input.logoUrl, registerSheetLink = input.registerSheetLink, peeLock = input.peeLock, outRoundIds = input.outRoundIds, campName = input.campName, _id = input._id, peeSleepIds = input.peeSleepIds, peeSleepModel = input.peeSleepModel, nongSleepIds = input.nongSleepIds, nongSleepModel = input.nongSleepModel, baanBordId = input.baanBordId, partNameIds = input.partNameIds, partBoardId = input.partBoardId, partCoopId = input.partCoopId, partRegiterId = input.partRegiterId, partPeeBaanId = input.partPeeBaanId, peeDataLock = input.peeDataLock, petoDataLock = input.petoDataLock, groupName = input.groupName, actionPlanOffset = input.actionPlanOffset, haveCloth = input.haveCloth, currentNong = input.currentNong, currentPee = input.currentPee;
     return ({
         partIds: partIds,
         open: open,
@@ -192,7 +192,9 @@ function conCampBackToFront(input) {
         peeDataLock: peeDataLock,
         petoDataLock: petoDataLock,
         actionPlanOffset: actionPlanOffset,
-        haveCloth: haveCloth
+        haveCloth: haveCloth,
+        currentNong: currentNong,
+        currentPee: currentPee,
     });
 }
 function conPartBackToFront(input) {

@@ -22,34 +22,6 @@ import ChoiseAnswer from "../models/ChoiseAnswer";
 import ChoiseQuasion from "../models/ChoiseQuasion";
 import WorkItem from "../models/WorkItem";
 import { deleteWorkingItemRaw } from "./admin";
-// exports.getWorkingItem           protect pee up           params id                fix
-// exports.createWorkingItem        protect pee up
-// exports.updateWorkingItem        protect pee up           params id
-// exports.deleteWorkingItem        protect peto up          params id
-// exports.getWorkingItems          protect pee up                                    fix
-// exports.getBaan                  protect                  params id                fix
-// exports.getCamp                  protect                  params id                fix
-// exports.getNongCamp              protect                  params id                fix
-// exports.getPeeCamp               protect pee up           params id                fix
-// exports.getPetoCamp              protect pee up           params id
-// exports.getPart                  protect pee up           params id
-// exports.addNong                  protect peto up
-// exports.addPee                   protect peto up
-// exports.addPeto                  protect peto up
-// exports.staffRegister            protect pee up
-// exports.addNongPass              protect peto up
-// exports.getActionPlan            protect pee up           params id                fix
-// exports.createActionPlan         protect pee up
-// exports.updateActionPlan         protect pee up           params id
-// exports.deleteActionPlan         protect pee up           params id
-// exports.getActionPlans           protect pee up                                    fix
-// exports.nongRegister             protect nong
-// exports.renameVarible            protect pee up
-// export async function getWorkingItem
-// export async function createWorkingItem
-// export async function updateWorkingItem
-// export async function deleteWorkingItem
-// export async function getWorkingItems
 // export async function getBaan
 // export async function getCamp
 // export async function getBaans
@@ -60,10 +32,11 @@ import { deleteWorkingItemRaw } from "./admin";
 // export async function getPart
 // export async function addNong
 // export async function addPee
+// export async function addPeeRaw
 // export async function addPeto
+// export async function addPetoRaw
 // export async function staffRegister
-// export async function addNongPass       fix
-// export async function getActionPlan
+// export async function getActionPlanByPartId
 // export async function createActionPlan
 // export async function updateActionPlan
 // export async function deleteActionPlan
@@ -72,144 +45,27 @@ import { deleteWorkingItemRaw } from "./admin";
 // export async function getCampName
 // export async function getPartName
 // export async function changeBaan
+// export async function changeBaanRaw
 // export async function changePart
-/*export async function getWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const user = await getUser(req)
-    try {
-        if (req.params.id === 'init') {
-            return res.status(400).json({
-                success: false,
-                massage: 'this is start point'
-            })
-        }
-        if (req.params.id === 'end') {
-            return res.status(400).json({
-                success: false,
-                massage: 'this is end point'
-            })
-        }
-        const hospital = await WorkItem.findById(req.params.id);
-        if (!hospital) {
-            return res.status(400).json(resError);
-        }
-        res.status(200).json(linkHash(hospital as InterWorkingItem, user?.linkHash as string));
-    } catch (err) {
-        res.status(400).json(resError);
-    }
-}
-export async function createWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { campId, token, fromId, partId, name } = req.body
-    const user = await getUser(req)
-    const camp = await Camp.findById(campId)
-    if (!camp || !user) {
-        sendRes(res, false)
-        return
-    }
-    if (camp.allDone) {
-        return res.status(400).json({ success: false, message: 'This camp is all done' })
-    }
-    const hospital = await WorkItem.create({ campId, fromId, partId, name, link: jwt.sign({link:null}, token), createBy: user._id });
-    await camp?.updateOne({ workItemIds: swop(null, hospital._id, camp.workItemIds) })
-    const part = await Part.findById(hospital.partId)
-    await part?.updateOne({ workItemIds: swop(null, hospital._id, part.workItemIds) })
-    const from = await WorkItem.findById(hospital.fromId)
-    from?.linkOutIds.push(hospital._id)
-    await from?.updateOne({ linkOutIds: from.linkOutIds })
-    res.status(200).json(hospital);
-}
-export async function updateWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
-    try {
-        const { campId, token, linkOutIds, link, status, partId, name, id } = req.body
-        const user = await getUser(req)
-        const workItem = await WorkItem.findById(id)
-        if (!workItem || !user) {
-            return res.status(400).json(resError);
-        }
-        jwt.verify(workItem.link as string, token)
-        const camp = await Camp.findById(campId)
-        if (camp?.allDone) {
-            return res.status(400).json({ success: false, message: 'This camp is all done' })
-        }
-        await workItem.updateOne({ campId, link: jwt.sign(link, token), linkOutIds, status, partId, name });
-        res.status(200).json(workItem.toJSON());
-    } catch (err) {
-        res.status(400).json(resError);
-    }
-}
-export async function deleteWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
-    try {
-        const camp = await Camp.findById(req.body.campId)
-        if (camp?.allDone) {
-            return res.status(400).json({ success: false, message: 'This camp is all done' })
-        }
-        const hospital = await WorkItem.findById(req.params.id);
-        if (!hospital) {
-            sendRes(res, false)
-            return
-        }
-        const from = await WorkItem.findById(hospital?.fromId)
-        from?.updateOne({ linkOutIds: swop(hospital._id, null, from.linkOutIds) })
-        await deleteWorkingItemRaw(new mongoose.Types.ObjectId(req.params.id))
-        if (!hospital) {
-            res.status(400).json(resError);
-        }
-        res.status(200).json(resOk);
-    } catch {
-        res.status(400).json(resError);
-    }
-}
-async function deleteWorkingItemRaw(workItemId: mongoose.Types.ObjectId) {
-    const workItem = await WorkItem.findById(workItemId)
-    if (!workItem) {
-        return
-    }
-    const camp = await Camp.findById(workItem.campId)
-    const part = await Part.findById(workItem.partId)
-    if (!camp || !part) {
-        return
-    }
-    await part.updateOne({ workItemIds: swop(workItem._id, null, part.workItemIds) })
-    await camp.updateOne({ workItemIds: swop(workItem._id, null, camp.workItemIds) })
-    var i = 0
-    while (i < workItem.linkOutIds.length) {
-        if (workItem.linkOutIds[i++]) {
-            await deleteWorkingItemRaw(workItem.linkOutIds[i - 1])
-        }
-    }
-    await workItem.deleteOne()
-}
-export async function getWorkingItems(req: express.Request, res: express.Response, next: express.NextFunction) {
-    try {
-        var bufe: InterWorkingItem[] = [];
-        const user = await getUser(req)
-        if (!user) {
-            sendRes(res, false)
-            return
-        }
-        var i = 0
-        if (user.filterIds.length == 0) {
-            bufe = await WorkItem.find();
-        } else {
-            while (i < user.filterIds.length) {
-                const buf: InterWorkingItem[] = await WorkItem.find({ campId: user.filterIds[i++] })
-                var j = 0
-                while (j < buf.length) {
-                    bufe.push(buf[j++])
-                }
-            }
-        }
-        var out: InterWorkingItem[] = [];
-        i = 0
-        while (i < bufe.length) {
-            out.push(linkHash(bufe[i++], user.linkHash))
-        }
-        res.status(200).json(out);
-    } catch (err) {
-        res.status(400).json({
-            success: false
-        });
-    }
-}*/
+// export async function changePartRaw
+// export async function getNongsFromBaanId
+// export async function getPeesFromBaanId
+// export async function getPeesFromPartId
+// export async function getPetosFromPartId
+// export async function getLinkRegister
+// export async function getImpotentPartIdBCRP
+// export async function answerTheQuasion
+// export async function createAllQuasion
+// export async function updateQuasion
+// export async function getActionPlan
+// export async function getWorkingItemByPartId
+// export async function createWorkingItem
+// export async function updateWorkingItem
+// export async function deleteWorkingItem
+// export async function getWorkingItems
+// export async function getWorkingItem
+// export async function getShowRegisters
+// export async function getAllUserCamp
 export async function getBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const data = await Baan.findById(req.params.id);
@@ -376,6 +232,8 @@ export async function addNong(req: express.Request, res: express.Response, next:
             if (!user) {
                 continue
             }
+            camp.nongMapIdGtoL.set(user._id.toString(), camp.currentNong + 1)
+            camp.nongMapIdLtoG.set((camp.currentNong + 1).toString(), user._id)
             baan.nongIds.push(user._id)
             camp.nongIds.push(user._id)
             var sleepAtCamp: boolean
@@ -769,6 +627,9 @@ export async function staffRegister(req: express.Request, res: express.Response,
     if (impotantParts.includes(partId)) {
 
     }
+    camp.peeMapIdGtoL.set(user._id.toString(), camp.currentPee + 1)
+    camp.peeMapIdLtoG.set((camp.currentPee + 1).toString(), user._id)
+    await camp.updateOne({ peeMapIdGtoL: camp.peeMapIdGtoL, peeMapIdLtoG: camp.peeMapIdLtoG })
     if (user?.role === 'pee' || camp?.memberStructre != 'nong->highSchool,pee->1year,peto->2upYear') {
         camp?.peePassIds.set(user.id, partId)
         await camp?.updateOne({ peePassIds: camp.peePassIds })
@@ -1080,8 +941,14 @@ export async function nongRegister(req: express.Request, res: express.Response, 
         if (!camp?.open) {
             return res.status(400).json({ success: false, message: 'This camp is close' })
         }
+
         camp.nongPendingIds.set(nong?.id, link)
-        await camp.updateOne({ nongPendingIds: camp.nongPendingIds })
+        await camp.updateOne({
+            nongPendingIds: camp.nongPendingIds,
+            currentNong: camp.currentNong + 1,
+            nongMapIdGtoL: camp.nongMapIdGtoL,
+            nongMapIdLtoG: camp.nongMapIdLtoG,
+        })
         res.status(200).json({
             success: true
         })
@@ -1373,6 +1240,11 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
         sendRes(res, false)
         return
     }
+    const camp = await Camp.findById(baan.campId)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
     var i = 0
     while (i < baan.nongIds.length) {
         const user: InterUser | null = await User.findById(baan.nongIds[i++])
@@ -1428,7 +1300,9 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
                 haveBottle,
                 likeSongs,
                 isWearing,
-                spicy
+                spicy,
+                id: camp.nongMapIdGtoL.get(_id.toString()) as number
+
             })
         }
     }
@@ -1438,6 +1312,11 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
     const out: ShowMember[] = []
     const baan = await Baan.findById(req.params.id)
     if (!baan) {
+        sendRes(res, false)
+        return
+    }
+    const camp = await Camp.findById(baan.campId)
+    if (!camp) {
         sendRes(res, false)
         return
     }
@@ -1485,7 +1364,8 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
                 haveBottle,
                 likeSongs,
                 isWearing,
-                spicy
+                spicy,
+                id: camp.peeMapIdGtoL.get(_id.toString()) as number
             })
         }
     }
@@ -1495,6 +1375,11 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
     const out: ShowMember[] = []
     const part = await Part.findById(req.params.id)
     if (!part) {
+        sendRes(res, false)
+        return
+    }
+    const camp = await Camp.findById(part.campId)
+    if (!camp) {
         sendRes(res, false)
         return
     }
@@ -1542,7 +1427,8 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
                 haveBottle,
                 likeSongs,
                 isWearing,
-                spicy
+                spicy,
+                id: camp.peeMapIdGtoL.get(_id.toString()) as number
             })
         }
     }
@@ -1552,6 +1438,10 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
     const out: ShowMember[] = []
     const part = await Part.findById(req.params.id)
     if (!part) {
+        sendRes(res, false)
+        return
+    } const camp = await Camp.findById(part.campId)
+    if (!camp) {
         sendRes(res, false)
         return
     }
@@ -1597,7 +1487,8 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
                 haveBottle,
                 likeSongs,
                 isWearing,
-                spicy
+                spicy,
+                id: camp.peeMapIdGtoL.get(_id.toString()) as number
             })
         }
     }
@@ -1899,42 +1790,42 @@ export async function getShowRegisters(req: express.Request, res: express.Respon
 export async function getAllUserCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     const user = await getUser(req)
     var out: MyMap[] = []
-    if(!user){
-        sendRes(res,false)
+    if (!user) {
+        sendRes(res, false)
         return
     }
     var i = 0
     while (i < user.nongCampIds.length) {
         const nongCamp = await NongCamp.findById(user.nongCampIds[i++])
-        if(!nongCamp){
+        if (!nongCamp) {
             continue
         }
         const camp = await Camp.findById(nongCamp.campId)
-        if(!camp){
+        if (!camp) {
             continue
         }
         out.push({ key: camp._id, value: camp.campName })
     }
-    i=0
+    i = 0
     while (i < user.peeCampIds.length) {
         const peeCamp = await PeeCamp.findById(user.peeCampIds[i++])
-        if(!peeCamp){
+        if (!peeCamp) {
             continue
         }
         const camp = await Camp.findById(peeCamp.campId)
-        if(!camp){
+        if (!camp) {
             continue
         }
         out.push({ key: camp._id, value: camp.campName })
     }
-    i=0
+    i = 0
     while (i < user.petoCampIds.length) {
         const petoCamp = await PetoCamp.findById(user.petoCampIds[i++])
-        if(!petoCamp){
+        if (!petoCamp) {
             continue
         }
         const camp = await Camp.findById(petoCamp.campId)
-        if(!camp){
+        if (!camp) {
             continue
         }
         out.push({ key: camp._id, value: camp.campName })

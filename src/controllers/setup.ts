@@ -202,7 +202,9 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         petoDataLock,
         groupName,
         actionPlanOffset,
-        haveCloth
+        haveCloth,
+        currentNong,
+        currentPee,
 
     } = input
     return ({
@@ -274,7 +276,9 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         peeDataLock,
         petoDataLock,
         actionPlanOffset,
-        haveCloth
+        haveCloth,
+        currentNong,
+        currentPee,
 
     })
 }
@@ -486,13 +490,13 @@ export function sendingEmail(email: string, text: string) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'arifmini64@gmail.com', 
+            user: 'arifmini64@gmail.com',
             pass: 'mtekbmbboehothcy',
         },
     });
     const mailOptions: MailOptions = {
         from: 'arifmini64@gmail.com',
-        to:email, 
+        to: email,
         subject: "verify email",
         text,
     };

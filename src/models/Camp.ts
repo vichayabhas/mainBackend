@@ -4,19 +4,19 @@ import { startSize } from "../controllers/setup";
 const campSchema = new mongoose.Schema({
     nameId: {//nameContainer
         type: mongoose.Schema.ObjectId,
-        required:true,
+        required: true,
     },
     round: {
         type: Number,
-        required:true,
+        required: true,
     },
     dateStart: {
         type: Date,
-        required:true,
+        required: true,
     },
     dateEnd: {
         type: Date,
-        required:true,
+        required: true,
     },
     boardIds: {//user            
         type: [mongoose.Schema.ObjectId],
@@ -215,7 +215,7 @@ const campSchema = new mongoose.Schema({
     },
     campName: {
         type: String,
-        required:true,
+        required: true,
     },
     nongSleepIds: {
         type: [mongoose.Schema.ObjectId],
@@ -228,12 +228,12 @@ const campSchema = new mongoose.Schema({
     nongSleepModel: {
         type: String,
         enum: ['นอนทุกคน', 'เลือกได้ว่าจะค้างคืนหรือไม่', 'ไม่มีการค้างคืน'],
-        required:true,
+        required: true,
     },
     peeSleepModel: {
         type: String,
         enum: ['นอนทุกคน', 'เลือกได้ว่าจะค้างคืนหรือไม่', 'ไม่มีการค้างคืน'],
-        required:true,
+        required: true,
     },
     groupRefMap: {
         type: Map,
@@ -277,22 +277,46 @@ const campSchema = new mongoose.Schema({
         type: String,
         default: 'บ้าน'
     },
-    peeDataLock:{
-        type:Boolean,
-        default:false
+    peeDataLock: {
+        type: Boolean,
+        default: false
     },
-    petoDataLock:{
-        type:Boolean,
-        default:false
+    petoDataLock: {
+        type: Boolean,
+        default: false
     },
-    haveCloth:{
-        type:Boolean,
-        default:true
+    haveCloth: {
+        type: Boolean,
+        default: true
     },
-    actionPlanOffset:{
-        type:Number,
-        default:0
-    }
+    actionPlanOffset: {
+        type: Number,
+        default: 0
+    },
+    nongMapIdLtoG: {
+        type: Map,
+        default: new Map<number, mongoose.Types.ObjectId>()
+    },
+    peeMapIdLtoG: {
+        type: Map,
+        default: new Map<number, mongoose.Types.ObjectId>()
+    },
+    nongMapIdGtoL: {
+        type: Map,
+        default: new Map<mongoose.Types.ObjectId, number>()
+    },
+    peeMapIdGtoL: {
+        type: Map,
+        default: new Map<mongoose.Types.ObjectId, number>()
+    },
+    currentNong: {
+        type: Number,
+        default: 0
+    },
+    currentPee: {
+        type: Number,
+        default: 0
+    },
 })
 export default mongoose.model('Camp', campSchema)
 

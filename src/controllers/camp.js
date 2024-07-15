@@ -105,34 +105,6 @@ var ChoiseAnswer_1 = __importDefault(require("../models/ChoiseAnswer"));
 var ChoiseQuasion_1 = __importDefault(require("../models/ChoiseQuasion"));
 var WorkItem_1 = __importDefault(require("../models/WorkItem"));
 var admin_1 = require("./admin");
-// exports.getWorkingItem           protect pee up           params id                fix
-// exports.createWorkingItem        protect pee up
-// exports.updateWorkingItem        protect pee up           params id
-// exports.deleteWorkingItem        protect peto up          params id
-// exports.getWorkingItems          protect pee up                                    fix
-// exports.getBaan                  protect                  params id                fix
-// exports.getCamp                  protect                  params id                fix
-// exports.getNongCamp              protect                  params id                fix
-// exports.getPeeCamp               protect pee up           params id                fix
-// exports.getPetoCamp              protect pee up           params id
-// exports.getPart                  protect pee up           params id
-// exports.addNong                  protect peto up
-// exports.addPee                   protect peto up
-// exports.addPeto                  protect peto up
-// exports.staffRegister            protect pee up
-// exports.addNongPass              protect peto up
-// exports.getActionPlan            protect pee up           params id                fix
-// exports.createActionPlan         protect pee up
-// exports.updateActionPlan         protect pee up           params id
-// exports.deleteActionPlan         protect pee up           params id
-// exports.getActionPlans           protect pee up                                    fix
-// exports.nongRegister             protect nong
-// exports.renameVarible            protect pee up
-// export async function getWorkingItem
-// export async function createWorkingItem
-// export async function updateWorkingItem
-// export async function deleteWorkingItem
-// export async function getWorkingItems
 // export async function getBaan
 // export async function getCamp
 // export async function getBaans
@@ -143,10 +115,11 @@ var admin_1 = require("./admin");
 // export async function getPart
 // export async function addNong
 // export async function addPee
+// export async function addPeeRaw
 // export async function addPeto
+// export async function addPetoRaw
 // export async function staffRegister
-// export async function addNongPass       fix
-// export async function getActionPlan
+// export async function getActionPlanByPartId
 // export async function createActionPlan
 // export async function updateActionPlan
 // export async function deleteActionPlan
@@ -155,144 +128,27 @@ var admin_1 = require("./admin");
 // export async function getCampName
 // export async function getPartName
 // export async function changeBaan
+// export async function changeBaanRaw
 // export async function changePart
-/*export async function getWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const user = await getUser(req)
-    try {
-        if (req.params.id === 'init') {
-            return res.status(400).json({
-                success: false,
-                massage: 'this is start point'
-            })
-        }
-        if (req.params.id === 'end') {
-            return res.status(400).json({
-                success: false,
-                massage: 'this is end point'
-            })
-        }
-        const hospital = await WorkItem.findById(req.params.id);
-        if (!hospital) {
-            return res.status(400).json(resError);
-        }
-        res.status(200).json(linkHash(hospital as InterWorkingItem, user?.linkHash as string));
-    } catch (err) {
-        res.status(400).json(resError);
-    }
-}
-export async function createWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { campId, token, fromId, partId, name } = req.body
-    const user = await getUser(req)
-    const camp = await Camp.findById(campId)
-    if (!camp || !user) {
-        sendRes(res, false)
-        return
-    }
-    if (camp.allDone) {
-        return res.status(400).json({ success: false, message: 'This camp is all done' })
-    }
-    const hospital = await WorkItem.create({ campId, fromId, partId, name, link: jwt.sign({link:null}, token), createBy: user._id });
-    await camp?.updateOne({ workItemIds: swop(null, hospital._id, camp.workItemIds) })
-    const part = await Part.findById(hospital.partId)
-    await part?.updateOne({ workItemIds: swop(null, hospital._id, part.workItemIds) })
-    const from = await WorkItem.findById(hospital.fromId)
-    from?.linkOutIds.push(hospital._id)
-    await from?.updateOne({ linkOutIds: from.linkOutIds })
-    res.status(200).json(hospital);
-}
-export async function updateWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
-    try {
-        const { campId, token, linkOutIds, link, status, partId, name, id } = req.body
-        const user = await getUser(req)
-        const workItem = await WorkItem.findById(id)
-        if (!workItem || !user) {
-            return res.status(400).json(resError);
-        }
-        jwt.verify(workItem.link as string, token)
-        const camp = await Camp.findById(campId)
-        if (camp?.allDone) {
-            return res.status(400).json({ success: false, message: 'This camp is all done' })
-        }
-        await workItem.updateOne({ campId, link: jwt.sign(link, token), linkOutIds, status, partId, name });
-        res.status(200).json(workItem.toJSON());
-    } catch (err) {
-        res.status(400).json(resError);
-    }
-}
-export async function deleteWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
-    try {
-        const camp = await Camp.findById(req.body.campId)
-        if (camp?.allDone) {
-            return res.status(400).json({ success: false, message: 'This camp is all done' })
-        }
-        const hospital = await WorkItem.findById(req.params.id);
-        if (!hospital) {
-            sendRes(res, false)
-            return
-        }
-        const from = await WorkItem.findById(hospital?.fromId)
-        from?.updateOne({ linkOutIds: swop(hospital._id, null, from.linkOutIds) })
-        await deleteWorkingItemRaw(new mongoose.Types.ObjectId(req.params.id))
-        if (!hospital) {
-            res.status(400).json(resError);
-        }
-        res.status(200).json(resOk);
-    } catch {
-        res.status(400).json(resError);
-    }
-}
-async function deleteWorkingItemRaw(workItemId: mongoose.Types.ObjectId) {
-    const workItem = await WorkItem.findById(workItemId)
-    if (!workItem) {
-        return
-    }
-    const camp = await Camp.findById(workItem.campId)
-    const part = await Part.findById(workItem.partId)
-    if (!camp || !part) {
-        return
-    }
-    await part.updateOne({ workItemIds: swop(workItem._id, null, part.workItemIds) })
-    await camp.updateOne({ workItemIds: swop(workItem._id, null, camp.workItemIds) })
-    var i = 0
-    while (i < workItem.linkOutIds.length) {
-        if (workItem.linkOutIds[i++]) {
-            await deleteWorkingItemRaw(workItem.linkOutIds[i - 1])
-        }
-    }
-    await workItem.deleteOne()
-}
-export async function getWorkingItems(req: express.Request, res: express.Response, next: express.NextFunction) {
-    try {
-        var bufe: InterWorkingItem[] = [];
-        const user = await getUser(req)
-        if (!user) {
-            sendRes(res, false)
-            return
-        }
-        var i = 0
-        if (user.filterIds.length == 0) {
-            bufe = await WorkItem.find();
-        } else {
-            while (i < user.filterIds.length) {
-                const buf: InterWorkingItem[] = await WorkItem.find({ campId: user.filterIds[i++] })
-                var j = 0
-                while (j < buf.length) {
-                    bufe.push(buf[j++])
-                }
-            }
-        }
-        var out: InterWorkingItem[] = [];
-        i = 0
-        while (i < bufe.length) {
-            out.push(linkHash(bufe[i++], user.linkHash))
-        }
-        res.status(200).json(out);
-    } catch (err) {
-        res.status(400).json({
-            success: false
-        });
-    }
-}*/
+// export async function changePartRaw
+// export async function getNongsFromBaanId
+// export async function getPeesFromBaanId
+// export async function getPeesFromPartId
+// export async function getPetosFromPartId
+// export async function getLinkRegister
+// export async function getImpotentPartIdBCRP
+// export async function answerTheQuasion
+// export async function createAllQuasion
+// export async function updateQuasion
+// export async function getActionPlan
+// export async function getWorkingItemByPartId
+// export async function createWorkingItem
+// export async function updateWorkingItem
+// export async function deleteWorkingItem
+// export async function getWorkingItems
+// export async function getWorkingItem
+// export async function getShowRegisters
+// export async function getAllUserCamp
 function getBaan(req, res, next) {
     return __awaiter(this, void 0, void 0, function () {
         var data, err_1;
@@ -576,6 +432,8 @@ function addNong(req, res, next) {
                     if (!user) {
                         return [3 /*break*/, 4];
                     }
+                    camp_1.nongMapIdGtoL.set(user._id.toString(), camp_1.currentNong + 1);
+                    camp_1.nongMapIdLtoG.set((camp_1.currentNong + 1).toString(), user._id);
                     baan_1.nongIds.push(user._id);
                     camp_1.nongIds.push(user._id);
                     switch (camp_1.toObject().nongSleepModel) {
@@ -1090,20 +948,25 @@ function staffRegister(req, res, next) {
                     impotantParts = _a.sent();
                     if (impotantParts.includes(partId)) {
                     }
-                    if (!((user === null || user === void 0 ? void 0 : user.role) === 'pee' || (camp === null || camp === void 0 ? void 0 : camp.memberStructre) != 'nong->highSchool,pee->1year,peto->2upYear')) return [3 /*break*/, 6];
+                    camp.peeMapIdGtoL.set(user._id.toString(), camp.currentPee + 1);
+                    camp.peeMapIdLtoG.set((camp.currentPee + 1).toString(), user._id);
+                    return [4 /*yield*/, camp.updateOne({ peeMapIdGtoL: camp.peeMapIdGtoL, peeMapIdLtoG: camp.peeMapIdLtoG })];
+                case 5:
+                    _a.sent();
+                    if (!((user === null || user === void 0 ? void 0 : user.role) === 'pee' || (camp === null || camp === void 0 ? void 0 : camp.memberStructre) != 'nong->highSchool,pee->1year,peto->2upYear')) return [3 /*break*/, 7];
                     camp === null || camp === void 0 ? void 0 : camp.peePassIds.set(user.id, partId);
                     return [4 /*yield*/, (camp === null || camp === void 0 ? void 0 : camp.updateOne({ peePassIds: camp.peePassIds }))];
-                case 5:
+                case 6:
                     _a.sent();
                     res.status(200).json({
                         success: true
                     });
-                    return [3 /*break*/, 8];
-                case 6: return [4 /*yield*/, addPetoRaw([user._id], part._id, res)];
-                case 7:
+                    return [3 /*break*/, 9];
+                case 7: return [4 /*yield*/, addPetoRaw([user._id], part._id, res)];
+                case 8:
                     _a.sent();
-                    _a.label = 8;
-                case 8: return [2 /*return*/];
+                    _a.label = 9;
+                case 9: return [2 /*return*/];
             }
         });
     });
@@ -1557,7 +1420,12 @@ function nongRegister(req, res, next) {
                         return [2 /*return*/, res.status(400).json({ success: false, message: 'This camp is close' })];
                     }
                     camp.nongPendingIds.set(nong === null || nong === void 0 ? void 0 : nong.id, link);
-                    return [4 /*yield*/, camp.updateOne({ nongPendingIds: camp.nongPendingIds })];
+                    return [4 /*yield*/, camp.updateOne({
+                            nongPendingIds: camp.nongPendingIds,
+                            currentNong: camp.currentNong + 1,
+                            nongMapIdGtoL: camp.nongMapIdGtoL,
+                            nongMapIdLtoG: camp.nongMapIdLtoG,
+                        })];
                 case 3:
                     _b.sent();
                     res.status(200).json({
@@ -2028,7 +1896,7 @@ function changePartRaw(userIds, partId) {
 }
 function getNongsFromBaanId(req, res, next) {
     return __awaiter(this, void 0, void 0, function () {
-        var out, baan, i, user, shertManage, j, likeSongs, name_1, lastname, nickname, _id, email, tel, group, gender, studentId, helthIsueId, haveBottle, likeSongIds, song, isWearing, spicy, helthIsue;
+        var out, baan, camp, i, user, shertManage, j, likeSongs, name_1, lastname, nickname, _id, email, tel, group, gender, studentId, helthIsueId, haveBottle, likeSongIds, song, isWearing, spicy, helthIsue;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -2040,39 +1908,46 @@ function getNongsFromBaanId(req, res, next) {
                         (0, setup_1.sendRes)(res, false);
                         return [2 /*return*/];
                     }
-                    i = 0;
-                    _a.label = 2;
+                    return [4 /*yield*/, Camp_1.default.findById(baan.campId)];
                 case 2:
-                    if (!(i < baan.nongIds.length)) return [3 /*break*/, 10];
-                    return [4 /*yield*/, User_1.default.findById(baan.nongIds[i++])];
+                    camp = _a.sent();
+                    if (!camp) {
+                        (0, setup_1.sendRes)(res, false);
+                        return [2 /*return*/];
+                    }
+                    i = 0;
+                    _a.label = 3;
                 case 3:
-                    user = _a.sent();
-                    if (!user) return [3 /*break*/, 9];
-                    return [4 /*yield*/, ShertManage_1.default.findById(baan.mapShertManageIdByUserId.get(user._id.toString()))];
+                    if (!(i < baan.nongIds.length)) return [3 /*break*/, 11];
+                    return [4 /*yield*/, User_1.default.findById(baan.nongIds[i++])];
                 case 4:
+                    user = _a.sent();
+                    if (!user) return [3 /*break*/, 10];
+                    return [4 /*yield*/, ShertManage_1.default.findById(baan.mapShertManageIdByUserId.get(user._id.toString()))];
+                case 5:
                     shertManage = _a.sent();
                     if (!shertManage) {
-                        return [3 /*break*/, 2];
+                        return [3 /*break*/, 3];
                     }
                     j = 0;
                     likeSongs = [];
                     name_1 = user.name, lastname = user.lastname, nickname = user.nickname, _id = user._id, email = user.email, tel = user.tel, group = user.group, gender = user.gender, studentId = user.studentId, helthIsueId = user.helthIsueId, haveBottle = user.haveBottle, likeSongIds = user.likeSongIds;
-                    _a.label = 5;
-                case 5:
-                    if (!(j < likeSongIds.length)) return [3 /*break*/, 7];
-                    return [4 /*yield*/, Song_1.default.findById(likeSongs[j++])];
+                    _a.label = 6;
                 case 6:
+                    if (!(j < likeSongIds.length)) return [3 /*break*/, 8];
+                    return [4 /*yield*/, Song_1.default.findById(likeSongs[j++])];
+                case 7:
                     song = _a.sent();
                     if (!song) {
-                        return [3 /*break*/, 5];
+                        return [3 /*break*/, 6];
                     }
                     likeSongs.push(song.name);
-                    return [3 /*break*/, 5];
-                case 7:
+                    return [3 /*break*/, 6];
+                case 8:
                     isWearing = false;
                     spicy = false;
                     return [4 /*yield*/, HelthIsue_1.default.findById(helthIsueId)];
-                case 8:
+                case 9:
                     helthIsue = _a.sent();
                     if (helthIsue) {
                         isWearing = helthIsue.isWearing;
@@ -2094,11 +1969,12 @@ function getNongsFromBaanId(req, res, next) {
                         haveBottle: haveBottle,
                         likeSongs: likeSongs,
                         isWearing: isWearing,
-                        spicy: spicy
+                        spicy: spicy,
+                        id: camp.nongMapIdGtoL.get(_id.toString())
                     });
-                    _a.label = 9;
-                case 9: return [3 /*break*/, 2];
-                case 10:
+                    _a.label = 10;
+                case 10: return [3 /*break*/, 3];
+                case 11:
                     res.status(200).json(out);
                     return [2 /*return*/];
             }
@@ -2107,7 +1983,7 @@ function getNongsFromBaanId(req, res, next) {
 }
 function getPeesFromBaanId(req, res, next) {
     return __awaiter(this, void 0, void 0, function () {
-        var out, baan, i, user, shertManage, j, likeSongs, name_2, lastname, nickname, _id, email, tel, group, gender, studentId, helthIsueId, haveBottle, likeSongIds, song, isWearing, spicy, helthIsue;
+        var out, baan, camp, i, user, shertManage, j, likeSongs, name_2, lastname, nickname, _id, email, tel, group, gender, studentId, helthIsueId, haveBottle, likeSongIds, song, isWearing, spicy, helthIsue;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -2119,39 +1995,46 @@ function getPeesFromBaanId(req, res, next) {
                         (0, setup_1.sendRes)(res, false);
                         return [2 /*return*/];
                     }
-                    i = 0;
-                    _a.label = 2;
+                    return [4 /*yield*/, Camp_1.default.findById(baan.campId)];
                 case 2:
-                    if (!(i < baan.peeIds.length)) return [3 /*break*/, 10];
-                    return [4 /*yield*/, User_1.default.findById(baan.peeIds[i++])];
+                    camp = _a.sent();
+                    if (!camp) {
+                        (0, setup_1.sendRes)(res, false);
+                        return [2 /*return*/];
+                    }
+                    i = 0;
+                    _a.label = 3;
                 case 3:
-                    user = _a.sent();
-                    if (!user) return [3 /*break*/, 9];
-                    return [4 /*yield*/, ShertManage_1.default.findById(baan.mapShertManageIdByUserId.get(user._id.toString()))];
+                    if (!(i < baan.peeIds.length)) return [3 /*break*/, 11];
+                    return [4 /*yield*/, User_1.default.findById(baan.peeIds[i++])];
                 case 4:
+                    user = _a.sent();
+                    if (!user) return [3 /*break*/, 10];
+                    return [4 /*yield*/, ShertManage_1.default.findById(baan.mapShertManageIdByUserId.get(user._id.toString()))];
+                case 5:
                     shertManage = _a.sent();
                     if (!shertManage) {
-                        return [3 /*break*/, 2];
+                        return [3 /*break*/, 3];
                     }
                     j = 0;
                     likeSongs = [];
                     name_2 = user.name, lastname = user.lastname, nickname = user.nickname, _id = user._id, email = user.email, tel = user.tel, group = user.group, gender = user.gender, studentId = user.studentId, helthIsueId = user.helthIsueId, haveBottle = user.haveBottle, likeSongIds = user.likeSongIds;
-                    _a.label = 5;
-                case 5:
-                    if (!(j < likeSongIds.length)) return [3 /*break*/, 7];
-                    return [4 /*yield*/, Song_1.default.findById(likeSongs[j++])];
+                    _a.label = 6;
                 case 6:
+                    if (!(j < likeSongIds.length)) return [3 /*break*/, 8];
+                    return [4 /*yield*/, Song_1.default.findById(likeSongs[j++])];
+                case 7:
                     song = _a.sent();
                     if (!song) {
-                        return [3 /*break*/, 5];
+                        return [3 /*break*/, 6];
                     }
                     likeSongs.push(song.name);
-                    return [3 /*break*/, 5];
-                case 7:
+                    return [3 /*break*/, 6];
+                case 8:
                     isWearing = false;
                     spicy = false;
                     return [4 /*yield*/, HelthIsue_1.default.findById(helthIsueId)];
-                case 8:
+                case 9:
                     helthIsue = _a.sent();
                     if (helthIsue) {
                         isWearing = helthIsue.isWearing;
@@ -2173,11 +2056,12 @@ function getPeesFromBaanId(req, res, next) {
                         haveBottle: haveBottle,
                         likeSongs: likeSongs,
                         isWearing: isWearing,
-                        spicy: spicy
+                        spicy: spicy,
+                        id: camp.peeMapIdGtoL.get(_id.toString())
                     });
-                    _a.label = 9;
-                case 9: return [3 /*break*/, 2];
-                case 10:
+                    _a.label = 10;
+                case 10: return [3 /*break*/, 3];
+                case 11:
                     res.status(200).json(out);
                     return [2 /*return*/];
             }
@@ -2186,7 +2070,7 @@ function getPeesFromBaanId(req, res, next) {
 }
 function getPeesFromPartId(req, res, next) {
     return __awaiter(this, void 0, void 0, function () {
-        var out, part, i, user, shertManage, j, likeSongs, name_3, lastname, nickname, _id, email, tel, group, gender, studentId, helthIsueId, haveBottle, likeSongIds, song, isWearing, spicy, helthIsue;
+        var out, part, camp, i, user, shertManage, j, likeSongs, name_3, lastname, nickname, _id, email, tel, group, gender, studentId, helthIsueId, haveBottle, likeSongIds, song, isWearing, spicy, helthIsue;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -2198,39 +2082,46 @@ function getPeesFromPartId(req, res, next) {
                         (0, setup_1.sendRes)(res, false);
                         return [2 /*return*/];
                     }
-                    i = 0;
-                    _a.label = 2;
+                    return [4 /*yield*/, Camp_1.default.findById(part.campId)];
                 case 2:
-                    if (!(i < part.peeIds.length)) return [3 /*break*/, 10];
-                    return [4 /*yield*/, User_1.default.findById(part.peeIds[i++])];
+                    camp = _a.sent();
+                    if (!camp) {
+                        (0, setup_1.sendRes)(res, false);
+                        return [2 /*return*/];
+                    }
+                    i = 0;
+                    _a.label = 3;
                 case 3:
-                    user = _a.sent();
-                    if (!user) return [3 /*break*/, 9];
-                    return [4 /*yield*/, ShertManage_1.default.findById(part.mapShertManageIdByUserId.get(user._id.toString()))];
+                    if (!(i < part.peeIds.length)) return [3 /*break*/, 11];
+                    return [4 /*yield*/, User_1.default.findById(part.peeIds[i++])];
                 case 4:
+                    user = _a.sent();
+                    if (!user) return [3 /*break*/, 10];
+                    return [4 /*yield*/, ShertManage_1.default.findById(part.mapShertManageIdByUserId.get(user._id.toString()))];
+                case 5:
                     shertManage = _a.sent();
                     if (!shertManage) {
-                        return [3 /*break*/, 2];
+                        return [3 /*break*/, 3];
                     }
                     j = 0;
                     likeSongs = [];
                     name_3 = user.name, lastname = user.lastname, nickname = user.nickname, _id = user._id, email = user.email, tel = user.tel, group = user.group, gender = user.gender, studentId = user.studentId, helthIsueId = user.helthIsueId, haveBottle = user.haveBottle, likeSongIds = user.likeSongIds;
-                    _a.label = 5;
-                case 5:
-                    if (!(j < likeSongIds.length)) return [3 /*break*/, 7];
-                    return [4 /*yield*/, Song_1.default.findById(likeSongs[j++])];
+                    _a.label = 6;
                 case 6:
+                    if (!(j < likeSongIds.length)) return [3 /*break*/, 8];
+                    return [4 /*yield*/, Song_1.default.findById(likeSongs[j++])];
+                case 7:
                     song = _a.sent();
                     if (!song) {
-                        return [3 /*break*/, 5];
+                        return [3 /*break*/, 6];
                     }
                     likeSongs.push(song.name);
-                    return [3 /*break*/, 5];
-                case 7:
+                    return [3 /*break*/, 6];
+                case 8:
                     isWearing = false;
                     spicy = false;
                     return [4 /*yield*/, HelthIsue_1.default.findById(helthIsueId)];
-                case 8:
+                case 9:
                     helthIsue = _a.sent();
                     if (helthIsue) {
                         isWearing = helthIsue.isWearing;
@@ -2252,11 +2143,12 @@ function getPeesFromPartId(req, res, next) {
                         haveBottle: haveBottle,
                         likeSongs: likeSongs,
                         isWearing: isWearing,
-                        spicy: spicy
+                        spicy: spicy,
+                        id: camp.peeMapIdGtoL.get(_id.toString())
                     });
-                    _a.label = 9;
-                case 9: return [3 /*break*/, 2];
-                case 10:
+                    _a.label = 10;
+                case 10: return [3 /*break*/, 3];
+                case 11:
                     res.status(200).json(out);
                     return [2 /*return*/];
             }
@@ -2265,7 +2157,7 @@ function getPeesFromPartId(req, res, next) {
 }
 function getPetosFromPartId(req, res, next) {
     return __awaiter(this, void 0, void 0, function () {
-        var out, part, i, user, shertManage, j, likeSongs, name_4, lastname, nickname, _id, email, tel, group, gender, studentId, helthIsueId, haveBottle, likeSongIds, song, isWearing, spicy, helthIsue;
+        var out, part, camp, i, user, shertManage, j, likeSongs, name_4, lastname, nickname, _id, email, tel, group, gender, studentId, helthIsueId, haveBottle, likeSongIds, song, isWearing, spicy, helthIsue;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -2277,39 +2169,46 @@ function getPetosFromPartId(req, res, next) {
                         (0, setup_1.sendRes)(res, false);
                         return [2 /*return*/];
                     }
-                    i = 0;
-                    _a.label = 2;
+                    return [4 /*yield*/, Camp_1.default.findById(part.campId)];
                 case 2:
-                    if (!(i < part.petoIds.length)) return [3 /*break*/, 10];
-                    return [4 /*yield*/, User_1.default.findById(part.petoIds[i++])];
+                    camp = _a.sent();
+                    if (!camp) {
+                        (0, setup_1.sendRes)(res, false);
+                        return [2 /*return*/];
+                    }
+                    i = 0;
+                    _a.label = 3;
                 case 3:
-                    user = _a.sent();
-                    if (!user) return [3 /*break*/, 9];
-                    return [4 /*yield*/, ShertManage_1.default.findById(part.mapShertManageIdByUserId.get(user._id.toString()))];
+                    if (!(i < part.petoIds.length)) return [3 /*break*/, 11];
+                    return [4 /*yield*/, User_1.default.findById(part.petoIds[i++])];
                 case 4:
+                    user = _a.sent();
+                    if (!user) return [3 /*break*/, 10];
+                    return [4 /*yield*/, ShertManage_1.default.findById(part.mapShertManageIdByUserId.get(user._id.toString()))];
+                case 5:
                     shertManage = _a.sent();
                     if (!shertManage) {
-                        return [3 /*break*/, 2];
+                        return [3 /*break*/, 3];
                     }
                     j = 0;
                     likeSongs = [];
                     name_4 = user.name, lastname = user.lastname, nickname = user.nickname, _id = user._id, email = user.email, tel = user.tel, group = user.group, gender = user.gender, studentId = user.studentId, helthIsueId = user.helthIsueId, haveBottle = user.haveBottle, likeSongIds = user.likeSongIds;
-                    _a.label = 5;
-                case 5:
-                    if (!(j < likeSongIds.length)) return [3 /*break*/, 7];
-                    return [4 /*yield*/, Song_1.default.findById(likeSongs[j++])];
+                    _a.label = 6;
                 case 6:
+                    if (!(j < likeSongIds.length)) return [3 /*break*/, 8];
+                    return [4 /*yield*/, Song_1.default.findById(likeSongs[j++])];
+                case 7:
                     song = _a.sent();
                     if (!song) {
-                        return [3 /*break*/, 5];
+                        return [3 /*break*/, 6];
                     }
                     likeSongs.push(song.name);
-                    return [3 /*break*/, 5];
-                case 7:
+                    return [3 /*break*/, 6];
+                case 8:
                     isWearing = false;
                     spicy = false;
                     return [4 /*yield*/, HelthIsue_1.default.findById(helthIsueId)];
-                case 8:
+                case 9:
                     helthIsue = _a.sent();
                     if (helthIsue) {
                         isWearing = helthIsue.isWearing;
@@ -2331,11 +2230,12 @@ function getPetosFromPartId(req, res, next) {
                         haveBottle: haveBottle,
                         likeSongs: likeSongs,
                         isWearing: isWearing,
-                        spicy: spicy
+                        spicy: spicy,
+                        id: camp.peeMapIdGtoL.get(_id.toString())
                     });
-                    _a.label = 9;
-                case 9: return [3 /*break*/, 2];
-                case 10:
+                    _a.label = 10;
+                case 10: return [3 /*break*/, 3];
+                case 11:
                     res.status(200).json(out);
                     return [2 /*return*/];
             }
