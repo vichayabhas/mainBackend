@@ -1240,11 +1240,11 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
         sendRes(res, false)
         return
     }
-    const camp = await Camp.findById(baan.campId)
-    if (!camp) {
-        sendRes(res, false)
-        return
-    }
+    // const camp = await Camp.findById(baan.campId)
+    // if (!camp) {
+    //     sendRes(res, false)
+    //     return
+    // }
     var i = 0
     while (i < baan.nongIds.length) {
         const user: InterUser | null = await User.findById(baan.nongIds[i++])
@@ -1315,11 +1315,11 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
         sendRes(res, false)
         return
     }
-    const camp = await Camp.findById(baan.campId)
-    if (!camp) {
-        sendRes(res, false)
-        return
-    }
+    // const camp = await Camp.findById(baan.campId)
+    // if (!camp) {
+    //     sendRes(res, false)
+    //     return
+    // }
     var i = 0
     while (i < baan.peeIds.length) {
         const user: InterUser | null = await User.findById(baan.peeIds[i++])
@@ -1378,11 +1378,11 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
         sendRes(res, false)
         return
     }
-    const camp = await Camp.findById(part.campId)
-    if (!camp) {
-        sendRes(res, false)
-        return
-    }
+    // const camp = await Camp.findById(part.campId)
+    // if (!camp) {
+    //     sendRes(res, false)
+    //     return
+    // }
     var i = 0
     while (i < part.peeIds.length) {
         const user: InterUser | null = await User.findById(part.peeIds[i++])
@@ -1440,11 +1440,12 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
     if (!part) {
         sendRes(res, false)
         return
-    } const camp = await Camp.findById(part.campId)
-    if (!camp) {
-        sendRes(res, false)
-        return
-    }
+    } 
+    // const camp = await Camp.findById(part.campId)
+    // if (!camp) {
+    //     sendRes(res, false)
+    //     return
+    // }
     var i = 0
     while (i < part.petoIds.length) {
         const user: InterUser | null = await User.findById(part.petoIds[i++])
