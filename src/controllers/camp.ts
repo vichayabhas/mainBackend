@@ -364,6 +364,9 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
             if (!peeCamp) {
                 continue
             }
+            camp.peeMapIdGtoL.set(user._id.toString(), camp.currentPee + 1)
+            camp.peeMapIdLtoG.set((camp.currentPee + 1).toString(), user._id)
+            camp.currentPee = camp.currentPee + 1
             var sleepAtCamp: boolean
             switch (camp.toObject().peeSleepModel) {
                 case 'นอนทุกคน': {
@@ -457,7 +460,10 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
             peeHaveBottleMapIds: camp.peeHaveBottleMapIds,
             peeHelthIsueIds: camp.peeHelthIsueIds,
             peePassIds: camp.peePassIds,
-            mapShertManageIdByUserId: camp.mapShertManageIdByUserId
+            mapShertManageIdByUserId: camp.mapShertManageIdByUserId,
+            currentPee: camp.currentPee,
+            peeMapIdGtoL: camp.peeMapIdGtoL,
+            peeMapIdLtoG: camp.peeMapIdLtoG,
         })
         await baan.updateOne({
             peeHaveBottle: b,
@@ -510,6 +516,9 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
         if (!user) {
             continue
         }
+        camp.peeMapIdGtoL.set(user._id.toString(), camp.currentPee + 1)
+        camp.peeMapIdLtoG.set((camp.currentPee + 1).toString(), user._id)
+        camp.currentPee = camp.currentPee + 1
         part.petoIds.push(user._id)
         camp.petoIds.push(user._id)
         var sleepAtCamp: boolean
@@ -596,7 +605,10 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
         petoIds: camp.petoIds,
         petoShertManageIds: camp.petoShertManageIds,
         petoShertSize: camp.petoShertSize,
-        mapShertManageIdByUserId: camp.mapShertManageIdByUserId
+        mapShertManageIdByUserId: camp.mapShertManageIdByUserId,
+        peeMapIdGtoL: camp.peeMapIdGtoL,
+        peeMapIdLtoG: camp.peeMapIdLtoG,
+        currentPee: camp.currentPee,
     })
     await part.updateOne({
         petoHaveBottle: p,
@@ -627,9 +639,7 @@ export async function staffRegister(req: express.Request, res: express.Response,
     if (impotantParts.includes(partId)) {
 
     }
-    camp.peeMapIdGtoL.set(user._id.toString(), camp.currentPee + 1)
-    camp.peeMapIdLtoG.set((camp.currentPee + 1).toString(), user._id)
-    await camp.updateOne({ peeMapIdGtoL: camp.peeMapIdGtoL, peeMapIdLtoG: camp.peeMapIdLtoG })
+
     if (user?.role === 'pee' || camp?.memberStructre != 'nong->highSchool,pee->1year,peto->2upYear') {
         camp?.peePassIds.set(user.id, partId)
         await camp?.updateOne({ peePassIds: camp.peePassIds })
@@ -1240,11 +1250,11 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
         sendRes(res, false)
         return
     }
-    // const camp = await Camp.findById(baan.campId)
-    // if (!camp) {
-    //     sendRes(res, false)
-    //     return
-    // }
+    const camp = await Camp.findById(baan.campId)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
     var i = 0
     while (i < baan.nongIds.length) {
         const user: InterUser | null = await User.findById(baan.nongIds[i++])
@@ -1301,7 +1311,7 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
                 likeSongs,
                 isWearing,
                 spicy,
-                //id: camp.nongMapIdGtoL.get(_id.toString()) as number
+                id: camp.nongMapIdGtoL.get(_id.toString()) as number
 
             })
         }
@@ -1315,11 +1325,11 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
         sendRes(res, false)
         return
     }
-    // const camp = await Camp.findById(baan.campId)
-    // if (!camp) {
-    //     sendRes(res, false)
-    //     return
-    // }
+    const camp = await Camp.findById(baan.campId)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
     var i = 0
     while (i < baan.peeIds.length) {
         const user: InterUser | null = await User.findById(baan.peeIds[i++])
@@ -1365,7 +1375,7 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
                 likeSongs,
                 isWearing,
                 spicy,
-                //id: camp.peeMapIdGtoL.get(_id.toString()) as number
+                id: camp.peeMapIdGtoL.get(_id.toString()) as number
             })
         }
     }
@@ -1378,11 +1388,11 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
         sendRes(res, false)
         return
     }
-    // const camp = await Camp.findById(part.campId)
-    // if (!camp) {
-    //     sendRes(res, false)
-    //     return
-    // }
+    const camp = await Camp.findById(part.campId)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
     var i = 0
     while (i < part.peeIds.length) {
         const user: InterUser | null = await User.findById(part.peeIds[i++])
@@ -1428,7 +1438,7 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
                 likeSongs,
                 isWearing,
                 spicy,
-                //id: camp.peeMapIdGtoL.get(_id.toString()) as number
+                id: camp.peeMapIdGtoL.get(_id.toString()) as number
             })
         }
     }
@@ -1440,12 +1450,12 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
     if (!part) {
         sendRes(res, false)
         return
-    } 
-    // const camp = await Camp.findById(part.campId)
-    // if (!camp) {
-    //     sendRes(res, false)
-    //     return
-    // }
+    }
+    const camp = await Camp.findById(part.campId)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
     var i = 0
     while (i < part.petoIds.length) {
         const user: InterUser | null = await User.findById(part.petoIds[i++])
@@ -1489,7 +1499,7 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
                 likeSongs,
                 isWearing,
                 spicy,
-                //id: camp.peeMapIdGtoL.get(_id.toString()) as number
+                id: camp.peeMapIdGtoL.get(_id.toString()) as number
             })
         }
     }
