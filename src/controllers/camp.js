@@ -598,9 +598,6 @@ function addPeeRaw(members, baanId) {
                     if (!peeCamp) {
                         return [3 /*break*/, 3];
                     }
-                    camp_2.peeMapIdGtoL.set(user._id.toString(), camp_2.currentPee + 1);
-                    camp_2.peeMapIdLtoG.set((camp_2.currentPee + 1).toString(), user._id);
-                    camp_2.currentPee = camp_2.currentPee + 1;
                     switch (camp_2.toObject().peeSleepModel) {
                         case 'นอนทุกคน': {
                             sleepAtCamp = true;
@@ -705,10 +702,7 @@ function addPeeRaw(members, baanId) {
                             peeHaveBottleMapIds: camp_2.peeHaveBottleMapIds,
                             peeHelthIsueIds: camp_2.peeHelthIsueIds,
                             peePassIds: camp_2.peePassIds,
-                            mapShertManageIdByUserId: camp_2.mapShertManageIdByUserId,
-                            currentPee: camp_2.currentPee,
-                            peeMapIdGtoL: camp_2.peeMapIdGtoL,
-                            peeMapIdLtoG: camp_2.peeMapIdLtoG,
+                            mapShertManageIdByUserId: camp_2.mapShertManageIdByUserId
                         })];
                 case 14:
                     _a.sent();
@@ -789,9 +783,6 @@ function addPetoRaw(member, partId, res) {
                     if (!user) {
                         return [3 /*break*/, 4];
                     }
-                    camp.peeMapIdGtoL.set(user._id.toString(), camp.currentPee + 1);
-                    camp.peeMapIdLtoG.set((camp.currentPee + 1).toString(), user._id);
-                    camp.currentPee = camp.currentPee + 1;
                     part.petoIds.push(user._id);
                     camp.petoIds.push(user._id);
                     _a = camp.toObject().peeSleepModel;
@@ -907,10 +898,7 @@ function addPetoRaw(member, partId, res) {
                             petoIds: camp.petoIds,
                             petoShertManageIds: camp.petoShertManageIds,
                             petoShertSize: camp.petoShertSize,
-                            mapShertManageIdByUserId: camp.mapShertManageIdByUserId,
-                            peeMapIdGtoL: camp.peeMapIdGtoL,
-                            peeMapIdLtoG: camp.peeMapIdLtoG,
-                            currentPee: camp.currentPee,
+                            mapShertManageIdByUserId: camp.mapShertManageIdByUserId
                         })];
                 case 24:
                     _d.sent();
@@ -960,20 +948,25 @@ function staffRegister(req, res, next) {
                     impotantParts = _a.sent();
                     if (impotantParts.includes(partId)) {
                     }
-                    if (!((user === null || user === void 0 ? void 0 : user.role) === 'pee' || (camp === null || camp === void 0 ? void 0 : camp.memberStructre) != 'nong->highSchool,pee->1year,peto->2upYear')) return [3 /*break*/, 6];
+                    camp.peeMapIdGtoL.set(user._id.toString(), camp.currentPee + 1);
+                    camp.peeMapIdLtoG.set((camp.currentPee + 1).toString(), user._id);
+                    return [4 /*yield*/, camp.updateOne({ peeMapIdGtoL: camp.peeMapIdGtoL, peeMapIdLtoG: camp.peeMapIdLtoG })];
+                case 5:
+                    _a.sent();
+                    if (!((user === null || user === void 0 ? void 0 : user.role) === 'pee' || (camp === null || camp === void 0 ? void 0 : camp.memberStructre) != 'nong->highSchool,pee->1year,peto->2upYear')) return [3 /*break*/, 7];
                     camp === null || camp === void 0 ? void 0 : camp.peePassIds.set(user.id, partId);
                     return [4 /*yield*/, (camp === null || camp === void 0 ? void 0 : camp.updateOne({ peePassIds: camp.peePassIds }))];
-                case 5:
+                case 6:
                     _a.sent();
                     res.status(200).json({
                         success: true
                     });
-                    return [3 /*break*/, 8];
-                case 6: return [4 /*yield*/, addPetoRaw([user._id], part._id, res)];
-                case 7:
+                    return [3 /*break*/, 9];
+                case 7: return [4 /*yield*/, addPetoRaw([user._id], part._id, res)];
+                case 8:
                     _a.sent();
-                    _a.label = 8;
-                case 8: return [2 /*return*/];
+                    _a.label = 9;
+                case 9: return [2 /*return*/];
             }
         });
     });
@@ -1977,7 +1970,7 @@ function getNongsFromBaanId(req, res, next) {
                         likeSongs: likeSongs,
                         isWearing: isWearing,
                         spicy: spicy,
-                        id: camp.nongMapIdGtoL.get(_id.toString())
+                        //id: camp.nongMapIdGtoL.get(_id.toString()) as number
                     });
                     _a.label = 10;
                 case 10: return [3 /*break*/, 3];
@@ -2064,7 +2057,7 @@ function getPeesFromBaanId(req, res, next) {
                         likeSongs: likeSongs,
                         isWearing: isWearing,
                         spicy: spicy,
-                        id: camp.peeMapIdGtoL.get(_id.toString())
+                        //id: camp.peeMapIdGtoL.get(_id.toString()) as number
                     });
                     _a.label = 10;
                 case 10: return [3 /*break*/, 3];
@@ -2151,7 +2144,7 @@ function getPeesFromPartId(req, res, next) {
                         likeSongs: likeSongs,
                         isWearing: isWearing,
                         spicy: spicy,
-                        id: camp.peeMapIdGtoL.get(_id.toString())
+                        //id: camp.peeMapIdGtoL.get(_id.toString()) as number
                     });
                     _a.label = 10;
                 case 10: return [3 /*break*/, 3];
@@ -2238,7 +2231,7 @@ function getPetosFromPartId(req, res, next) {
                         likeSongs: likeSongs,
                         isWearing: isWearing,
                         spicy: spicy,
-                        id: camp.peeMapIdGtoL.get(_id.toString())
+                        //id: camp.peeMapIdGtoL.get(_id.toString()) as number
                     });
                     _a.label = 10;
                 case 10: return [3 /*break*/, 3];

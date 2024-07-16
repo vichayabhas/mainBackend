@@ -105,7 +105,6 @@ function nongBypass(req, res, next) {
             switch (_a.label) {
                 case 0:
                     studentId = req.body.studentId;
-                    console.log(req.body);
                     return [4 /*yield*/, (0, auth_1.getUser)(req)];
                 case 1:
                     user = _a.sent();
@@ -131,7 +130,6 @@ function adminBypass(req, res, next) {
             switch (_b.label) {
                 case 0:
                     _a = req.body, studentId = _a.studentId, group = _a.group;
-                    console.log(req.body);
                     return [4 /*yield*/, (0, auth_1.getUser)(req)];
                 case 1:
                     user = _b.sent();
