@@ -34,7 +34,6 @@ export async function petoBypass(req: express.Request, res: express.Response, ne
 }
 export async function nongBypass(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { studentId }: { studentId: string } = req.body
-    console.log(req.body)
     const user = await getUser(req)
     if (!user) {
         sendRes(res, false)
@@ -47,7 +46,6 @@ export async function nongBypass(req: express.Request, res: express.Response, ne
 }
 export async function adminBypass(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { studentId, group }: { studentId: string, group: Group } = req.body
-    console.log(req.body)
     const user = await getUser(req)
     if (!user) {
         sendRes(res, false)

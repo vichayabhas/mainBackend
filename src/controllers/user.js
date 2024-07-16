@@ -114,6 +114,7 @@ function register(req, res, next) {
                 case 0:
                     _a.trys.push([0, 5, , 6]);
                     buf_1 = req.body;
+                    console.log(buf_1);
                     return [4 /*yield*/, User_1.default.create(buf_1)];
                 case 1:
                     user = _a.sent();

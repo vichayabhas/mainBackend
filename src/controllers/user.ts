@@ -29,6 +29,7 @@ import TimeOffset from "../models/TimeOffset";
 export async function register(req: express.Request, res: express.Response, next: express.NextFunction) {
 	try {
 		const buf: Register = req.body
+		console.log(buf)
 		const user = await User.create(buf);
 		const select = await TimeOffset.create({ userId: user._id })
 		const display = await TimeOffset.create({ userId: user._id })

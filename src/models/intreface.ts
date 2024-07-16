@@ -554,7 +554,7 @@ export interface ShowMember {
     sleep: boolean,
     isWearing: boolean,
     spicy: boolean,
-    id:number
+    //id:number
 }
 export interface UpdateBaan {
     name: string,
