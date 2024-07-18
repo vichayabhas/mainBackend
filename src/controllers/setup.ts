@@ -21,7 +21,7 @@ export function swop(olds: mongoose.Types.ObjectId | null, news: mongoose.Types.
         return array
     }
     const re = array.filter(e => {
-        return e.toString().localeCompare(olds.toString())
+        return e.toString().split(' ')[0].localeCompare(olds.toString().split(' ')[0])
     })
     if (news) {
         re.push(news)
@@ -205,6 +205,8 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         haveCloth,
         currentNong,
         currentPee,
+        nongMapIdGtoL,
+        peeMapIdGtoL,
 
     } = input
     return ({
@@ -279,6 +281,8 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         haveCloth,
         currentNong,
         currentPee,
+        nongMapIdGtoL: mapStringToMyMap(nongMapIdGtoL),
+        peeMapIdGtoL: mapStringToMyMap(peeMapIdGtoL),
 
     })
 }
@@ -335,10 +339,10 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         _id
     })
 }
-export function mapStringToMyMap(input: Map<mongoose.Types.ObjectId, string>): MyMap[] {
+export function mapStringToMyMap(input: Map<mongoose.Types.ObjectId, string | number>): MyMap[] {
     var out: MyMap[] = []
-    input.forEach((value: string, key: mongoose.Types.ObjectId) => {
-        out.push({ key, value })
+    input.forEach((v: string | number, key: mongoose.Types.ObjectId) => {
+        out.push({ key, value: v.toString() })
     })
     return out
 }
@@ -507,4 +511,13 @@ export function sendingEmail(email: string, text: string) {
             console.log('Email sent: ' + info.response);
         }
     })
+}
+export const removeDups = (
+    input: mongoose.Types.ObjectId[]
+): mongoose.Types.ObjectId[] => {
+    var arr = input.map((e) => (e.toString().split(' ')[0]))
+    var unique = arr.filter(function (elem, index, self) {
+        return index === self.indexOf(elem);
+    })
+    return unique.map((e) => new mongoose.Types.ObjectId(e));
 }

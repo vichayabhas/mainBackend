@@ -450,6 +450,8 @@ export interface InterCampFront {
     actionPlanOffset: number,
     currentNong: number,
     currentPee: number,
+    nongMapIdGtoL: MyMap[],
+    peeMapIdGtoL: MyMap[],
 }
 export interface InterPartFront {
 
@@ -554,7 +556,7 @@ export interface ShowMember {
     sleep: boolean,
     isWearing: boolean,
     spicy: boolean,
-    //id:number
+    id:number
 }
 export interface UpdateBaan {
     name: string,
@@ -710,4 +712,8 @@ export interface ShowPlace {
     floor: string,
     room: string,
     _id: mongoose.Types.ObjectId
+}
+export interface mapObjectIdToLocalId{
+    key:string,
+    value:string
 }
