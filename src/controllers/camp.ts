@@ -1321,7 +1321,6 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
             })
         }
     }
-
     res.status(200).json(out)
 }
 export async function getPeesFromBaanId(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -1383,12 +1382,8 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
                 spicy,
                 id: camp.peeMapIdGtoL.get(_id.toString()) as number
             })
-            console.log(camp.peeMapIdGtoL)
-       console.log(_id)
         }
     } 
-       console.log(out)
-       
     res.status(200).json(out)
 }
 export async function getPeesFromPartId(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -1420,9 +1415,7 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
                 if (!song) {
                     continue
                 }
-                likeSongs.push(song.name as string)
-
-
+                likeSongs.push(song.name)
             }
             var isWearing = false
             var spicy = false
@@ -1589,22 +1582,6 @@ export async function updateQuasion(req: express.Request, res: express.Response,
     await ChoiseQuasion.findByIdAndUpdate(_id, { a, b, c, d, e, quasion, correct, score })
     res.status(200).json(resOk)
 }
-/*export async function getActionPlanByPartId(req: express.Request, res: express.Response, next: express.NextFunction){
-    const part=await Part.findById(req.params.id)
-    if(!part){
-        sendRes(res,false)
-        return
-    }
-    var i=0
-    const actionPlans:InterActionPlan[]=[]
-    while(i<part.actionPlanIds.length){
-        const actionPlan=await ActionPlan.findById(part.actionPlanIds[i++])
-        if(actionPlan){
-            actionPlans.push(actionPlan.toObject())
-        }
-    }
-    res.status(200).json(actionPlans)
-}*/
 export async function getActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const actionPlan: InterActionPlan | null = await ActionPlan.findById(req.params.id)
