@@ -1032,20 +1032,22 @@ export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: 
                     continue
                 }
                 const oldBaan = await Baan.findById(oldNongCamp.baanId)
-                if (!oldBaan) {
+                if (!oldBaan || oldBaan._id.equals(baan._id)) {
                     continue
                 }
                 await user.updateOne({ nongCampIds: swop(oldNongCamp._id, newNongCamp._id, user.nongCampIds) })
-
-                baan.nongIds.push(user._id)
                 oldBaan.nongShertSize.set(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(oldBaan.nongShertSize.get(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 0, 1))
-                baan.nongShertSize.set(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(baan.nongShertSize.get(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 1, 0))
                 oldBaan.mapShertManageIdByUserId.delete(user.id)
                 await oldBaan.updateOne({
                     nongShertManageIds: swop(shertManage._id, null, oldBaan.nongShertManageIds),
                     nongIds: swop(user._id, null, oldBaan.nongIds),
-                    mapShertManageIdByUserId: oldBaan.mapShertManageIdByUserId
+                    mapShertManageIdByUserId: oldBaan.mapShertManageIdByUserId,
+                    nongShertSize: oldBaan.nongShertSize
                 })
+                console.log(swop(shertManage._id, null, oldBaan.nongShertManageIds))
+                console.log(shertManage._id)
+                baan.nongShertSize.set(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(baan.nongShertSize.get(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 1, 0))
+                baan.nongIds.push(user._id)
                 baan.nongShertManageIds.push(shertManage._id)
                 await shertManage.updateOne({ campModelId: newNongCamp._id })
                 baan.nongHaveBottleMapIds.set(user.id, oldBaan?.nongHaveBottleMapIds.get(user.id))
@@ -1059,6 +1061,19 @@ export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: 
                     nongShertManageIds: swop(shertManage._id, null, oldNongCamp.nongShertManageIds)
                 })
                 newNongCamp.nongIds.push(user._id)
+                await baan.updateOne({
+                    mapShertManageIdByUserId: baan.mapShertManageIdByUserId,
+                    nongHaveBottleMapIds: baan.nongHaveBottleMapIds,
+                    nongHelthIsueIds: baan.nongHelthIsueIds,
+                    nongIds: (baan.nongIds),
+                    nongShertManageIds: baan.nongShertManageIds,
+                    nongShertSize: baan.nongShertSize
+                })
+                await newNongCamp.updateOne({
+                    nongIds: newNongCamp.nongIds,
+                    nongShertManageIds: newNongCamp.nongShertManageIds
+                })
+                await camp.updateOne({ mapShertManageIdByUserId: camp.mapShertManageIdByUserId })
                 break
             }
             case 'pee': {
@@ -1067,7 +1082,7 @@ export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: 
                     continue
                 }
                 const oldBaan = await Baan.findById(oldPeeCamp.baanId)
-                if (!oldBaan) {
+                if (!oldBaan || oldBaan._id.equals(baan._id)) {
                     continue
                 }
                 const newPeeCamp = await PeeCamp.findById(baan.mapPeeCampIdByPartId.get(oldPeeCamp.partId?.toString() as string))
@@ -1075,13 +1090,14 @@ export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: 
                     continue
                 }
                 await user.updateOne({ peeCampIds: swop(oldPeeCamp._id, newPeeCamp._id, user.peeCampIds) })
-                baan.peeIds.push(user._id)
                 oldBaan.peeShertSize.set(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(oldBaan.peeShertSize.get(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 0, 1))
-                baan.peeShertSize.set(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(baan.peeShertSize.get(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 1, 0))
                 await oldBaan.updateOne({
                     peeShertManageIds: swop(shertManage._id, null, oldBaan.peeShertManageIds),
-                    peeIds: swop(user._id, null, oldBaan.peeIds)
+                    peeIds: swop(user._id, null, oldBaan.peeIds),
+                    peeShertSize: oldBaan.peeShertSize,
                 })
+                baan.peeShertSize.set(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(baan.peeShertSize.get(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 1, 0))
+                baan.peeIds.push(user._id)
                 baan.peeShertManageIds.push(shertManage._id)
                 await shertManage.updateOne({ campModelId: newPeeCamp._id })
                 baan.peeHaveBottleMapIds.set(user.id, oldBaan.peeHaveBottleMapIds.get(user.id))
@@ -1099,27 +1115,19 @@ export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: 
                     peeShertManageIds: swop(shertManage._id, null, oldPeeCamp.peeShertManageIds),
                     peeIds: swop(user._id, null, oldPeeCamp.peeIds)
                 })
+                await baan.updateOne({
+                    peeHaveBottleMapIds: baan.peeHaveBottleMapIds,
+                    peeHelthIsueIds: baan.peeHelthIsueIds,
+                    mapShertManageIdByUserId: baan.mapShertManageIdByUserId,
+                    peeIds: (baan.peeIds),
+                    peeShertManageIds: baan.peeShertManageIds,
+                    peeShertSize: baan.peeShertSize,
+                })
+                await camp?.updateOne({ mapShertManageIdByUserId: camp.mapShertManageIdByUserId })
                 break
             }
         }
     }
-    await newNongCamp.updateOne({
-        nongIds: newNongCamp.nongIds,
-        nongShertManageIds: newNongCamp.nongShertManageIds
-    })
-    await baan?.updateOne({
-        peeHaveBottleMapIds: baan.peeHaveBottleMapIds,
-        peeHelthIsueIds: baan.peeHelthIsueIds,
-        mapShertManageIdByUserId: baan.mapShertManageIdByUserId,
-        peeIds: removeDups(baan.peeIds),
-        peeShertManageIds: baan.peeShertManageIds,
-        peeShertSize: baan.peeShertSize,
-        nongHaveBottleMapIds: baan.nongHaveBottleMapIds,
-        nongHelthIsueIds: baan.nongHelthIsueIds,
-        nongIds: removeDups(baan.nongIds),
-        nongShertManageIds: baan.nongShertManageIds,
-        nongShertSize: baan.nongShertSize
-    })
     sendRes(res, true)
 }
 export async function changePart(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -1162,19 +1170,22 @@ export async function changePartRaw(userIds: mongoose.Types.ObjectId[], partId: 
                     continue
                 }
                 const oldPart = await Part.findById(oldPetoCamp.partId)
-                if (!oldPart) {
+                if (!oldPart || oldPart._id.equals(part._id)) {
                     continue
                 }
                 await user.updateOne({ peeCampIds: swop(oldPetoCamp._id, newPetoCamp._id, user.petoCampIds) })
-                part.petoIds.push(user._id)
+
                 oldPart.petoShertSize.set(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(oldPart.peeShertSize.get(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 0, 1))
-                part.petoShertSize.set(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(part.petoShertSize.get(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 1, 0))
+
                 oldPart.mapShertManageIdByUserId.delete(user?.id)
                 await oldPart.updateOne({
                     petoShertManageIds: swop(shertManage._id, null, oldPart.petoShertManageIds),/////////////
                     petoIds: swop(user._id, null, oldPart.petoIds),
-                    mapShertManageIdByUserId: oldPart.mapShertManageIdByUserId
+                    mapShertManageIdByUserId: oldPart.mapShertManageIdByUserId,
+                    petoShertSize: oldPart.petoShertSize
                 })
+                part.petoIds.push(user._id)
+                part.petoShertSize.set(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(part.petoShertSize.get(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 1, 0))
                 part.petoShertManageIds.push(shertManage._id)
                 await shertManage.updateOne({ campModelId: newPetoCamp._id })
                 part.petoHaveBottleMapIds.set(user.id, oldPart.petoHaveBottleMapIds.get(user.id))
@@ -1188,6 +1199,15 @@ export async function changePartRaw(userIds: mongoose.Types.ObjectId[], partId: 
                     petoShertManageIds: swop(shertManage._id, null, oldPetoCamp.petoShertManageIds)
                 })
                 newPetoCamp.petoIds.push(user._id)
+                await newPetoCamp.updateOne({ petoIds: newPetoCamp.petoIds, petoShertManageIds: newPetoCamp.petoShertManageIds })
+                await part.updateOne({
+                    mapShertManageIdByUserId: part.mapShertManageIdByUserId,
+                    petoHaveBottleMapIds: part.petoHaveBottleMapIds,
+                    petoHelthIsueIds: part.petoHelthIsueIds,
+                    petoIds: (part.petoIds),
+                    petoShertManageIds: part.petoShertManageIds
+                })
+                await camp?.updateOne({ mapShertManageIdByUserId: camp.mapShertManageIdByUserId })
                 break
             }
             case 'pee': {
@@ -1196,7 +1216,7 @@ export async function changePartRaw(userIds: mongoose.Types.ObjectId[], partId: 
                     continue
                 }
                 const oldPart = await Part.findById(oldPeeCamp.partId)
-                if (!oldPart) {
+                if (!oldPart || oldPart._id.equals(part._id)) {
                     continue
                 }
                 const newPeeCamp = await PeeCamp.findById(part.mapPeeCampIdByBaanId.get(oldPeeCamp.baanId?.toString() as string))
@@ -1204,13 +1224,14 @@ export async function changePartRaw(userIds: mongoose.Types.ObjectId[], partId: 
                     continue
                 }
                 await user.updateOne({ peeCampIds: swop(oldPeeCamp._id, newPeeCamp._id, user.peeCampIds) })
-                part.peeIds.push(user._id)
                 oldPart.peeShertSize.set(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(oldPart.peeShertSize.get(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 0, 1))
-                part.peeShertSize.set(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(part.peeShertSize.get(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 1, 0))
                 await oldPart.updateOne({
                     peeShertManageIds: swop(shertManage._id, null, oldPart.peeShertManageIds),
-                    peeIds: swop(user._id, null, oldPart.peeIds)
+                    peeIds: swop(user._id, null, oldPart.peeIds),
+                    peeShertSize: oldPart.peeShertSize
                 })
+                part.peeIds.push(user._id)
+                part.peeShertSize.set(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(part.peeShertSize.get(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 1, 0))
                 part.peeShertManageIds.push(shertManage._id)
                 await shertManage.updateOne({ campModelId: newPeeCamp._id })
                 part.peeHaveBottleMapIds.set(user.id, oldPart.peeHaveBottleMapIds.get(user.id))
@@ -1228,24 +1249,20 @@ export async function changePartRaw(userIds: mongoose.Types.ObjectId[], partId: 
                     peeShertManageIds: swop(shertManage._id, null, oldPeeCamp.peeShertManageIds),
                     peeIds: swop(user._id, null, oldPeeCamp.peeIds)
                 })
+                await part.updateOne({
+                    peeHaveBottleMapIds: part.peeHaveBottleMapIds,
+                    peeHelthIsueIds: part.peeHelthIsueIds,
+                    mapShertManageIdByUserId: part.mapShertManageIdByUserId,
+                    peeIds: (part.peeIds),
+                    peeShertManageIds: part.peeShertManageIds,
+                    peeShertSize: part.peeShertSize,
+                })
+                await camp.updateOne({ mapShertManageIdByUserId: camp.mapShertManageIdByUserId })
                 break
             }
         }
     }
-    await newPetoCamp?.updateOne({ petoIds: newPetoCamp.petoIds, petoShertManageIds: newPetoCamp.petoShertManageIds })
-    await part?.updateOne({
-        peeHaveBottleMapIds: part.peeHaveBottleMapIds,
-        peeHelthIsueIds: part.peeHelthIsueIds,
-        mapShertManageIdByUserId: part.mapShertManageIdByUserId,
-        peeIds: removeDups(part.peeIds),
-        peeShertManageIds: part.peeShertManageIds,
-        peeShertSize: part.peeShertSize,
-        petoHaveBottleMapIds: part.petoHaveBottleMapIds,
-        petoHelthIsueIds: part.petoHelthIsueIds,
-        petoIds: removeDups(part.petoIds),
-        petoShertManageIds: part.petoShertManageIds
-    })
-    await camp?.updateOne({ mapShertManageIdByUserId: camp.mapShertManageIdByUserId })
+
     return true
 }
 export async function getNongsFromBaanId(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -1383,7 +1400,7 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
                 id: camp.peeMapIdGtoL.get(_id.toString()) as number
             })
         }
-    } 
+    }
     res.status(200).json(out)
 }
 export async function getPeesFromPartId(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -1829,4 +1846,7 @@ export async function getAllUserCamp(req: express.Request, res: express.Response
         out.push({ key: camp._id, value: camp.campName })
     }
     res.status(200).json(out)
+}
+function reSizeBaan(id: mongoose.Types.ObjectId) {
+
 }
