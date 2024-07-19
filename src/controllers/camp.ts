@@ -928,7 +928,6 @@ export async function getActionPlans(req: express.Request, res: express.Response
             }
         }
         data.sort((a, b) => (a.start.getTime() - b.start.getTime()))
-        //console.log(data)
         res.status(200).json(data);
     } catch (err) {
         res.status(400).json({
@@ -1136,8 +1135,6 @@ export async function changePart(req: express.Request, res: express.Response, ne
     sendRes(res, out)
 }
 export async function changePartRaw(userIds: mongoose.Types.ObjectId[], partId: mongoose.Types.ObjectId) {
-
-
     const part = await Part.findById(partId)
     if (!part) {
 
@@ -1262,7 +1259,6 @@ export async function changePartRaw(userIds: mongoose.Types.ObjectId[], partId: 
             }
         }
     }
-
     return true
 }
 export async function getNongsFromBaanId(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -1334,7 +1330,6 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
                 isWearing,
                 spicy,
                 id: camp.nongMapIdGtoL.get(_id.toString()) as number
-
             })
         }
     }
@@ -1370,8 +1365,6 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
                     continue
                 }
                 likeSongs.push(song.name as string)
-
-
             }
             var isWearing = false
             var spicy = false
