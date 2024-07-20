@@ -48,15 +48,15 @@ const BaanSchema = new mongoose.Schema({
     },
     nongHaveBottleMapIds: {
         type: Map,
-        default: new Map<mongoose.ObjectId,boolean>()
+        default: new Map<mongoose.ObjectId, boolean>()
     },
     peeHaveBottleMapIds: {
         type: Map,
-        default: new Map<mongoose.ObjectId,boolean>()
+        default: new Map<mongoose.ObjectId, boolean>()
     },
     mapPeeCampIdByPartId: {
         type: Map,
-        default: new Map<mongoose.ObjectId,mongoose.ObjectId>()
+        default: new Map<mongoose.ObjectId, mongoose.ObjectId>()
     },
     peeModelIds: {
         type: [mongoose.Schema.ObjectId],
@@ -85,28 +85,28 @@ const BaanSchema = new mongoose.Schema({
     },
     girlSleepPlaceId: {
         type: mongoose.Schema.ObjectId,
-        default:null
+        default: null
     },
     nomalPlaceId: {
         type: mongoose.Schema.ObjectId,
-        default:null
-    },
-    mapShertManageIdByUserId:{
-        type: Map,
-        default: new Map<mongoose.ObjectId,mongoose.ObjectId>()
-    },
-    groupRef:{
-        type: String,
-        enum: ['A', 'B', 'C', 'Dog', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', null],
         default: null
-    },nongSleepIds: {
-        type:[mongoose.Schema.ObjectId],
-        default:[]
+    },
+    mapShertManageIdByUserId: {
+        type: Map,
+        default: new Map<mongoose.ObjectId, mongoose.ObjectId>()
+    },
+    groupRef: {
+        type: String,
+        enum: ['A', 'B', 'C', 'Dog', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'null'],
+        default: 'null'
+    }, nongSleepIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
     },
     peeSleepIds: {
-        type:[mongoose.Schema.ObjectId],
-        default:[]
+        type: [mongoose.Schema.ObjectId],
+        default: []
     },
-    
+
 })
 export default mongoose.model('Baan', BaanSchema)

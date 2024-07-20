@@ -253,17 +253,17 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             sendRes(res, false)
             return
         }
-        const camp = await Camp.create({ 
-            nameId, 
-            round, 
-            dateStart, 
-            dateEnd, 
-            boardIds, 
-            registerModel, 
-            memberStructre, 
-            nongSleepModel, 
-            peeSleepModel ,
-            campName:`${nameContainer.name} ${round}`
+        const camp = await Camp.create({
+            nameId,
+            round,
+            dateStart,
+            dateEnd,
+            boardIds,
+            registerModel,
+            memberStructre,
+            nongSleepModel,
+            peeSleepModel,
+            campName: `${nameContainer.name} ${round}`
         })
         const campStyle = await CampStyle.create({ refId: camp._id, types: 'camp' })
         await camp.updateOne({ campStyleId: campStyle._id })
@@ -1326,11 +1326,11 @@ export async function addAllGroup(req: express.Request, res: express.Response, n
     }
     const camp = await Camp.findById(baan.campId)
     const user = await getUser(req)
-    if (!camp || !user || !baan.groupRef) {
+    if (!camp || !user || baan.groupRef == 'null') {
         sendRes(res, false)
         return
     }
-    if (!camp.ready.includes(baan.groupRef)) {
+    if (camp.ready.includes(baan.groupRef) || (!user.authPartIds.includes(camp.partCoopId)) && !user.authPartIds.includes(camp.partBoardId)) {
         sendRes(res, false)
         return
     }

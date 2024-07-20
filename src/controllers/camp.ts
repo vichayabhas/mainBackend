@@ -121,7 +121,7 @@ export async function getBaans(req: express.Request, res: express.Response, next
         res.status(200).json(baans);
         //console.log(baans.length)
     } catch (err) {
-        console.log('gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg')
+        //console.log('gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg')
         res.status(400).json(resError);
     }
 }
@@ -900,7 +900,6 @@ export async function getActionPlans(req: express.Request, res: express.Response
                         body,
                         partName,
                         _id
-
                     } = actionPlan
                     const user = await User.findById(headId)
                     var k = 0
@@ -952,8 +951,6 @@ export async function nongRegister(req: express.Request, res: express.Response, 
         }
         camp.nongMapIdGtoL.set(nong._id.toString(), camp.currentNong + 1)
         camp.nongMapIdLtoG.set((camp.currentNong + 1).toString(), nong._id)
-        console.log(camp.currentNong)
-
         camp.nongPendingIds.set(nong.id, link)
         await camp.updateOne({
             nongPendingIds: camp.nongPendingIds,
@@ -961,7 +958,6 @@ export async function nongRegister(req: express.Request, res: express.Response, 
             nongMapIdGtoL: camp.nongMapIdGtoL,
             nongMapIdLtoG: camp.nongMapIdLtoG,
         })
-        console.log(camp.currentNong)
         res.status(200).json({
             success: true
         })
@@ -1137,17 +1133,14 @@ export async function changePart(req: express.Request, res: express.Response, ne
 export async function changePartRaw(userIds: mongoose.Types.ObjectId[], partId: mongoose.Types.ObjectId) {
     const part = await Part.findById(partId)
     if (!part) {
-
         return false
     }
     const camp = await Camp.findById(part.campId)
     if (!camp) {
-
         return false
     }
     const newPetoCamp = await PetoCamp.findById(part.petoModelId)
     if (!newPetoCamp) {
-
         return false
     }
     var i = 0
@@ -1171,9 +1164,7 @@ export async function changePartRaw(userIds: mongoose.Types.ObjectId[], partId: 
                     continue
                 }
                 await user.updateOne({ peeCampIds: swop(oldPetoCamp._id, newPetoCamp._id, user.petoCampIds) })
-
                 oldPart.petoShertSize.set(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(oldPart.peeShertSize.get(shertManage.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 0, 1))
-
                 oldPart.mapShertManageIdByUserId.delete(user?.id)
                 await oldPart.updateOne({
                     petoShertManageIds: swop(shertManage._id, null, oldPart.petoShertManageIds),/////////////

@@ -10,18 +10,14 @@ export interface HospitalItem {
     __v: number,
     _id: string
 }
-
 export interface HospitalJson {
     success: boolean,
     count: number,
     pagination: Object,
     data: HospitalItem[]
 }
-
 import mongoose from "mongoose"
-
 export interface InterActionPlan {
-
     action: string,
     partId: mongoose.Types.ObjectId,
     placeIds: mongoose.Types.ObjectId[],
@@ -31,10 +27,8 @@ export interface InterActionPlan {
     body: string,
     _id: mongoose.Types.ObjectId,
     partName: string,
-
 }
 export interface InterBaanBack {
-
     name: string,
     fullName: string | null,
     campId: mongoose.Types.ObjectId,
@@ -63,10 +57,9 @@ export interface InterBaanBack {
     _id: mongoose.Types.ObjectId,
     nongSleepIds: mongoose.Types.ObjectId[],
     peeSleepIds: mongoose.Types.ObjectId[],
-    groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | null
+    groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'null'
 }
 export interface InterBuilding {
-
     name: string,
     placeIds: mongoose.Types.ObjectId[],
     actionPlanIds: mongoose.Types.ObjectId[],
@@ -79,7 +72,6 @@ export interface InterBuilding {
     partIds: mongoose.Types.ObjectId[]
 }
 export interface InterCampBack {
-
     nameId: mongoose.Types.ObjectId,
     round: number,
     dateStart: Date,
@@ -158,13 +150,11 @@ export interface InterCampBack {
     currentPee: number,
 }
 export interface InterCampStyle {
-
     refId: mongoose.Types.ObjectId,
     types: 'camp' | 'baan',
     _id: mongoose.Types.ObjectId
 }
 export interface InterFrydayAct {
-
     company: string,
     date: Date,
     staffId: mongoose.Types.ObjectId[],
@@ -178,13 +168,11 @@ export interface InterHelthIsue extends HelthIsueBody {
     _id: mongoose.Types.ObjectId
 }
 export interface InterNameContainer {
-
     campIds: mongoose.Types.ObjectId[],
     name: string,
     _id: mongoose.Types.ObjectId
 }
 export interface InterNongCampBack {
-
     campId: mongoose.Types.ObjectId,
     baanId: mongoose.Types.ObjectId,
     nongIds: mongoose.Types.ObjectId[],
@@ -193,7 +181,6 @@ export interface InterNongCampBack {
     //mapNongCampIdByUserId: Map<string, string>
 }
 export interface InterPartBack {
-
     nameId: mongoose.Types.ObjectId,
     campId: mongoose.Types.ObjectId,
     peeIds: mongoose.Types.ObjectId[],
@@ -220,23 +207,19 @@ export interface InterPartBack {
     peeSleepIds: mongoose.Types.ObjectId[]
 }
 export interface InterPartNameContainer {
-
     campIds: mongoose.Types.ObjectId[],
     name: string,
     partIds: mongoose.Types.ObjectId[],
     _id: mongoose.Types.ObjectId
 }
 export interface InterPeeCamp {
-
     campId: mongoose.Types.ObjectId,
     partId: mongoose.Types.ObjectId,
     baanId: mongoose.Types.ObjectId, peeIds: mongoose.Types.ObjectId[],
     peeShertManageIds: mongoose.Types.ObjectId[],
     _id: mongoose.Types.ObjectId
-
 }
 export interface InterPetoCamp {
-
     campId: mongoose.Types.ObjectId,
     partId: mongoose.Types.ObjectId,
     petoShertManageIds: mongoose.Types.ObjectId,
@@ -244,7 +227,6 @@ export interface InterPetoCamp {
     _id: mongoose.Types.ObjectId
 }
 export interface InterPlace {
-
     buildingId: mongoose.Types.ObjectId,
     flore: string,
     room: string,
@@ -259,7 +241,6 @@ export interface InterPlace {
     _id: mongoose.Types.ObjectId
 }
 export interface InterShertManage {
-
     userId: mongoose.Types.ObjectId,
     size: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',
     campModelId: mongoose.Types.ObjectId,
@@ -271,7 +252,6 @@ export interface InterShertManage {
     sleepAtCamp: boolean
 }
 export interface InterSong {
-
     name: string,
     campIds: mongoose.Types.ObjectId[],
     baanIds: mongoose.Types.ObjectId[],
@@ -282,7 +262,6 @@ export interface InterSong {
     _id: mongoose.Types.ObjectId
 }
 export interface InterUser {
-    //                          id ของ mongodb
     name: string,//                        ชื่อจริง
     lastname: string,//                    นามสกุล
     nickname: string,//                    ชื่อเล่น
@@ -320,7 +299,6 @@ export interface InterUser {
     authPartIds: mongoose.Types.ObjectId[]
 }
 export interface InterWorkingItem {
-
     name: string,
     link: string | null,
     status: 'not start' | 'in process' | 'done',
@@ -340,13 +318,8 @@ export interface InterSize {
     sizeXL: number,
     sizeXXL: number,
     size3XL: number,
-
 }
-
-//////////////////////////////////////////////////////////
-
 export interface InterBaanFront {
-
     name: string,
     fullName: string | null,
     campId: mongoose.Types.ObjectId,
@@ -374,11 +347,10 @@ export interface InterBaanFront {
     _id: mongoose.Types.ObjectId,
     nongSleepIds: mongoose.Types.ObjectId[],
     peeSleepIds: mongoose.Types.ObjectId[],
-    groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | null
+    groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'null'
 }
 
 export interface InterCampFront {
-
     nameId: mongoose.Types.ObjectId,
     round: number,
     dateStart: Date,
@@ -454,7 +426,6 @@ export interface InterCampFront {
     peeMapIdGtoL: MyMap[],
 }
 export interface InterPartFront {
-
     nameId: mongoose.Types.ObjectId,
     campId: mongoose.Types.ObjectId,
     peeIds: mongoose.Types.ObjectId[],
@@ -602,7 +573,6 @@ export interface showActionPlan {
     headTel: string,
     partName: string,
     placeName: string[]
-
 }
 export interface ChoiseAnswer extends Answer {
     userId: mongoose.Types.ObjectId,
@@ -638,7 +608,6 @@ export interface CreateQuation {
     e: string,
     score: number,
     correct: Choise
-
 }
 export interface EditQuation {
     _id: mongoose.Types.ObjectId,
@@ -716,4 +685,11 @@ export interface ShowPlace {
 export interface mapObjectIdToLocalId{
     key:string,
     value:string
+}
+export interface ShowNong {
+    name: string,//                        ชื่อจริง
+    lastname: string,//                    นามสกุล
+    nickname: string,//                    ชื่อเล่น
+    gender: 'Male' | 'Female',//           เพศ
+    id:number
 }
