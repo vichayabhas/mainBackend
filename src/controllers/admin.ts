@@ -54,12 +54,12 @@ export async function addBaan(req: express.Request, res: express.Response, next:
     if (!user || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId))) {
         return res.status(403).json({ success: false })
     }
-    const baan = await addBaanRaw(camp, name, null)
+    const baan = await addBaanRaw(camp, name, 'null')
     res.status(201).json(baan)
 }//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function addBaanRaw(camp: InterCampBack, name: string,
-    groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | null): Promise<InterBaanFront> {
-    const baan = await Baan.create({ campId: camp._id, name, groupRef })
+    groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'null'): Promise<InterBaanFront> {
+    const baan = await Baan.create({ campId: camp._id, name, groupRef, fullName: name })
     const nongCamp = await NongCamp.create({ campId: camp._id, baanId: baan._id })
     var i = 0
     while (i < camp.partIds.length) {
@@ -105,7 +105,7 @@ async function addPartRaw(campId: mongoose.Types.ObjectId, nameId: mongoose.Type
     if (!camp || !partNameContainer) {
         return null
     }
-    const part = await Part.create({ campId: camp._id, nameId })
+    const part = await Part.create({ campId: camp._id, nameId, partName: `${partNameContainer.name} ${camp.campName}` })
     //await partNameContainer.updateOne({ partIds: swop(null, part._id, partNameContainer.partIds) })
     partNameContainer.partIds.push(part._id)
     partNameContainer.campIds.push(camp._id)
@@ -137,13 +137,12 @@ async function addPartRaw(campId: mongoose.Types.ObjectId, nameId: mongoose.Type
         petoModelId: petoCamp._id,
         mapPeeCampIdByBaanId: part.mapPeeCampIdByBaanId,
         peeModelIds: part.peeModelIds,
-        partName: `${partNameContainer?.name} ${camp.campName}`
     })
     return part.toObject()
 }
 export async function updateBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
-    var { name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId }: UpdateBaan = req.body
-    const baan = await Baan.findById(baanId)
+    var update: UpdateBaan = req.body
+    const baan = await Baan.findById(update.baanId)
     if (!baan) {
         sendRes(res, false)
         return
@@ -153,13 +152,13 @@ export async function updateBaan(req: express.Request, res: express.Response, ne
     if (!user || !camp || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId) && !user.authPartIds.includes(camp.partCoopId))) {
         return res.status(401).json({ success: false })
     }
-    const s = await updateBaanRaw({ name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId })
+    const s = await updateBaanRaw(update)
     sendRes(res, s)
 }
 async function updateBaanRaw(update: UpdateBaan) {
     try {
         //console.log(update)
-        var { name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId } = update
+        var { name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId, nongSendMessage } = update
         const baan = await Baan.findById(baanId)
         if (!baan) {
 
@@ -195,7 +194,7 @@ async function updateBaanRaw(update: UpdateBaan) {
         await girlNewB?.updateOne({ girlSleepBaanIds: swop(null, baan._id, girlNewB.girlSleepBaanIds) })
         await normalNewB?.updateOne({ normalBaanIds: swop(null, baan._id, normalNewB.normalBaanIds) })
         //console.log(normalNewB)
-        await baan?.updateOne({ name, fullName, link, girlSleepPlaceId: girlNewP?._id, boySleepPlaceId: boyNewP?._id, nomalPlaceId: normalNewP?._id })
+        await baan?.updateOne({ name, fullName, link, girlSleepPlaceId: girlNewP?._id, boySleepPlaceId: boyNewP?._id, nomalPlaceId: normalNewP?._id, nongSendMessage })
         return true
     } catch (err) {
         return false
@@ -467,15 +466,30 @@ async function forceDeleteCampRaw(campId: mongoose.Types.ObjectId, res: express.
                 }
                 await song.updateOne({ baanIds: swop(baan._id, null, song.baanIds) })
             }
-            await updateBaanRaw({
-                name: "",
-                fullName: null,
-                baanId: baan._id,
-                link: null,
-                girlSleepPlaceId: null,
-                boySleepPlaceId: null,
-                nomalPlaceId: null
-            })
+            const boyP = await Place.findById(baan.boySleepPlaceId)
+            if (boyP) {
+                await boyP.updateOne({ boySleepBaanIds: swop(baan._id, null, boyP.boySleepBaanIds) })
+                const boyB = await Building.findById(boyP.buildingId)
+                if (boyB) {
+                    await boyB.updateOne({ boySleepBaanIds: swop(baan._id, null, boyB.boySleepBaanIds) })
+                }
+            }
+            const girlP = await Place.findById(baan.girlSleepPlaceId)
+            if (girlP) {
+                await girlP.updateOne({ girlSleepBaanIds: swop(baan._id, null, girlP.girlSleepBaanIds) })
+                const girlB = await Building.findById(girlP.buildingId)
+                if (girlB) {
+                    await girlB.updateOne({ girlSleepBaanIds: swop(baan._id, null, girlB.girlSleepBaanIds) })
+                }
+            }
+            const normalP = await Place.findById(baan.nomalPlaceId)
+            if (normalP) {
+                await normalP.updateOne({ normalBaanIds: swop(baan._id, null, normalP.normalBaanIds) })
+                const normalB = await Building.findById(normalP.buildingId)
+                if (normalB) {
+                    await normalB.updateOne({ normalBaanIds: swop(baan._id, null, normalB.normalBaanIds) })
+                }
+            }
             await CampStyle.findByIdAndDelete(baan.styleId)
             await baan.deleteOne()
         }
@@ -721,8 +735,8 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
             continue
         }
         await part.updateOne({ peeHelthIsueIds: swop(helthIsue._id, null, part.peeHelthIsueIds) })
-        if (user?.helthIsueId !== (helthIsue?._id)) {
-            await helthIsue?.deleteOne()
+        if (!user.helthIsueId.equals(helthIsue._id)) {
+            await helthIsue.deleteOne()
         }
     }
     i = 0
@@ -794,7 +808,7 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
             await girlB.updateOne({ girlSleepBaanIds: swop(baan._id, null, girlB.girlSleepBaanIds) })
         }
     }
-    const normalP = await Place.findById(baan?.nomalPlaceId)
+    const normalP = await Place.findById(baan.nomalPlaceId)
     if (normalP) {
         await normalP.updateOne({ normalBaanIds: swop(baan._id, null, normalP.normalBaanIds) })
         const normalB = await Building.findById(normalP.buildingId)

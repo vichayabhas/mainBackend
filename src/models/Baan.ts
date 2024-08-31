@@ -2,13 +2,16 @@ import mongoose from "mongoose";
 import { startSize } from "../controllers/setup";
 const BaanSchema = new mongoose.Schema({
     name: {
-        type: String
+        type: String,
+        required: true,
     },
     fullName: {
-        type: String
+        type: String,
+        required: true,
     },
     campId: {//camp
-        type: mongoose.Schema.ObjectId
+        type: mongoose.Schema.ObjectId,
+        required: true,
     },
     peeIds: {//user
         type: [mongoose.Schema.ObjectId],
@@ -107,6 +110,26 @@ const BaanSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
+    chatIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    mdTime: {
+        type: Date,
+        default: new Date(Date.now())
+    },
+    peeChatIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    nongChatIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    nongSendMessage: {
+        type: Boolean,
+        default: false
+    }
 
 })
 export default mongoose.model('Baan', BaanSchema)

@@ -2,10 +2,12 @@ import mongoose from "mongoose";
 import { startSize } from "../controllers/setup";
 const PartSchema = new mongoose.Schema({
     nameId: {
-        type: mongoose.Schema.ObjectId
+        type: mongoose.Schema.ObjectId,
+        required: true,
     },
     campId: {//camp
-        type: mongoose.Schema.ObjectId
+        type: mongoose.Schema.ObjectId,
+        required: true,
     },
     peeIds: {//user
         type: [mongoose.Schema.ObjectId],
@@ -82,9 +84,14 @@ const PartSchema = new mongoose.Schema({
         default: new Map
     },
     partName: {
-        type: String
+        type: String,
+        required: true,
     },
     peeSleepIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    chatIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },

@@ -20,11 +20,7 @@ const UserSchema = new mongoose.Schema({
         required: [true, 'Please add an email'],
         unique: true,
         Math: [
-
             /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-
-
-
             , 'Please add a valid email'
         ]
     },
@@ -40,18 +36,19 @@ const UserSchema = new mongoose.Schema({
     tel: {
         type: String,
         unique: true,
-        required:true
+        required: true
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
     studentId: {//รหัสประจำตัวนิสิต
         type: String,
         default: null,
-        unique:false
+        unique: false
     },
     gender: {
         type: String,
-        enum: ['Male', 'Female']
+        enum: ['Male', 'Female'],
+        required:true
     },
     shertSize: {
         type: String,
@@ -152,7 +149,7 @@ const UserSchema = new mongoose.Schema({
     },
     likeToSleepAtCamp: {
         type: Boolean,
-        required:[true]
+        required: [true]
     },
     authPartIds: {
         type: [mongoose.Schema.ObjectId],
@@ -166,12 +163,16 @@ const UserSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    selectOffsetId:{
-        type:mongoose.Schema.ObjectId
+    selectOffsetId: {
+        type: mongoose.Schema.ObjectId
     },
-    displayOffsetId:{
-        type:mongoose.Schema.ObjectId
-    }
+    displayOffsetId: {
+        type: mongoose.Schema.ObjectId
+    },
+    chatIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
 });
 UserSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10);

@@ -58,6 +58,11 @@ export interface InterBaanBack {
     nongSleepIds: mongoose.Types.ObjectId[],
     peeSleepIds: mongoose.Types.ObjectId[],
     groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'null'
+    chatIds: mongoose.Types.ObjectId[],
+    mdTime: Date,
+    peeChatIds: mongoose.Types.ObjectId[],
+    nongChatIds: mongoose.Types.ObjectId[],
+    nongSendMessage: boolean,
 }
 export interface InterBuilding {
     name: string,
@@ -148,6 +153,7 @@ export interface InterCampBack {
     peeMapIdGtoL: Map<mongoose.Types.ObjectId, number>,
     currentNong: number,
     currentPee: number,
+    mdTime: Date,
 }
 export interface InterCampStyle {
     refId: mongoose.Types.ObjectId,
@@ -204,7 +210,8 @@ export interface InterPartBack {
     mapShertManageIdByUserId: Map<mongoose.Types.ObjectId, mongoose.Types.ObjectId>,
     _id: mongoose.Types.ObjectId,
     partName: string,
-    peeSleepIds: mongoose.Types.ObjectId[]
+    peeSleepIds: mongoose.Types.ObjectId[],
+    chatIds: mongoose.Types.ObjectId[],
 }
 export interface InterPartNameContainer {
     campIds: mongoose.Types.ObjectId[],
@@ -249,7 +256,8 @@ export interface InterShertManage {
     recived: number,
     _id: mongoose.Types.ObjectId,
     haveBottle: boolean,
-    sleepAtCamp: boolean
+    sleepAtCamp: boolean,
+    chatIds: mongoose.Types.ObjectId[]
 }
 export interface InterSong {
     name: string,
@@ -296,7 +304,8 @@ export interface InterUser {
     likeToSleepAtCamp: boolean,
     selectOffsetId: mongoose.Types.ObjectId,
     displayOffsetId: mongoose.Types.ObjectId,
-    authPartIds: mongoose.Types.ObjectId[]
+    authPartIds: mongoose.Types.ObjectId[],
+    chatIds: mongoose.Types.ObjectId[],
 }
 export interface InterWorkingItem {
     name: string,
@@ -347,7 +356,12 @@ export interface InterBaanFront {
     _id: mongoose.Types.ObjectId,
     nongSleepIds: mongoose.Types.ObjectId[],
     peeSleepIds: mongoose.Types.ObjectId[],
-    groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'null'
+    groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'null',
+    chatIds: mongoose.Types.ObjectId[],
+    mdTime: Date,
+    peeChatIds: mongoose.Types.ObjectId[],
+    nongChatIds: mongoose.Types.ObjectId[],
+    nongSendMessage: boolean,
 }
 
 export interface InterCampFront {
@@ -424,6 +438,7 @@ export interface InterCampFront {
     currentPee: number,
     nongMapIdGtoL: MyMap[],
     peeMapIdGtoL: MyMap[],
+    mdTime: Date,
 }
 export interface InterPartFront {
     nameId: mongoose.Types.ObjectId,
@@ -449,6 +464,7 @@ export interface InterPartFront {
     _id: mongoose.Types.ObjectId,
     partName: string
     peeSleepIds: mongoose.Types.ObjectId[],
+    chatIds: mongoose.Types.ObjectId[],
 }
 export interface MyMap {
     key: mongoose.Types.ObjectId,
@@ -527,7 +543,7 @@ export interface ShowMember {
     sleep: boolean,
     isWearing: boolean,
     spicy: boolean,
-    id:number
+    id: number
 }
 export interface UpdateBaan {
     name: string,
@@ -537,6 +553,7 @@ export interface UpdateBaan {
     girlSleepPlaceId: mongoose.Types.ObjectId | null,
     boySleepPlaceId: mongoose.Types.ObjectId | null,
     nomalPlaceId: mongoose.Types.ObjectId | null,
+    nongSendMessage: boolean,
 }
 export type Group = 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T'
 export type Size = 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
@@ -682,14 +699,53 @@ export interface ShowPlace {
     room: string,
     _id: mongoose.Types.ObjectId
 }
-export interface mapObjectIdToLocalId{
-    key:string,
-    value:string
+export interface mapObjectIdToLocalId {
+    key: string,
+    value: string
 }
 export interface ShowNong {
     name: string,//                        ชื่อจริง
     lastname: string,//                    นามสกุล
     nickname: string,//                    ชื่อเล่น
     gender: 'Male' | 'Female',//           เพศ
-    id:number
+    id: number,
+}
+export interface ShowRegisterNong {
+    generalId: mongoose.Types.ObjectId,
+    link: string,
+    localId: string,
+}
+export interface AllNongRegister {
+    pendings: ShowRegisterNong[],
+    interviews: ShowRegisterNong[],
+    passs: ShowRegisterNong[],
+    paids: ShowRegisterNong[],
+    sures: ShowRegisterNong[],
+}
+export interface InterChat {
+    message: string,
+    userId: mongoose.Types.ObjectId,
+    campModelId: mongoose.Types.ObjectId,
+    role: RoleCamp
+}
+export interface ShowChat extends InterChat {
+    nickname: string,
+    baanName: string,
+    partName: string,
+}
+export interface CreatePeeChat {
+    message: string,
+    partId: mongoose.Types.ObjectId
+}
+export interface EditChat {
+    message: string,
+    id: mongoose.Types.ObjectId
+}
+export interface CreateBaanChat {
+    message: string,
+    baanId: mongoose.Types.ObjectId
+}
+export interface CreateNongChat {
+    message: string,
+    shertmanageId: mongoose.Types.ObjectId
 }

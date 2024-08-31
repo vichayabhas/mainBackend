@@ -12,7 +12,7 @@ import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
 import express from "express";
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap } from "../models/intreface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap, AllNongRegister } from "../models/intreface";
 import mongoose from "mongoose";
 import Song from "../models/Song";
 import HelthIsue from "../models/HelthIsue";
@@ -203,7 +203,10 @@ export async function addNong(req: express.Request, res: express.Response, next:
         const {
             baanId,
             members
-        }: { baanId: mongoose.Types.ObjectId, members: mongoose.Types.ObjectId[] } = req.body;
+        }: {
+            baanId: mongoose.Types.ObjectId,
+            members: mongoose.Types.ObjectId[]
+        } = req.body;
         const baan = await Baan.findById(baanId);
         if (!baan) {
             sendRes(res, false)
@@ -232,9 +235,6 @@ export async function addNong(req: express.Request, res: express.Response, next:
             if (!user) {
                 continue
             }
-
-
-
             await nongCamp.updateOne({ nongIds: swop(null, user._id, nongCamp.nongIds) })
             await baan.updateOne({ nongIds: swop(null, user._id, baan.nongIds) })
             await camp.updateOne({ nongIds: swop(null, user._id, camp.nongIds) })
@@ -1831,6 +1831,28 @@ export async function getAllUserCamp(req: express.Request, res: express.Response
     }
     res.status(200).json(out)
 }
-function reSizeBaan(id: mongoose.Types.ObjectId) {
-
+export async function getAllNongRegister(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const camp: InterCampBack | null = await Camp.findById(req.params.id)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
+    const { interviews, pendings, passs, paids, sures }: AllNongRegister = { interviews: [], pendings: [], passs: [], paids: [], sures: [] }
+    camp.nongPendingIds.forEach((link, generalId) => {
+        pendings.push({ link, generalId, localId: camp.nongMapIdGtoL.get(generalId).toString() })
+    })
+    camp.nongInterviewIds.forEach((link, generalId) => {
+        interviews.push({ link, generalId, localId: camp.nongMapIdGtoL.get(generalId).toString() })
+    })
+    camp.nongPassIds.forEach((link, generalId) => {
+        passs.push({ link, generalId, localId: camp.nongMapIdGtoL.get(generalId).toString() })
+    })
+    camp.nongPaidIds.forEach((generalId) => {
+        paids.push({ link: camp.nongPassIds.get(generalId).toString(), generalId, localId: camp.nongMapIdGtoL.get(generalId).toString() })
+    })
+    camp.nongSureIds.forEach((generalId) => {
+        sures.push({ link: '', generalId, localId: camp.nongMapIdGtoL.get(generalId).toString() })
+    })
+    const out: AllNongRegister = { interviews, pendings, passs, paids, sures }
+    res.status(200).json(out)
 }

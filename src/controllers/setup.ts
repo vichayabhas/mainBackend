@@ -99,7 +99,12 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
         _id,
         peeSleepIds,
         nongSleepIds,
-        groupRef
+        groupRef,
+        chatIds,
+        mdTime,
+        peeChatIds,
+        nongChatIds,
+        nongSendMessage,
     } = input
     return ({
         name,
@@ -129,7 +134,12 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
         _id,
         peeSleepIds,
         nongSleepIds,
-        groupRef
+        groupRef,
+        chatIds,
+        mdTime,
+        peeChatIds,
+        nongChatIds,
+        nongSendMessage,
     })
 }
 export function conCampBackToFront(input: InterCampBack): InterCampFront {
@@ -207,6 +217,7 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         currentPee,
         nongMapIdGtoL,
         peeMapIdGtoL,
+        mdTime,
 
     } = input
     return ({
@@ -283,6 +294,7 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         currentPee,
         nongMapIdGtoL: mapStringToMyMap(nongMapIdGtoL),
         peeMapIdGtoL: mapStringToMyMap(peeMapIdGtoL),
+        mdTime,
 
     })
 }
@@ -310,7 +322,8 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         placeId,
         partName,
         peeSleepIds,
-        _id
+        _id,
+        chatIds,
     } = input
 
     return ({
@@ -336,7 +349,8 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         mapShertManageIdByUserId: mapObjectIdToMyMap(mapShertManageIdByUserId),
         partName,
         peeSleepIds,
-        _id
+        _id,
+        chatIds,
     })
 }
 export function mapStringToMyMap(input: Map<mongoose.Types.ObjectId, string | number>): MyMap[] {

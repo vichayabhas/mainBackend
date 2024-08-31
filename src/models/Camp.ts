@@ -317,6 +317,10 @@ const campSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    mdTime: {
+        type: Date,
+        default: new Date(Date.now())
+    },
 })
 export default mongoose.model('Camp', campSchema)
 

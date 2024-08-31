@@ -48,7 +48,8 @@ router.post('/kick/pee/', protect, pee, kickPee)
 router.post('/kick/nong/', protect, pee, kickNong)
 router.post('/changeBaan/', protect, pee, changeBaan)
 router.post('/changePart/', protect, pee, changePart)
-router.get('/getAllUserCamp/',protect,getAllUserCamp)
+router.get('/getAllUserCamp/', protect, getAllUserCamp)
+//router.get('/getAllNongRegister/params/:id', protect, pee)
 export default router;
 
 

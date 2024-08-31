@@ -831,6 +831,7 @@ export async function verifyEmail(req: express.Request, res: express.Response, n
 			fridayActEn: true,
 			studentId: user.email.split('@')[0]
 		})
+		sendRes(res, true)
 	} catch (error) {
 		console.error(error)
 		sendRes(res, false)

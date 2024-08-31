@@ -9,10 +9,13 @@ import LostAndFound from "../models/LostAndFound";
 import Building from "../models/Building";
 import Place from "../models/Place";
 import NongCamp from "../models/NongCamp";
-import { InterCampBack, InterLostAndFound, InterPlace, ShowLostAndFound, ShowPlace } from "../models/intreface";
+import { CreateBaanChat, CreateNongChat, CreatePeeChat, EditChat, InterCampBack, InterChat, InterLostAndFound, InterPlace, ShowChat, ShowLostAndFound, ShowPlace } from "../models/intreface";
 import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import mongoose from "mongoose";
+import Part from "../models/Part";
+import ShertManage from "../models/ShertManage";
+import Chat from "../models/Chat";
 // export async function addLikeSong
 // export async function getNongLikeSong
 // export async function getPeeLikeSong
@@ -198,7 +201,7 @@ export async function addLostAndFound(req: express.Request, res: express.Respons
     } = req.body
     const user = await getUser(req)
     const buildingId = placeId ? (await Place.findById(placeId))?.buildingId : null
-    const place  =placeId? await Place.findById(placeId):null
+    const place = placeId ? await Place.findById(placeId) : null
     if (!user) {
         sendRes(res, false)
         return
@@ -382,22 +385,245 @@ async function fillLostAndFound(input: InterLostAndFound): Promise<ShowLostAndFo
         campName: camp ? camp.campName : 'null'
     }
 }
-export async function getShowPlace(req: express.Request, res: express.Response, next: express.NextFunction){
-    const place=await Place.findById(req.params.id)
-    if(!place){
-        sendRes(res,false)
+export async function getShowPlace(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const place = await Place.findById(req.params.id)
+    if (!place) {
+        sendRes(res, false)
         return
     }
-    const building=await Building.findById(place.buildingId)
-    if(!building){
-        sendRes(res,false)
+    const building = await Building.findById(place.buildingId)
+    if (!building) {
+        sendRes(res, false)
         return
     }
-    const showPlace:ShowPlace={
-        _id:place._id,
-        buildingName:building.name,
-        floor:place.flore,
-        room:place.room
+    const showPlace: ShowPlace = {
+        _id: place._id,
+        buildingName: building.name,
+        floor: place.flore,
+        room: place.room
     }
     res.status(200).json(showPlace)
+}
+export async function createPeeChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const create: CreatePeeChat = req.body
+    const user = await getUser(req)
+    const part = await Part.findById(create.partId)
+    if (!user || !part) {
+        sendRes(res, false)
+        return
+    }
+    const camp = await Camp.findById(part.campId)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
+    const shertManage = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
+    if (!shertManage || shertManage.role === 'nong') {
+        sendRes(res, false)
+        return
+    }
+    const chat = await Chat.create({
+        message: create.message,
+        userId: user._id,
+        campModelId: shertManage.campModelId,
+        role: shertManage.role
+    })
+    await part.updateOne({ chatIds: swop(null, chat._id, part.chatIds) })
+    res.status(201).json(chat)
+}
+export async function getShowChatFromChatIds(inputs:mongoose.Types.ObjectId[]) {
+
+    const out: ShowChat[] = []
+    var i = 0
+    while (i < inputs.length) {
+        const chat = await Chat.findById(inputs[i++])
+        if (!chat) {
+            continue
+        }
+        const {
+            message,
+            userId,
+            role,
+            campModelId
+        } = chat
+        var baanName: string
+        var partName: string
+        const user = await User.findById(userId)
+        switch (role) {
+            case "pee": {
+                const peeCamp = await PeeCamp.findById(campModelId)
+                if (!peeCamp || !user) {
+                    continue
+                }
+                const part = await Part.findById(peeCamp.partId)
+                const baan = await Baan.findById(peeCamp.baanId)
+                if (!part || !baan) {
+                    continue
+                }
+                partName = part.partName
+                baanName = baan.name
+                break
+            }
+            case "peto": {
+                const petoCamp = await PetoCamp.findById(campModelId)
+                if (!petoCamp || !user) {
+                    continue
+                }
+                const part = await Part.findById(petoCamp.partId)
+                if (!part) {
+                    continue
+                }
+                partName = part.partName
+                baanName = 'ปีโต'
+                break
+            }
+            case "nong":{
+                const nongCamp=await NongCamp.findById(chat.campModelId)
+                if(!user||!nongCamp){
+                    continue
+                }
+                const baan=await Baan.findById(nongCamp.baanId)
+                if(!baan){
+                    continue
+                }
+                partName='น้องค่าย'
+                baanName=baan.name
+            }
+        }
+        out.push({
+            nickname: user.nickname,
+            partName,
+            baanName,
+            message,
+            role,
+            userId,
+            campModelId
+        })
+    }
+    return out
+}
+export async function editChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { message, id }: EditChat = req.body
+    const chat = await Chat.findByIdAndUpdate(id, { message })
+    res.status(200).json(chat)
+}
+export async function deleteChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const chat = await Chat.findById(req.params.id)
+    switch (chat.role) {
+        case "pee": {
+            const peeCamp = await PeeCamp.findById(chat.campModelId)
+            if (!peeCamp) {
+                sendRes(res, false)
+                return
+            }
+            const baan = await Baan.findById(peeCamp.baanId)
+            const part = await Part.findById(peeCamp.partId)
+            if (!baan || !part) {
+                sendRes(res, false)
+                return
+            }
+            await baan.updateOne({ chatIds: swop(chat._id, null, baan.chatIds) })
+            await part.updateOne({ chatIds: swop(chat._id, null, part.chatIds) })
+            break
+        }
+        case "peto": {
+            const petoCamp = await PetoCamp.findById(chat.campModelId)
+            if (!petoCamp) {
+                sendRes(res, false)
+                return
+            }
+            const part = await Part.findById(petoCamp.partId)
+            if (!part) {
+                sendRes(res, false)
+                return
+            }
+            await part.updateOne({ chatIds: swop(chat._id, null, part.chatIds) })
+            break
+        }
+    }
+    await chat.deleteOne()
+    sendRes(res, true)
+}
+export async function createNongChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const create: CreateNongChat = req.body
+    const shertManageHost = await ShertManage.findById(create.shertmanageId)
+    const user = await getUser(req)
+    if (!shertManageHost || !user) {
+        sendRes(res, false)
+        return
+    }
+    var campId: mongoose.Types.ObjectId
+    switch (shertManageHost.role) {
+        case "nong": {
+            const campModel = await NongCamp.findById(shertManageHost.campModelId)
+            if (!campModel) {
+                sendRes(res, false)
+                return
+            }
+            campId = campModel.campId
+        }
+        case "pee": {
+            const campModel = await PeeCamp.findById(shertManageHost.campModelId)
+            if (!campModel) {
+                sendRes(res, false)
+                return
+            }
+            campId = campModel.campId
+
+        }
+        case "peto": {
+            const campModel = await PetoCamp.findById(shertManageHost.campModelId)
+            if (!campModel) {
+                sendRes(res, false)
+                return
+            }
+            campId = campModel.campId
+        }
+    }
+    const camp = await Camp.findById(campId)
+    const shertManageSender = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
+    const chat = await Chat.create({
+        message: create.message,
+        campModelId: shertManageSender.campModelId,
+        userId: user._id,
+        role: shertManageSender.role
+    })
+    await shertManageHost.updateOne({ chatIds: swop(null, chat._id, shertManageHost.chatIds) })
+    res.status(201).json(chat)
+}
+export async function createPeeBaanChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const create: CreateBaanChat = req.body
+    const baan = await Baan.findById(create.baanId)
+    const user = await getUser(req)
+    if (!baan || !user) {
+        sendRes(res, false)
+        return
+    }
+    const camp = await Camp.findById(baan.campId)
+    const shertManageSender = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
+    const chat = await Chat.create({
+        message: create.message,
+        campModelId: shertManageSender.campModelId,
+        userId: user._id,
+        role: shertManageSender.role
+    })
+    await baan.updateOne({ peeChatIds: swop(null, chat._id, baan.peeChatIds) })
+}
+export async function createNongBaanChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const create: CreateBaanChat = req.body
+    const baan = await Baan.findById(create.baanId)
+    const user = await getUser(req)
+    if (!baan || !user) {
+        sendRes(res, false)
+        return
+    }
+    const camp = await Camp.findById(baan.campId)
+    const shertManageSender = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
+    const chat = await Chat.create({
+        message: create.message,
+        campModelId: shertManageSender.campModelId,
+        userId: user._id,
+        role: shertManageSender.role
+    })
+    await baan.updateOne({ nongChatIds: swop(null, chat._id, baan.nongChatIds) })
 }
