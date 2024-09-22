@@ -1,7 +1,8 @@
 import mongoose from "mongoose"
 const PartSchema = new mongoose.Schema({
     name: {
-        type: String
+        type: String,
+        required: true,
     },
     campIds: {//camp
         type: [mongoose.Schema.ObjectId],
@@ -12,13 +13,16 @@ const PartSchema = new mongoose.Schema({
         default: []
     },
     auther: {
-        type: String
+        type: String,
+        required: true,
     },
     time: {
-        type: Number
+        type: Number,
+        require: true,
     },
     link: {
-        type: String
+        type: String,
+        required: true,
     },
     userLikeIds: {
         type: [mongoose.Schema.ObjectId],

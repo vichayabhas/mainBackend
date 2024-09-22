@@ -1,5 +1,5 @@
 import express from 'express'
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, InterWorkingItem, InterActionPlan, MapObjectId, MyMap } from '../models/intreface'
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, InterWorkingItem, InterActionPlan, MapObjectId, MyMap, Size } from '../models/intreface'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 
@@ -50,12 +50,30 @@ export function sizeMapToJson(input: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',
 }
 export function sizeJsonMod(size: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', count: number, input: InterSize): InterSize {
     switch (size) {
-        case 'S': input.sizeS = input.sizeS + count
-        case 'M': input.sizeM = input.sizeM + count
-        case 'L': input.sizeL = input.sizeL + count
-        case 'XL': input.sizeXL = input.sizeXL + count
-        case 'XXL': input.sizeXXL = input.sizeXXL + count
-        case '3XL': input.size3XL = input.size3XL + count
+        case 'S': {
+            input.sizeS = input.sizeS + count
+            break
+        }
+        case 'M': {
+            input.sizeM = input.sizeM + count
+            break
+        }
+        case 'L': {
+            input.sizeL = input.sizeL + count
+            break
+        }
+        case 'XL': {
+            input.sizeXL = input.sizeXL + count
+            break
+        }
+        case 'XXL': {
+            input.sizeXXL = input.sizeXXL + count
+            break
+        }
+        case '3XL': {
+            input.size3XL = input.size3XL + count
+            break
+        }
     }
     return input
 }
@@ -82,10 +100,6 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
         nongShertSize,
         peeShertSize,
         songIds,
-        nongHaveBottle,
-        peeHaveBottle,
-        nongHaveBottleMapIds,
-        peeHaveBottleMapIds,
         peeModelIds,
         nongModelId,
         nongShertManageIds,
@@ -105,15 +119,17 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
         peeChatIds,
         nongChatIds,
         nongSendMessage,
+        nongHaveBottleIds,
+        nongShertManageHaveHelthIshueIds,
+        peeHaveBottleIds,
+        peeShertManageHaveHelthIshueIds,
     } = input
     return ({
         name,
         fullName,
         campId,
         link,
-        peeHaveBottle,
         nomalPlaceId,
-        nongHaveBottle,
         nongHelthIsueIds,
         nongIds,
         nongModelId,
@@ -128,8 +144,6 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
         styleId,
         boySleepPlaceId,
         girlSleepPlaceId,
-        peeHaveBottleMapIds: mapBoolToArray(peeHaveBottleMapIds),
-        nongHaveBottleMapIds: mapBoolToArray(nongHaveBottleMapIds),
         mapShertManageIdByUserId: mapObjectIdToMyMap(mapShertManageIdByUserId),
         _id,
         peeSleepIds,
@@ -140,6 +154,10 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
         peeChatIds,
         nongChatIds,
         nongSendMessage,
+        nongHaveBottleIds,
+        nongShertManageHaveHelthIshueIds,
+        peeHaveBottleIds,
+        peeShertManageHaveHelthIshueIds,
     })
 }
 export function conCampBackToFront(input: InterCampBack): InterCampFront {
@@ -169,12 +187,6 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         open,
         peePassIds,//<userId,partId>               ////////////////////////i
         songIds,
-        nongHaveBottle,
-        peeHaveBottle,
-        petoHaveBottle,
-        nongHaveBottleMapIds,
-        peeHaveBottleMapIds,
-        petoHaveBottleMapIds,
         nongSureIds,
         baanIds,
         nongShertManageIds,
@@ -218,21 +230,30 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         nongMapIdGtoL,
         peeMapIdGtoL,
         mdTime,
+        partWelfairId,
+        partMedId,
+        partPlanId,
+        allPetoChatIds,
+        petoSleepIds,
+        nongHaveBottleIds,
+        nongMapIdLtoG,
+        nongShertManageHaveHelthIshueIds,
+        peeHaveBottleIds,
+        peeMapIdLtoG,
+        peeShertManageHaveHelthIshueIds,
+        petoHaveBottleIds,
+        petoShertManageHaveHelthIshueIds,
 
     } = input
     return ({
         partIds,
         open,
-        peeHaveBottle,
-        peeHaveBottleMapIds: mapBoolToArray(peeHaveBottleMapIds),
         peeHelthIsueIds,
         peeIds,
         peeModelIds,
         peePassIds: mapObjectIdToMyMap(peePassIds),
         peeShertManageIds,
         peeShertSize: sizeMapToJson(peeShertSize),
-        petoHaveBottle,
-        petoHaveBottleMapIds: mapBoolToArray(petoHaveBottleMapIds),
         petoHelthIsueIds,
         petoIds,
         petoModelIds,
@@ -240,8 +261,6 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         petoShertSize: sizeMapToJson(petoShertSize),
         pictureUrls,
         nameId,
-        nongHaveBottle,
-        nongHaveBottleMapIds: mapBoolToArray(nongHaveBottleMapIds),
         nongHelthIsueIds,
         nongIds,
         nongInterviewIds: mapStringToMyMap(nongInterviewIds),
@@ -295,6 +314,17 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         nongMapIdGtoL: mapStringToMyMap(nongMapIdGtoL),
         peeMapIdGtoL: mapStringToMyMap(peeMapIdGtoL),
         mdTime,
+        partWelfairId,
+        partMedId,
+        partPlanId,
+        allPetoChatIds,
+        petoSleepIds,
+        nongHaveBottleIds,
+        nongShertManageHaveHelthIshueIds,
+        peeHaveBottleIds,
+        peeShertManageHaveHelthIshueIds,
+        petoHaveBottleIds,
+        petoShertManageHaveHelthIshueIds,
 
     })
 }
@@ -308,10 +338,6 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         petoHelthIsueIds,
         peeShertSize,
         petoShertSize,
-        peeHaveBottle,
-        petoHaveBottle,
-        peeHaveBottleMapIds,
-        petoHaveBottleMapIds,
         peeModelIds,
         petoModelId,
         peeShertManageIds,
@@ -324,6 +350,12 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         peeSleepIds,
         _id,
         chatIds,
+        isAuth,
+        petoSleepIds,
+        peeHaveBottleIds,
+        peeShertManageHaveHelthIshueIds,
+        petoHaveBottleIds,
+        petoShertManageHaveHelthIshueIds,
     } = input
 
     return ({
@@ -331,15 +363,11 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         workItemIds,
         campId,
         nameId,
-        peeHaveBottle,
-        peeHaveBottleMapIds: mapBoolToArray(peeHaveBottleMapIds),
         peeHelthIsueIds,
         peeIds,
         peeModelIds,
         peeShertManageIds,
         peeShertSize: sizeMapToJson(peeShertSize),
-        petoHaveBottle,
-        petoHaveBottleMapIds: mapBoolToArray(petoHaveBottleMapIds),
         petoHelthIsueIds,
         petoIds,
         petoModelId,
@@ -351,6 +379,12 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         peeSleepIds,
         _id,
         chatIds,
+        isAuth,
+        petoSleepIds,
+        peeHaveBottleIds,
+        peeShertManageHaveHelthIshueIds,
+        petoHaveBottleIds,
+        petoShertManageHaveHelthIshueIds,
     })
 }
 export function mapStringToMyMap(input: Map<mongoose.Types.ObjectId, string | number>): MyMap[] {
@@ -534,4 +568,44 @@ export const removeDups = (
         return index === self.indexOf(elem);
     })
     return unique.map((e) => new mongoose.Types.ObjectId(e));
+}
+export function jsonToMapSize(input: InterSize): Map<Size, number> {
+    const output = new Map<Size, number>()
+    output.set('S', input.sizeS)
+    output.set('M', input.sizeM)
+    output.set('L', input.sizeL)
+    output.set('XL', input.sizeXL)
+    output.set('XXL', input.sizeXXL)
+    output.set('3XL', input.size3XL)
+    return output
+}
+export function startJsonSize(): InterSize {
+    return {
+        sizeS: 0,
+        sizeM: 0,
+        sizeL: 0,
+        sizeXL: 0,
+        sizeXXL: 0,
+        size3XL: 0,
+        _id: null
+    }
+}
+export function ifIsTrue(input: boolean, id: mongoose.Types.ObjectId, array: mongoose.Types.ObjectId[]) {
+    if (input) {
+        array.push(id)
+    }
+    return array
+}
+export function ifIsHave(input: mongoose.Types.ObjectId | null, array: mongoose.Types.ObjectId[]) {
+    if (input) {
+        array.push(input)
+    }
+    return array
+}
+export function ifIsPlus(logic: boolean, input: number): number {
+    if (logic) {
+        return input + 1
+    } else {
+        return input
+    }
 }

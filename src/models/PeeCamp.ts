@@ -2,16 +2,17 @@ import mongoose from "mongoose"
 const PeeCampSchema = new mongoose.Schema({
     campId: {
         type: mongoose.Schema.ObjectId,
-        required:true
+        required: true
     },
     partId: {
         type: mongoose.Schema.ObjectId,
-        required:true
+        required: true
     },
     baanId: {
         type: mongoose.Schema.ObjectId,
-        required:true
-    }, peeIds: {
+        required: true
+    },
+    peeIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
@@ -70,6 +71,10 @@ const PeeCampSchema = new mongoose.Schema({
     varibleNames: {
         type: [String],
         default: ['arrayString1', 'arrayString2', 'arrayString3', 'arrayString4', 'arrayString5', 'map1', 'map2', 'map3', 'map4', 'map5']
-    }
+    },
+    // helthIshueIds: {
+    //     type: [mongoose.Schema.ObjectId],
+    //     default: []
+    // }
 })
 export default mongoose.model('PeeCamp', PeeCampSchema)

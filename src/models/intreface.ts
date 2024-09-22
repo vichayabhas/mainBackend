@@ -1,3 +1,4 @@
+
 export interface HospitalItem {
     __id: string,
     name: string,
@@ -39,10 +40,6 @@ export interface InterBaanBack {
     nongShertSize: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number>,
     peeShertSize: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number>,
     songIds: mongoose.Types.ObjectId[],
-    nongHaveBottle: number,
-    peeHaveBottle: number,
-    nongHaveBottleMapIds: Map<mongoose.Types.ObjectId, boolean>,
-    peeHaveBottleMapIds: Map<mongoose.Types.ObjectId, boolean>,
     peeModelIds: mongoose.Types.ObjectId[],
     nongModelId: mongoose.Types.ObjectId,
     mapPeeCampIdByPartId: Map<mongoose.Types.ObjectId, mongoose.Types.ObjectId>,                    ///////////////////////i
@@ -63,6 +60,10 @@ export interface InterBaanBack {
     peeChatIds: mongoose.Types.ObjectId[],
     nongChatIds: mongoose.Types.ObjectId[],
     nongSendMessage: boolean,
+    nongShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    peeShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    nongHaveBottleIds: mongoose.Types.ObjectId[],
+    peeHaveBottleIds: mongoose.Types.ObjectId[],
 }
 export interface InterBuilding {
     name: string,
@@ -102,12 +103,6 @@ export interface InterCampBack {
     open: boolean,
     peePassIds: Map<mongoose.Types.ObjectId, mongoose.Types.ObjectId>,//<userId,partId>               ////////////////////////i
     songIds: mongoose.Types.ObjectId[],
-    nongHaveBottle: number,
-    peeHaveBottle: number,
-    petoHaveBottle: number,
-    nongHaveBottleMapIds: Map<mongoose.Types.ObjectId, boolean>,
-    peeHaveBottleMapIds: Map<mongoose.Types.ObjectId, boolean>,
-    petoHaveBottleMapIds: Map<mongoose.Types.ObjectId, boolean>,
     nongSureIds: mongoose.Types.ObjectId[],
     baanIds: mongoose.Types.ObjectId[],
     nongShertManageIds: mongoose.Types.ObjectId[],
@@ -154,6 +149,17 @@ export interface InterCampBack {
     currentNong: number,
     currentPee: number,
     mdTime: Date,
+    partWelfairId: mongoose.Types.ObjectId,
+    partMedId: mongoose.Types.ObjectId,
+    partPlanId: mongoose.Types.ObjectId,
+    allPetoChatIds: mongoose.Types.ObjectId[],
+    petoSleepIds: mongoose.Types.ObjectId[],
+    nongShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    peeShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    petoShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    nongHaveBottleIds: mongoose.Types.ObjectId[],
+    peeHaveBottleIds: mongoose.Types.ObjectId[],
+    petoHaveBottleIds: mongoose.Types.ObjectId[],
 }
 export interface InterCampStyle {
     refId: mongoose.Types.ObjectId,
@@ -172,6 +178,11 @@ export interface InterFrydayAct {
 export interface InterHelthIsue extends HelthIsueBody {
     userId: mongoose.Types.ObjectId,
     _id: mongoose.Types.ObjectId
+    campIds: mongoose.Types.ObjectId[]
+    // nongCampIds: mongoose.Types.ObjectId[],
+    // peeCampIds: mongoose.Types.ObjectId[],
+    // petoCampIds: mongoose.Types.ObjectId[],
+    shertManageIds: mongoose.Types.ObjectId[],
 }
 export interface InterNameContainer {
     campIds: mongoose.Types.ObjectId[],
@@ -183,7 +194,7 @@ export interface InterNongCampBack {
     baanId: mongoose.Types.ObjectId,
     nongIds: mongoose.Types.ObjectId[],
     nongShertManageIds: mongoose.Types.ObjectId[],
-    _id: mongoose.Types.ObjectId
+    _id: mongoose.Types.ObjectId,
     //mapNongCampIdByUserId: Map<string, string>
 }
 export interface InterPartBack {
@@ -195,10 +206,6 @@ export interface InterPartBack {
     petoHelthIsueIds: mongoose.Types.ObjectId[],
     peeShertSize: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number>,
     petoShertSize: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number>,
-    peeHaveBottle: number,
-    petoHaveBottle: number,
-    peeHaveBottleMapIds: Map<mongoose.Types.ObjectId, boolean>,
-    petoHaveBottleMapIds: Map<mongoose.Types.ObjectId, boolean>,
     peeModelIds: mongoose.Types.ObjectId[],
     petoModelId: mongoose.Types.ObjectId,
     mapPeeCampIdByBaanId: Map<mongoose.Types.ObjectId, mongoose.Types.ObjectId>,                                     /////////////////i
@@ -212,6 +219,12 @@ export interface InterPartBack {
     partName: string,
     peeSleepIds: mongoose.Types.ObjectId[],
     chatIds: mongoose.Types.ObjectId[],
+    isAuth: boolean,
+    petoSleepIds: mongoose.Types.ObjectId[],
+    peeShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    petoShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    peeHaveBottleIds: mongoose.Types.ObjectId[],
+    petoHaveBottleIds: mongoose.Types.ObjectId[],
 }
 export interface InterPartNameContainer {
     campIds: mongoose.Types.ObjectId[],
@@ -224,14 +237,14 @@ export interface InterPeeCamp {
     partId: mongoose.Types.ObjectId,
     baanId: mongoose.Types.ObjectId, peeIds: mongoose.Types.ObjectId[],
     peeShertManageIds: mongoose.Types.ObjectId[],
-    _id: mongoose.Types.ObjectId
+    _id: mongoose.Types.ObjectId,
 }
 export interface InterPetoCamp {
     campId: mongoose.Types.ObjectId,
     partId: mongoose.Types.ObjectId,
     petoShertManageIds: mongoose.Types.ObjectId,
     petoIds: mongoose.Types.ObjectId[],
-    _id: mongoose.Types.ObjectId
+    _id: mongoose.Types.ObjectId,
 }
 export interface InterPlace {
     buildingId: mongoose.Types.ObjectId,
@@ -257,7 +270,10 @@ export interface InterShertManage {
     _id: mongoose.Types.ObjectId,
     haveBottle: boolean,
     sleepAtCamp: boolean,
-    chatIds: mongoose.Types.ObjectId[]
+    chatIds: mongoose.Types.ObjectId[],
+    allChatIds: mongoose.Types.ObjectId[],
+    ownChatIds: mongoose.Types.ObjectId[],
+    helthIshueId: mongoose.Types.ObjectId | null,
 }
 export interface InterSong {
     name: string,
@@ -339,10 +355,6 @@ export interface InterBaanFront {
     nongShertSize: InterSize,//
     peeShertSize: InterSize,//
     songIds: mongoose.Types.ObjectId[],
-    nongHaveBottle: number,
-    peeHaveBottle: number,
-    nongHaveBottleMapIds: mongoose.Types.ObjectId[],//
-    peeHaveBottleMapIds: mongoose.Types.ObjectId[],//
     peeModelIds: mongoose.Types.ObjectId[],
     nongModelId: mongoose.Types.ObjectId,
     nongShertManageIds: mongoose.Types.ObjectId[],
@@ -362,6 +374,10 @@ export interface InterBaanFront {
     peeChatIds: mongoose.Types.ObjectId[],
     nongChatIds: mongoose.Types.ObjectId[],
     nongSendMessage: boolean,
+    nongShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    peeShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    nongHaveBottleIds: mongoose.Types.ObjectId[],
+    peeHaveBottleIds: mongoose.Types.ObjectId[],
 }
 
 export interface InterCampFront {
@@ -390,12 +406,6 @@ export interface InterCampFront {
     open: boolean,
     peePassIds: MapObjectId[],//<userId,partId>               ////////////////////////i
     songIds: mongoose.Types.ObjectId[],
-    nongHaveBottle: number,
-    peeHaveBottle: number,
-    petoHaveBottle: number,
-    nongHaveBottleMapIds: mongoose.Types.ObjectId[],
-    peeHaveBottleMapIds: mongoose.Types.ObjectId[],
-    petoHaveBottleMapIds: mongoose.Types.ObjectId[],
     nongSureIds: mongoose.Types.ObjectId[],
     baanIds: mongoose.Types.ObjectId[],
     nongShertManageIds: mongoose.Types.ObjectId[],
@@ -439,6 +449,17 @@ export interface InterCampFront {
     nongMapIdGtoL: MyMap[],
     peeMapIdGtoL: MyMap[],
     mdTime: Date,
+    partWelfairId: mongoose.Types.ObjectId,
+    partMedId: mongoose.Types.ObjectId,
+    partPlanId: mongoose.Types.ObjectId,
+    allPetoChatIds: mongoose.Types.ObjectId[],
+    petoSleepIds: mongoose.Types.ObjectId[],
+    nongShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    peeShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    petoShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    nongHaveBottleIds: mongoose.Types.ObjectId[],
+    peeHaveBottleIds: mongoose.Types.ObjectId[],
+    petoHaveBottleIds: mongoose.Types.ObjectId[],
 }
 export interface InterPartFront {
     nameId: mongoose.Types.ObjectId,
@@ -449,10 +470,6 @@ export interface InterPartFront {
     petoHelthIsueIds: mongoose.Types.ObjectId[],
     peeShertSize: InterSize,
     petoShertSize: InterSize,
-    peeHaveBottle: number,
-    petoHaveBottle: number,
-    peeHaveBottleMapIds: mongoose.Types.ObjectId[],
-    petoHaveBottleMapIds: mongoose.Types.ObjectId[],
     peeModelIds: mongoose.Types.ObjectId[],
     petoModelId: mongoose.Types.ObjectId,
     peeShertManageIds: mongoose.Types.ObjectId[],
@@ -465,6 +482,12 @@ export interface InterPartFront {
     partName: string
     peeSleepIds: mongoose.Types.ObjectId[],
     chatIds: mongoose.Types.ObjectId[],
+    isAuth: boolean,
+    petoSleepIds: mongoose.Types.ObjectId[],
+    peeShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    petoShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[],
+    peeHaveBottleIds: mongoose.Types.ObjectId[],
+    petoHaveBottleIds: mongoose.Types.ObjectId[],
 }
 export interface MyMap {
     key: mongoose.Types.ObjectId,
@@ -566,7 +589,8 @@ export interface HelthIsueBody {
     medicine: string,
     extra: string,
     isWearing: boolean,
-    spicy: boolean
+    spicy: boolean,
+    foodConcern: string,
 }
 export interface CreateActionPlan {
     action: string,
@@ -726,12 +750,17 @@ export interface InterChat {
     message: string,
     userId: mongoose.Types.ObjectId,
     campModelId: mongoose.Types.ObjectId,
-    role: RoleCamp
+    role: RoleCamp,
+    typeChat: TypeChat,
+    refId: mongoose.Types.ObjectId,//'น้องคุยส่วนตัวกับพี่'shertMasnage,'คุยกันในบ้าน'baan,'คุยกันในฝ่าย'part,'พี่คุยกันในบ้าน'baan,'พี่บ้านคุยกัน'part
+    shertManageIds: mongoose.Types.ObjectId[],
+    date: Date,
 }
 export interface ShowChat extends InterChat {
     nickname: string,
     baanName: string,
     partName: string,
+    roomName: string,
 }
 export interface CreatePeeChat {
     message: string,
@@ -749,3 +778,29 @@ export interface CreateNongChat {
     message: string,
     shertmanageId: mongoose.Types.ObjectId
 }
+export const departures = [
+    "วิศวกรรมเคมี (Chemical Engineering)",
+    "วิศวกรรมเคมีและกระบวนการ (นานาชาติ) (Chemical and Process Engineering)",
+    "วิศวกรรมเครื่องกล (Mechanical Engineering)",
+    "วิศวกรรมเรือ (Naval Architecture and Marine Engineering)",
+    "วิศวกรรมยานยนต์ (Automotive Engineering)",
+    "วิศวกรรมไฟฟ้า (Electrical Engineering)",
+    "วิศวกรรมโยธา (Civil Engineering)",
+    "วิศวกรรมโลหการและวัสดุ (Metallurgical and Materials Engineering)",
+    "วิศวกรรมสิ่งแวดล้อม (Environmental Engineering)",
+    "วิศวกรรมสำรวจ (Survey Engineering)",
+    "วิศวกรรมทรัพยากรธรณี (Georesources Engineering)",
+    "วิศวกรรมปิโตรเลียม (Petroleum Engineering)",
+    "วิศวกรรมอุตสาหการ (Industrial Engineering)",
+    "วิศวกรรมคอมพิวเตอร์ (Computer Engineering)",
+    "วิศวกรรมคอมพิวเตอร์และเทคโนโลยีดิจิทัล (หลักสูตร Sandbox) (Computer Engineering and Digital Technology)",
+    "วิศวกรรมนิวเคลียร์และรังสี (Nuclear and Radiological Engineering)",
+    "วิศวกรรมนาโน (นานาชาติ)** (Nano-Engineering)",
+    "วิศวกรรมการออกแบบและการผลิตยานยนต์ (นานาชาติ)** (Automotive Design and Manufacturing Engineering)",
+    "วิศวกรรมอากาศยาน (นานาชาติ)** (Aerospace Engineering)",
+    "วิศวกรรมสารสนเทศและการสื่อสาร (นานาชาติ)** (Information and Communication Engineering)",
+    "วิศวกรรมหุ่นยนต์และปัญญาประดิษฐ์ (นานาชาติ)** (Robotics and Artificial Intelligence Engineering)"
+] as const
+export type Departure = typeof departures[number]
+export const typeChats = ['น้องคุยส่วนตัวกับพี่', 'คุยกันในบ้าน', 'คุยกันในฝ่าย', 'พี่คุยกันในบ้าน', 'พี่บ้านคุยกัน'] as const
+export type TypeChat = typeof typeChats[number]

@@ -104,30 +104,30 @@ const campSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    nongHaveBottle: {
-        type: Number,
-        default: 0
-    },
-    peeHaveBottle: {
-        type: Number,
-        default: 0
-    },
-    petoHaveBottle: {
-        type: Number,
-        default: 0
-    },
-    nongHaveBottleMapIds: {
-        type: Map,
-        default: new Map<mongoose.ObjectId, boolean>()
-    },
-    peeHaveBottleMapIds: {
-        type: Map,
-        default: new Map<mongoose.ObjectId, boolean>()
-    },
-    petoHaveBottleMapIds: {
-        type: Map,
-        default: new Map<mongoose.ObjectId, boolean>()
-    },
+    // nongHaveBottle: {
+    //     type: Number,
+    //     default: 0
+    // },
+    // peeHaveBottle: {
+    //     type: Number,
+    //     default: 0
+    // },
+    // petoHaveBottle: {
+    //     type: Number,
+    //     default: 0
+    // },
+    // nongHaveBottleMapIds: {
+    //     type: Map,
+    //     default: new Map<mongoose.ObjectId, boolean>()
+    // },
+    // peeHaveBottleMapIds: {
+    //     type: Map,
+    //     default: new Map<mongoose.ObjectId, boolean>()
+    // },
+    // petoHaveBottleMapIds: {
+    //     type: Map,
+    //     default: new Map<mongoose.ObjectId, boolean>()
+    // },
     nongSureIds: {//user
         type: [mongoose.Schema.ObjectId],
         default: []
@@ -320,6 +320,47 @@ const campSchema = new mongoose.Schema({
     mdTime: {
         type: Date,
         default: new Date(Date.now())
+    },
+    partWelfairId: {
+        type: mongoose.Schema.ObjectId
+    },
+    partMedId: {
+        type: mongoose.Schema.ObjectId
+    },
+    partPlanId: {
+        type: mongoose.Schema.ObjectId
+    },
+    allPetoChatIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    petoSleepIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    nongShertManageHaveHelthIshueIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    peeShertManageHaveHelthIshueIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    petoShertManageHaveHelthIshueIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    nongHaveBottleIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    peeHaveBottleIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    petoHaveBottleIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
     },
 })
 export default mongoose.model('Camp', campSchema)

@@ -41,22 +41,22 @@ const BaanSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    nongHaveBottle: {
-        type: Number,
-        default: 0
-    },
-    peeHaveBottle: {
-        type: Number,
-        default: 0
-    },
-    nongHaveBottleMapIds: {
-        type: Map,
-        default: new Map<mongoose.ObjectId, boolean>()
-    },
-    peeHaveBottleMapIds: {
-        type: Map,
-        default: new Map<mongoose.ObjectId, boolean>()
-    },
+    // nongHaveBottle: {
+    //     type: Number,
+    //     default: 0
+    // },
+    // peeHaveBottle: {
+    //     type: Number,
+    //     default: 0
+    // },
+    // nongHaveBottleMapIds: {
+    //     type: Map,
+    //     default: new Map<mongoose.ObjectId, boolean>()
+    // },
+    // peeHaveBottleMapIds: {
+    //     type: Map,
+    //     default: new Map<mongoose.ObjectId, boolean>()
+    // },
     mapPeeCampIdByPartId: {
         type: Map,
         default: new Map<mongoose.ObjectId, mongoose.ObjectId>()
@@ -129,7 +129,39 @@ const BaanSchema = new mongoose.Schema({
     nongSendMessage: {
         type: Boolean,
         default: false
-    }
+    },
+    // nongHaveHelthIshueIds: {
+    //     type: [mongoose.Schema.ObjectId],
+    //     default: []
+    // },
+    // nongMapHelthIshueIdByUserId: {
+    //     type: Map,
+    //     default: new Map()
+    // },
+    // peeHaveHelthIshueIds: {
+    //     type: [mongoose.Schema.ObjectId],
+    //     default: []
+    // },
+    // peeMapHelthIshueIdByUserId: {
+    //     type: Map,
+    //     default: new Map()
+    // }
+    nongShertManageHaveHelthIshueIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    peeShertManageHaveHelthIshueIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    nongHaveBottleIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    peeHaveBottleIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
 
 })
 export default mongoose.model('Baan', BaanSchema)

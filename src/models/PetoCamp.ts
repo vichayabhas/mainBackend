@@ -10,9 +10,13 @@ const PeeCampSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    petoIds:{
+    petoIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
-    }
+    },
+    // helthIshueIds: {
+    //     type: [mongoose.Schema.ObjectId],
+    //     default: []
+    // }
 })
 export default mongoose.model('PetoCamp', PeeCampSchema)

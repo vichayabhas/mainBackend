@@ -149,7 +149,7 @@ const UserSchema = new mongoose.Schema({
     },
     likeToSleepAtCamp: {
         type: Boolean,
-        required: [true]
+        required: true
     },
     authPartIds: {
         type: [mongoose.Schema.ObjectId],

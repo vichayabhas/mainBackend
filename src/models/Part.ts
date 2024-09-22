@@ -33,22 +33,22 @@ const PartSchema = new mongoose.Schema({
         type: Map,
         default: startSize()
     },
-    peeHaveBottle: {
-        type: Number,
-        default: 0
-    },
-    petoHaveBottle: {
-        type: Number,
-        default: 0
-    },
-    peeHaveBottleMapIds: {
-        type: Map,
-        default: new Map
-    },
-    petoHaveBottleMapIds: {
-        type: Map,
-        default: new Map
-    },
+    // peeHaveBottle: {
+    //     type: Number,
+    //     default: 0
+    // },
+    // petoHaveBottle: {
+    //     type: Number,
+    //     default: 0
+    // },
+    // peeHaveBottleMapIds: {
+    //     type: Map,
+    //     default: new Map
+    // },
+    // petoHaveBottleMapIds: {
+    //     type: Map,
+    //     default: new Map
+    // },
     peeModelIds: {//peeCamp
         type: [mongoose.Schema.ObjectId],
         default: []
@@ -92,6 +92,46 @@ const PartSchema = new mongoose.Schema({
         default: []
     },
     chatIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    isAuth: {
+        type: Boolean,
+        required: true
+    },
+    // peeHaveHelthIshueIds: {
+    //     type: [mongoose.Schema.ObjectId],
+    //     default: []
+    // },
+    // peeMapHelthIshueIdByUserId: {
+    //     type: Map,
+    //     default: new Map()
+    // },
+    // petoHaveHelthIshueIds: {
+    //     type: [mongoose.Schema.ObjectId],
+    //     default: []
+    // },
+    // petoMapHelthIshueIdByUserId: {
+    //     type: Map,
+    //     default: new Map()
+    // },
+    petoSleepIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    peeShertManageHaveHelthIshueIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    petoShertManageHaveHelthIshueIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    peeHaveBottleIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    petoHaveBottleIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },

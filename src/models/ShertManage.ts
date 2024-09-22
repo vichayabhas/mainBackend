@@ -34,9 +34,21 @@ const PeeCampSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    chatIds:{
-        type:[mongoose.Schema.ObjectId],
-        default:[]
+    chatIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    allChatIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    ownChatIds: {
+        type: [mongoose.Schema.ObjectId],
+        default: []
+    },
+    helthIshueId: {
+        type: mongoose.Schema.ObjectId,
+        default: null,
     },
 })
 export default mongoose.model('ShertManage', PeeCampSchema)

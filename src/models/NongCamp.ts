@@ -2,7 +2,8 @@ import mongoose from "mongoose"
 const PeeCampSchema = new mongoose.Schema({
     campId: {
         type: mongoose.Schema.ObjectId,
-        
+        required: true
+
     },
     baanId: {
         type: mongoose.Schema.ObjectId
