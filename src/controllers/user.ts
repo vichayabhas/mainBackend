@@ -16,16 +16,28 @@ import jwt from 'jsonwebtoken'
 import mongoose from "mongoose";
 import Song from "../models/Song";
 import TimeOffset from "../models/TimeOffset";
-// exports.register             
-// exports.login
-// exports.getMe               protect
-// exports.logout
-// exports.updateMode          protect pee up
-// exports.updateSize          protect           params id
-// exports.getHelthIsue        protect           params id
-// exports.updateHelth         protect           params id
-// exports.updateBottle        protect
-// export async function getShertManageByCampId
+//*export async function register
+//*export async function login
+//*export async function getMe
+// export async function logout
+//*export async function updateMode
+//*export async function updateSize
+//*export async function getHelthIsue
+//*export async function updateHelth
+//*export async function updateBottle
+//*export async function getShertManageByCampId
+//*export async function updateProfile
+//*export async function changeModeToPee
+//*export async function checkTel
+//*export async function updateSleep
+//*export async function getUsers
+//*export async function getShertmanage
+//*export async function updateTimeOffset
+//*export async function getTimeOffset
+//*export async function signId
+//*export async function verifyEmail
+//*export async function revalidaionHelthIshues
+//*export async function checkPassword
 export async function register(req: express.Request, res: express.Response, next: express.NextFunction) {
 	try {
 		const buf: Register = req.body
@@ -62,7 +74,7 @@ export async function login(req: express.Request, res: express.Response, next: e
 		});
 	}
 	const isMatch = await bcrypt.compare(password, user.password);
-	console.log(bcrypt.compareSync(password, user.password))
+	
 	if (!isMatch) {
 		return res.status(401).json({
 			success: false,
@@ -927,8 +939,13 @@ export async function updateTimeOffset(req: express.Request, res: express.Respon
 	sendRes(res, true)
 }
 export async function getTimeOffset(req: express.Request, res: express.Response, next: express.NextFunction) {
-	const buf = await TimeOffset.findById(req.params.id)
+	try{
+		const buf = await TimeOffset.findById(req.params.id)
 	res.status(200).json(buf)
+	}catch(e){
+		sendRes(res,false)
+	}
+	
 }
 export async function signId(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const user = await getUser(req)
@@ -1065,4 +1082,12 @@ export async function revalidaionHelthIshues(ids: mongoose.Types.ObjectId[]) {
 			await old.deleteOne()
 		}
 	}
+}
+export async function checkPassword(req: express.Request, res: express.Response, next: express.NextFunction){
+	const user=await getUser(req)
+	if(!user){
+		sendRes(res,false)
+	}
+	const isMatch=await bcrypt.compare(req.body.password,user.password)
+	sendRes(res,isMatch)
 }

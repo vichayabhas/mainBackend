@@ -3,8 +3,7 @@ import { sendRes, swop } from "./setup";
 import express from "express";
 import { getUser } from "../middleware/auth";
 import mongoose from "mongoose";
-import Part from "../models/Part";
-import { changePart, changePartRaw, getImpotentPartIdBCRP } from "./camp";
+import { changePartRaw, getImpotentPartIdBCRP } from "./camp";
 export async function interview(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { members, campId } = req.body
     const i = await interviewRaw(members, campId)

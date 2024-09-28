@@ -590,11 +590,17 @@ export function startJsonSize(): InterSize {
         _id: null
     }
 }
-export function ifIsTrue(input: boolean, id: mongoose.Types.ObjectId, array: mongoose.Types.ObjectId[]) {
+export function ifIsTrue(input: boolean, id: mongoose.Types.ObjectId, array1: mongoose.Types.ObjectId[], array2?: mongoose.Types.ObjectId[], array3?: mongoose.Types.ObjectId[]) {
     if (input) {
-        array.push(id)
+        array1.push(id)
+        if (array2) {
+            array2.push(id)
+        }
+        if (array3) {
+            array3.push(id)
+        }
     }
-    return array
+    return array1
 }
 export function ifIsHave(input: mongoose.Types.ObjectId | null, array: mongoose.Types.ObjectId[]) {
     if (input) {
@@ -608,4 +614,8 @@ export function ifIsPlus(logic: boolean, input: number): number {
     } else {
         return input
     }
+}
+export const systemMode:string=process.env.MODE
+export function getSystemMode(){
+    return process.env.MODE
 }

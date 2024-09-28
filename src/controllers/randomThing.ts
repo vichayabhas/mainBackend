@@ -4,18 +4,19 @@ import Camp from "../models/Camp"
 import Song from "../models/Song"
 import User from "../models/User"
 import express from "express";
-import { resError, resOk, sendRes, swop } from "./setup";
+import { getSystemMode, resError, resOk, sendRes, swop, systemMode } from "./setup";
 import LostAndFound from "../models/LostAndFound";
 import Building from "../models/Building";
 import Place from "../models/Place";
 import NongCamp from "../models/NongCamp";
-import { CreateBaanChat, CreateNongChat, CreatePeeChat, EditChat, InterCampBack, InterChat, InterLostAndFound, InterPlace, Mode, ShowChat, ShowLostAndFound, ShowPlace, TypeChat } from "../models/intreface";
+import { ChatReady, CreateBaanChat, CreateNongChat, CreatePeeChat, EditChat, InterCampBack, InterChat, InterLostAndFound, InterPlace, Mode, ShowChat, ShowLostAndFound, ShowPlace, TypeChat } from "../models/intreface";
 import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import mongoose from "mongoose";
 import Part from "../models/Part";
 import ShertManage from "../models/ShertManage";
 import Chat from "../models/Chat";
+import TimeOffset from "../models/TimeOffset";
 // export async function addLikeSong
 // export async function getNongLikeSong
 // export async function getPeeLikeSong
@@ -23,10 +24,33 @@ import Chat from "../models/Chat";
 // export async function getAllCampLikeSong
 // export async function addBaanSong
 // export async function removeBaanSong
-// export async function addLostAndFound
+//*export async function addLostAndFound
 // export async function deleteLostAndFound
-// export async function getLostAndFounds
+//*export async function getLostAndFounds
 // export async function getLostAndFound
+//*export async function getAllBuilding
+//*export async function createPlace
+// export async function saveDeletePlace
+//*export async function createBuilding
+// export async function saveDeleteBuilding
+//*export async function getPlaces
+//*export async function getPlace
+//*export async function getBuilding
+//*export async function getShowPlace
+//*export async function createPartChat
+//*export async function getShowChatFromChatIds
+// export async function editChat
+// export async function deleteChat
+//*export async function deleteChatRaw
+//*export async function createNongChat
+//*export async function createPeeBaanChat
+//*export async function createNongBaanChat
+//*export async function getAllChatFromCampId
+//*export async function getPartChat
+//*export async function getNongBaanChat
+//*export async function getPeeBaanChat
+//*export async function getNongChat
+//*export async function getSystemInfo
 export async function addLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { songIds }: { songIds: string[] } = req.body
     const user = await getUser(req)
@@ -809,25 +833,42 @@ export async function createNongBaanChat(req: express.Request, res: express.Resp
     await chat.updateOne({ shertManageIds })
     await baan.updateOne({ nongChatIds: swop(null, chat._id, baan.nongChatIds) })
 }
-export async function getAllPeeOrNongChat(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const shertManage = await ShertManage.findById(req.params.id)
-    const user = await getUser(req)
-    if (!shertManage || !user) {
-        sendRes(res, false)
-        return
-    }
-    const output = await getShowChatFromChatIds(shertManage.allChatIds, user.mode)
-    res.status(200).json(output)
-}
-export async function getAllPetoChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getAllChatFromCampId(req: express.Request, res: express.Response, next: express.NextFunction) {
     const user = await getUser(req)
     const camp = await Camp.findById(req.params.id)
     if (!camp || !user) {
         sendRes(res, false)
         return
     }
-    const output = await getShowChatFromChatIds(camp.allPetoChatIds, user.mode)
-    res.status(200).json(output)
+    const timeOffset = await TimeOffset.findById(user.displayOffsetId)
+    if (!timeOffset) {
+        sendRes(res, false)
+        return
+    }
+    if (camp.petoIds.includes(user._id)) {
+        const chats = await getShowChatFromChatIds(camp.allPetoChatIds, user.mode)
+        const output: ChatReady = {
+            chats,
+            mode: user.mode,
+            sendType: null,
+            groupName: camp.groupName,
+            timeOffset,
+            success: true,
+        }
+        res.status(200).json(output)
+    } else {
+        const shertManage = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
+        const chats = await getShowChatFromChatIds(shertManage.allChatIds, user.mode)
+        const output: ChatReady = {
+            chats,
+            mode: user.mode,
+            sendType: null,
+            groupName: camp.groupName,
+            timeOffset,
+            success: true,
+        }
+        res.status(200).json(output)
+    }
 }
 export async function getPartChat(req: express.Request, res: express.Response, next: express.NextFunction) {
     const part = await Part.findById(req.params.id)
@@ -836,27 +877,145 @@ export async function getPartChat(req: express.Request, res: express.Response, n
         sendRes(res, false)
         return
     }
-    const output = await getShowChatFromChatIds(part.chatIds, user.mode)
+    const camp = await Camp.findById(part.campId)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
+    const chats = await getShowChatFromChatIds(part.chatIds, user.mode)
+    const timeOffset = await TimeOffset.findById(user.displayOffsetId)
+    if (!timeOffset) {
+        sendRes(res, false)
+        return
+    }
+    const output: ChatReady = {
+        chats,
+        mode: user.mode,
+        sendType: {
+            roomType: 'คุยกันในฝ่าย',
+            id: part._id,
+        },
+        groupName: camp.groupName,
+        timeOffset,
+        success: true,
+    }
     res.status(200).json(output)
 }
 export async function getNongBaanChat(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const baan = await Baan.findById(req.params.id)
+    const camp = await Camp.findById(req.params.id)
     const user = await getUser(req)
-    if (!baan || !user) {
+    if (!camp || !user) {
         sendRes(res, false)
         return
     }
-    const output = await getShowChatFromChatIds(baan.nongChatIds, user.mode)
-    res.status(200).json(output)
+    const shertManage = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
+    if (!shertManage) {
+        sendRes(res, false)
+        return
+    }
+    const timeOffset = await TimeOffset.findById(user.displayOffsetId)
+    if (!timeOffset) {
+        sendRes(res, false)
+        return
+    }
+    switch (shertManage.role) {
+        case "nong": {
+            const nongCamp = await NongCamp.findById(shertManage.campModelId)
+            if (!nongCamp) {
+                sendRes(res, false)
+                return
+            }
+            const baan = await Baan.findById(nongCamp.baanId)
+            if (!baan) {
+                sendRes(res, false)
+                return
+            }
+            const chats = await getShowChatFromChatIds(baan.nongChatIds, user.mode)
+            const output: ChatReady = {
+                chats,
+                mode: user.mode,
+                sendType: baan.nongSendMessage ? {
+                    id: baan._id,
+                    roomType: 'คุยกันในบ้าน',
+                } : null,
+                groupName: camp.groupName,
+                timeOffset,
+                success: true
+            }
+            res.status(200).json(output)
+            return
+        }
+        case "pee": {
+            const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+            if (!peeCamp) {
+                sendRes(res, false)
+                return
+            }
+            const baan = await Baan.findById(peeCamp.baanId)
+            if (!baan) {
+                sendRes(res, false)
+                return
+            }
+            const chats = await getShowChatFromChatIds(baan.nongChatIds, user.mode)
+            const output: ChatReady = {
+                chats,
+                mode: user.mode,
+                sendType: {
+                    id: baan._id,
+                    roomType: 'คุยกันในบ้าน',
+                },
+                groupName: camp.groupName,
+                timeOffset,
+                success: true
+            }
+            res.status(200).json(output)
+            return
+        }
+        case "peto": {
+            sendRes(res, false)
+            return
+        }
+    }
 }
 export async function getPeeBaanChat(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const baan = await Baan.findById(req.params.id)
+    const camp = await Camp.findById(req.params.id)
     const user = await getUser(req)
-    if (!baan || !user) {
+    if (!camp || !user) {
         sendRes(res, false)
         return
     }
-    const output = await getShowChatFromChatIds(baan.peeChatIds, user.mode)
+    const shertManage = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
+    if (!shertManage || shertManage.role !== 'pee') {
+        sendRes(res, false)
+        return
+    }
+    const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+    if (!peeCamp) {
+        sendRes(res, false)
+        return
+    }
+    const baan = await Baan.findById(peeCamp.baanId)
+    if (!baan) {
+        sendRes(res, false)
+        return
+    }
+    const chats = await getShowChatFromChatIds(baan.peeChatIds, 'pee')
+    const timeOffset = await TimeOffset.findById(user.displayOffsetId)
+    if (!timeOffset) {
+        sendRes(res, false)
+        return
+    }
+    const output: ChatReady = {
+        chats,
+        mode: 'pee',
+        sendType: {
+            id: baan._id,
+            roomType: 'พี่คุยกันในบ้าน'
+        },
+        groupName: camp.groupName,
+        timeOffset,
+        success: true,
+    }
     res.status(200).json(output)
 }
 export async function getNongChat(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -866,6 +1025,41 @@ export async function getNongChat(req: express.Request, res: express.Response, n
         sendRes(res, false)
         return
     }
-    const output = await getShowChatFromChatIds(shertManage.chatIds, user.mode)
+    const nongCamp = await NongCamp.findById(shertManage.campModelId)
+    if (!nongCamp) {
+        sendRes(res, false)
+        return
+    }
+    const camp = await Camp.findById(nongCamp.campId)
+    const baan = await Baan.findById(nongCamp.baanId)
+    if (!camp || !baan) {
+        sendRes(res, false)
+        return
+    }
+    if (!shertManage.userId.equals(user._id) && !baan.peeIds.includes(user._id)) {
+        sendRes(res, false)
+        return
+    }
+    const chats = await getShowChatFromChatIds(shertManage.chatIds, user.mode)
+    const timeOffset = await TimeOffset.findById(user.displayOffsetId)
+    if (!timeOffset) {
+        sendRes(res, false)
+        return
+    }
+    const output: ChatReady = {
+        chats,
+        mode: user.mode,
+        sendType: {
+            id: shertManage._id,
+            roomType: 'น้องคุยส่วนตัวกับพี่'
+        },
+        groupName: camp.groupName,
+        timeOffset,
+        success: true,
+    }
     res.status(200).json(output)
+}
+export async function getSystemInfo(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const systemMode = getSystemMode()
+    res.status(200).json({ systemMode })
 }

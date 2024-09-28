@@ -566,7 +566,8 @@ export interface ShowMember {
     sleep: boolean,
     isWearing: boolean,
     spicy: boolean,
-    id: number
+    id: number,
+    shertManageId: mongoose.Types.ObjectId,
 }
 export interface UpdateBaan {
     name: string,
@@ -804,3 +805,35 @@ export const departures = [
 export type Departure = typeof departures[number]
 export const typeChats = ['น้องคุยส่วนตัวกับพี่', 'คุยกันในบ้าน', 'คุยกันในฝ่าย', 'พี่คุยกันในบ้าน', 'พี่บ้านคุยกัน'] as const
 export type TypeChat = typeof typeChats[number]
+export type GetChat = 'getAllChatFromCampId' | 'getPartChat' | 'getNongBaanChat' | 'getPeeBaanChat' | 'getNongChat'
+export interface AllPlaceData {
+    allPlace: Map<string, InterPlace[]>,
+    allBuildings: Map<mongoose.Types.ObjectId, InterBuilding>,
+}
+export interface CampSizeContainer {
+    name: string,
+    groupName: string,
+    nongSize: InterSize,
+    peeSize: InterSize,
+    petoSize: InterSize,
+    partSizes: SizeContainer[],
+    baanSizes: SizeContainer[],
+    isHavePeto: boolean,
+}
+export interface SizeContainer {
+    name: string,
+    nongSize: InterSize,
+    peeSize: InterSize,
+    petoSize: InterSize,
+}
+export interface ChatReady {
+    chats: ShowChat[];
+    timeOffset: InterTimeOffset;
+    mode: Mode;
+    groupName: string;
+    sendType: {
+        id: mongoose.Types.ObjectId;
+        roomType: TypeChat;
+    } | null;
+    success:boolean,
+}
