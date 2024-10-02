@@ -2,17 +2,17 @@ import ActionPlan from "../models/ActionPlan"
 import Baan from "../models/Baan"
 import Camp from "../models/Camp"
 import CampStyle from "../models/CampStyle"
-import HelthIsue from "../models/HelthIsue"
+import HeathIssue from "../models/HeathIssue"
 import NameContainer from "../models/NameContainer"
 import NongCamp from "../models/NongCamp"
 import Part from "../models/Part"
 import PeeCamp from "../models/PeeCamp"
 import PetoCamp from "../models/PetoCamp"
-import ShertManage from "../models/ShertManage"
+import CampMemberCard from "../models/CampMemberCard"
 import User from "../models/User"
 import WorkItem from "../models/WorkItem"
-import { CreateCamp, InterBaanFront, InterCampBack, UpdateCamp, UpdateBaan, Group, MyMap, InterPartBack, Size } from "../models/intreface"
-import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, ifIsPlus, ifIsTrue, jsonToMapSize, removeDupicate, sendRes, sizeJsonMod, sizeMapToJson, startJsonSize, startSize, swop } from "./setup"
+import { CreateCamp, InterBaanFront, InterCampBack, UpdateCamp, UpdateBaan, Group, MyMap, InterPartBack, Size } from "../models/interface"
+import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, ifIsTrue, jsonToMapSize, removeDuplicate , sendRes, sizeJsonMod, sizeMapToJson, startJsonSize, startSize, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
 import PartNameContainer from '../models/PartNameContainer'
@@ -23,7 +23,7 @@ import LostAndFound from "../models/LostAndFound"
 import { addPeeRaw, addPetoRaw, changeBaanRaw } from "./camp"
 import mongoose from "mongoose"
 import Chat from "../models/Chat"
-import { revalidaionHelthIshues } from "./user"
+import { revalidationHeathIssues } from "./user"
 import { deleteChatRaw } from "./randomThing"
 //*export async function addBaan
 //*export async function addPart
@@ -171,17 +171,17 @@ export async function updateBaan(req: express.Request, res: express.Response, ne
 async function updateBaanRaw(update: UpdateBaan) {
     try {
         //console.log(update)
-        var { name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, nomalPlaceId, nongSendMessage } = update
+        var { name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, normalPlaceId, nongSendMessage } = update
         const baan = await Baan.findById(baanId)
         if (!baan) {
             return false
         }
         const boyNewP = await Place.findById(boySleepPlaceId)
         const girlNewP = await Place.findById(girlSleepPlaceId)
-        const normalNewP = await Place.findById(nomalPlaceId)
+        const normalNewP = await Place.findById(normalPlaceId)
         const boyOldP = await Place.findById(baan.boySleepPlaceId)
         const girlOldP = await Place.findById(baan.girlSleepPlaceId)
-        const normalOldP = await Place.findById(baan.nomalPlaceId)
+        const normalOldP = await Place.findById(baan.normalPlaceId)
         if (boyNewP) {
             const boyNewB = await Building.findById(boyNewP.buildingId)
             if (boyNewB) {
@@ -230,7 +230,7 @@ async function updateBaanRaw(update: UpdateBaan) {
             link,
             girlSleepPlaceId: girlNewP ? girlNewP._id : null,
             boySleepPlaceId: boyNewP ? boyNewP._id : null,
-            nomalPlaceId: normalNewP ? normalNewP._id : null,
+            normalPlaceId: normalNewP ? normalNewP._id : null,
             nongSendMessage,
         })
         return true
@@ -298,7 +298,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             dateEnd,
             boardIds,
             registerModel,
-            memberStructre,
+            memberStructure,
             nongSleepModel,
             peeSleepModel
         }: CreateCamp = req.body
@@ -314,7 +314,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             dateEnd,
             boardIds,
             registerModel,
-            memberStructre,
+            memberStructure,
             nongSleepModel,
             peeSleepModel,
             campName: `${nameContainer.name} ${round}`
@@ -338,9 +338,9 @@ export async function createCamp(req: express.Request, res: express.Response, ne
         if (!partNameContainerPeeBaan) {
             partNameContainerPeeBaan = await PartNameContainer.create({ name: 'พี่บ้าน' })
         }
-        var partNameContainerWelfair = await PartNameContainer.findOne({ name: 'สวัสดิการ' })
-        if (!partNameContainerWelfair) {
-            partNameContainerWelfair = await PartNameContainer.create({ name: 'สวัสดิการ' })
+        var partNameContainerWelfare = await PartNameContainer.findOne({ name: 'สวัสดิการ' })
+        if (!partNameContainerWelfare) {
+            partNameContainerWelfare = await PartNameContainer.create({ name: 'สวัสดิการ' })
         }
         var partNameContainerMed = await PartNameContainer.findOne({ name: 'พยาบาล' })
         if (!partNameContainerMed) {
@@ -362,7 +362,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             partIds: [part._id],
             petoModelIds: [petoCamp._id],
             campName: `${nameContainer.name} ${camp.round}`,
-            baanBordId: null,
+            baanBoardId: null,
             partBoardId: part._id,
             partNameIds: [partNameContainer._id]
         })
@@ -382,22 +382,22 @@ export async function createCamp(req: express.Request, res: express.Response, ne
         const coop = await addPartRaw(camp._id, partNameContainerCoop._id, true)
         const regis = await addPartRaw(camp._id, partNameContainerRegis._id, true)
         const peeBaan = await addPartRaw(camp._id, partNameContainerPeeBaan._id, false)
-        const welfair = await addPartRaw(camp._id, partNameContainerWelfair._id, true)
+        const welfare = await addPartRaw(camp._id, partNameContainerWelfare._id, true)
         const med = await addPartRaw(camp._id, partNameContainerMed._id, true)
         const plan = await addPartRaw(camp._id, partNameContainerPlan._id, true)
-        if (!coop || !regis || !peeBaan || !welfair || !med || !plan) {
+        if (!coop || !regis || !peeBaan || !welfare || !med || !plan) {
             sendRes(res, false)
             return
         }
         await camp.updateOne({
             partCoopId: coop._id,
-            partRegiterId: regis._id,
+            partRegisterId: regis._id,
             partPeeBaanId: peeBaan._id,
             partMedId: med._id,
-            partWelfairId: welfair._id,
+            partWelfareId: welfare._id,
             partPlanId: plan._id,
         })
-        if (memberStructre == 'nong->highSchool,pee->1year,peto->2upYear') {
+        if (memberStructure == 'nong->highSchool,pee->1year,peto->2upYear') {
             await addPetoRaw(boardIds, part._id, res)
         } else {
             const newCamp: InterCampBack | null = await Camp.findById(camp._id)
@@ -410,7 +410,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             while (i < boardIds.length) {
                 camp.peePassIds.set(boardIds[i++].toString(), part._id)
             }
-            await camp.updateOne({ peePassIds: camp.peePassIds, baanBordId: baan._id })
+            await camp.updateOne({ peePassIds: camp.peePassIds, baanBoardId: baan._id })
             await addPeeRaw(boardIds, baan._id)
         }
         res.status(201).json(conCampBackToFront(camp.toObject()))
@@ -431,38 +431,38 @@ async function forceDeleteCampRaw(campId: mongoose.Types.ObjectId, res: express.
         }
         await CampStyle.findByIdAndDelete(camp.campStyleId)
         var i = 0
-        while (i < camp.peeShertManageIds.length) {
-            const shertManage = await ShertManage.findById(camp.peeShertManageIds[i++])
-            const user = await User.findById(shertManage?.userId)
-            if (!user || !shertManage) {
+        while (i < camp.peeCampMemberCardIds.length) {
+            const campMemberCard = await CampMemberCard.findById(camp.peeCampMemberCardIds[i++])
+            const user = await User.findById(campMemberCard?.userId)
+            if (!user || !campMemberCard) {
                 continue
             }
-            await user.updateOne({ shertManageIds: swop(shertManage._id, null, user.shertManageIds), filterIds: swop(camp._id, null, user.filterIds), registerIds: swop(camp._id, null, user.registerIds) })
-            await shertManage.deleteOne()
+            await user.updateOne({ campMemberCardIds: swop(campMemberCard._id, null, user.campMemberCardIds), filterIds: swop(camp._id, null, user.filterIds), registerIds: swop(camp._id, null, user.registerIds) })
+            await campMemberCard.deleteOne()
         }
         i = 0
-        while (i < camp.nongShertManageIds.length) {
-            const shertManage = await ShertManage.findById(camp.nongShertManageIds[i++])
-            const user = await User.findById(shertManage?.userId)
-            if (!user || !shertManage) {
+        while (i < camp.nongCampMemberCardIds.length) {
+            const campMemberCard = await CampMemberCard.findById(camp.nongCampMemberCardIds[i++])
+            const user = await User.findById(campMemberCard?.userId)
+            if (!user || !campMemberCard) {
                 continue
             }
-            await user.updateOne({ shertManageIds: swop(shertManage._id, null, user.shertManageIds) })
+            await user.updateOne({ campMemberCardIds: swop(campMemberCard._id, null, user.campMemberCardIds) })
             var j = 0
-            while (j < shertManage.chatIds.length) {
-                await Chat.findByIdAndDelete(shertManage.chatIds[j++])
+            while (j < campMemberCard.chatIds.length) {
+                await Chat.findByIdAndDelete(campMemberCard.chatIds[j++])
             }
-            await shertManage.deleteOne()
+            await campMemberCard.deleteOne()
         }
         i = 0
-        while (i < camp.petoShertManageIds.length) {
-            const shertManage = await ShertManage.findById(camp.petoShertManageIds[i++])
-            const user = await User.findById(shertManage?.userId)
-            if (!user || !shertManage) {
+        while (i < camp.petoCampMemberCardIds.length) {
+            const campMemberCard = await CampMemberCard.findById(camp.petoCampMemberCardIds[i++])
+            const user = await User.findById(campMemberCard?.userId)
+            if (!user || !campMemberCard) {
                 continue
             }
-            await user.updateOne({ shertManageIds: swop(shertManage._id, null, user.shertManageIds), filterIds: swop(camp._id, null, user.filterIds), registerIds: swop(camp._id, null, user.registerIds) })
-            await shertManage.deleteOne()
+            await user.updateOne({ campMemberCardIds: swop(campMemberCard._id, null, user.campMemberCardIds), filterIds: swop(camp._id, null, user.filterIds), registerIds: swop(camp._id, null, user.registerIds) })
+            await campMemberCard.deleteOne()
         }
         i = 0
         while (i < camp.boardIds.length) {
@@ -554,7 +554,7 @@ async function forceDeleteCampRaw(campId: mongoose.Types.ObjectId, res: express.
                     await girlB.updateOne({ girlSleepBaanIds: swop(baan._id, null, girlB.girlSleepBaanIds) })
                 }
             }
-            const normalP = await Place.findById(baan.nomalPlaceId)
+            const normalP = await Place.findById(baan.normalPlaceId)
             if (normalP) {
                 await normalP.updateOne({ normalBaanIds: swop(baan._id, null, normalP.normalBaanIds) })
                 const normalB = await Building.findById(normalP.buildingId)
@@ -576,74 +576,74 @@ async function forceDeleteCampRaw(campId: mongoose.Types.ObjectId, res: express.
         await CampStyle.findByIdAndDelete(camp.campStyleId)
         i = 0
         if (camp.dataLock) {
-            while (i < camp.nongHelthIsueIds.length) {
-                const helthIsue = await HelthIsue.findById(camp.nongHelthIsueIds[i++])
-                if (!helthIsue) {
+            while (i < camp.nongHeathIssueIds.length) {
+                const heathIssue = await HeathIssue.findById(camp.nongHeathIssueIds[i++])
+                if (!heathIssue) {
                     continue
                 }
-                await helthIsue.updateOne({ campIds: swop(camp._id, null, helthIsue.campIds) })
+                await heathIssue.updateOne({ campIds: swop(camp._id, null, heathIssue.campIds) })
             }
         } else {
-            while (i < camp.nongShertManageHaveHelthIshueIds.length) {
-                const shertManage = await ShertManage.findById(camp.nongShertManageHaveHelthIshueIds[i++])
-                if (!shertManage) {
+            while (i < camp.nongCampMemberCardHaveHeathIssueIds.length) {
+                const campMemberCard = await CampMemberCard.findById(camp.nongCampMemberCardHaveHeathIssueIds[i++])
+                if (!campMemberCard) {
                     continue
                 }
-                const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-                if (!helthIsue) {
+                const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+                if (!heathIssue) {
                     continue
                 }
-                await helthIsue.updateOne({ shertManageIds: swop(shertManage._id, null, helthIsue.shertManageIds) })
+                await heathIssue.updateOne({ campMemberCardIds: swop(campMemberCard._id, null, heathIssue.campMemberCardIds) })
             }
         }
         i = 0
         if (camp.peeDataLock) {
-            while (i < camp.peeHelthIsueIds.length) {
-                const helthIsue = await HelthIsue.findById(camp.peeHelthIsueIds[i++])
-                if (!helthIsue) {
+            while (i < camp.peeHeathIssueIds.length) {
+                const heathIssue = await HeathIssue.findById(camp.peeHeathIssueIds[i++])
+                if (!heathIssue) {
                     continue
                 }
-                await helthIsue.updateOne({ campIds: swop(camp._id, null, helthIsue.campIds) })
+                await heathIssue.updateOne({ campIds: swop(camp._id, null, heathIssue.campIds) })
             }
         } else {
-            while (i < camp.peeShertManageHaveHelthIshueIds.length) {
-                const shertManage = await ShertManage.findById(camp.peeShertManageHaveHelthIshueIds[i++])
-                if (!shertManage) {
+            while (i < camp.peeCampMemberCardHaveHeathIssueIds.length) {
+                const campMemberCard = await CampMemberCard.findById(camp.peeCampMemberCardHaveHeathIssueIds[i++])
+                if (!campMemberCard) {
                     continue
                 }
-                const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-                if (!helthIsue) {
+                const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+                if (!heathIssue) {
                     continue
                 }
-                await helthIsue.updateOne({ shertManageIds: swop(shertManage._id, null, helthIsue.shertManageIds) })
+                await heathIssue.updateOne({ campMemberCardIds: swop(campMemberCard._id, null, heathIssue.campMemberCardIds) })
             }
         }
         i = 0
         if (camp.petoDataLock) {
-            while (i < camp.petoHelthIsueIds.length) {
-                const helthIsue = await HelthIsue.findById(camp.petoHelthIsueIds[i++])
-                if (!helthIsue) {
+            while (i < camp.petoHeathIssueIds.length) {
+                const heathIssue = await HeathIssue.findById(camp.petoHeathIssueIds[i++])
+                if (!heathIssue) {
                     continue
                 }
-                await helthIsue.updateOne({ campIds: swop(camp._id, null, helthIsue.campIds) })
+                await heathIssue.updateOne({ campIds: swop(camp._id, null, heathIssue.campIds) })
             }
         } else {
-            while (i < camp.petoShertManageHaveHelthIshueIds.length) {
-                const shertManage = await ShertManage.findById(camp.petoShertManageHaveHelthIshueIds[i++])
-                if (!shertManage) {
+            while (i < camp.petoCampMemberCardHaveHeathIssueIds.length) {
+                const campMemberCard = await CampMemberCard.findById(camp.petoCampMemberCardHaveHeathIssueIds[i++])
+                if (!campMemberCard) {
                     continue
                 }
-                const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-                if (!helthIsue) {
+                const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+                if (!heathIssue) {
                     continue
                 }
-                await helthIsue.updateOne({ shertManageIds: swop(shertManage._id, null, helthIsue.shertManageIds) })
+                await heathIssue.updateOne({ campMemberCardIds: swop(campMemberCard._id, null, heathIssue.campMemberCardIds) })
             }
         }
         i = 0
-        await revalidaionHelthIshues(camp.nongHelthIsueIds)
-        await revalidaionHelthIshues(camp.peeHelthIsueIds)
-        await revalidaionHelthIshues(camp.petoHelthIsueIds)
+        await revalidationHeathIssues(camp.nongHeathIssueIds)
+        await revalidationHeathIssues(camp.peeHeathIssueIds)
+        await revalidationHeathIssues(camp.petoHeathIssueIds)
         while (i < camp.partIds.length) {
             const part = await Part.findById(camp.partIds[i++])
             if (!part) {
@@ -787,55 +787,55 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
         return
     }
     var nongIds = camp.nongIds
-    var nongShertManageIds = camp.nongShertManageIds
-    var peeShertManageIds = camp.peeShertManageIds
+    var nongCampMemberCardIds = camp.nongCampMemberCardIds
+    var peeCampMemberCardIds = camp.peeCampMemberCardIds
     var peeModelIds = camp.peeModelIds
     var peeIds = camp.peeIds
-    var peeHelthIsueIds = camp.peeHelthIsueIds
-    var nongHelthIsueIds = camp.nongHelthIsueIds
+    var peeHeathIssueIds = camp.peeHeathIssueIds
+    var nongHeathIssueIds = camp.nongHeathIssueIds
     var peeSleepIds = camp.peeSleepIds
     var nongSleepIds = camp.nongSleepIds
     var nongHaveBottleIds = camp.nongHaveBottleIds
     var peeHaveBottleIds = camp.peeHaveBottleIds
-    var nongShertManageHaveHelthIshueIds = camp.nongShertManageHaveHelthIshueIds
-    var peeShertManageHaveHelthIshueIds = camp.peeShertManageHaveHelthIshueIds
+    var nongCampMemberCardHaveHeathIssueIds = camp.nongCampMemberCardHaveHeathIssueIds
+    var peeCampMemberCardHaveHeathIssueIds = camp.peeCampMemberCardHaveHeathIssueIds
     var i = 0
     if (camp.dataLock) {
-        while (i < baan.nongShertManageHaveHelthIshueIds.length) {
-            const shertManage = await ShertManage.findById(baan.nongShertManageHaveHelthIshueIds[i++])
-            if (!shertManage) {
+        while (i < baan.nongCampMemberCardHaveHeathIssueIds.length) {
+            const campMemberCard = await CampMemberCard.findById(baan.nongCampMemberCardHaveHeathIssueIds[i++])
+            if (!campMemberCard) {
                 continue
             }
-            const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-            if (!helthIsue) {
+            const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+            if (!heathIssue) {
                 continue
             }
-            nongHelthIsueIds = swop(helthIsue._id, null, nongHelthIsueIds)
-            await helthIsue.updateOne({ campIds: swop(camp._id, null, helthIsue.campIds) })
-            nongShertManageHaveHelthIshueIds = swop(shertManage._id, null, nongShertManageHaveHelthIshueIds)
+            nongHeathIssueIds = swop(heathIssue._id, null, nongHeathIssueIds)
+            await heathIssue.updateOne({ campIds: swop(camp._id, null, heathIssue.campIds) })
+            nongCampMemberCardHaveHeathIssueIds = swop(campMemberCard._id, null, nongCampMemberCardHaveHeathIssueIds)
         }
     } else {
-        while (i < baan.nongShertManageHaveHelthIshueIds.length) {
-            const shertManage = await ShertManage.findById(baan.nongShertManageHaveHelthIshueIds[i++])
-            if (!shertManage) {
+        while (i < baan.nongCampMemberCardHaveHeathIssueIds.length) {
+            const campMemberCard = await CampMemberCard.findById(baan.nongCampMemberCardHaveHeathIssueIds[i++])
+            if (!campMemberCard) {
                 continue
             }
-            const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-            if (!helthIsue) {
+            const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+            if (!heathIssue) {
                 continue
             }
-            nongHelthIsueIds = swop(helthIsue._id, null, nongHelthIsueIds)
-            await helthIsue.updateOne({ shertManageIds: swop(shertManage._id, null, helthIsue.shertManageIds) })
-            nongShertManageHaveHelthIshueIds = swop(shertManage._id, null, nongShertManageHaveHelthIshueIds)
+            nongHeathIssueIds = swop(heathIssue._id, null, nongHeathIssueIds)
+            await heathIssue.updateOne({ campMemberCardIds: swop(campMemberCard._id, null, heathIssue.campMemberCardIds) })
+            nongCampMemberCardHaveHeathIssueIds = swop(campMemberCard._id, null, nongCampMemberCardHaveHeathIssueIds)
         }
     }
     i = 0
-    while (i < baan.peeShertManageHaveHelthIshueIds.length) {
-        const shertManage = await ShertManage.findById(baan.peeShertManageHaveHelthIshueIds[i++])
-        if (!shertManage) {
+    while (i < baan.peeCampMemberCardHaveHeathIssueIds.length) {
+        const campMemberCard = await CampMemberCard.findById(baan.peeCampMemberCardHaveHeathIssueIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+        const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
         if (!peeCamp) {
             continue
         }
@@ -843,25 +843,25 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
         if (!part) {
             continue
         }
-        const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-        if (!helthIsue) {
+        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        if (!heathIssue) {
             continue
         }
-        peeHelthIsueIds = swop(helthIsue._id, null, peeHelthIsueIds)
+        peeHeathIssueIds = swop(heathIssue._id, null, peeHeathIssueIds)
         if (camp.peeDataLock) {
-            await helthIsue.updateOne({ campIds: swop(camp._id, null, helthIsue.campIds) })
+            await heathIssue.updateOne({ campIds: swop(camp._id, null, heathIssue.campIds) })
         } else {
-            await helthIsue.updateOne({ shertManageIds: swop(shertManage._id, null, helthIsue.shertManageIds) })
+            await heathIssue.updateOne({ campMemberCardIds: swop(campMemberCard._id, null, heathIssue.campMemberCardIds) })
         }
         await part.updateOne({
-            peeHelthIsueIds: swop(helthIsue._id, null, part.peeHelthIsueIds),
-            peeShertManageHaveHelthIshueIds: swop(shertManage._id, null, part.peeShertManageHaveHelthIshueIds),
+            peeHeathIssueIds: swop(heathIssue._id, null, part.peeHeathIssueIds),
+            peeCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, part.peeCampMemberCardHaveHeathIssueIds),
         })
-        peeShertManageHaveHelthIshueIds = swop(shertManage._id, null, peeShertManageHaveHelthIshueIds)
+        peeCampMemberCardHaveHeathIssueIds = swop(campMemberCard._id, null, peeCampMemberCardHaveHeathIssueIds)
     }
     i = 0
-    await revalidaionHelthIshues(baan.nongHelthIsueIds)
-    await revalidaionHelthIshues(baan.peeHelthIsueIds)
+    await revalidationHeathIssues(baan.nongHeathIssueIds)
+    await revalidationHeathIssues(baan.peeHeathIssueIds)
     while (i < baan.songIds.length) {
         const song = await Song.findById(baan.songIds[i++])
         await song?.updateOne({ baanIds: swop(baan._id, null, song.baanIds) })
@@ -919,8 +919,8 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
         }
     }
     await nongCamp.deleteOne()
-    camp.nongShertSize.forEach((v, k) => {
-        camp.nongShertSize.set(k, calculate(v, 0, baan.nongShertSize.get(k)))
+    camp.nongShirtSize.forEach((v, k) => {
+        camp.nongShirtSize.set(k, calculate(v, 0, baan.nongShirtSize.get(k)))
     })
     const boyP = await Place.findById(baan.boySleepPlaceId)
     if (boyP) {
@@ -938,7 +938,7 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
             await girlB.updateOne({ girlSleepBaanIds: swop(baan._id, null, girlB.girlSleepBaanIds) })
         }
     }
-    const normalP = await Place.findById(baan.nomalPlaceId)
+    const normalP = await Place.findById(baan.normalPlaceId)
     if (normalP) {
         await normalP.updateOne({ normalBaanIds: swop(baan._id, null, normalP.normalBaanIds) })
         const normalB = await Building.findById(normalP.buildingId)
@@ -946,92 +946,92 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
             await normalB.updateOne({ normalBaanIds: swop(baan._id, null, normalB.normalBaanIds) })
         }
     }
-    camp.peeShertSize.forEach((v, k) => {
-        camp.peeShertSize.set(k, calculate(v, 0, baan?.peeShertSize.get(k)))
+    camp.peeShirtSize.forEach((v, k) => {
+        camp.peeShirtSize.set(k, calculate(v, 0, baan?.peeShirtSize.get(k)))
     })
-    while (i < baan.nongShertManageIds.length) {
-        const shertManage = await ShertManage.findById(baan.nongShertManageIds[i++])
-        if (!shertManage) {
+    while (i < baan.nongCampMemberCardIds.length) {
+        const campMemberCard = await CampMemberCard.findById(baan.nongCampMemberCardIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        const user = await User.findById(shertManage.userId)
+        const user = await User.findById(campMemberCard.userId)
         await user?.updateOne({
-            shertManageIds: swop(shertManage._id, null, user.shertManageIds)
+            campMemberCardIds: swop(campMemberCard._id, null, user.campMemberCardIds)
         })
-        nongShertManageIds = swop(shertManage._id, null, nongShertManageIds)
+        nongCampMemberCardIds = swop(campMemberCard._id, null, nongCampMemberCardIds)
         var j = 0
-        if (shertManage.sleepAtCamp) {
+        if (campMemberCard.sleepAtCamp) {
             nongSleepIds = swop(user._id, null, nongSleepIds)
         }
-        while (j < shertManage.allChatIds.length) {
-            const chat = await Chat.findById(shertManage.allChatIds[j++])
+        while (j < campMemberCard.allChatIds.length) {
+            const chat = await Chat.findById(campMemberCard.allChatIds[j++])
             if (!chat) {
                 continue
             }
-            await chat.updateOne({ shertManageIds: swop(shertManage._id, null, chat.shertManageIds) })
+            await chat.updateOne({ campMemberCardIds: swop(campMemberCard._id, null, chat.campMemberCardIds) })
         }
         j = 0
-        while (j < shertManage.ownChatIds.length) {
-            await deleteChatRaw(shertManage.ownChatIds[j++])
+        while (j < campMemberCard.ownChatIds.length) {
+            await deleteChatRaw(campMemberCard.ownChatIds[j++])
         }
-        shertManage?.deleteOne()
+        campMemberCard?.deleteOne()
     }
     i = 0
-    while (i < baan.peeShertManageIds.length) {
-        const shertManage = await ShertManage.findById(baan.peeShertManageIds[i++])
-        if (!shertManage) {
+    while (i < baan.peeCampMemberCardIds.length) {
+        const campMemberCard = await CampMemberCard.findById(baan.peeCampMemberCardIds[i++])
+        if (!campMemberCard) {
             return
         }
-        const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+        const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
         if (!peeCamp) {
             continue
         }
         const part = await Part.findById(peeCamp.partId)
-        const user = await User.findById(shertManage.userId)
+        const user = await User.findById(campMemberCard.userId)
         if (!user || !part) {
             continue
         }
         await user.updateOne({
-            shertManageIds: swop(shertManage._id, null, user.shertManageIds)
+            campMemberCardIds: swop(campMemberCard._id, null, user.campMemberCardIds)
         })
-        peeShertManageIds = swop(shertManage._id, null, peeShertManageIds)
-        if (shertManage.sleepAtCamp) {
+        peeCampMemberCardIds = swop(campMemberCard._id, null, peeCampMemberCardIds)
+        if (campMemberCard.sleepAtCamp) {
             peeSleepIds = swop(user._id, null, peeSleepIds)
             await part.updateOne({ peeSleepIds: swop(user._id, null, part.peeSleepIds) })
         }
-        part.peeShertSize.set(shertManage.size, calculate(part.peeShertSize.get(shertManage.size), 0, 1))
-        await part.updateOne({ peeShertManageIds: swop(shertManage._id, null, part.peeShertManageIds), peeShertSize: part.peeShertSize })
+        part.peeShirtSize.set(campMemberCard.size, calculate(part.peeShirtSize.get(campMemberCard.size), 0, 1))
+        await part.updateOne({ peeCampMemberCardIds: swop(campMemberCard._id, null, part.peeCampMemberCardIds), peeShirtSize: part.peeShirtSize })
         var j = 0
-        while (j < shertManage.allChatIds.length) {
-            const chat = await Chat.findById(shertManage.allChatIds[j++])
+        while (j < campMemberCard.allChatIds.length) {
+            const chat = await Chat.findById(campMemberCard.allChatIds[j++])
             if (!chat) {
                 continue
             }
-            await chat.updateOne({ shertManageIds: swop(shertManage._id, null, chat.shertManageIds) })
+            await chat.updateOne({ campMemberCardIds: swop(campMemberCard._id, null, chat.campMemberCardIds) })
         }
         j = 0
-        while (j < shertManage.ownChatIds.length) {
-            await deleteChatRaw(shertManage.ownChatIds[j++])
+        while (j < campMemberCard.ownChatIds.length) {
+            await deleteChatRaw(campMemberCard.ownChatIds[j++])
         }
-        await ShertManage.findByIdAndDelete(shertManage._id)
+        await CampMemberCard.findByIdAndDelete(campMemberCard._id)
     }
     i = 0
     await camp.updateOne({
         nongIds,
-        nongShertSize: camp.nongShertSize,
+        nongShirtSize: camp.nongShirtSize,
         peeIds,
         peeModelIds,
-        peeShertSize: camp.peeShertSize,
-        peeShertManageIds,
-        nongShertManageIds,
-        nongHelthIsueIds,
-        peeHelthIsueIds,
+        peeShirtSize: camp.peeShirtSize,
+        peeCampMemberCardIds,
+        nongCampMemberCardIds,
+        nongHeathIssueIds,
+        peeHeathIssueIds,
         nongSleepIds,
         peeSleepIds,
         baanIds: swop(baan._id, null, camp.baanIds),
         nongModelIds: swop(baan.nongModelId as mongoose.Types.ObjectId, null, camp.nongModelIds),
-        nongShertManageHaveHelthIshueIds,
-        peeShertManageHaveHelthIshueIds,
+        nongCampMemberCardHaveHeathIssueIds,
+        peeCampMemberCardHaveHeathIssueIds,
     })
     await CampStyle.findByIdAndDelete(baan.styleId)
     await baan.deleteOne()
@@ -1081,7 +1081,7 @@ export async function saveDeleteBaan(req: express.Request, res: express.Response
             await girlB.updateOne({ girlSleepBaanIds: swop(baan._id, null, girlB.girlSleepBaanIds) })
         }
     }
-    const normalP = await Place.findById(baan?.nomalPlaceId)
+    const normalP = await Place.findById(baan?.normalPlaceId)
     if (normalP) {
         await normalP.updateOne({ normalBaanIds: swop(baan._id, null, normalP.normalBaanIds) })
         const normalB = await Building.findById(normalP.buildingId)
@@ -1140,28 +1140,28 @@ async function forceDeletePartRaw(partId: mongoose.Types.ObjectId) {
     if (!camp) {
         return
     }
-    var petoShertManageIds = camp.petoShertManageIds
-    var peeShertManageIds = camp.peeShertManageIds
+    var petoCampMemberCardIds = camp.petoCampMemberCardIds
+    var peeCampMemberCardIds = camp.peeCampMemberCardIds
     var actionPlanIds = camp.actionPlanIds
     var petoIds = camp.petoIds
     var peeIds = camp.peeIds
     var peeModelIds = camp.peeModelIds
     var workItemIds = camp.workItemIds
-    var peeHelthIsueIds = camp.peeHelthIsueIds
-    var petoHelthIsueIds = camp.petoHelthIsueIds
+    var peeHeathIssueIds = camp.peeHeathIssueIds
+    var petoHeathIssueIds = camp.petoHeathIssueIds
     var peeSleepIds = camp.peeSleepIds
     var petoSleepIds = camp.petoSleepIds
     var peeHaveBottleIds = camp.peeHaveBottleIds
     var petoHaveBottleIds = camp.petoHaveBottleIds
-    var peeShertManageHaveHelthIshueIds = camp.peeShertManageHaveHelthIshueIds
-    var petoShertManageHaveHelthIshueIds
+    var peeCampMemberCardHaveHeathIssueIds = camp.peeCampMemberCardHaveHeathIssueIds
+    var petoCampMemberCardHaveHeathIssueIds
     var i = 0
-    while (i < part.peeShertManageHaveHelthIshueIds.length) {
-        const shertManage = await ShertManage.findById(part.peeShertManageHaveHelthIshueIds[i++])
-        if (!shertManage) {
+    while (i < part.peeCampMemberCardHaveHeathIssueIds.length) {
+        const campMemberCard = await CampMemberCard.findById(part.peeCampMemberCardHaveHeathIssueIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+        const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
         if (!peeCamp) {
             continue
         }
@@ -1169,59 +1169,59 @@ async function forceDeletePartRaw(partId: mongoose.Types.ObjectId) {
         if (!baan) {
             continue
         }
-        const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-        if (!helthIsue) {
+        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        if (!heathIssue) {
             continue
         }
-        peeHelthIsueIds = swop(helthIsue._id, null, peeHelthIsueIds)
+        peeHeathIssueIds = swop(heathIssue._id, null, peeHeathIssueIds)
         if (camp.peeDataLock) {
-            await helthIsue.updateOne({ campIds: swop(camp._id, null, helthIsue.campIds) })
+            await heathIssue.updateOne({ campIds: swop(camp._id, null, heathIssue.campIds) })
         } else {
-            await helthIsue.updateOne({ shertManageIds: swop(shertManage._id, null, helthIsue.shertManageIds) })
+            await heathIssue.updateOne({ campMemberCardIds: swop(campMemberCard._id, null, heathIssue.campMemberCardIds) })
         }
         await baan.updateOne({
-            peeHelthIsueIds: swop(helthIsue._id, null, baan.peeHelthIsueIds),
-            peeShertManageHaveHelthIshueIds: swop(shertManage._id, null, baan.peeShertManageHaveHelthIshueIds)
+            peeHeathIssueIds: swop(heathIssue._id, null, baan.peeHeathIssueIds),
+            peeCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, baan.peeCampMemberCardHaveHeathIssueIds)
         })
-        peeShertManageHaveHelthIshueIds = swop(shertManage._id, null, peeShertManageHaveHelthIshueIds)
+        peeCampMemberCardHaveHeathIssueIds = swop(campMemberCard._id, null, peeCampMemberCardHaveHeathIssueIds)
     }
     i = 0
     if (camp.petoDataLock) {
-        while (i < part.petoShertManageHaveHelthIshueIds.length) {
-            const shertManage = await ShertManage.findById(part.petoShertManageHaveHelthIshueIds[i++])
-            if (!shertManage) {
+        while (i < part.petoCampMemberCardHaveHeathIssueIds.length) {
+            const campMemberCard = await CampMemberCard.findById(part.petoCampMemberCardHaveHeathIssueIds[i++])
+            if (!campMemberCard) {
                 continue
             }
-            const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-            if (!helthIsue) {
+            const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+            if (!heathIssue) {
                 continue
             }
-            petoHelthIsueIds = swop(helthIsue._id, null, petoHelthIsueIds)
-            await helthIsue.updateOne({ campIds: swop(camp._id, null, helthIsue.campIds) })
-            petoShertManageHaveHelthIshueIds = swop(shertManage._id, null, petoShertManageHaveHelthIshueIds)
+            petoHeathIssueIds = swop(heathIssue._id, null, petoHeathIssueIds)
+            await heathIssue.updateOne({ campIds: swop(camp._id, null, heathIssue.campIds) })
+            petoCampMemberCardHaveHeathIssueIds = swop(campMemberCard._id, null, petoCampMemberCardHaveHeathIssueIds)
         }
     } else {
-        while (i < part.petoShertManageHaveHelthIshueIds.length) {
-            const shertManage = await ShertManage.findById(part.petoShertManageHaveHelthIshueIds[i++])
-            if (!shertManage) {
+        while (i < part.petoCampMemberCardHaveHeathIssueIds.length) {
+            const campMemberCard = await CampMemberCard.findById(part.petoCampMemberCardHaveHeathIssueIds[i++])
+            if (!campMemberCard) {
                 continue
             }
-            const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-            if (!helthIsue) {
+            const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+            if (!heathIssue) {
                 continue
             }
-            petoHelthIsueIds = swop(helthIsue._id, null, petoHelthIsueIds)
-            await helthIsue.updateOne({ shertManageIds: swop(shertManage._id, null, helthIsue.shertManageIds) })
-            petoShertManageHaveHelthIshueIds = swop(shertManage._id, null, petoShertManageHaveHelthIshueIds)
+            petoHeathIssueIds = swop(heathIssue._id, null, petoHeathIssueIds)
+            await heathIssue.updateOne({ campMemberCardIds: swop(campMemberCard._id, null, heathIssue.campMemberCardIds) })
+            petoCampMemberCardHaveHeathIssueIds = swop(campMemberCard._id, null, petoCampMemberCardHaveHeathIssueIds)
         }
     }
-    await revalidaionHelthIshues(part.peeHelthIsueIds)
-    await revalidaionHelthIshues(part.petoHelthIsueIds)
-    camp?.petoShertSize.forEach((v, k) => {
-        camp.petoShertSize.set(k, calculate(v, 0, part?.petoShertSize.get(k)))
+    await revalidationHeathIssues(part.peeHeathIssueIds)
+    await revalidationHeathIssues(part.petoHeathIssueIds)
+    camp?.petoShirtSize.forEach((v, k) => {
+        camp.petoShirtSize.set(k, calculate(v, 0, part?.petoShirtSize.get(k)))
     })
-    camp?.peeShertSize.forEach((v, k) => {
-        camp.peeShertSize.set(k, calculate(v, 0, part?.peeShertSize.get(k)))
+    camp?.peeShirtSize.forEach((v, k) => {
+        camp.peeShirtSize.set(k, calculate(v, 0, part?.peeShirtSize.get(k)))
     })
     i = 0
     while (i < part.actionPlanIds.length) {
@@ -1307,43 +1307,43 @@ async function forceDeletePartRaw(partId: mongoose.Types.ObjectId) {
     }
     petoCamp.deleteOne()
     i = 0
-    while (i < part.petoShertManageIds.length) {
-        const shertManage = await ShertManage.findById(part.petoShertManageIds[i++])
-        if (!shertManage) {
+    while (i < part.petoCampMemberCardIds.length) {
+        const campMemberCard = await CampMemberCard.findById(part.petoCampMemberCardIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        const user = await User.findById(shertManage.userId)
+        const user = await User.findById(campMemberCard.userId)
         if (!user) {
             continue
         }
         await user.updateOne({
-            shertManageIds: swop(shertManage._id, null, user.shertManageIds)
+            campMemberCardIds: swop(campMemberCard._id, null, user.campMemberCardIds)
         })
-        petoShertManageIds = swop(shertManage._id, null, petoShertManageIds)
-        if (shertManage.sleepAtCamp) {
+        petoCampMemberCardIds = swop(campMemberCard._id, null, petoCampMemberCardIds)
+        if (campMemberCard.sleepAtCamp) {
             petoSleepIds = swop(user._id, null, petoSleepIds)
         }
         var j = 0
-        while (j < shertManage.ownChatIds.length) {
-            await deleteChatRaw(shertManage.ownChatIds[j++])
+        while (j < campMemberCard.ownChatIds.length) {
+            await deleteChatRaw(campMemberCard.ownChatIds[j++])
         }
-        shertManage?.deleteOne()
+        campMemberCard?.deleteOne()
     }
     i = 0
-    while (i < part.peeShertManageIds.length) {
-        const shertManage = await ShertManage.findById(part.peeShertManageIds[i++])
-        if (!shertManage) {
+    while (i < part.peeCampMemberCardIds.length) {
+        const campMemberCard = await CampMemberCard.findById(part.peeCampMemberCardIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        const user = await User.findById(shertManage.userId)
+        const user = await User.findById(campMemberCard.userId)
         if (!user) {
             continue
         }
         await user?.updateOne({
-            shertManageIds: swop(shertManage._id, null, user.shertManageIds)
+            campMemberCardIds: swop(campMemberCard._id, null, user.campMemberCardIds)
         })
-        peeShertManageIds = swop(shertManage._id, null, peeShertManageIds)
-        const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+        peeCampMemberCardIds = swop(campMemberCard._id, null, peeCampMemberCardIds)
+        const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
         if (!peeCamp) {
             continue
         }
@@ -1351,26 +1351,26 @@ async function forceDeletePartRaw(partId: mongoose.Types.ObjectId) {
         if (!baan) {
             continue
         }
-        if (shertManage.sleepAtCamp) {
+        if (campMemberCard.sleepAtCamp) {
             peeSleepIds = swop(user._id, null, peeSleepIds)
             await baan.updateOne({ peeSleepIds: swop(user._id, null, baan.peeSleepIds) })
         }
-        baan.updateOne({ peeShertManageIds: swop(shertManage?._id, null, part.peeShertManageIds) })
-        baan.peeShertSize.set(shertManage.size as string, calculate(baan.peeShertSize.get(shertManage.size as string), 0, 1))
+        baan.updateOne({ peeCampMemberCardIds: swop(campMemberCard?._id, null, part.peeCampMemberCardIds) })
+        baan.peeShirtSize.set(campMemberCard.size as string, calculate(baan.peeShirtSize.get(campMemberCard.size as string), 0, 1))
         var j = 0
-        while (j < shertManage.allChatIds.length) {
-            const chat = await Chat.findById(shertManage.allChatIds[j++])
+        while (j < campMemberCard.allChatIds.length) {
+            const chat = await Chat.findById(campMemberCard.allChatIds[j++])
             if (!chat) {
                 continue
             }
-            await chat.updateOne({ shertManageIds: swop(shertManage._id, null, chat.shertManageIds) })
+            await chat.updateOne({ campMemberCardIds: swop(campMemberCard._id, null, chat.campMemberCardIds) })
         }
         j = 0
-        while (j < shertManage.ownChatIds.length) {
-            await deleteChatRaw(shertManage.ownChatIds[j++])
+        while (j < campMemberCard.ownChatIds.length) {
+            await deleteChatRaw(campMemberCard.ownChatIds[j++])
         }
-        await shertManage.deleteOne()
-        await baan.updateOne({ peeShertSize: baan.peeShertSize })
+        await campMemberCard.deleteOne()
+        await baan.updateOne({ peeShirtSize: baan.peeShirtSize })
     }
     i = 0
     while (i < part.peeModelIds.length) {
@@ -1379,22 +1379,22 @@ async function forceDeletePartRaw(partId: mongoose.Types.ObjectId) {
     await camp.updateOne({
         partIds: swop(part._id, null, camp.partIds),
         petoModelIds: swop(part.petoModelId as mongoose.Types.ObjectId, null, camp.petoModelIds),
-        petoShertSize: camp.petoShertSize,
-        petoShertManageIds,
-        peeShertManageIds,
+        petoShirtSize: camp.petoShirtSize,
+        petoCampMemberCardIds,
+        peeCampMemberCardIds,
         peeModelIds,
         actionPlanIds,
         petoIds,
         peeIds,
         workItemIds,
-        peeHelthIsueIds,
-        petoHelthIsueIds,
+        peeHeathIssueIds,
+        petoHeathIssueIds,
         peeSleepIds,
         petoSleepIds,
         peeHaveBottleIds,
         petoHaveBottleIds,
-        peeShertManageHaveHelthIshueIds,
-        petoShertManageHaveHelthIshueIds,
+        peeCampMemberCardHaveHeathIssueIds,
+        petoCampMemberCardHaveHeathIssueIds,
     })
     if (part.isAuth) {
         j = 0
@@ -1529,7 +1529,6 @@ export async function updateCamp(req: express.Request, res: express.Response, ne
         return res.status(403).json({ success: false })
     }
     const update: UpdateCamp = req.body
-    console.log(update)
     if (camp.dataLock != update.dataLock) {
         if (update.dataLock) {
             await lockDataNong(camp._id)
@@ -1590,7 +1589,7 @@ export async function createBaanByGroup(req: express.Request, res: express.Respo
         await addPeeRaw(memberMap.get(allGroup[i++]) as mongoose.Types.ObjectId[], baan._id)
     }
     i = 0
-    const baan = await Baan.findById(camp.baanBordId)
+    const baan = await Baan.findById(camp.baanBoardId)
     if (!baan) {
         sendRes(res, false)
         return
@@ -1676,7 +1675,7 @@ export async function getAllRemainPartName(req: express.Request, res: express.Re
     }
     const partNameContainers = await PartNameContainer.find()
     const partNameIds = partNameContainers.map((partNameContainer) => (partNameContainer._id))
-    const buf = removeDupicate(partNameIds, camp.partNameIds)
+    const buf = removeDuplicate(partNameIds, camp.partNameIds)
     var i = 0
     const out: MyMap[] = []
     while (i < buf.length) {
@@ -1714,18 +1713,18 @@ async function lockDataNong(campId: mongoose.Types.ObjectId) {
         return
     }
     var i = 0
-    while (i < camp.nongShertManageHaveHelthIshueIds.length) {
-        const shertManage = await ShertManage.findById(camp.nongShertManageHaveHelthIshueIds[i++])
-        if (!shertManage) {
+    while (i < camp.nongCampMemberCardHaveHeathIssueIds.length) {
+        const campMemberCard = await CampMemberCard.findById(camp.nongCampMemberCardHaveHeathIssueIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-        if (!helthIsue) {
+        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        if (!heathIssue) {
             continue
         }
-        await helthIsue.updateOne({
-            campIds: swop(null, camp._id, helthIsue.campIds),
-            shertManageIds: swop(shertManage._id, null, helthIsue.shertManageIds),
+        await heathIssue.updateOne({
+            campIds: swop(null, camp._id, heathIssue.campIds),
+            campMemberCardIds: swop(campMemberCard._id, null, heathIssue.campMemberCardIds),
         })
     }
 }
@@ -1735,18 +1734,18 @@ async function lockDataPee(campId: mongoose.Types.ObjectId) {
         return
     }
     var i = 0
-    while (i < camp.peeShertManageHaveHelthIshueIds.length) {
-        const shertManage = await ShertManage.findById(camp.peeShertManageHaveHelthIshueIds[i++])
-        if (!shertManage) {
+    while (i < camp.peeCampMemberCardHaveHeathIssueIds.length) {
+        const campMemberCard = await CampMemberCard.findById(camp.peeCampMemberCardHaveHeathIssueIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-        if (!helthIsue) {
+        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        if (!heathIssue) {
             continue
         }
-        await helthIsue.updateOne({
-            campIds: swop(null, camp._id, helthIsue.campIds),
-            shertManageIds: swop(shertManage._id, null, helthIsue.shertManageIds),
+        await heathIssue.updateOne({
+            campIds: swop(null, camp._id, heathIssue.campIds),
+            campMemberCardIds: swop(campMemberCard._id, null, heathIssue.campMemberCardIds),
         })
     }
 }
@@ -1756,24 +1755,24 @@ async function lockDataPeto(campId: mongoose.Types.ObjectId) {
         return
     }
     var i = 0
-    while (i < camp.petoShertManageHaveHelthIshueIds.length) {
-        const shertManage = await ShertManage.findById(camp.petoShertManageHaveHelthIshueIds[i++])
-        if (!shertManage) {
+    while (i < camp.petoCampMemberCardHaveHeathIssueIds.length) {
+        const campMemberCard = await CampMemberCard.findById(camp.petoCampMemberCardHaveHeathIssueIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-        if (!helthIsue) {
+        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        if (!heathIssue) {
             continue
         }
-        await helthIsue.updateOne({
-            campIds: swop(null, camp._id, helthIsue.campIds),
-            shertManageIds: swop(shertManage._id, null, helthIsue.shertManageIds),
+        await heathIssue.updateOne({
+            campIds: swop(null, camp._id, heathIssue.campIds),
+            campMemberCardIds: swop(campMemberCard._id, null, heathIssue.campMemberCardIds),
         })
     }
 }
 async function unlockDataNong(campId: mongoose.Types.ObjectId) {
     const camp1 = await Camp.findByIdAndUpdate(campId, {
-        nongShertSize: startSize(),
+        nongShirtSize: startSize(),
         nongSleepIds: [],
         nongHaveBottleIds: [],
     })
@@ -1781,39 +1780,39 @@ async function unlockDataNong(campId: mongoose.Types.ObjectId) {
         return
     }
     var i = 0
-    while (i < camp1.nongShertManageHaveHelthIshueIds.length) {
-        const shertManage = await ShertManage.findById(camp1.nongShertManageHaveHelthIshueIds[i++])
-        if (!shertManage) {
+    while (i < camp1.nongCampMemberCardHaveHeathIssueIds.length) {
+        const campMemberCard = await CampMemberCard.findById(camp1.nongCampMemberCardHaveHeathIssueIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-        if (!helthIsue) {
+        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        if (!heathIssue) {
             continue
         }
-        await helthIsue.updateOne({ campIds: swop(camp1._id, null, helthIsue.campIds) })
-        await shertManage.updateOne({ helthIshueId: null })
+        await heathIssue.updateOne({ campIds: swop(camp1._id, null, heathIssue.campIds) })
+        await campMemberCard.updateOne({ heathIssueId: null })
     }
     i = 0
     while (i < camp1.baanIds.length) {
         await Baan.findByIdAndUpdate(camp1.baanIds[i++], {
-            nongHelthIsueIds: [],
-            nongShertSize: startSize(),
+            nongHeathIssueIds: [],
+            nongShirtSize: startSize(),
             nongSleepIds: [],
-            nongShertManageHaveHelthIshueIds: [],
+            nongCampMemberCardHaveHeathIssueIds: [],
             nongHaveBottleIds: []
         })
     }
-    await revalidaionHelthIshues(camp1.nongHelthIsueIds)
+    await revalidationHeathIssues(camp1.nongHeathIssueIds)
     await camp1.updateOne({
-        nongShertManageHaveHelthIshueIds: [],
-        nongHelthIsueIds: [],
+        nongCampMemberCardHaveHeathIssueIds: [],
+        nongHeathIssueIds: [],
     })
     const camp2 = await Camp.findById(camp1._id)
-    const campNongShertSize = startJsonSize()
+    const campNongShirtSize = startJsonSize()
     const campNongSleepIds: mongoose.Types.ObjectId[] = []
     const campNongHaveBottleIds: mongoose.Types.ObjectId[] = []
-    const campNongHelthIshueIds: mongoose.Types.ObjectId[] = []
-    const campNongShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[] = []
+    const campNongHeathIssueIds: mongoose.Types.ObjectId[] = []
+    const campNongCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[] = []
     i = 0
     while (i < camp2.nongModelIds.length) {
         const nongCamp = await NongCamp.findById(camp2.nongModelIds[i++])
@@ -1826,16 +1825,16 @@ async function unlockDataNong(campId: mongoose.Types.ObjectId) {
         }
         var j = 0
         const baanNongSleepIds = baan.nongSleepIds
-        const baanNongShertSize = sizeMapToJson(baan.nongShertSize as Map<Size, number>)
+        const baanNongShirtSize = sizeMapToJson(baan.nongShirtSize as Map<Size, number>)
         const baanNongHaveBottleIds = baan.nongHaveBottleIds
-        const baanNongHelthIshueIds = baan.nongHelthIsueIds
-        const baanNongShertManageHaveHelthIshueIds = baan.nongShertManageHaveHelthIshueIds
-        while (j < nongCamp.nongShertManageIds.length) {
-            const shertManage = await ShertManage.findById(nongCamp.nongShertManageIds[j++])
-            if (!shertManage) {
+        const baanNongHeathIssueIds = baan.nongHeathIssueIds
+        const baanNongCampMemberCardHaveHeathIssueIds = baan.nongCampMemberCardHaveHeathIssueIds
+        while (j < nongCamp.nongCampMemberCardIds.length) {
+            const campMemberCard = await CampMemberCard.findById(nongCamp.nongCampMemberCardIds[j++])
+            if (!campMemberCard) {
                 continue
             }
-            const user = await User.findById(shertManage.userId)
+            const user = await User.findById(campMemberCard.userId)
             if (!user) {
                 continue
             }
@@ -1854,46 +1853,46 @@ async function unlockDataNong(campId: mongoose.Types.ObjectId) {
                     break
                 }
             }
-            await shertManage.updateOne({
+            await campMemberCard.updateOne({
                 haveBottle: user.haveBottle,
-                size: user.shertSize,
+                size: user.shirtSize,
                 sleepAtCamp,
             })
             ifIsTrue(user.haveBottle, user._id, campNongHaveBottleIds, baanNongHaveBottleIds)
-            sizeJsonMod(user.shertSize, 1, baanNongShertSize)
-            sizeJsonMod(user.shertSize, 1, campNongShertSize)
-            if (user.helthIsueId) {
-                const helthIsue = await HelthIsue.findById(user.helthIsueId)
-                if (helthIsue) {
-                    await helthIsue.updateOne({ shertManageIds: swop(null, shertManage._id, helthIsue.shertManageIds) })
-                    baanNongHelthIshueIds.push(helthIsue._id)
-                    campNongHelthIshueIds.push(helthIsue._id)
-                    baanNongShertManageHaveHelthIshueIds.push(shertManage._id)
-                    campNongShertManageHaveHelthIshueIds.push(shertManage._id)
-                    await shertManage.updateOne({ helthIshueId: helthIsue._id })
+            sizeJsonMod(user.shirtSize, 1, baanNongShirtSize)
+            sizeJsonMod(user.shirtSize, 1, campNongShirtSize)
+            if (user.heathIssueId) {
+                const heathIssue = await HeathIssue.findById(user.heathIssueId)
+                if (heathIssue) {
+                    await heathIssue.updateOne({ campMemberCardIds: swop(null, campMemberCard._id, heathIssue.campMemberCardIds) })
+                    baanNongHeathIssueIds.push(heathIssue._id)
+                    campNongHeathIssueIds.push(heathIssue._id)
+                    baanNongCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
+                    campNongCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
+                    await campMemberCard.updateOne({ heathIssueId: heathIssue._id })
                 }
             }
             ifIsTrue(sleepAtCamp, user._id, campNongSleepIds, baanNongSleepIds)
         }
         await baan.updateOne({
-            nongHelthIsueIds: baanNongHelthIshueIds,
-            nongShertSize: jsonToMapSize(baanNongShertSize),
+            nongHeathIssueIds: baanNongHeathIssueIds,
+            nongShirtSize: jsonToMapSize(baanNongShirtSize),
             nongSleepIds: baanNongSleepIds,
-            nongShertManageHaveHelthIshueIds: baanNongShertManageHaveHelthIshueIds,
+            nongCampMemberCardHaveHeathIssueIds: baanNongCampMemberCardHaveHeathIssueIds,
             nongHaveBottleIds: baanNongHaveBottleIds,
         })
     }
     await camp2.updateOne({
-        nongHelthIsueIds: campNongHelthIshueIds,
-        nongShertSize: jsonToMapSize(campNongShertSize),
+        nongHeathIssueIds: campNongHeathIssueIds,
+        nongShirtSize: jsonToMapSize(campNongShirtSize),
         nongSleepIds: campNongSleepIds,
-        nongShertManageHaveHelthIshueIds: campNongShertManageHaveHelthIshueIds,
+        nongCampMemberCardHaveHeathIssueIds: campNongCampMemberCardHaveHeathIssueIds,
         nongHaveBottleIds: campNongHaveBottleIds,
     })
 }
 async function unlockDataPee(campId: mongoose.Types.ObjectId) {
     const camp1 = await Camp.findByIdAndUpdate(campId, {
-        peeShertSize: startSize(),
+        peeShirtSize: startSize(),
         peeSleepIds: [],
         peeHaveBottleIds: [],
     })
@@ -1901,49 +1900,49 @@ async function unlockDataPee(campId: mongoose.Types.ObjectId) {
         return
     }
     var i = 0
-    while (i < camp1.peeShertManageHaveHelthIshueIds.length) {
-        const shertManage = await ShertManage.findById(camp1.peeShertManageHaveHelthIshueIds[i++])
-        if (!shertManage) {
+    while (i < camp1.peeCampMemberCardHaveHeathIssueIds.length) {
+        const campMemberCard = await CampMemberCard.findById(camp1.peeCampMemberCardHaveHeathIssueIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-        if (!helthIsue) {
+        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        if (!heathIssue) {
             continue
         }
-        await helthIsue.updateOne({ campIds: swop(camp1._id, null, helthIsue.campIds) })
-        await shertManage.updateOne({ helthIshueId: null })
+        await heathIssue.updateOne({ campIds: swop(camp1._id, null, heathIssue.campIds) })
+        await campMemberCard.updateOne({ heathIssueId: null })
     }
     i = 0
     while (i < camp1.baanIds.length) {
         await Baan.findByIdAndUpdate(camp1.baanIds[i++], {
-            peeHelthIsueIds: [],
-            peeShertSize: startSize(),
+            peeHeathIssueIds: [],
+            peeShirtSize: startSize(),
             peeSleepIds: [],
-            peeShertManageHaveHelthIshueIds: [],
+            peeCampMemberCardHaveHeathIssueIds: [],
             peeHaveBottleIds: [],
         })
     }
     i = 0
     while (i < camp1.partIds.length) {
         await Part.findByIdAndUpdate(camp1.partIds[i++], {
-            peeHelthIsueIds: [],
-            peeShertSize: startSize(),
+            peeHeathIssueIds: [],
+            peeShirtSize: startSize(),
             peeSleepIds: [],
-            peeShertManageHaveHelthIshueIds: [],
+            peeCampMemberCardHaveHeathIssueIds: [],
             peeHaveBottleIds: [],
         })
     }
-    await revalidaionHelthIshues(camp1.peeHelthIsueIds)
+    await revalidationHeathIssues(camp1.peeHeathIssueIds)
     await camp1.updateOne({
-        peeHelthIsueIds: [],
-        peeShertManageHaveHelthIshueIds: [],
+        peeHeathIssueIds: [],
+        peeCampMemberCardHaveHeathIssueIds: [],
     })
     const camp2 = await Camp.findById(camp1._id)
-    const campPeeShertSize = startJsonSize()
+    const campPeeShirtSize = startJsonSize()
     const campPeeSleepIds: mongoose.Types.ObjectId[] = []
     const campPeeHaveBottleIds: mongoose.Types.ObjectId[] = []
-    const campPeeHelthIshueIds: mongoose.Types.ObjectId[] = []
-    const campPeeShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[] = []
+    const campPeeHeathIssueIds: mongoose.Types.ObjectId[] = []
+    const campPeeCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[] = []
     i = 0
     while (i < camp2.peeModelIds.length) {
         const peeCamp = await PeeCamp.findById(camp2.peeModelIds[i++])
@@ -1957,21 +1956,21 @@ async function unlockDataPee(campId: mongoose.Types.ObjectId) {
         }
         var j = 0
         const baanPeeSleepIds = baan.peeSleepIds
-        const baanPeeShertSize = sizeMapToJson(baan.peeShertSize as Map<Size, number>)
+        const baanPeeShirtSize = sizeMapToJson(baan.peeShirtSize as Map<Size, number>)
         const baanPeeHaveBottleIds = baan.peeHaveBottleIds
-        const baanPeeHelthIshueIds = baan.peeHelthIsueIds
-        const baanPeeShertManageHaveHelthIshueIds = baan.peeShertManageHaveHelthIshueIds
+        const baanPeeHeathIssueIds = baan.peeHeathIssueIds
+        const baanPeeCampMemberCardHaveHeathIssueIds = baan.peeCampMemberCardHaveHeathIssueIds
         const partPeeSleepIds = part.peeSleepIds
-        const partPeeShertSize = sizeMapToJson(part.peeShertSize as Map<Size, number>)
+        const partPeeShirtSize = sizeMapToJson(part.peeShirtSize as Map<Size, number>)
         const partPeeHaveBottleIds = part.peeHaveBottleIds
-        const partPeeHelthIshueIds = part.peeHelthIsueIds
-        const partPeeShertManageHaveHelthIshueIds = part.peeShertManageHaveHelthIshueIds
-        while (j < peeCamp.peeShertManageIds.length) {
-            const shertManage = await ShertManage.findById(peeCamp.peeShertManageIds[j++])
-            if (!shertManage) {
+        const partPeeHeathIssueIds = part.peeHeathIssueIds
+        const partPeeCampMemberCardHaveHeathIssueIds = part.peeCampMemberCardHaveHeathIssueIds
+        while (j < peeCamp.peeCampMemberCardIds.length) {
+            const campMemberCard = await CampMemberCard.findById(peeCamp.peeCampMemberCardIds[j++])
+            if (!campMemberCard) {
                 continue
             }
-            const user = await User.findById(shertManage.userId)
+            const user = await User.findById(campMemberCard.userId)
             if (!user) {
                 continue
             }
@@ -1990,56 +1989,56 @@ async function unlockDataPee(campId: mongoose.Types.ObjectId) {
                     break
                 }
             }
-            await shertManage.updateOne({
+            await campMemberCard.updateOne({
                 haveBottle: user.haveBottle,
-                size: user.shertSize,
+                size: user.shirtSize,
                 sleepAtCamp,
             })
             ifIsTrue(user.haveBottle, user._id, baanPeeHaveBottleIds, campPeeHaveBottleIds, partPeeHaveBottleIds)
-            sizeJsonMod(user.shertSize, 1, baanPeeShertSize)
-            sizeJsonMod(user.shertSize, 1, campPeeShertSize)
-            sizeJsonMod(user.shertSize, 1, partPeeShertSize)
-            if (user.helthIsueId) {
-                const helthIsue = await HelthIsue.findById(user.helthIsueId)
-                if (helthIsue) {
-                    await helthIsue.updateOne({ shertManageIds: swop(null, shertManage._id, helthIsue.shertManageIds) })
-                    baanPeeHelthIshueIds.push(helthIsue._id)
-                    campPeeHelthIshueIds.push(helthIsue._id)
-                    partPeeHelthIshueIds.push(helthIsue._id)
-                    baanPeeShertManageHaveHelthIshueIds.push(shertManage._id)
-                    campPeeShertManageHaveHelthIshueIds.push(shertManage._id)
-                    partPeeShertManageHaveHelthIshueIds.push(shertManage._id)
-                    await shertManage.updateOne({ helthIshueId: helthIsue._id })
+            sizeJsonMod(user.shirtSize, 1, baanPeeShirtSize)
+            sizeJsonMod(user.shirtSize, 1, campPeeShirtSize)
+            sizeJsonMod(user.shirtSize, 1, partPeeShirtSize)
+            if (user.heathIssueId) {
+                const heathIssue = await HeathIssue.findById(user.heathIssueId)
+                if (heathIssue) {
+                    await heathIssue.updateOne({ campMemberCardIds: swop(null, campMemberCard._id, heathIssue.campMemberCardIds) })
+                    baanPeeHeathIssueIds.push(heathIssue._id)
+                    campPeeHeathIssueIds.push(heathIssue._id)
+                    partPeeHeathIssueIds.push(heathIssue._id)
+                    baanPeeCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
+                    campPeeCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
+                    partPeeCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
+                    await campMemberCard.updateOne({ heathIssueId: heathIssue._id })
                 }
             }
             ifIsTrue(sleepAtCamp, user._id, campPeeSleepIds, baanPeeSleepIds, partPeeSleepIds)
         }
         await baan.updateOne({
-            peeHelthIsueIds: baanPeeHelthIshueIds,
-            peeShertSize: jsonToMapSize(baanPeeShertSize),
+            peeHeathIssueIds: baanPeeHeathIssueIds,
+            peeShirtSize: jsonToMapSize(baanPeeShirtSize),
             peeSleepIds: baanPeeSleepIds,
-            peeShertManageHaveHelthIshueIds: baanPeeShertManageHaveHelthIshueIds,
+            peeCampMemberCardHaveHeathIssueIds: baanPeeCampMemberCardHaveHeathIssueIds,
             peeHaveBottleIds: baanPeeHaveBottleIds,
         })
         await part.updateOne({
-            peeHelthIsueIds: partPeeHelthIshueIds,
-            peeShertSize: jsonToMapSize(partPeeShertSize),
+            peeHeathIssueIds: partPeeHeathIssueIds,
+            peeShirtSize: jsonToMapSize(partPeeShirtSize),
             peeSleepIds: partPeeSleepIds,
-            peeShertManageHaveHelthIshueIds: partPeeShertManageHaveHelthIshueIds,
+            peeCampMemberCardHaveHeathIssueIds: partPeeCampMemberCardHaveHeathIssueIds,
             peeHaveBottleIds: partPeeHaveBottleIds,
         })
     }
     await camp2.updateOne({
-        peeHelthIsueIds: campPeeHelthIshueIds,
-        peeShertSize: jsonToMapSize(campPeeShertSize),
+        peeHeathIssueIds: campPeeHeathIssueIds,
+        peeShirtSize: jsonToMapSize(campPeeShirtSize),
         peeSleepIds: campPeeSleepIds,
-        peeShertManageHaveHelthIshueIds: campPeeShertManageHaveHelthIshueIds,
+        peeCampMemberCardHaveHeathIssueIds: campPeeCampMemberCardHaveHeathIssueIds,
         peeHaveBottleIds: campPeeHaveBottleIds,
     })
 }
 async function unlockDataPeto(campId: mongoose.Types.ObjectId) {
     const camp1 = await Camp.findByIdAndUpdate(campId, {
-        petoShertSize: startSize(),
+        petoShirtSize: startSize(),
         petoSleepIds: [],
         petoHaveBottleIds: [],
     })
@@ -2047,39 +2046,39 @@ async function unlockDataPeto(campId: mongoose.Types.ObjectId) {
         return
     }
     var i = 0
-    while (i < camp1.petoShertManageHaveHelthIshueIds.length) {
-        const shertManage = await ShertManage.findById(camp1.petoShertManageHaveHelthIshueIds[i++])
-        if (!shertManage) {
+    while (i < camp1.petoCampMemberCardHaveHeathIssueIds.length) {
+        const campMemberCard = await CampMemberCard.findById(camp1.petoCampMemberCardHaveHeathIssueIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        const helthIsue = await HelthIsue.findById(shertManage.helthIshueId)
-        if (!helthIsue) {
+        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        if (!heathIssue) {
             continue
         }
-        await helthIsue.updateOne({ campIds: swop(camp1._id, null, helthIsue.campIds) })
-        await shertManage.updateOne({ helthIshueId: null })
+        await heathIssue.updateOne({ campIds: swop(camp1._id, null, heathIssue.campIds) })
+        await campMemberCard.updateOne({ heathIssueId: null })
     }
     i = 0
     while (i < camp1.partIds.length) {
         await Part.findByIdAndUpdate(camp1.partIds[i++], {
-            petoHelthIsueIds: [],
-            petoShertSize: startSize(),
+            petoHeathIssueIds: [],
+            petoShirtSize: startSize(),
             petoSleepIds: [],
             petoHaveBottleIds: [],
-            petoShertManageHaveHelthIshueIds: []
+            petoCampMemberCardHaveHeathIssueIds: []
         })
     }
-    await revalidaionHelthIshues(camp1.petoHelthIsueIds)
+    await revalidationHeathIssues(camp1.petoHeathIssueIds)
     await camp1.updateOne({
-        petoHelthIsueIds: [],
-        petoShertManageHaveHelthIshueIds: [],
+        petoHeathIssueIds: [],
+        petoCampMemberCardHaveHeathIssueIds: [],
     })
     const camp2 = await Camp.findById(camp1._id)
-    const campPetoShertSize = startJsonSize()
+    const campPetoShirtSize = startJsonSize()
     const campPetoSleepIds: mongoose.Types.ObjectId[] = []
     const campPetoHaveBottleIds: mongoose.Types.ObjectId[] = []
-    const campPetoHelthIshueIds: mongoose.Types.ObjectId[] = []
-    const campPetoShertManageHaveHelthIshueIds: mongoose.Types.ObjectId[] = []
+    const campPetoHeathIssueIds: mongoose.Types.ObjectId[] = []
+    const campPetoCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[] = []
     i = 0
     while (i < camp2.petoModelIds.length) {
         const petoCamp = await PetoCamp.findById(camp2.petoModelIds[i++])
@@ -2092,16 +2091,16 @@ async function unlockDataPeto(campId: mongoose.Types.ObjectId) {
         }
         var j = 0
         const partPetoSleepIds = part.petoSleepIds
-        const partPetoShertSize = sizeMapToJson(part.petoShertSize as Map<Size, number>)
+        const partPetoShirtSize = sizeMapToJson(part.petoShirtSize as Map<Size, number>)
         const partPetoHaveBottleIds = part.petoHaveBottleIds
-        const partPetoHelthIshueIds = part.petoHelthIsueIds
-        const partPetoShertManageHaveHelthIshueIds = part.petoShertManageHaveHelthIshueIds
-        while (j < petoCamp.petoShertManageIds.length) {
-            const shertManage = await ShertManage.findById(petoCamp.petoShertManageIds[j++])
-            if (!shertManage) {
+        const partPetoHeathIssueIds = part.petoHeathIssueIds
+        const partPetoCampMemberCardHaveHeathIssueIds = part.petoCampMemberCardHaveHeathIssueIds
+        while (j < petoCamp.petoCampMemberCardIds.length) {
+            const campMemberCard = await CampMemberCard.findById(petoCamp.petoCampMemberCardIds[j++])
+            if (!campMemberCard) {
                 continue
             }
-            const user = await User.findById(shertManage.userId)
+            const user = await User.findById(campMemberCard.userId)
             if (!user) {
                 continue
             }
@@ -2120,40 +2119,40 @@ async function unlockDataPeto(campId: mongoose.Types.ObjectId) {
                     break
                 }
             }
-            await shertManage.updateOne({
+            await campMemberCard.updateOne({
                 haveBottle: user.haveBottle,
-                size: user.shertSize,
+                size: user.shirtSize,
                 sleepAtCamp,
             })
             ifIsTrue(user.haveBottle, user._id, campPetoHaveBottleIds, partPetoHaveBottleIds)
-            sizeJsonMod(user.shertSize, 1, campPetoShertSize)
-            sizeJsonMod(user.shertSize, 1, partPetoShertSize)
-            if (user.helthIsueId) {
-                const helthIsue = await HelthIsue.findById(user.helthIsueId)
-                if (helthIsue) {
-                    await helthIsue.updateOne({ shertManageIds: swop(null, shertManage._id, helthIsue.shertManageIds) })
-                    campPetoHelthIshueIds.push(helthIsue._id)
-                    partPetoHelthIshueIds.push(helthIsue._id)
-                    campPetoShertManageHaveHelthIshueIds.push(shertManage._id)
-                    partPetoShertManageHaveHelthIshueIds.push(shertManage._id)
-                    await shertManage.updateOne({ helthIshueId: helthIsue._id })
+            sizeJsonMod(user.shirtSize, 1, campPetoShirtSize)
+            sizeJsonMod(user.shirtSize, 1, partPetoShirtSize)
+            if (user.heathIssueId) {
+                const heathIssue = await HeathIssue.findById(user.heathIssueId)
+                if (heathIssue) {
+                    await heathIssue.updateOne({ campMemberCardIds: swop(null, campMemberCard._id, heathIssue.campMemberCardIds) })
+                    campPetoHeathIssueIds.push(heathIssue._id)
+                    partPetoHeathIssueIds.push(heathIssue._id)
+                    campPetoCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
+                    partPetoCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
+                    await campMemberCard.updateOne({ heathIssueId: heathIssue._id })
                 }
             }
             ifIsTrue(sleepAtCamp, user._id, campPetoSleepIds, partPetoSleepIds)
         }
         await part.updateOne({
-            petoHelthIsueIds: partPetoHelthIshueIds,
-            petoShertSize: jsonToMapSize(partPetoShertSize),
+            petoHeathIssueIds: partPetoHeathIssueIds,
+            petoShirtSize: jsonToMapSize(partPetoShirtSize),
             petoSleepIds: partPetoSleepIds,
-            petoShertManageHaveHelthIshueIds: partPetoShertManageHaveHelthIshueIds,
+            petoCampMemberCardHaveHeathIssueIds: partPetoCampMemberCardHaveHeathIssueIds,
             petoHaveBottleIds: partPetoHaveBottleIds,
         })
     }
     await camp2.updateOne({
-        petoHelthIsueIds: campPetoHelthIshueIds,
-        petoShertSize: jsonToMapSize(campPetoShertSize),
+        petoHeathIssueIds: campPetoHeathIssueIds,
+        petoShirtSize: jsonToMapSize(campPetoShirtSize),
         petoSleepIds: campPetoSleepIds,
-        petoShertManageHaveHelthIshueIds: campPetoShertManageHaveHelthIshueIds,
+        petoCampMemberCardHaveHeathIssueIds: campPetoCampMemberCardHaveHeathIssueIds,
         petoHaveBottleIds: campPetoHaveBottleIds,
     })
 }

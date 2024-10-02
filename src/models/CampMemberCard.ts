@@ -18,11 +18,11 @@ const PeeCampSchema = new mongoose.Schema({
         enum: ['nong', 'pee', 'peto'],
         required: true,
     },
-    recive: {
+    receive: {
         type: String,
         enum: ['baan', 'part']
     },
-    recived: {
+    received: {
         type: Number,
         default: 0
     },
@@ -46,9 +46,9 @@ const PeeCampSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    helthIshueId: {
+    heathIssueId: {
         type: mongoose.Schema.ObjectId,
         default: null,
     },
 })
-export default mongoose.model('ShertManage', PeeCampSchema)
+export default mongoose.model('CampMemberCard', PeeCampSchema)

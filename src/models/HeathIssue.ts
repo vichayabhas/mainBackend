@@ -48,7 +48,7 @@ const PeeCampSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    shertManageIds: {
+    campMemberCardIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     }

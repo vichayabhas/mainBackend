@@ -21,19 +21,19 @@ const BaanSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    nongHelthIsueIds: {//helth
+    nongHeathIssueIds: {//heath
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    peeHelthIsueIds: {//helth
+    peeHeathIssueIds: {//helth
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    nongShertSize: {// size    count
+    nongShirtSize: {// size    count
         type: Map,
         default: startSize()
     },
-    peeShertSize: {// size    count
+    peeShirtSize: {// size    count
         type: Map,
         default: startSize()
     },
@@ -68,11 +68,11 @@ const BaanSchema = new mongoose.Schema({
     nongModelId: {
         type: mongoose.Schema.ObjectId
     },
-    nongShertManageIds: {
+    nongCampMemberCardIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    peeShertManageIds: {
+    peeCampMemberCardIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
@@ -90,11 +90,11 @@ const BaanSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         default: null
     },
-    nomalPlaceId: {
+    normalPlaceId: {
         type: mongoose.Schema.ObjectId,
         default: null
     },
-    mapShertManageIdByUserId: {
+    mapCampMemberCardIdByUserId: {
         type: Map,
         default: new Map<mongoose.ObjectId, mongoose.ObjectId>()
     },
@@ -130,27 +130,27 @@ const BaanSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    // nongHaveHelthIshueIds: {
+    // nongHaveHeathIssueIds: {
     //     type: [mongoose.Schema.ObjectId],
     //     default: []
     // },
-    // nongMapHelthIshueIdByUserId: {
+    // nongMapHeathIssueIdByUserId: {
     //     type: Map,
     //     default: new Map()
     // },
-    // peeHaveHelthIshueIds: {
+    // peeHaveHeathIssueIds: {
     //     type: [mongoose.Schema.ObjectId],
     //     default: []
     // },
-    // peeMapHelthIshueIdByUserId: {
+    // peeMapHeathIssueIdByUserId: {
     //     type: Map,
     //     default: new Map()
     // }
-    nongShertManageHaveHelthIshueIds: {
+    nongCampMemberCardHaveHeathIssueIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    peeShertManageHaveHelthIshueIds: {
+    peeCampMemberCardHaveHeathIssueIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },

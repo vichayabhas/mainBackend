@@ -1,17 +1,17 @@
 import { getUser } from "../middleware/auth";
 import Baan from "../models/Baan";
 import Camp from "../models/Camp";
-import HelthIsue from "../models/HelthIsue";
+import HeathIssue from "../models/HeathIssue";
 import NongCamp from "../models/NongCamp";
 import Part from "../models/Part";
 import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
-import ShertManage from "../models/ShertManage";
+import CampMemberCard from "../models/CampMemberCard";
 import User, { buf } from "../models/User";
 import { calculate, resOk, sendingEmail, sendRes, swop } from "./setup";
 import express, { json } from "express";
 import bcrypt from "bcrypt"
-import { HelthIsueBody, InterUser, Register, ShowMember, UpdateTimeOffset } from "../models/intreface";
+import { HeathIssueBody, InterUser, Register, ShowMember, UpdateTimeOffset } from "../models/interface";
 import jwt from 'jsonwebtoken'
 import mongoose from "mongoose";
 import Song from "../models/Song";
@@ -22,22 +22,23 @@ import TimeOffset from "../models/TimeOffset";
 // export async function logout
 //*export async function updateMode
 //*export async function updateSize
-//*export async function getHelthIsue
-//*export async function updateHelth
+//*export async function getHeathIssue
+//*export async function updateHeath
 //*export async function updateBottle
-//*export async function getShertManageByCampId
+//*export async function getCampMemberCardByCampId
 //*export async function updateProfile
 //*export async function changeModeToPee
 //*export async function checkTel
 //*export async function updateSleep
 //*export async function getUsers
-//*export async function getShertmanage
+//*export async function getCampMemberCard
 //*export async function updateTimeOffset
 //*export async function getTimeOffset
 //*export async function signId
 //*export async function verifyEmail
-//*export async function revalidaionHelthIshues
+//*export async function revalidationHeathIssues
 //*export async function checkPassword
+//*export async function bypassRole
 export async function register(req: express.Request, res: express.Response, next: express.NextFunction) {
 	try {
 		const buf: Register = req.body
@@ -74,7 +75,7 @@ export async function login(req: express.Request, res: express.Response, next: e
 		});
 	}
 	const isMatch = await bcrypt.compare(password, user.password);
-	
+
 	if (!isMatch) {
 		return res.status(401).json({
 			success: false,
@@ -114,40 +115,40 @@ export async function logout(req: express.Request, res: express.Response, next: 
 export async function updateMode(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const {
 		mode,
-		filter,
+		filterIds,
 		linkHash
 	} = req.body;
 	const user = await User.findByIdAndUpdate((await getUser(req))?._id, {
 		mode,
-		filter, linkHash
+		filterIds, linkHash
 	});
 	res.status(200).json(user);
 }
 export async function updateSize(req: express.Request, res: express.Response, next: express.NextFunction) {
-	const shertSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL' = req.params.id as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
+	const shirtSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL' = req.params.id as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
 	const old = await getUser(req)
 	if (!old) {
 		sendRes(res, false)
 		return
 	}
-	const oldSize = old.shertSize as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
-	if (shertSize) {
+	const oldSize = old.shirtSize as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
+	if (shirtSize) {
 		const user = await User.findByIdAndUpdate(old._id, {
-			shertSize
+			shirtSize
 		});
 		if (!user) {
 			sendRes(res, false)
 			return
 		}
 		var i = 0
-		while (i < user.shertManageIds.length) {
-			const shertManage = await ShertManage.findById(user.shertManageIds[i++])
-			if (!shertManage) {
+		while (i < user.campMemberCardIds.length) {
+			const campMemberCard = await CampMemberCard.findById(user.campMemberCardIds[i++])
+			if (!campMemberCard) {
 				continue
 			}
-			switch (shertManage.role) {
+			switch (campMemberCard.role) {
 				case 'nong': {
-					const nongCamp = await NongCamp.findById(shertManage.campModelId)
+					const nongCamp = await NongCamp.findById(campMemberCard.campModelId)
 					if (!nongCamp) {
 						continue
 					}
@@ -159,21 +160,21 @@ export async function updateSize(req: express.Request, res: express.Response, ne
 					if (!baan) {
 						continue
 					}
-					await shertManage.updateOne({ size: shertSize })
-					camp.nongShertSize.set(oldSize, calculate(camp.nongShertSize.get(oldSize), 0, 1));
-					camp.nongShertSize.set(shertSize, calculate(camp.nongShertSize.get(shertSize), 1, 0));
-					baan.nongShertSize.set(oldSize, calculate(baan.nongShertSize.get(oldSize), 0, 1));
-					baan.nongShertSize.set(shertSize, calculate(baan.nongShertSize.get(shertSize), 1, 0));
+					await campMemberCard.updateOne({ size: shirtSize })
+					camp.nongShirtSize.set(oldSize, calculate(camp.nongShirtSize.get(oldSize), 0, 1));
+					camp.nongShirtSize.set(shirtSize, calculate(camp.nongShirtSize.get(shirtSize), 1, 0));
+					baan.nongShirtSize.set(oldSize, calculate(baan.nongShirtSize.get(oldSize), 0, 1));
+					baan.nongShirtSize.set(shirtSize, calculate(baan.nongShirtSize.get(shirtSize), 1, 0));
 					await camp.updateOne({
-						nongShertSize: camp.nongShertSize,
+						nongShirtSize: camp.nongShirtSize,
 					})
 					await baan.updateOne({
-						nongShertSize: baan.nongShertSize,
+						nongShirtSize: baan.nongShirtSize,
 					})
 					break
 				}
 				case 'pee': {
-					const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+					const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
 					if (!peeCamp) {
 						continue
 					}
@@ -186,26 +187,26 @@ export async function updateSize(req: express.Request, res: express.Response, ne
 					if (!baan || !part) {
 						continue
 					}
-					await shertManage.updateOne({ size: shertSize })
-					camp.peeShertSize.set(oldSize, calculate(camp.peeShertSize.get(oldSize), 0, 1));
-					camp.peeShertSize.set(shertSize, calculate(camp.peeShertSize.get(shertSize), 1, 0));
-					baan.peeShertSize.set(oldSize, calculate(baan.peeShertSize.get(oldSize), 0, 1));
-					baan.peeShertSize.set(shertSize, calculate(baan.peeShertSize.get(shertSize), 1, 0));
-					part.peeShertSize.set(oldSize, calculate(part.peeShertSize.get(oldSize), 0, 1));
-					part.peeShertSize.set(shertSize, calculate(part.peeShertSize.get(shertSize), 1, 0));
+					await campMemberCard.updateOne({ size: shirtSize })
+					camp.peeShirtSize.set(oldSize, calculate(camp.peeShirtSize.get(oldSize), 0, 1));
+					camp.peeShirtSize.set(shirtSize, calculate(camp.peeShirtSize.get(shirtSize), 1, 0));
+					baan.peeShirtSize.set(oldSize, calculate(baan.peeShirtSize.get(oldSize), 0, 1));
+					baan.peeShirtSize.set(shirtSize, calculate(baan.peeShirtSize.get(shirtSize), 1, 0));
+					part.peeShirtSize.set(oldSize, calculate(part.peeShirtSize.get(oldSize), 0, 1));
+					part.peeShirtSize.set(shirtSize, calculate(part.peeShirtSize.get(shirtSize), 1, 0));
 					await camp.updateOne({
-						peeShertSize: camp.peeShertSize,
+						peeShirtSize: camp.peeShirtSize,
 					})
 					await baan.updateOne({
-						peeShertSize: baan.peeShertSize,
+						peeShirtSize: baan.peeShirtSize,
 					})
 					await part.updateOne({
-						peeShertSize: part.peeShertSize,
+						peeShirtSize: part.peeShirtSize,
 					})
 					break
 				}
 				case 'peto': {
-					const petoCamp = await PetoCamp.findById(shertManage.campModelId)
+					const petoCamp = await PetoCamp.findById(campMemberCard.campModelId)
 					if (!petoCamp) {
 						continue
 					}
@@ -217,16 +218,16 @@ export async function updateSize(req: express.Request, res: express.Response, ne
 					if (!part) {
 						continue
 					}
-					await shertManage.updateOne({ size: shertSize })
-					camp.petoShertSize.set(oldSize, calculate(camp.petoShertSize.get(oldSize), 0, 1));
-					camp.petoShertSize.set(shertSize, calculate(camp.petoShertSize.get(shertSize), 1, 0));
-					part.petoShertSize.set(oldSize, calculate(part.petoShertSize.get(oldSize), 0, 1));
-					part.petoShertSize.set(shertSize, calculate(part.petoShertSize.get(shertSize), 1, 0));
+					await campMemberCard.updateOne({ size: shirtSize })
+					camp.petoShirtSize.set(oldSize, calculate(camp.petoShirtSize.get(oldSize), 0, 1));
+					camp.petoShirtSize.set(shirtSize, calculate(camp.petoShirtSize.get(shirtSize), 1, 0));
+					part.petoShirtSize.set(oldSize, calculate(part.petoShirtSize.get(oldSize), 0, 1));
+					part.petoShirtSize.set(shirtSize, calculate(part.petoShirtSize.get(shirtSize), 1, 0));
 					await camp.updateOne({
-						petoShertSize: camp.petoShertSize,
+						petoShirtSize: camp.petoShirtSize,
 					})
 					await part.updateOne({
-						petoShertSize: part.petoShertSize,
+						petoShirtSize: part.petoShirtSize,
 					})
 					break
 				}
@@ -239,9 +240,9 @@ export async function updateSize(req: express.Request, res: express.Response, ne
 		})
 	}
 }
-export async function getHelthIsue(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getHeathIssue(req: express.Request, res: express.Response, next: express.NextFunction) {
 	try {
-		const data = await HelthIsue.findById(req.params.id);
+		const data = await HeathIssue.findById(req.params.id);
 		if (!data) {
 			return res.status(400).json({
 				success: false
@@ -254,15 +255,15 @@ export async function getHelthIsue(req: express.Request, res: express.Response, 
 		});
 	}
 }
-export async function updateHelth(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function updateHeath(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const user = await getUser(req)
-	const helthIsueBody: HelthIsueBody = req.body
+	const heathIssueBody: HeathIssueBody = req.body
 	if (!user) {
 		sendRes(res, false)
 		return
 	}
-	const oldHelthId = user.helthIsueId
-	const old = await HelthIsue.findById(oldHelthId)
+	const oldHeathId = user.heathIssueId
+	const old = await HeathIssue.findById(oldHeathId)
 	if (!old || old.campIds.length) {
 		if (!old) {
 			const {
@@ -273,8 +274,8 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 				isWearing,
 				spicy,
 				foodConcern,
-			} = helthIsueBody
-			const helth = await HelthIsue.create({
+			} = heathIssueBody
+			const heath = await HeathIssue.create({
 				food,
 				chronicDisease,
 				medicine,
@@ -285,14 +286,14 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 				userId: user._id,
 			});
 			await user.updateOne({
-				helthIsueId: helth._id
+				heathIssueId: heath._id
 			});
 			var i = 0
-			while (i < user.shertManageIds.length) {
-				const shertManage = await ShertManage.findById(user.shertManageIds[i++])
-				switch (shertManage.role) {
+			while (i < user.campMemberCardIds.length) {
+				const campMemberCard = await CampMemberCard.findById(user.campMemberCardIds[i++])
+				switch (campMemberCard.role) {
 					case "nong": {
-						const nongCamp = await NongCamp.findById(shertManage.campModelId)
+						const nongCamp = await NongCamp.findById(campMemberCard.campModelId)
 						if (!nongCamp) {
 							continue
 						}
@@ -305,21 +306,21 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 							continue
 						}
 						await camp.updateOne({
-							nongHelthIsueIds: swop(null, helth._id, camp.nongHelthIsueIds),
-							nongShertManageHaveHelthIshueIds: swop(null, shertManage._id, camp.nongShertManageHaveHelthIshueIds),
+							nongHeathIssueIds: swop(null, heath._id, camp.nongHeathIssueIds),
+							nongCampMemberCardHaveHeathIssueIds: swop(null, campMemberCard._id, camp.nongCampMemberCardHaveHeathIssueIds),
 						})
 						await baan.updateOne({
-							nongHelthIsueIds: swop(null, helth._id, baan.nongHelthIsueIds),
-							nongShertManageHaveHelthIshueIds: swop(null, shertManage._id, baan.nongShertManageHaveHelthIshueIds),
+							nongHeathIssueIds: swop(null, heath._id, baan.nongHeathIssueIds),
+							nongCampMemberCardHaveHeathIssueIds: swop(null, campMemberCard._id, baan.nongCampMemberCardHaveHeathIssueIds),
 						})
-						await helth.updateOne({
-							shertManageIds: swop(null, shertManage._id, helth.shertManageIds),
+						await heath.updateOne({
+							campMemberCardIds: swop(null, campMemberCard._id, heath.campMemberCardIds),
 						})
-						await shertManage.updateOne({ helthIshueId: helth._id })
+						await campMemberCard.updateOne({ heathIssueId: heath._id })
 						break
 					}
 					case "pee": {
-						const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+						const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
 						if (!peeCamp) {
 							continue
 						}
@@ -333,21 +334,21 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 							continue
 						}
 						await camp.updateOne({
-							peeHelthIsueIds: swop(null, helth._id, camp.peeHelthIsueIds),
-							peeShertManageHaveHelthIshueIds: swop(null, shertManage._id, camp.peeShertManageHaveHelthIshueIds)
+							peeHeathIssueIds: swop(null, heath._id, camp.peeHeathIssueIds),
+							peeCampMemberCardHaveHeathIssueIds: swop(null, campMemberCard._id, camp.peeCampMemberCardHaveHeathIssueIds)
 						})
 						await baan.updateOne({
-							peeHelthIsueIds: swop(null, helth._id, baan.peeHelthIsueIds),
-							peeShertManageHaveHelthIshueIds: swop(null, shertManage._id, baan.peeShertManageHaveHelthIshueIds)
+							peeHeathIssueIds: swop(null, heath._id, baan.peeHeathIssueIds),
+							peeCampMemberCardHaveHeathIssueIds: swop(null, campMemberCard._id, baan.peeCampMemberCardHaveHeathIssueIds)
 						})
 						await part.updateOne({
-							peeHelthIsueIds: swop(null, helth._id, baan.peeHelthIsueIds),
-							peeShertManageHaveHelthIshueIds: swop(null, shertManage._id, part.peeShertManageHaveHelthIshueIds)
+							peeHeathIssueIds: swop(null, heath._id, baan.peeHeathIssueIds),
+							peeCampMemberCardHaveHeathIssueIds: swop(null, campMemberCard._id, part.peeCampMemberCardHaveHeathIssueIds)
 						})
-						await helth.updateOne({
-							shertManageIds: swop(null, shertManage._id, helth.shertManageIds),
+						await heath.updateOne({
+							campMemberCardIds: swop(null, campMemberCard._id, heath.campMemberCardIds),
 						})
-						await shertManage.updateOne({ helthIshueId: helth._id })
+						await campMemberCard.updateOne({ heathIssueId: heath._id })
 						break
 					}
 					case "peto": {
@@ -364,17 +365,17 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 							continue
 						}
 						await camp.updateOne({
-							petoHelthIsueIds: swop(null, helth._id, camp.petoHelthIsueIds),
-							petoShertManageHaveHelthIshueIds: swop(null, shertManage._id, part.petoShertManageHaveHelthIshueIds),
+							petoHeathIssueIds: swop(null, heath._id, camp.petoHeathIssueIds),
+							petoCampMemberCardHaveHeathIssueIds: swop(null, campMemberCard._id, part.petoCampMemberCardHaveHeathIssueIds),
 						})
 						await part.updateOne({
-							petoHelthIsueIds: swop(null, helth._id, part.petoHelthIsueIds),
-							petoShertManageHaveHelthIshueIds: swop(null, shertManage._id, part.petoShertManageHaveHelthIshueIds),
+							petoHeathIssueIds: swop(null, heath._id, part.petoHeathIssueIds),
+							petoCampMemberCardHaveHeathIssueIds: swop(null, campMemberCard._id, part.petoCampMemberCardHaveHeathIssueIds),
 						})
-						await helth.updateOne({
-							shertManageIds: swop(null, shertManage._id, helth.shertManageIds),
+						await heath.updateOne({
+							campMemberCardIds: swop(null, campMemberCard._id, heath.campMemberCardIds),
 						})
-						await shertManage.updateOne({ helthIshueId: helth._id })
+						await campMemberCard.updateOne({ heathIssueId: heath._id })
 						break
 					}
 				}
@@ -382,16 +383,16 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 			sendRes(res, true)
 			return
 		}
-		if (!helthIsueBody.food.localeCompare('') && !helthIsueBody.medicine.localeCompare('') && !helthIsueBody.chronicDisease.localeCompare('') && !helthIsueBody.foodConcern.localeCompare('') && !helthIsueBody.spicy && !helthIsueBody.isWearing) {
+		if (!heathIssueBody.food.localeCompare('') && !heathIssueBody.medicine.localeCompare('') && !heathIssueBody.chronicDisease.localeCompare('') && !heathIssueBody.foodConcern.localeCompare('') && !heathIssueBody.spicy && !heathIssueBody.isWearing) {
 			var i = 0
-			while (i < old.shertManageIds.length) {
-				const shertManage = await ShertManage.findById(old.shertManageIds[i++])
-				if (!shertManage) {
+			while (i < old.campMemberCardIds.length) {
+				const campMemberCard = await CampMemberCard.findById(old.campMemberCardIds[i++])
+				if (!campMemberCard) {
 					continue
 				}
-				switch (shertManage.role) {
+				switch (campMemberCard.role) {
 					case "nong": {
-						const nongCamp = await NongCamp.findById(shertManage.campModelId)
+						const nongCamp = await NongCamp.findById(campMemberCard.campModelId)
 						if (!nongCamp) {
 							continue
 						}
@@ -401,18 +402,18 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 							continue
 						}
 						await camp.updateOne({
-							nongHelthIsueIds: swop(old._id, null, camp.nongHelthIsueIds),
-							nongShertManageHaveHelthIshueIds: swop(shertManage._id, null, camp.nongShertManageHaveHelthIshueIds),
+							nongHeathIssueIds: swop(old._id, null, camp.nongHeathIssueIds),
+							nongCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, camp.nongCampMemberCardHaveHeathIssueIds),
 						})
 						await baan.updateOne({
-							nongHelthIsueIds: swop(old._id, null, baan.nongHelthIsueIds),
-							nongShertManageHaveHelthIshueIds: swop(shertManage._id, null, baan.nongShertManageHaveHelthIshueIds),
+							nongHeathIssueIds: swop(old._id, null, baan.nongHeathIssueIds),
+							nongCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, baan.nongCampMemberCardHaveHeathIssueIds),
 						})
-						await shertManage.updateOne({ helthIshueId: null })
+						await campMemberCard.updateOne({ heathIssueId: null })
 						break
 					}
 					case "pee": {
-						const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+						const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
 						if (!peeCamp) {
 							continue
 						}
@@ -423,22 +424,22 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 							continue
 						}
 						await camp.updateOne({
-							peeHelthIsueIds: swop(old._id, null, camp.peeHelthIsueIds),
-							peeShertManageHaveHelthIshueIds: swop(shertManage._id, null, camp.peeShertManageHaveHelthIshueIds),
+							peeHeathIssueIds: swop(old._id, null, camp.peeHeathIssueIds),
+							peeCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, camp.peeCampMemberCardHaveHeathIssueIds),
 						})
 						await baan.updateOne({
-							peeHelthIsueIds: swop(old._id, null, baan.peeHelthIsueIds),
-							peeShertManageHaveHelthIshueIds: swop(shertManage._id, null, baan.peeShertManageHaveHelthIshueIds),
+							peeHeathIssueIds: swop(old._id, null, baan.peeHeathIssueIds),
+							peeCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, baan.peeCampMemberCardHaveHeathIssueIds),
 						})
 						await part.updateOne({
-							peeHelthIsueIds: swop(old._id, null, part.peeHelthIsueIds),
-							peeShertManageHaveHelthIshueIds: swop(shertManage._id, null, part.peeShertManageHaveHelthIshueIds),
+							peeHeathIssueIds: swop(old._id, null, part.peeHeathIssueIds),
+							peeCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, part.peeCampMemberCardHaveHeathIssueIds),
 						})
-						await shertManage.updateOne({ helthIshueId: null })
+						await campMemberCard.updateOne({ heathIssueId: null })
 						break
 					}
 					case "peto": {
-						const petoCamp = await PetoCamp.findById(shertManage.campModelId)
+						const petoCamp = await PetoCamp.findById(campMemberCard.campModelId)
 						if (!petoCamp) {
 							continue
 						}
@@ -448,19 +449,19 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 							continue
 						}
 						await camp.updateOne({
-							petoHelthIsueIds: swop(old._id, null, camp.petoHelthIsueIds),
-							petoShertManageHaveHelthIshueIds: swop(shertManage._id, null, camp.petoShertManageHaveHelthIshueIds),
+							petoHeathIssueIds: swop(old._id, null, camp.petoHeathIssueIds),
+							petoCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, camp.petoCampMemberCardHaveHeathIssueIds),
 						})
 						await part.updateOne({
-							petoHelthIsueIds: swop(old._id, null, part.petoHelthIsueIds),
-							petoShertManageHaveHelthIshueIds: swop(shertManage._id, null, part.petoShertManageHaveHelthIshueIds),
+							petoHeathIssueIds: swop(old._id, null, part.petoHeathIssueIds),
+							petoCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, part.petoCampMemberCardHaveHeathIssueIds),
 						})
-						await shertManage.updateOne({ helthIshueId: null })
+						await campMemberCard.updateOne({ heathIssueId: null })
 						break
 					}
 				}
 			}
-			await user.updateOne({ helthIsueId: null })
+			await user.updateOne({ heathIssueId: null })
 			await old.deleteOne()
 			sendRes(res, true)
 			return
@@ -473,8 +474,8 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 			isWearing,
 			spicy,
 			foodConcern,
-		} = helthIsueBody
-		const helth = await HelthIsue.create({
+		} = heathIssueBody
+		const heath = await HeathIssue.create({
 			food,
 			chronicDisease,
 			medicine,
@@ -483,20 +484,20 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 			spicy,
 			foodConcern,
 			userId: user._id,
-			shertManageIds: old.shertManageIds,
+			campMemberCardIds: old.campMemberCardIds,
 		});
 		await user.updateOne({
-			helthIsueId: helth._id
+			heathIssueId: heath._id
 		});
 		var i = 0
-		while (i < old.shertManageIds.length) {
-			const shertManage = await ShertManage.findById(old.shertManageIds[i++])
-			if (!shertManage) {
+		while (i < old.campMemberCardIds.length) {
+			const campMemberCard = await CampMemberCard.findById(old.campMemberCardIds[i++])
+			if (!campMemberCard) {
 				continue
 			}
-			switch (shertManage.role) {
+			switch (campMemberCard.role) {
 				case "nong": {
-					const nongCamp = await NongCamp.findById(shertManage.campModelId)
+					const nongCamp = await NongCamp.findById(campMemberCard.campModelId)
 					if (!nongCamp) {
 						continue
 					}
@@ -505,13 +506,13 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 					if (!baan || !camp) {
 						continue
 					}
-					await camp.updateOne({ nongHelthIsueIds: swop(old._id, helth._id, camp.nongHelthIsueIds) })
-					await baan.updateOne({ nongHelthIsueIds: swop(old._id, helth._id, baan.nongHelthIsueIds) })
-					await shertManage.updateOne({ helthIshueId: helth._id })
+					await camp.updateOne({ nongHeathIssueIds: swop(old._id, heath._id, camp.nongHeathIssueIds) })
+					await baan.updateOne({ nongHeathIssueIds: swop(old._id, heath._id, baan.nongHeathIssueIds) })
+					await campMemberCard.updateOne({ heathIssueId: heath._id })
 					break
 				}
 				case "pee": {
-					const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+					const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
 					if (!peeCamp) {
 						continue
 					}
@@ -521,14 +522,14 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 					if (!baan || !camp || !part) {
 						continue
 					}
-					await camp.updateOne({ peeHelthIsueIds: swop(old._id, helth._id, camp.peeHelthIsueIds) })
-					await baan.updateOne({ peeHelthIsueIds: swop(old._id, helth._id, baan.peeHelthIsueIds) })
-					await part.updateOne({ peeHelthIsueIds: swop(old._id, helth._id, part.peeHelthIsueIds) })
-					await shertManage.updateOne({ helthIshueId: helth._id })
+					await camp.updateOne({ peeHeathIssueIds: swop(old._id, heath._id, camp.peeHeathIssueIds) })
+					await baan.updateOne({ peeHeathIssueIds: swop(old._id, heath._id, baan.peeHeathIssueIds) })
+					await part.updateOne({ peeHeathIssueIds: swop(old._id, heath._id, part.peeHeathIssueIds) })
+					await campMemberCard.updateOne({ heathIssueId: heath._id })
 					break
 				}
 				case "peto": {
-					const petoCamp = await PetoCamp.findById(shertManage.campModelId)
+					const petoCamp = await PetoCamp.findById(campMemberCard.campModelId)
 					if (!petoCamp) {
 						continue
 					}
@@ -537,16 +538,16 @@ export async function updateHelth(req: express.Request, res: express.Response, n
 					if (!camp || !part) {
 						continue
 					}
-					await camp.updateOne({ petoHelthIsueIds: swop(old._id, helth._id, camp.petoHelthIsueIds) })
-					await part.updateOne({ petoHelthIsueIds: swop(old._id, helth._id, part.petoHelthIsueIds) })
-					await shertManage.updateOne({ helthIshueId: helth._id })
+					await camp.updateOne({ petoHeathIssueIds: swop(old._id, heath._id, camp.petoHeathIssueIds) })
+					await part.updateOne({ petoHeathIssueIds: swop(old._id, heath._id, part.petoHeathIssueIds) })
+					await campMemberCard.updateOne({ heathIssueId: heath._id })
 				}
 			}
 		}
 	} else {
-		const helth = await HelthIsue.findByIdAndUpdate(user?.helthIsueId, helthIsueBody);
-		await revalidaionHelthIshues([helth._id])
-		res.status(200).json(helth?.toObject());
+		const heath = await HeathIssue.findByIdAndUpdate(user?.heathIssueId, heathIssueBody);
+		await revalidationHeathIssues([heath._id])
+		res.status(200).json(heath?.toObject());
 	}
 }
 export async function updateBottle(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -564,14 +565,14 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 		return
 	}
 	var i = 0
-	while (i < user.shertManageIds.length) {
-		const shertManage = await ShertManage.findById(user.shertManageIds[i++])
-		if (!shertManage) {
+	while (i < user.campMemberCardIds.length) {
+		const campMemberCard = await CampMemberCard.findById(user.campMemberCardIds[i++])
+		if (!campMemberCard) {
 			continue
 		}
-		switch (shertManage.role) {
+		switch (campMemberCard.role) {
 			case 'nong': {
-				const nongCamp = await NongCamp.findById(shertManage.campModelId)
+				const nongCamp = await NongCamp.findById(campMemberCard.campModelId)
 				if (!nongCamp) {
 					continue
 				}
@@ -583,7 +584,7 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 				if (!baan) {
 					continue
 				}
-				await shertManage.updateOne({ haveBottle: !oldBottle })
+				await campMemberCard.updateOne({ haveBottle: !oldBottle })
 				if (oldBottle) {
 					await camp.updateOne({ nongHaveBottleIds: swop(user._id, null, camp.nongHaveBottleIds) });
 					await baan.updateOne({ nongHaveBottleIds: swop(user._id, null, baan.nongHaveBottleIds) })
@@ -595,7 +596,7 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 
 			}
 			case 'pee': {
-				const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+				const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
 				if (!peeCamp) {
 					continue
 				}
@@ -608,7 +609,7 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 				if (!baan || !part) {
 					continue
 				}
-				await shertManage.updateOne({ haveBottle: !oldBottle })
+				await campMemberCard.updateOne({ haveBottle: !oldBottle })
 				if (oldBottle) {
 					await camp.updateOne({ peeHaveBottleIds: swop(user._id, null, camp.peeHaveBottleIds) })
 					await baan.updateOne({ peeHaveBottleIds: swop(user._id, null, baan.peeHaveBottleIds) })
@@ -621,7 +622,7 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 				break
 			}
 			case 'peto': {
-				const petoCamp = await PetoCamp.findById(shertManage.campModelId)
+				const petoCamp = await PetoCamp.findById(campMemberCard.campModelId)
 				if (!petoCamp) {
 					continue
 				}
@@ -633,7 +634,7 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 				if (!part) {
 					continue
 				}
-				await shertManage.updateOne({ haveBottle: !oldBottle })
+				await campMemberCard.updateOne({ haveBottle: !oldBottle })
 				if (oldBottle) {
 					await camp.updateOne({ petoHaveBottleIds: swop(user._id, null, camp.petoHaveBottleIds) })
 					await part.updateOne({ petoHaveBottleIds: swop(user._id, null, part.petoHaveBottleIds) })
@@ -650,12 +651,12 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 		user,
 	});
 }
-export async function getShertManageByCampId(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getCampMemberCardByCampId(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const user = await getUser(req)
 	const campId: string = req.params.id
 	const camp = await Camp.findById(campId)
-	const shertManage = await ShertManage.findById(camp?.mapShertManageIdByUserId.get(user?.id))
-	res.status(200).json(shertManage)
+	const campMemberCard = await CampMemberCard.findById(camp?.mapCampMemberCardIdByUserId.get(user?.id))
+	res.status(200).json(campMemberCard)
 }
 export async function updateProfile(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const user = await getUser(req)
@@ -670,7 +671,7 @@ export async function changeModeToPee(req: express.Request, res: express.Respons
 			sendRes(res, false)
 			return
 		}
-		const password = req.params.id
+		const password = req.body.password
 		const isMatch = await bcrypt.compare(password, user.password);
 		if (!isMatch) {
 			sendRes(res, false)
@@ -701,24 +702,24 @@ export async function checkTel(req: express.Request, res: express.Response, next
 			continue
 		}
 		const camp = await Camp.findById(nongCamp.campId)
-		if (!camp || !camp.mapShertManageIdByUserId.has(findUser._id.toString())) {
+		if (!camp || !camp.mapCampMemberCardIdByUserId.has(findUser._id.toString())) {
 			continue
 		}
-		const shertManage = await ShertManage.findById(camp.mapShertManageIdByUserId.get(findUser._id.toString()))
-		if (!shertManage) {
+		const campMemberCard = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(findUser._id.toString()))
+		if (!campMemberCard) {
 			continue
 		}
-		switch (shertManage.role) {
+		switch (campMemberCard.role) {
 			case 'nong': {
-				const findnongCamp = await NongCamp.findById(shertManage.campModelId)
-				const findbaan = await Baan.findById(findnongCamp?.baanId)
-				relation.push(`เพื่อนชื่อ${findUser.nickname} จากค่าย${camp.campName} บ้าน${findbaan?.name}`)
+				const findNongCamp = await NongCamp.findById(campMemberCard.campModelId)
+				const findBaan = await Baan.findById(findNongCamp?.baanId)
+				relation.push(`เพื่อนชื่อ${findUser.nickname} จากค่าย${camp.campName} บ้าน${findBaan?.name}`)
 				break
 			}
 			case 'pee': {
-				const findPeeCamp = await PeeCamp.findById(shertManage.campModelId)
-				const findbaan = await Baan.findById(findPeeCamp?.baanId)
-				relation.push(`พี่ชื่อ${findUser.nickname} จากค่าย${camp.campName} บ้าน${findbaan?.name}`)
+				const findPeeCamp = await PeeCamp.findById(campMemberCard.campModelId)
+				const findBaan = await Baan.findById(findPeeCamp?.baanId)
+				relation.push(`พี่ชื่อ${findUser.nickname} จากค่าย${camp.campName} บ้าน${findBaan?.name}`)
 				break
 			}
 			case 'peto': {
@@ -734,31 +735,31 @@ export async function checkTel(req: express.Request, res: express.Response, next
 			continue
 		}
 		const camp = await Camp.findById(peeCamp.campId)
-		if (!camp || !camp.mapShertManageIdByUserId.has(findUser._id.toString())) {
+		if (!camp || !camp.mapCampMemberCardIdByUserId.has(findUser._id.toString())) {
 			continue
 		}
-		const shertManage = await ShertManage.findById(camp.mapShertManageIdByUserId.get(findUser._id.toString()))
-		if (!shertManage) {
+		const campMemberCard = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(findUser._id.toString()))
+		if (!campMemberCard) {
 			continue
 		}
-		switch (shertManage.role) {
+		switch (campMemberCard.role) {
 			case 'nong': {
-				const findnongCamp = await NongCamp.findById(shertManage.campModelId)
+				const findNongCamp = await NongCamp.findById(campMemberCard.campModelId)
 
-				const findbaan = await Baan.findById(findnongCamp?.baanId)
-				relation.push(`น้อง${findUser.nickname} จากค่าย${camp.campName} บ้าน${findbaan?.name}`)
+				const findBaan = await Baan.findById(findNongCamp?.baanId)
+				relation.push(`น้อง${findUser.nickname} จากค่าย${camp.campName} บ้าน${findBaan?.name}`)
 				break
 			}
 			case 'pee': {
-				const findPeeCamp = await PeeCamp.findById(shertManage.campModelId)
+				const findPeeCamp = await PeeCamp.findById(campMemberCard.campModelId)
 
-				const findbaan = await Baan.findById(findPeeCamp?.baanId)
+				const findBaan = await Baan.findById(findPeeCamp?.baanId)
 				const findPart = await Part.findById(findPeeCamp?.partId)
-				relation.push(`เพื่อนชื่อ${findUser.nickname} จากค่าย${camp.campName} บ้าน${findbaan?.name} ฝ่าย${findPart?.partName}`)
+				relation.push(`เพื่อนชื่อ${findUser.nickname} จากค่าย${camp.campName} บ้าน${findBaan?.name} ฝ่าย${findPart?.partName}`)
 				break
 			}
 			case 'peto': {
-				const findPeeCamp = await PetoCamp.findById(shertManage.campModelId)
+				const findPeeCamp = await PetoCamp.findById(campMemberCard.campModelId)
 				const findPart = await Part.findById(findPeeCamp?.partId)
 				relation.push(`พี่ปีโตชื่อ${findUser.nickname} จากค่าย${camp.campName} ฝ่าย${findPart?.partName}`)
 				break
@@ -772,30 +773,30 @@ export async function checkTel(req: express.Request, res: express.Response, next
 			continue
 		}
 		const camp = await Camp.findById(petoCamp.campId)
-		if (!camp || !camp.mapShertManageIdByUserId.has(findUser._id.toString())) {
+		if (!camp || !camp.mapCampMemberCardIdByUserId.has(findUser._id.toString())) {
 			continue
 		}
-		const shertManage = await ShertManage.findById(camp.mapShertManageIdByUserId.get(findUser._id.toString()))
-		if (!shertManage) {
+		const campMemberCard = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(findUser._id.toString()))
+		if (!campMemberCard) {
 			continue
 		}
-		switch (shertManage.role) {
+		switch (campMemberCard.role) {
 			case 'nong': {
-				const findnongCamp = await NongCamp.findById(shertManage.campModelId)
+				const findNongCamp = await NongCamp.findById(campMemberCard.campModelId)
 
-				const findbaan = await Baan.findById(findnongCamp?.baanId)
-				relation.push(`น้อง${findUser.nickname} จากค่าย${camp.campName} บ้าน${findbaan?.name}`)
+				const findBaan = await Baan.findById(findNongCamp?.baanId)
+				relation.push(`น้อง${findUser.nickname} จากค่าย${camp.campName} บ้าน${findBaan?.name}`)
 				break
 			}
 			case 'pee': {
-				const findPeeCamp = await PeeCamp.findById(shertManage.campModelId)
-				const findbaan = await Baan.findById(findPeeCamp?.baanId)
+				const findPeeCamp = await PeeCamp.findById(campMemberCard.campModelId)
+				const findBaan = await Baan.findById(findPeeCamp?.baanId)
 				const findPart = await Part.findById(findPeeCamp?.partId)
-				relation.push(`น้องปี1ชื่อ${findUser.nickname} จากค่าย${camp.campName} บ้าน${findbaan?.name} ฝ่าย${findPart?.partName}`)
+				relation.push(`น้องปี1ชื่อ${findUser.nickname} จากค่าย${camp.campName} บ้าน${findBaan?.name} ฝ่าย${findPart?.partName}`)
 				break
 			}
 			case 'peto': {
-				const findPeeCamp = await PetoCamp.findById(shertManage.campModelId)
+				const findPeeCamp = await PetoCamp.findById(campMemberCard.campModelId)
 				const findPart = await Part.findById(findPeeCamp?.partId)
 				relation.push(`เพื่อนชื่อ${findUser.nickname} จากค่าย${camp.campName} ฝ่าย${findPart?.partName}`)
 				break
@@ -821,14 +822,14 @@ export async function updateSleep(req: express.Request, res: express.Response, n
 		return
 	}
 	var i = 0
-	while (i < user.shertManageIds.length) {
-		const shertManage = await ShertManage.findById(user.shertManageIds[i++])
-		if (!shertManage) {
+	while (i < user.campMemberCardIds.length) {
+		const campMemberCard = await CampMemberCard.findById(user.campMemberCardIds[i++])
+		if (!campMemberCard) {
 			continue
 		}
-		switch (shertManage.role) {
+		switch (campMemberCard.role) {
 			case 'nong': {
-				const nongCamp = await NongCamp.findById(shertManage.campModelId)
+				const nongCamp = await NongCamp.findById(campMemberCard.campModelId)
 				if (!nongCamp) {
 					continue
 				}
@@ -840,7 +841,7 @@ export async function updateSleep(req: express.Request, res: express.Response, n
 				if (!baan) {
 					continue
 				}
-				await shertManage.updateOne({ sleepAtCamp: !oldSleep })
+				await campMemberCard.updateOne({ sleepAtCamp: !oldSleep })
 				if (oldSleep) {
 					await camp.updateOne({ nongSleepIds: swop(user._id, null, camp.nongSleepIds) });
 					await baan.updateOne({ nongSleepIds: swop(user._id, null, baan.nongSleepIds) })
@@ -853,7 +854,7 @@ export async function updateSleep(req: express.Request, res: express.Response, n
 
 			}
 			case 'pee': {
-				const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+				const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
 				if (!peeCamp) {
 					continue
 				}
@@ -866,7 +867,7 @@ export async function updateSleep(req: express.Request, res: express.Response, n
 				if (!baan || !part) {
 					continue
 				}
-				await shertManage.updateOne({ sleepAtCamp: !oldSleep })
+				await campMemberCard.updateOne({ sleepAtCamp: !oldSleep })
 				if (oldSleep) {
 					await camp.updateOne({ peeSleepIds: swop(user._id, null, camp.peeSleepIds) })
 					await baan.updateOne({ peeSleepIds: swop(user._id, null, baan.peeSleepIds) })
@@ -879,7 +880,7 @@ export async function updateSleep(req: express.Request, res: express.Response, n
 				break
 			}
 			case 'peto': {
-				const petoCamp = await PetoCamp.findById(shertManage.campModelId)
+				const petoCamp = await PetoCamp.findById(campMemberCard.campModelId)
 				if (!petoCamp) {
 					continue
 				}
@@ -891,7 +892,7 @@ export async function updateSleep(req: express.Request, res: express.Response, n
 				if (!part) {
 					continue
 				}
-				await shertManage.updateOne({ sleepAtCamp: !oldSleep })
+				await campMemberCard.updateOne({ sleepAtCamp: !oldSleep })
 				if (oldSleep) {
 					await camp.updateOne({ petoSleepIds: swop(user._id, null, camp.petoSleepIds) })
 					await part.updateOne({ petoSleepIds: swop(user._id, null, part.petoSleepIds) })
@@ -917,10 +918,10 @@ export async function getUsers(req: express.Request, res: express.Response, next
 		sendRes(res, false)
 	}
 }
-export async function getShertmanage(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getCampMemberCard(req: express.Request, res: express.Response, next: express.NextFunction) {
 	try {
-		const shertManage = await ShertManage.findById(req.params.id)
-		res.status(200).json(shertManage)
+		const campMemberCard = await CampMemberCard.findById(req.params.id)
+		res.status(200).json(campMemberCard)
 	} catch (err) {
 		console.log(err)
 		sendRes(res, false)
@@ -939,13 +940,13 @@ export async function updateTimeOffset(req: express.Request, res: express.Respon
 	sendRes(res, true)
 }
 export async function getTimeOffset(req: express.Request, res: express.Response, next: express.NextFunction) {
-	try{
+	try {
 		const buf = await TimeOffset.findById(req.params.id)
-	res.status(200).json(buf)
-	}catch(e){
-		sendRes(res,false)
+		res.status(200).json(buf)
+	} catch (e) {
+		sendRes(res, false)
 	}
-	
+
 }
 export async function signId(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const user = await getUser(req)
@@ -982,10 +983,10 @@ export async function verifyEmail(req: express.Request, res: express.Response, n
 	}
 
 }
-export async function revalidaionHelthIshues(ids: mongoose.Types.ObjectId[]) {
+export async function revalidationHeathIssues(ids: mongoose.Types.ObjectId[]) {
 	var i = 0
 	while (i < ids.length) {
-		const old = await HelthIsue.findById(ids[i++])
+		const old = await HeathIssue.findById(ids[i++])
 		if (!old) {
 			continue
 		}
@@ -996,20 +997,20 @@ export async function revalidaionHelthIshues(ids: mongoose.Types.ObjectId[]) {
 		if (!user) {
 			continue
 		}
-		if (!old._id.equals(user.helthIsueId)) {
+		if (!old._id.equals(user.heathIssueId)) {
 			await old.deleteOne()
 			continue
 		}
 		if (!old.food.localeCompare('') && !old.medicine.localeCompare('') && !old.chronicDisease.localeCompare('') && !old.foodConcern.localeCompare('') && !old.spicy && !old.isWearing) {
 			var j = 0
-			while (j < old.shertManageIds.length) {
-				const shertManage = await ShertManage.findById(old.shertManageIds[j++])
-				if (!shertManage) {
+			while (j < old.campMemberCardIds.length) {
+				const campMemberCard = await CampMemberCard.findById(old.campMemberCardIds[j++])
+				if (!campMemberCard) {
 					continue
 				}
-				switch (shertManage.role) {
+				switch (campMemberCard.role) {
 					case "nong": {
-						const nongCamp = await NongCamp.findById(shertManage.campModelId)
+						const nongCamp = await NongCamp.findById(campMemberCard.campModelId)
 						if (!nongCamp) {
 							continue
 						}
@@ -1019,18 +1020,18 @@ export async function revalidaionHelthIshues(ids: mongoose.Types.ObjectId[]) {
 							continue
 						}
 						await camp.updateOne({
-							nongHelthIsueIds: swop(old._id, null, camp.nongHelthIsueIds),
-							nongShertManageHaveHelthIshueIds: swop(shertManage._id, null, camp.nongShertManageHaveHelthIshueIds),
+							nongHeathIssueIds: swop(old._id, null, camp.nongHeathIssueIds),
+							nongCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, camp.nongCampMemberCardHaveHeathIssueIds),
 						})
 						await baan.updateOne({
-							nongHelthIsueIds: swop(old._id, null, baan.nongHelthIsueIds),
-							nongShertManageHaveHelthIshueIds: swop(shertManage._id, null, baan.nongShertManageHaveHelthIshueIds),
+							nongHeathIssueIds: swop(old._id, null, baan.nongHeathIssueIds),
+							nongCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, baan.nongCampMemberCardHaveHeathIssueIds),
 						})
-						await shertManage.updateOne({ helthIshueId: null })
+						await campMemberCard.updateOne({ heathIssueId: null })
 						break
 					}
 					case "pee": {
-						const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+						const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
 						if (!peeCamp) {
 							continue
 						}
@@ -1041,22 +1042,22 @@ export async function revalidaionHelthIshues(ids: mongoose.Types.ObjectId[]) {
 							continue
 						}
 						await camp.updateOne({
-							peeHelthIsueIds: swop(old._id, null, camp.peeHelthIsueIds),
-							peeShertManageHaveHelthIshueIds: swop(shertManage._id, null, camp.peeShertManageHaveHelthIshueIds),
+							peeHeathIssueIds: swop(old._id, null, camp.peeHeathIssueIds),
+							peeCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, camp.peeCampMemberCardHaveHeathIssueIds),
 						})
 						await baan.updateOne({
-							peeHelthIsueIds: swop(old._id, null, baan.peeHelthIsueIds),
-							peeShertManageHaveHelthIshueIds: swop(shertManage._id, null, baan.peeShertManageHaveHelthIshueIds),
+							peeHeathIssueIds: swop(old._id, null, baan.peeHeathIssueIds),
+							peeCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, baan.peeCampMemberCardHaveHeathIssueIds),
 						})
 						await part.updateOne({
-							peeHelthIsueIds: swop(old._id, null, part.peeHelthIsueIds),
-							peeShertManageHaveHelthIshueIds: swop(shertManage._id, null, part.peeShertManageHaveHelthIshueIds),
+							peeHeathIssueIds: swop(old._id, null, part.peeHeathIssueIds),
+							peeCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, part.peeCampMemberCardHaveHeathIssueIds),
 						})
-						await shertManage.updateOne({ helthIshueId: null })
+						await campMemberCard.updateOne({ heathIssueId: null })
 						break
 					}
 					case "peto": {
-						const petoCamp = await PetoCamp.findById(shertManage.campModelId)
+						const petoCamp = await PetoCamp.findById(campMemberCard.campModelId)
 						if (!petoCamp) {
 							continue
 						}
@@ -1066,28 +1067,59 @@ export async function revalidaionHelthIshues(ids: mongoose.Types.ObjectId[]) {
 							continue
 						}
 						await camp.updateOne({
-							petoHelthIsueIds: swop(old._id, null, camp.petoHelthIsueIds),
-							petoShertManageHaveHelthIshueIds: swop(shertManage._id, null, camp.petoShertManageHaveHelthIshueIds),
+							petoHeathIssueIds: swop(old._id, null, camp.petoHeathIssueIds),
+							petoCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, camp.petoCampMemberCardHaveHeathIssueIds),
 						})
 						await part.updateOne({
-							petoHelthIsueIds: swop(old._id, null, part.petoHelthIsueIds),
-							petoShertManageHaveHelthIshueIds: swop(shertManage._id, null, part.petoShertManageHaveHelthIshueIds),
+							petoHeathIssueIds: swop(old._id, null, part.petoHeathIssueIds),
+							petoCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, part.petoCampMemberCardHaveHeathIssueIds),
 						})
-						await shertManage.updateOne({ helthIshueId: null })
+						await campMemberCard.updateOne({ heathIssueId: null })
 						break
 					}
 				}
 			}
-			await user.updateOne({ helthIsueId: null })
+			await user.updateOne({ heathIssueId: null })
 			await old.deleteOne()
 		}
 	}
 }
-export async function checkPassword(req: express.Request, res: express.Response, next: express.NextFunction){
-	const user=await getUser(req)
-	if(!user){
-		sendRes(res,false)
+export async function checkPassword(req: express.Request, res: express.Response, next: express.NextFunction) {
+	const user = await getUser(req)
+	if (!user) {
+		sendRes(res, false)
 	}
-	const isMatch=await bcrypt.compare(req.body.password,user.password)
-	sendRes(res,isMatch)
+	const isMatch = await bcrypt.compare(req.body.password, user.password)
+	sendRes(res, isMatch)
+}
+export async function bypassRole(req: express.Request, res: express.Response, next: express.NextFunction) {
+	const { key } = req.body
+	const user = await getUser(req)
+	if (!user) {
+		sendRes(res, false)
+		return
+	}
+	switch (key) {
+		case process.env.PEEBAAN: {
+			await user.updateOne({ role: 'pee' })
+			sendRes(res, true)
+			return
+		}
+		case process.env.PETO: {
+			await user.updateOne({ role: 'peto' })
+			sendRes(res, true)
+			return
+		}
+		case process.env.ADMIN: {
+			await user.updateOne({ role: 'admin' })
+			sendRes(res, true)
+			return
+		}
+		case process.env.NONG: {
+			await user.updateOne({ role: 'nong' })
+			sendRes(res, true)
+			return
+		}
+	}
+	sendRes(res, false)
 }

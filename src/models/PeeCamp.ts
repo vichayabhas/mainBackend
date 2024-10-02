@@ -16,7 +16,7 @@ const PeeCampSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    peeShertManageIds: {
+    peeCampMemberCardIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
@@ -72,7 +72,7 @@ const PeeCampSchema = new mongoose.Schema({
         type: [String],
         default: ['arrayString1', 'arrayString2', 'arrayString3', 'arrayString4', 'arrayString5', 'map1', 'map2', 'map3', 'map4', 'map5']
     },
-    // helthIshueIds: {
+    // heathIssueIds: {
     //     type: [mongoose.Schema.ObjectId],
     //     default: []
     // }

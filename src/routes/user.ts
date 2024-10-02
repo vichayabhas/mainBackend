@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, getMe, updateSize, updateMode, getShertManageByCampId, updateProfile, updateBottle, changeModeToPee, updateSleep, getHelthIsue, checkTel, getUsers, getShertmanage, updateTimeOffset, getTimeOffset, updateHelth, signId, verifyEmail, checkPassword, } from '../controllers/user';
+import { register, login, getMe, updateSize, updateMode, getCampMemberCardByCampId, updateProfile, updateBottle, changeModeToPee, updateSleep, getHeathIssue, checkTel, getUsers, getCampMemberCard, updateTimeOffset, getTimeOffset, updateHeath, signId, verifyEmail, checkPassword, bypassRole, } from '../controllers/user';
 
 const router = express.Router();
 
@@ -10,19 +10,20 @@ router.post('/login', login);//
 router.get('/me', protect, getMe)//
 router.put('/updateSize/params/:id', protect, updateSize)//
 router.put('/updateMode/', protect, pee, updateMode)//
-router.get('/shertManagebyCampId/params/:id', getShertManageByCampId)//
+router.get('/getCampMemberCardByCampId/params/:id', getCampMemberCardByCampId)//
 router.put('/updateProfile/', protect, updateProfile)//
 router.put('/updateBottle/', protect, updateBottle)//
-router.post('/changeModeToPee/params/:id', protect, pee, changeModeToPee)//
+router.post('/changeModeToPee/', protect, pee, changeModeToPee)//
 router.put('/updateSleep/', protect, updateSleep)//
-router.get('/getHelthIsue/params/:id', getHelthIsue)//
+router.get('/getHeathIssue/params/:id', getHeathIssue)//
 router.get('/checkTel/params/:id', protect, checkTel)//
 router.get('/getUser/params/:id', getUsers)//
-router.get('/getShertmanage/params/:id', getShertmanage)//
+router.get('/getCampMemberCard/params/:id', getCampMemberCard)//
 router.put('/updateTimeOffset/', protect, updateTimeOffset)//
 router.get('/getTimeOffset/params/:id', getTimeOffset)//
-router.put('/updateHelth/', protect, updateHelth)//
+router.put('/updateHeath/', protect, updateHeath)//
 router.post('/signId/', protect, signId)//
 router.post('/verifyEmail/', protect, verifyEmail)//
 router.post('/checkPassword/', protect, checkPassword)//
+router.post('/bypassRole/', protect, bypassRole)//
 export default router;

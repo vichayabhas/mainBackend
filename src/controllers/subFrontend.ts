@@ -1,5 +1,5 @@
 import express from "express";
-import { Group } from "../models/intreface";
+import { Group } from "../models/interface";
 import { getUser } from "../middleware/auth";
 import { sendRes } from "./setup";
 export async function peeBypass(req: express.Request, res: express.Response, next: express.NextFunction) {

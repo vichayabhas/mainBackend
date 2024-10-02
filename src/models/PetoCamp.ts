@@ -6,7 +6,7 @@ const PeeCampSchema = new mongoose.Schema({
     partId: {
         type: mongoose.Schema.ObjectId
     },
-    petoShertManageIds: {
+    petoCampMemberCardIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
@@ -14,7 +14,7 @@ const PeeCampSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    // helthIshueIds: {
+    // heathIssueIds: {
     //     type: [mongoose.Schema.ObjectId],
     //     default: []
     // }

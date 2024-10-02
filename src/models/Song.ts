@@ -12,7 +12,7 @@ const PartSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    auther: {
+    author: {
         type: String,
         required: true,
     },

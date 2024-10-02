@@ -12,7 +12,7 @@ const PeeCampSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    nongShertManageIds: {
+    nongCampMemberCardIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },

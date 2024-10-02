@@ -9,12 +9,12 @@ import LostAndFound from "../models/LostAndFound";
 import Building from "../models/Building";
 import Place from "../models/Place";
 import NongCamp from "../models/NongCamp";
-import { ChatReady, CreateBaanChat, CreateNongChat, CreatePeeChat, EditChat, InterCampBack, InterChat, InterLostAndFound, InterPlace, Mode, ShowChat, ShowLostAndFound, ShowPlace, TypeChat } from "../models/intreface";
+import { ChatReady, CreateBaanChat, CreateNongChat, CreatePeeChat, EditChat, InterCampBack, InterChat, InterLostAndFound, InterPlace, Mode, ShowChat, ShowLostAndFound, ShowPlace, TypeChat } from "../models/interface";
 import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import mongoose from "mongoose";
 import Part from "../models/Part";
-import ShertManage from "../models/ShertManage";
+import CampMemberCard from "../models/CampMemberCard";
 import Chat from "../models/Chat";
 import TimeOffset from "../models/TimeOffset";
 // export async function addLikeSong
@@ -252,7 +252,7 @@ export async function deleteLostAndFound(req: express.Request, res: express.Resp
         return
     }
     const camp = await Camp.findById(lostAndFound.campId)
-    if (!user || (user.role != 'admin' && (lostAndFound.userId !== (user._id)) && (camp ? !user.authPartIds.includes(camp.partBoardId as mongoose.Types.ObjectId) && !user.authPartIds.includes(camp.partRegiterId as mongoose.Types.ObjectId) : true) && !camp?.boardIds.includes(user._id))) {
+    if (!user || (user.role != 'admin' && (lostAndFound.userId !== (user._id)) && (camp ? !user.authPartIds.includes(camp.partBoardId as mongoose.Types.ObjectId) && !user.authPartIds.includes(camp.partRegisterId as mongoose.Types.ObjectId) : true) && !camp?.boardIds.includes(user._id))) {
         res.status(403).json(resError)
     }
     const owner = await User.findById(lostAndFound.userId)
@@ -320,8 +320,8 @@ export async function getAllBuilding(req: express.Request, res: express.Response
     res.status(200).json(buildings)
 }
 export async function createPlace(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { room, buildingId, flore } = req.body
-    const place = await Place.create({ room, buildingId, flore })
+    const { room, buildingId, floor } = req.body
+    const place = await Place.create({ room, buildingId, floor })
     const building = await Building.findById(buildingId)
     await building?.updateOne({ placeIds: swop(null, place._id, building.placeIds) })
     res.status(201).json(place)
@@ -402,7 +402,7 @@ async function fillLostAndFound(input: InterLostAndFound): Promise<ShowLostAndFo
         userNickname: user.nickname,
         tel: user.tel,
         room: place ? place.room : 'null',
-        floor: place ? place.flore : 'null',
+        floor: place ? place.floor : 'null',
         buildingName: building ? building.name : 'null',
         campId,
         type,
@@ -423,7 +423,7 @@ export async function getShowPlace(req: express.Request, res: express.Response, 
     const showPlace: ShowPlace = {
         _id: place._id,
         buildingName: building.name,
-        floor: place.flore,
+        floor: place.floor,
         room: place.room
     }
     res.status(200).json(showPlace)
@@ -441,8 +441,8 @@ export async function createPartChat(req: express.Request, res: express.Response
         sendRes(res, false)
         return
     }
-    const shertManage = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
-    if (!shertManage || shertManage.role === 'nong') {
+    const campMemberCard = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
+    if (!campMemberCard || campMemberCard.role === 'nong') {
         sendRes(res, false)
         return
     }
@@ -455,18 +455,18 @@ export async function createPartChat(req: express.Request, res: express.Response
     const chat = await Chat.create({
         message: create.message,
         userId: user._id,
-        campModelId: shertManage.campModelId,
-        role: shertManage.role,
+        campModelId: campMemberCard.campModelId,
+        role: campMemberCard.role,
         typeChat,
         refId: part._id,
-        shertManageIds: camp.peeShertManageIds,
+        campMemberCardIds: camp.peeCampMemberCardIds,
     })
-    await shertManage.updateOne({ ownChatIds: swop(null, chat._id, shertManage.ownChatIds) })
+    await campMemberCard.updateOne({ ownChatIds: swop(null, chat._id, campMemberCard.ownChatIds) })
     await camp.updateOne({ allPetoChatIds: swop(null, chat._id, camp.allPetoChatIds) })
     var i = 0
-    while (i < camp.peeShertManageIds.length) {
-        const shertManage = await ShertManage.findById(camp.peeShertManageIds[i++])
-        await shertManage.updateOne({ allChatIds: swop(null, chat._id, shertManage.allChatIds) })
+    while (i < camp.peeCampMemberCardIds.length) {
+        const campMemberCard = await CampMemberCard.findById(camp.peeCampMemberCardIds[i++])
+        await campMemberCard.updateOne({ allChatIds: swop(null, chat._id, campMemberCard.allChatIds) })
     }
     await part.updateOne({ chatIds: swop(null, chat._id, part.chatIds) })
     res.status(201).json(chat)
@@ -486,7 +486,7 @@ export async function getShowChatFromChatIds(inputs: mongoose.Types.ObjectId[], 
             campModelId,
             typeChat,
             refId,
-            shertManageIds,
+            campMemberCardIds,
             date,
         } = chat
         var baanName: string
@@ -560,12 +560,12 @@ export async function getShowChatFromChatIds(inputs: mongoose.Types.ObjectId[], 
                 break
             }
             case 'น้องคุยส่วนตัวกับพี่': {
-                const shertManage = await ShertManage.findById(chat.refId)
-                if (!shertManage) {
+                const campMemberCard = await CampMemberCard.findById(chat.refId)
+                if (!campMemberCard) {
                     continue
                 }
-                const user = await User.findById(shertManage.userId)
-                const nongCamp = await NongCamp.findById(shertManage.campModelId)
+                const user = await User.findById(campMemberCard.userId)
+                const nongCamp = await NongCamp.findById(campMemberCard.campModelId)
                 if (!user || !nongCamp) {
                     continue
                 }
@@ -612,7 +612,7 @@ export async function getShowChatFromChatIds(inputs: mongoose.Types.ObjectId[], 
             roomName,
             typeChat,
             refId,
-            shertManageIds,
+            campMemberCardIds,
             date,
         })
     }
@@ -632,27 +632,27 @@ export async function deleteChatRaw(chatId: mongoose.Types.ObjectId) {
     var i = 0
     switch (chat.typeChat) {
         case 'น้องคุยส่วนตัวกับพี่': {
-            while (i < chat.shertManageIds.length) {
-                const shertManage = await ShertManage.findById(chat.shertManageIds[i++])
-                if (!shertManage) {
+            while (i < chat.campMemberCardIds.length) {
+                const campMemberCard = await CampMemberCard.findById(chat.campMemberCardIds[i++])
+                if (!campMemberCard) {
                     continue
                 }
-                await shertManage.updateOne({ allChatIds: swop(chat._id, null, shertManage.allChatIds) })
+                await campMemberCard.updateOne({ allChatIds: swop(chat._id, null, campMemberCard.allChatIds) })
             }
-            const shertManageHost = await ShertManage.findById(chat.refId)
-            if (!shertManageHost) {
+            const campMemberCardHost = await CampMemberCard.findById(chat.refId)
+            if (!campMemberCardHost) {
                 return false
             }
-            await shertManageHost.updateOne({ chatIds: swop(chat._id, null, shertManageHost.chatIds) })
+            await campMemberCardHost.updateOne({ chatIds: swop(chat._id, null, campMemberCardHost.chatIds) })
             break
         }
         case 'คุยกันในบ้าน': {
-            while (i < chat.shertManageIds.length) {
-                const shertManage = await ShertManage.findById(chat.shertManageIds[i++])
-                if (!shertManage) {
+            while (i < chat.campMemberCardIds.length) {
+                const campMemberCard = await CampMemberCard.findById(chat.campMemberCardIds[i++])
+                if (!campMemberCard) {
                     continue
                 }
-                await shertManage.updateOne({ allChatIds: swop(chat._id, null, shertManage.allChatIds) })
+                await campMemberCard.updateOne({ allChatIds: swop(chat._id, null, campMemberCard.allChatIds) })
             }
             const baan = await Baan.findById(chat.refId)
             if (!baan) {
@@ -662,12 +662,12 @@ export async function deleteChatRaw(chatId: mongoose.Types.ObjectId) {
             break
         }
         case 'คุยกันในฝ่าย': {
-            while (i < chat.shertManageIds.length) {
-                const shertManage = await ShertManage.findById(chat.shertManageIds[i++])
-                if (!shertManage) {
+            while (i < chat.campMemberCardIds.length) {
+                const campMemberCard = await CampMemberCard.findById(chat.campMemberCardIds[i++])
+                if (!campMemberCard) {
                     continue
                 }
-                await shertManage.updateOne({ allChatIds: swop(chat._id, null, shertManage.allChatIds) })
+                await campMemberCard.updateOne({ allChatIds: swop(chat._id, null, campMemberCard.allChatIds) })
             }
             const part = await Part.findById(chat.refId)
             if (!part) {
@@ -682,12 +682,12 @@ export async function deleteChatRaw(chatId: mongoose.Types.ObjectId) {
             break
         }
         case 'พี่คุยกันในบ้าน': {
-            while (i < chat.shertManageIds.length) {
-                const shertManage = await ShertManage.findById(chat.shertManageIds[i++])
-                if (!shertManage) {
+            while (i < chat.campMemberCardIds.length) {
+                const campMemberCard = await CampMemberCard.findById(chat.campMemberCardIds[i++])
+                if (!campMemberCard) {
                     continue
                 }
-                await shertManage.updateOne({ allChatIds: swop(chat._id, null, shertManage.allChatIds) })
+                await campMemberCard.updateOne({ allChatIds: swop(chat._id, null, campMemberCard.allChatIds) })
             }
             const baan = await Baan.findById(chat.refId)
             if (!baan) {
@@ -697,12 +697,12 @@ export async function deleteChatRaw(chatId: mongoose.Types.ObjectId) {
             break
         }
         case 'พี่บ้านคุยกัน': {
-            while (i < chat.shertManageIds.length) {
-                const shertManage = await ShertManage.findById(chat.shertManageIds[i++])
-                if (!shertManage) {
+            while (i < chat.campMemberCardIds.length) {
+                const campMemberCard = await CampMemberCard.findById(chat.campMemberCardIds[i++])
+                if (!campMemberCard) {
                     continue
                 }
-                await shertManage.updateOne({ allChatIds: swop(chat._id, null, shertManage.allChatIds) })
+                await campMemberCard.updateOne({ allChatIds: swop(chat._id, null, campMemberCard.allChatIds) })
             }
             const part = await Part.findById(chat.refId)
             if (!part) {
@@ -722,13 +722,13 @@ export async function deleteChatRaw(chatId: mongoose.Types.ObjectId) {
 }
 export async function createNongChat(req: express.Request, res: express.Response, next: express.NextFunction) {
     const create: CreateNongChat = req.body
-    const shertManageHost = await ShertManage.findById(create.shertmanageId)
+    const campMemberCardHost = await CampMemberCard.findById(create.CampMemberCard)
     const user = await getUser(req)
-    if (!shertManageHost || !user || shertManageHost.role !== 'nong') {
+    if (!campMemberCardHost || !user || campMemberCardHost.role !== 'nong') {
         sendRes(res, false)
         return
     }
-    const nongCamp = await NongCamp.findById(shertManageHost.campModelId)
+    const nongCamp = await NongCamp.findById(campMemberCardHost.campModelId)
     if (!nongCamp) {
         sendRes(res, false)
         return
@@ -739,27 +739,27 @@ export async function createNongChat(req: express.Request, res: express.Response
         sendRes(res, false)
         return
     }
-    const shertManageSender = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
+    const campMemberCardSender = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
     const chat = await Chat.create({
         message: create.message,
-        campModelId: shertManageSender.campModelId,
+        campModelId: campMemberCardSender.campModelId,
         userId: user._id,
-        role: shertManageSender.role,
+        role: campMemberCardSender.role,
         typeChat: 'น้องคุยส่วนตัวกับพี่',
-        refId: shertManageHost._id,
-        shertManageIds: baan.peeShertManageIds,
+        refId: campMemberCardHost._id,
+        campMemberCardIds: baan.peeCampMemberCardIds,
     })
-    await shertManageSender.updateOne({ ownChatIds: swop(null, chat._id, shertManageSender.ownChatIds) })
+    await campMemberCardSender.updateOne({ ownChatIds: swop(null, chat._id, campMemberCardSender.ownChatIds) })
     var i = 0
-    while (i < baan.peeShertManageIds.length) {
-        const shertManage = await ShertManage.findById(baan.peeShertManageIds[i++])
-        if (!shertManage) {
+    while (i < baan.peeCampMemberCardIds.length) {
+        const campMemberCard = await CampMemberCard.findById(baan.peeCampMemberCardIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        await shertManage.updateOne({ allChatIds: swop(null, chat._id, shertManage.allChatIds) })
+        await campMemberCard.updateOne({ allChatIds: swop(null, chat._id, campMemberCard.allChatIds) })
     }
-    await shertManageHost.updateOne({ chatIds: swop(null, chat._id, shertManageHost.chatIds) })
-    await chat.updateOne({ shertManageIds: swop(null, shertManageHost._id, chat.shertManageIds) })
+    await campMemberCardHost.updateOne({ chatIds: swop(null, chat._id, campMemberCardHost.chatIds) })
+    await chat.updateOne({ campMemberCardIds: swop(null, campMemberCardHost._id, chat.campMemberCardIds) })
     res.status(201).json(chat)
 }
 export async function createPeeBaanChat(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -771,21 +771,21 @@ export async function createPeeBaanChat(req: express.Request, res: express.Respo
         return
     }
     const camp = await Camp.findById(baan.campId)
-    const shertManageSender = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
+    const campMemberCardSender = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
     const chat = await Chat.create({
         message: create.message,
-        campModelId: shertManageSender.campModelId,
+        campModelId: campMemberCardSender.campModelId,
         userId: user._id,
-        role: shertManageSender.role,
+        role: campMemberCardSender.role,
         typeChat: 'พี่คุยกันในบ้าน',
         refId: baan._id,
-        shertManageIds: baan.peeShertManageIds,
+        campMemberCardIds: baan.peeCampMemberCardIds,
     })
-    await shertManageSender.updateOne({ ownChatIds: swop(null, chat._id, shertManageSender.ownChatIds) })
+    await campMemberCardSender.updateOne({ ownChatIds: swop(null, chat._id, campMemberCardSender.ownChatIds) })
     var i = 0
-    while (i < baan.peeShertManageIds.length) {
-        const shertManage = await ShertManage.findById(baan.peeShertManageIds[i++])
-        await shertManage.updateOne({ allChatIds: swop(null, chat._id, shertManage.allChatIds) })
+    while (i < baan.peeCampMemberCardIds.length) {
+        const campMemberCard = await CampMemberCard.findById(baan.peeCampMemberCardIds[i++])
+        await campMemberCard.updateOne({ allChatIds: swop(null, chat._id, campMemberCard.allChatIds) })
     }
     await baan.updateOne({ peeChatIds: swop(null, chat._id, baan.peeChatIds) })
 }
@@ -801,36 +801,36 @@ export async function createNongBaanChat(req: express.Request, res: express.Resp
     if (!camp) {
         sendRes(res, false)
     }
-    const shertManageSender = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
-    const shertManageIds: mongoose.Types.ObjectId[] = []
+    const campMemberCardSender = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
+    const campMemberCardIds: mongoose.Types.ObjectId[] = []
     const chat = await Chat.create({
         message: create.message,
-        campModelId: shertManageSender.campModelId,
+        campModelId: campMemberCardSender.campModelId,
         userId: user._id,
-        role: shertManageSender.role,
+        role: campMemberCardSender.role,
         typeChat: 'คุยกันในบ้าน',
         refId: baan._id,
     })
     var i = 0
-    while (i < baan.peeShertManageIds.length) {
-        const shertManage = await ShertManage.findById(baan.peeShertManageIds[i++])
-        if (!shertManage) {
+    while (i < baan.peeCampMemberCardIds.length) {
+        const campMemberCard = await CampMemberCard.findById(baan.peeCampMemberCardIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        await shertManage.updateOne({ allChatIds: swop(null, chat._id, shertManage.allChatIds) })
-        shertManageIds.push(shertManage._id)
+        await campMemberCard.updateOne({ allChatIds: swop(null, chat._id, campMemberCard.allChatIds) })
+        campMemberCardIds.push(campMemberCard._id)
     }
     i = 0
-    while (i < baan.nongShertManageIds.length) {
-        const shertManage = await ShertManage.findById(baan.nongShertManageIds[i++])
-        if (!shertManage) {
+    while (i < baan.nongCampMemberCardIds.length) {
+        const campMemberCard = await CampMemberCard.findById(baan.nongCampMemberCardIds[i++])
+        if (!campMemberCard) {
             continue
         }
-        await shertManage.updateOne({ allChatIds: swop(null, chat._id, shertManage.allChatIds) })
-        shertManageIds.push(shertManage._id)
+        await campMemberCard.updateOne({ allChatIds: swop(null, chat._id, campMemberCard.allChatIds) })
+        campMemberCardIds.push(campMemberCard._id)
     }
-    await shertManageSender.updateOne({ ownChatIds: swop(null, chat._id, shertManageSender.ownChatIds) })
-    await chat.updateOne({ shertManageIds })
+    await campMemberCardSender.updateOne({ ownChatIds: swop(null, chat._id, campMemberCardSender.ownChatIds) })
+    await chat.updateOne({ campMemberCardIds })
     await baan.updateOne({ nongChatIds: swop(null, chat._id, baan.nongChatIds) })
 }
 export async function getAllChatFromCampId(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -857,8 +857,8 @@ export async function getAllChatFromCampId(req: express.Request, res: express.Re
         }
         res.status(200).json(output)
     } else {
-        const shertManage = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
-        const chats = await getShowChatFromChatIds(shertManage.allChatIds, user.mode)
+        const campMemberCard = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
+        const chats = await getShowChatFromChatIds(campMemberCard.allChatIds, user.mode)
         const output: ChatReady = {
             chats,
             mode: user.mode,
@@ -908,8 +908,8 @@ export async function getNongBaanChat(req: express.Request, res: express.Respons
         sendRes(res, false)
         return
     }
-    const shertManage = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
-    if (!shertManage) {
+    const campMemberCard = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
+    if (!campMemberCard) {
         sendRes(res, false)
         return
     }
@@ -918,9 +918,9 @@ export async function getNongBaanChat(req: express.Request, res: express.Respons
         sendRes(res, false)
         return
     }
-    switch (shertManage.role) {
+    switch (campMemberCard.role) {
         case "nong": {
-            const nongCamp = await NongCamp.findById(shertManage.campModelId)
+            const nongCamp = await NongCamp.findById(campMemberCard.campModelId)
             if (!nongCamp) {
                 sendRes(res, false)
                 return
@@ -930,10 +930,10 @@ export async function getNongBaanChat(req: express.Request, res: express.Respons
                 sendRes(res, false)
                 return
             }
-            const chats = await getShowChatFromChatIds(baan.nongChatIds, user.mode)
+            const chats = await getShowChatFromChatIds(baan.nongChatIds, 'nong')
             const output: ChatReady = {
                 chats,
-                mode: user.mode,
+                mode:'nong',
                 sendType: baan.nongSendMessage ? {
                     id: baan._id,
                     roomType: 'คุยกันในบ้าน',
@@ -946,7 +946,7 @@ export async function getNongBaanChat(req: express.Request, res: express.Respons
             return
         }
         case "pee": {
-            const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+            const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
             if (!peeCamp) {
                 sendRes(res, false)
                 return
@@ -984,12 +984,12 @@ export async function getPeeBaanChat(req: express.Request, res: express.Response
         sendRes(res, false)
         return
     }
-    const shertManage = await ShertManage.findById(camp.mapShertManageIdByUserId.get(user._id.toString()))
-    if (!shertManage || shertManage.role !== 'pee') {
+    const campMemberCard = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
+    if (!campMemberCard || campMemberCard.role !== 'pee') {
         sendRes(res, false)
         return
     }
-    const peeCamp = await PeeCamp.findById(shertManage.campModelId)
+    const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
     if (!peeCamp) {
         sendRes(res, false)
         return
@@ -1019,13 +1019,13 @@ export async function getPeeBaanChat(req: express.Request, res: express.Response
     res.status(200).json(output)
 }
 export async function getNongChat(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const shertManage = await ShertManage.findById(req.params.id)
+    const campMemberCard = await CampMemberCard.findById(req.params.id)
     const user = await getUser(req)
-    if (!shertManage || !user) {
+    if (!campMemberCard || !user) {
         sendRes(res, false)
         return
     }
-    const nongCamp = await NongCamp.findById(shertManage.campModelId)
+    const nongCamp = await NongCamp.findById(campMemberCard.campModelId)
     if (!nongCamp) {
         sendRes(res, false)
         return
@@ -1036,11 +1036,11 @@ export async function getNongChat(req: express.Request, res: express.Response, n
         sendRes(res, false)
         return
     }
-    if (!shertManage.userId.equals(user._id) && !baan.peeIds.includes(user._id)) {
+    if (!campMemberCard.userId.equals(user._id) && !baan.peeIds.includes(user._id)) {
         sendRes(res, false)
         return
     }
-    const chats = await getShowChatFromChatIds(shertManage.chatIds, user.mode)
+    const chats = await getShowChatFromChatIds(campMemberCard.chatIds, user.mode)
     const timeOffset = await TimeOffset.findById(user.displayOffsetId)
     if (!timeOffset) {
         sendRes(res, false)
@@ -1048,9 +1048,9 @@ export async function getNongChat(req: express.Request, res: express.Response, n
     }
     const output: ChatReady = {
         chats,
-        mode: user.mode,
+        mode: campMemberCard.userId.equals(user._id) ? 'nong' : user.mode,
         sendType: {
-            id: shertManage._id,
+            id: campMemberCard._id,
             roomType: 'น้องคุยส่วนตัวกับพี่'
         },
         groupName: camp.groupName,

@@ -3,7 +3,7 @@ const PeeCampSchema = new mongoose.Schema({
     buildingId: {//building
         type: mongoose.Schema.ObjectId
     },
-    flore: {
+    floor: {
         type: String,
         required:true
     },

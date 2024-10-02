@@ -17,19 +17,19 @@ const PartSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    peeHelthIsueIds: {//helth
+    peeHeathIssueIds: {//helth
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    petoHelthIsueIds: {//helth
+    petoHeathIssueIds: {//helth
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    peeShertSize: {// size    count
+    peeShirtSize: {// size    count
         type: Map,
         default: startSize()
     },
-    petoShertSize: {// size    count
+    petoShirtSize: {// size    count
         type: Map,
         default: startSize()
     },
@@ -60,11 +60,11 @@ const PartSchema = new mongoose.Schema({
         type: Map,
         default: new Map
     },
-    peeShertManageIds: {
+    peeCampMemberCardIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    petoShertManageIds: {
+    petoCampMemberCardIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
@@ -79,7 +79,7 @@ const PartSchema = new mongoose.Schema({
     placeId: {
         type: mongoose.Schema.ObjectId
     },
-    mapShertManageIdByUserId: {
+    mapCampMemberCardIdByUserId: {
         type: Map,
         default: new Map
     },
@@ -99,19 +99,19 @@ const PartSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
-    // peeHaveHelthIshueIds: {
+    // peeHaveHeathIssueIds: {
     //     type: [mongoose.Schema.ObjectId],
     //     default: []
     // },
-    // peeMapHelthIshueIdByUserId: {
+    // peeMapHeathIssueIdByUserId: {
     //     type: Map,
     //     default: new Map()
     // },
-    // petoHaveHelthIshueIds: {
+    // petoHaveHeathIssueIds: {
     //     type: [mongoose.Schema.ObjectId],
     //     default: []
     // },
-    // petoMapHelthIshueIdByUserId: {
+    // petoMapHeathIssueIdByUserId: {
     //     type: Map,
     //     default: new Map()
     // },
@@ -119,11 +119,11 @@ const PartSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    peeShertManageHaveHelthIshueIds: {
+    peeCampMemberCardHaveHeathIssueIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    petoShertManageHaveHelthIshueIds: {
+    petoCampMemberCardHaveHeathIssueIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },

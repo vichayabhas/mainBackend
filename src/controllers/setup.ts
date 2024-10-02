@@ -1,5 +1,5 @@
 import express from 'express'
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, InterWorkingItem, InterActionPlan, MapObjectId, MyMap, Size } from '../models/intreface'
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, InterWorkingItem, InterActionPlan, MapObjectId, MyMap, Size } from '../models/interface'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 
@@ -95,21 +95,21 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
         campId,
         peeIds,
         nongIds,
-        nongHelthIsueIds,
-        peeHelthIsueIds,
-        nongShertSize,
-        peeShertSize,
+        nongHeathIssueIds,
+        peeHeathIssueIds,
+        nongShirtSize,
+        peeShirtSize,
         songIds,
         peeModelIds,
         nongModelId,
-        nongShertManageIds,
-        peeShertManageIds,
+        nongCampMemberCardIds,
+        peeCampMemberCardIds,
         link,
         styleId,
         boySleepPlaceId,
         girlSleepPlaceId,
-        mapShertManageIdByUserId,
-        nomalPlaceId,
+        mapCampMemberCardIdByUserId,
+        normalPlaceId,
         _id,
         peeSleepIds,
         nongSleepIds,
@@ -120,31 +120,31 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
         nongChatIds,
         nongSendMessage,
         nongHaveBottleIds,
-        nongShertManageHaveHelthIshueIds,
+        nongCampMemberCardHaveHeathIssueIds,
         peeHaveBottleIds,
-        peeShertManageHaveHelthIshueIds,
+        peeCampMemberCardHaveHeathIssueIds,
     } = input
     return ({
         name,
         fullName,
         campId,
         link,
-        nomalPlaceId,
-        nongHelthIsueIds,
+        normalPlaceId,
+        nongHeathIssueIds,
         nongIds,
         nongModelId,
-        nongShertManageIds,
-        peeHelthIsueIds,
+        nongCampMemberCardIds,
+        peeHeathIssueIds,
         peeIds,
-        peeShertManageIds,
+        peeCampMemberCardIds,
         peeModelIds,
-        peeShertSize: sizeMapToJson(peeShertSize),
-        nongShertSize: sizeMapToJson(nongShertSize),
+        peeShirtSize: sizeMapToJson(peeShirtSize),
+        nongShirtSize: sizeMapToJson(nongShirtSize),
         songIds,
         styleId,
         boySleepPlaceId,
         girlSleepPlaceId,
-        mapShertManageIdByUserId: mapObjectIdToMyMap(mapShertManageIdByUserId),
+        mapCampMemberCardIdByUserId: mapObjectIdToMyMap(mapCampMemberCardIdByUserId),
         _id,
         peeSleepIds,
         nongSleepIds,
@@ -155,9 +155,9 @@ export function conBaanBackToFront(input: InterBaanBack): InterBaanFront {
         nongChatIds,
         nongSendMessage,
         nongHaveBottleIds,
-        nongShertManageHaveHelthIshueIds,
+        nongCampMemberCardHaveHeathIssueIds,
         peeHaveBottleIds,
-        peeShertManageHaveHelthIshueIds,
+        peeCampMemberCardHaveHeathIssueIds,
     })
 }
 export function conCampBackToFront(input: InterCampBack): InterCampFront {
@@ -172,13 +172,13 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         partIds,
         petoIds,
         authorizeIds,
-        nongHelthIsueIds,
-        peeHelthIsueIds,
-        petoHelthIsueIds,
+        nongHeathIssueIds,
+        peeHeathIssueIds,
+        petoHeathIssueIds,
         dataLock,
-        nongShertSize,
-        peeShertSize,
-        petoShertSize,
+        nongShirtSize,
+        peeShirtSize,
+        petoShirtSize,
         nongModelIds,
         peeModelIds,
         petoModelIds,
@@ -189,9 +189,9 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         songIds,
         nongSureIds,
         baanIds,
-        nongShertManageIds,
-        peeShertManageIds,
-        petoShertManageIds,
+        nongCampMemberCardIds,
+        peeCampMemberCardIds,
+        petoCampMemberCardIds,
         link,
         allDone,
         lockChangePickup,
@@ -202,8 +202,8 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         nongPaidIds,
         nongInterviewIds,                            ////////////////////////////////i
         registerModel,
-        memberStructre,
-        mapShertManageIdByUserId,
+        memberStructure: memberStructure,
+        mapCampMemberCardIdByUserId,
         logoUrl,
         registerSheetLink,
         peeLock,
@@ -214,11 +214,11 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         peeSleepModel,
         nongSleepIds,
         nongSleepModel,
-        baanBordId,
+        baanBoardId,
         partNameIds,
         partBoardId,
         partCoopId,
-        partRegiterId,
+        partRegisterId,
         partPeeBaanId,
         peeDataLock,
         petoDataLock,
@@ -230,46 +230,46 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         nongMapIdGtoL,
         peeMapIdGtoL,
         mdTime,
-        partWelfairId,
+        partWelfareId,
         partMedId,
         partPlanId,
         allPetoChatIds,
         petoSleepIds,
         nongHaveBottleIds,
         nongMapIdLtoG,
-        nongShertManageHaveHelthIshueIds,
+        nongCampMemberCardHaveHeathIssueIds,
         peeHaveBottleIds,
         peeMapIdLtoG,
-        peeShertManageHaveHelthIshueIds,
+        peeCampMemberCardHaveHeathIssueIds,
         petoHaveBottleIds,
-        petoShertManageHaveHelthIshueIds,
+        petoCampMemberCardHaveHeathIssueIds,
 
     } = input
     return ({
         partIds,
         open,
-        peeHelthIsueIds,
+        peeHeathIssueIds,
         peeIds,
         peeModelIds,
         peePassIds: mapObjectIdToMyMap(peePassIds),
-        peeShertManageIds,
-        peeShertSize: sizeMapToJson(peeShertSize),
-        petoHelthIsueIds,
+        peeCampMemberCardIds,
+        peeShirtSize: sizeMapToJson(peeShirtSize),
+        petoHeathIssueIds,
         petoIds,
         petoModelIds,
-        petoShertManageIds,
-        petoShertSize: sizeMapToJson(petoShertSize),
+        petoCampMemberCardIds,
+        petoShirtSize: sizeMapToJson(petoShirtSize),
         pictureUrls,
         nameId,
-        nongHelthIsueIds,
+        nongHeathIssueIds,
         nongIds,
         nongInterviewIds: mapStringToMyMap(nongInterviewIds),
         nongModelIds,
         nongPaidIds,
         nongPassIds: mapStringToMyMap(nongPassIds),
         nongPendingIds: mapStringToMyMap(nongPendingIds),
-        nongShertManageIds,
-        nongShertSize: sizeMapToJson(nongShertSize),
+        nongCampMemberCardIds,
+        nongShirtSize: sizeMapToJson(nongShirtSize),
         nongSureIds,
         registerModel,
         round,
@@ -284,12 +284,12 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         dataLock,
         dateEnd,
         dateStart,
-        memberStructre,
+        memberStructure,
         workItemIds,
         songIds,
         partNameIds,
         logoUrl,
-        mapShertManageIdByUserId: mapObjectIdToMyMap(mapShertManageIdByUserId),
+        mapCampMemberCardIdByUserId: mapObjectIdToMyMap(mapCampMemberCardIdByUserId),
         registerSheetLink,
         peeLock,
         outRoundIds,
@@ -299,10 +299,10 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         peeSleepModel,
         nongSleepIds,
         nongSleepModel,
-        baanBordId,
+        baanBoardId,
         partBoardId,
         partCoopId,
-        partRegiterId,
+        partRegisterId,
         partPeeBaanId,
         groupName,
         peeDataLock,
@@ -314,17 +314,17 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         nongMapIdGtoL: mapStringToMyMap(nongMapIdGtoL),
         peeMapIdGtoL: mapStringToMyMap(peeMapIdGtoL),
         mdTime,
-        partWelfairId,
+        partWelfareId,
         partMedId,
         partPlanId,
         allPetoChatIds,
         petoSleepIds,
         nongHaveBottleIds,
-        nongShertManageHaveHelthIshueIds,
+        nongCampMemberCardHaveHeathIssueIds,
         peeHaveBottleIds,
-        peeShertManageHaveHelthIshueIds,
+        peeCampMemberCardHaveHeathIssueIds,
         petoHaveBottleIds,
-        petoShertManageHaveHelthIshueIds,
+        petoCampMemberCardHaveHeathIssueIds,
 
     })
 }
@@ -334,17 +334,17 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         campId,
         peeIds,
         petoIds,
-        peeHelthIsueIds,
-        petoHelthIsueIds,
-        peeShertSize,
-        petoShertSize,
+        peeHeathIssueIds,
+        petoHeathIssueIds,
+        peeShirtSize,
+        petoShirtSize,
         peeModelIds,
         petoModelId,
-        peeShertManageIds,
-        petoShertManageIds,
+        peeCampMemberCardIds,
+        petoCampMemberCardIds,
         actionPlanIds,
         workItemIds,
-        mapShertManageIdByUserId,
+        mapCampMemberCardIdByUserId,
         placeId,
         partName,
         peeSleepIds,
@@ -353,9 +353,9 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         isAuth,
         petoSleepIds,
         peeHaveBottleIds,
-        peeShertManageHaveHelthIshueIds,
+        peeCampMemberCardHaveHeathIssueIds,
         petoHaveBottleIds,
-        petoShertManageHaveHelthIshueIds,
+        petoCampMemberCardHaveHeathIssueIds,
     } = input
 
     return ({
@@ -363,18 +363,18 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         workItemIds,
         campId,
         nameId,
-        peeHelthIsueIds,
+        peeHeathIssueIds,
         peeIds,
         peeModelIds,
-        peeShertManageIds,
-        peeShertSize: sizeMapToJson(peeShertSize),
-        petoHelthIsueIds,
+        peeCampMemberCardIds,
+        peeShirtSize: sizeMapToJson(peeShirtSize),
+        petoHeathIssueIds,
         petoIds,
         petoModelId,
-        petoShertManageIds,
-        petoShertSize: sizeMapToJson(petoShertSize),
+        petoCampMemberCardIds,
+        petoShirtSize: sizeMapToJson(petoShirtSize),
         placeId,
-        mapShertManageIdByUserId: mapObjectIdToMyMap(mapShertManageIdByUserId),
+        mapCampMemberCardIdByUserId: mapObjectIdToMyMap(mapCampMemberCardIdByUserId),
         partName,
         peeSleepIds,
         _id,
@@ -382,9 +382,9 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         isAuth,
         petoSleepIds,
         peeHaveBottleIds,
-        peeShertManageHaveHelthIshueIds,
+        peeCampMemberCardHaveHeathIssueIds,
         petoHaveBottleIds,
-        petoShertManageHaveHelthIshueIds,
+        petoCampMemberCardHaveHeathIssueIds,
     })
 }
 export function mapStringToMyMap(input: Map<mongoose.Types.ObjectId, string | number>): MyMap[] {
@@ -473,7 +473,7 @@ export function isInTime(start: Date, end: Date): boolean {
     return (now > start && now < end)
 }
 export function plusActionPlan(input: InterActionPlan, minute: number): InterActionPlan {
-    const millisecound = minute * 1000 * 60
+    const millisecond = minute * 1000 * 60
     const {
         start,
         end,
@@ -486,8 +486,8 @@ export function plusActionPlan(input: InterActionPlan, minute: number): InterAct
         partName
     } = input
     return ({
-        start: new Date(start.getTime() + millisecound),
-        end: new Date(end.getTime() + millisecound),
+        start: new Date(start.getTime() + millisecond),
+        end: new Date(end.getTime() + millisecond),
         partId,
         placeIds,
         action,
@@ -499,7 +499,7 @@ export function plusActionPlan(input: InterActionPlan, minute: number): InterAct
 }
 export const backendUrl = 'http://localhost:5000'
 export const userPath = 'api/v1/auth'
-export function removeDupicate(input: mongoose.Types.ObjectId[], compare: mongoose.Types.ObjectId[]): mongoose.Types.ObjectId[] {
+export function removeDuplicate(input: mongoose.Types.ObjectId[], compare: mongoose.Types.ObjectId[]): mongoose.Types.ObjectId[] {
     return input.filter((e) => {
         return !compare.includes(e)
     })
@@ -514,30 +514,7 @@ export function notEmpty<TValue>(value: TValue | null | undefined): value is TVa
 import nodemailer from 'nodemailer';
 import { MailOptions } from 'nodemailer/lib/json-transport'
 
-// Create a transport for sending emails (replace with your email service's data)
-/*const transporter = nodemailer.createTransport({
-    service: '', // Use your email service
-    auth: {
-     user: '6633227421@student.chula.ac.th', // Your email address
-     pass: '67CM37Da', // Your password
-    },
-});
-// Set email options
-const mailOptions = {
-    from: '6633227421@student.chula.ac.th', // Sender
-    to: 'arifmini64@gmail.com', // Recipient
-    subject: 'Email Subject', // Email subject
-    html: '<></>', // Email HTML content
-};
 
-// Send the email
-transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-        console.error('Email sending failed:', error);
-    } else {
-        console.log('Email sent: ' + info.response);
-    }
-})//nodemailer.createTransport('smtps://user%40gmail.com:pass@smtp.gmail.com');*/
 export function sendingEmail(email: string, text: string) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',

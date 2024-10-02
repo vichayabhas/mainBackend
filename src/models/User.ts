@@ -50,12 +50,12 @@ const UserSchema = new mongoose.Schema({
         enum: ['Male', 'Female'],
         required:true
     },
-    shertSize: {
+    shirtSize: {
         type: String,
-        required: [true, 'Plese choose shert size'],
+        required: [true, 'Plese choose shirt size'],
         enum: ['S', 'M', 'L', 'XL', 'XXL', '3XL']
     },
-    helthIsueId: {//helthIsue
+    heathIssueId: {//heathIssue
         type: mongoose.Schema.ObjectId,
         default: null
 
@@ -128,7 +128,7 @@ const UserSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    shertManageIds: {
+    campMemberCardIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },

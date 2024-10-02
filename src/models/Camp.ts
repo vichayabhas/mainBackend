@@ -42,15 +42,15 @@ const campSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    nongHelthIsueIds: {//helth
+    nongHeathIssueIds: {//helth
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    peeHelthIsueIds: {//helth
+    peeHeathIssueIds: {//helth
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    petoHelthIsueIds: {//helth
+    petoHeathIssueIds: {//helth
         type: [mongoose.Schema.ObjectId],
         default: []
     },
@@ -58,17 +58,17 @@ const campSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    nongShertSize: {// size    count
+    nongShirtSize: {// size    count
         type: Map,
         //value:Number,
         //key:('S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'),
         default: startSize()
     },
-    peeShertSize: {// size    count
+    peeShirtSize: {// size    count
         type: Map,
         default: startSize()
     },
-    petoShertSize: {// size    count
+    petoShirtSize: {// size    count
         type: Map,
         default: startSize()
     },
@@ -136,15 +136,15 @@ const campSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    nongShertManageIds: {
+    nongCampMemberCardIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    peeShertManageIds: {
+    peeCampMemberCardIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    petoShertManageIds: {
+    petoCampMemberCardIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
@@ -190,14 +190,14 @@ const campSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    memberStructre: {
+    memberStructure: {
         type: String,
         enum: ['nong->highSchool,pee->1year,peto->2upYear', 'nong->highSchool,pee->2upYear', 'nong->1year,pee->2upYear', 'nong->highSchool,pee->allYear', 'allYearMix']
     },
     logoUrl: {
         type: String
     },
-    mapShertManageIdByUserId: {
+    mapCampMemberCardIdByUserId: {
         type: Map,
         default: new Map
     },
@@ -239,7 +239,7 @@ const campSchema = new mongoose.Schema({
         type: Map,
         default: new Map
     },
-    baanBordId: {
+    baanBoardId: {
         type: mongoose.Schema.ObjectId
     },
     partNameIds: {
@@ -259,7 +259,7 @@ const campSchema = new mongoose.Schema({
     partCoopId: {
         type: mongoose.Schema.ObjectId
     },
-    partRegiterId: {
+    partRegisterId: {
         type: mongoose.Schema.ObjectId
     },
     partPeeBaanId: {
@@ -321,7 +321,7 @@ const campSchema = new mongoose.Schema({
         type: Date,
         default: new Date(Date.now())
     },
-    partWelfairId: {
+    partWelfareId: {
         type: mongoose.Schema.ObjectId
     },
     partMedId: {
@@ -338,15 +338,15 @@ const campSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    nongShertManageHaveHelthIshueIds: {
+    nongCampMemberCardHaveHeathIssueIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    peeShertManageHaveHelthIshueIds: {
+    peeCampMemberCardHaveHeathIssueIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    petoShertManageHaveHelthIshueIds: {
+    petoCampMemberCardHaveHeathIssueIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
