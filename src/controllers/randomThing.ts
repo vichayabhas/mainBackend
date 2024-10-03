@@ -9,7 +9,7 @@ import LostAndFound from "../models/LostAndFound";
 import Building from "../models/Building";
 import Place from "../models/Place";
 import NongCamp from "../models/NongCamp";
-import { ChatReady, CreateBaanChat, CreateNongChat, CreatePeeChat, EditChat, InterCampBack, InterChat, InterLostAndFound, InterPlace, Mode, ShowChat, ShowLostAndFound, ShowPlace, TypeChat } from "../models/interface";
+import { ChatReady, CreateBaanChat, CreateNongChat, CreatePeeChat, EditChat, InterCampBack, InterChat, InterLostAndFound, InterPlace, Mode, RoleCamp, ShowChat, ShowLostAndFound, ShowPlace, TypeChat } from "../models/interface";
 import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import mongoose from "mongoose";
@@ -849,7 +849,7 @@ export async function getAllChatFromCampId(req: express.Request, res: express.Re
         const chats = await getShowChatFromChatIds(camp.allPetoChatIds, user.mode)
         const output: ChatReady = {
             chats,
-            mode: user.mode,
+            mode: getModeBySituation(user.mode, 'peto', true),
             sendType: null,
             groupName: camp.groupName,
             timeOffset,
@@ -858,10 +858,10 @@ export async function getAllChatFromCampId(req: express.Request, res: express.Re
         res.status(200).json(output)
     } else {
         const campMemberCard = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
-        const chats = await getShowChatFromChatIds(campMemberCard.allChatIds, user.mode)
+        const chats = await getShowChatFromChatIds(campMemberCard.allChatIds, getModeBySituation(user.mode, campMemberCard.role, true))
         const output: ChatReady = {
             chats,
-            mode: user.mode,
+            mode: getModeBySituation(user.mode, campMemberCard.role, true),
             sendType: null,
             groupName: camp.groupName,
             timeOffset,
@@ -882,7 +882,7 @@ export async function getPartChat(req: express.Request, res: express.Response, n
         sendRes(res, false)
         return
     }
-    const chats = await getShowChatFromChatIds(part.chatIds, user.mode)
+    const chats = await getShowChatFromChatIds(part.chatIds, getModeBySituation(user.mode, 'pee', true))
     const timeOffset = await TimeOffset.findById(user.displayOffsetId)
     if (!timeOffset) {
         sendRes(res, false)
@@ -890,7 +890,7 @@ export async function getPartChat(req: express.Request, res: express.Response, n
     }
     const output: ChatReady = {
         chats,
-        mode: user.mode,
+        mode: getModeBySituation(user.mode, 'pee', true),
         sendType: {
             roomType: 'คุยกันในฝ่าย',
             id: part._id,
@@ -930,10 +930,10 @@ export async function getNongBaanChat(req: express.Request, res: express.Respons
                 sendRes(res, false)
                 return
             }
-            const chats = await getShowChatFromChatIds(baan.nongChatIds, 'nong')
+            const chats = await getShowChatFromChatIds(baan.nongChatIds, getModeBySituation(user.mode, 'nong', true))
             const output: ChatReady = {
                 chats,
-                mode:'nong',
+                mode: getModeBySituation(user.mode, 'nong', true),
                 sendType: baan.nongSendMessage ? {
                     id: baan._id,
                     roomType: 'คุยกันในบ้าน',
@@ -956,10 +956,10 @@ export async function getNongBaanChat(req: express.Request, res: express.Respons
                 sendRes(res, false)
                 return
             }
-            const chats = await getShowChatFromChatIds(baan.nongChatIds, user.mode)
+            const chats = await getShowChatFromChatIds(baan.nongChatIds, getModeBySituation(user.mode, 'pee', true))
             const output: ChatReady = {
                 chats,
-                mode: user.mode,
+                mode: getModeBySituation(user.mode, 'pee', true),
                 sendType: {
                     id: baan._id,
                     roomType: 'คุยกันในบ้าน',
@@ -985,7 +985,7 @@ export async function getPeeBaanChat(req: express.Request, res: express.Response
         return
     }
     const campMemberCard = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
-    if (!campMemberCard || campMemberCard.role !== 'pee') {
+    if (!campMemberCard || campMemberCard.role !== 'pee' || user.mode == 'nong') {
         sendRes(res, false)
         return
     }
@@ -1040,7 +1040,7 @@ export async function getNongChat(req: express.Request, res: express.Response, n
         sendRes(res, false)
         return
     }
-    const chats = await getShowChatFromChatIds(campMemberCard.chatIds, user.mode)
+    const chats = await getShowChatFromChatIds(campMemberCard.chatIds, getModeBySituation(user.mode, campMemberCard.userId.equals(user._id) ? 'nong' : 'pee', true))
     const timeOffset = await TimeOffset.findById(user.displayOffsetId)
     if (!timeOffset) {
         sendRes(res, false)
@@ -1048,7 +1048,7 @@ export async function getNongChat(req: express.Request, res: express.Response, n
     }
     const output: ChatReady = {
         chats,
-        mode: campMemberCard.userId.equals(user._id) ? 'nong' : user.mode,
+        mode: getModeBySituation(user.mode, campMemberCard.userId.equals(user._id) ? 'nong' : 'pee', true),
         sendType: {
             id: campMemberCard._id,
             roomType: 'น้องคุยส่วนตัวกับพี่'
@@ -1062,4 +1062,13 @@ export async function getNongChat(req: express.Request, res: express.Response, n
 export async function getSystemInfo(req: express.Request, res: express.Response, next: express.NextFunction) {
     const systemMode = getSystemMode()
     res.status(200).json({ systemMode })
+}
+function getModeBySituation(mode: Mode, role: RoleCamp, isHidePart: boolean): Mode {
+    if (!isHidePart) {
+        return 'pee'
+    }
+    if (role == 'nong') {
+        return 'nong'
+    }
+    return mode
 }
