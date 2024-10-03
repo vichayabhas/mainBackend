@@ -882,7 +882,7 @@ export async function getPartChat(req: express.Request, res: express.Response, n
         sendRes(res, false)
         return
     }
-    const chats = await getShowChatFromChatIds(part.chatIds, getModeBySituation(user.mode, 'pee', true))
+    const chats = await getShowChatFromChatIds(part.chatIds, user.mode)
     const timeOffset = await TimeOffset.findById(user.displayOffsetId)
     if (!timeOffset) {
         sendRes(res, false)
@@ -956,7 +956,7 @@ export async function getNongBaanChat(req: express.Request, res: express.Respons
                 sendRes(res, false)
                 return
             }
-            const chats = await getShowChatFromChatIds(baan.nongChatIds, getModeBySituation(user.mode, 'pee', true))
+            const chats = await getShowChatFromChatIds(baan.nongChatIds, user.mode)
             const output: ChatReady = {
                 chats,
                 mode: getModeBySituation(user.mode, 'pee', true),
