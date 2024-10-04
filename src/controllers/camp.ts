@@ -259,7 +259,7 @@ export async function addNong(req: express.Request, res: express.Response, next:
                 userId: user._id,
                 size: user.shirtSize,
                 campModelId: nongCamp._id,
-                recive: 'baan',
+                receive: 'baan',
                 role: 'nong',
                 haveBottle: user.haveBottle,
                 sleepAtCamp,
@@ -419,7 +419,7 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
                 userId: user._id,
                 size: user.shirtSize,
                 campModelId: peeCamp._id,
-                recive: 'baan',
+                receive: 'baan',
                 role: 'pee',
                 haveBottle: user.haveBottle,
                 sleepAtCamp,
@@ -583,7 +583,7 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
             userId: user._id,
             size: user.shirtSize,
             campModelId: petoCamp._id,
-            recive: 'part',
+            receive: 'part',
             role: 'peto',
             haveBottle: user.haveBottle,
             sleepAtCamp,
@@ -667,7 +667,7 @@ export async function staffRegister(req: express.Request, res: express.Response,
         return
 
     }
-    const impotantParts = await getImpotentPartIdBCRP(camp._id)
+    const importantParts = await getImpotentPartIdBCRP(camp._id)
     if (user.role === 'pee' || camp.memberStructure != 'nong->highSchool,pee->1year,peto->2upYear') {
         camp.peePassIds.set(user.id, partId)
         await camp.updateOne({ peePassIds: camp.peePassIds })
@@ -675,7 +675,7 @@ export async function staffRegister(req: express.Request, res: express.Response,
             success: true
         })
     } else {
-        if (impotantParts.includes(part._id) && !part._id.equals(impotantParts[3])) {
+        if (importantParts.includes(part._id) && !part._id.equals(importantParts[3])) {
             await user.updateOne({ authPartIds: swop(null, part._id, user.authPartIds) })
         }
         await addPetoRaw([user._id], part._id, res);
@@ -1620,33 +1620,33 @@ export async function answerTheQuasion(req: express.Request, res: express.Respon
         return
     }
     while (i < answers.length) {
-        const quasion = await ChoiseQuasion.findById(answers[i].quasionId)
-        if (!quasion) {
+        const question = await ChoiseQuasion.findById(answers[i].quasionId)
+        if (!question) {
             continue
         }
-        if (quasion.mapAwnserIdByUserId.has(user._id.toString())) {
-            const answer = await ChoiseAnswer.findByIdAndUpdate(quasion.mapAwnserIdByUserId.get(user._id.toString()), answers[i])
-            if (answers[i].answer === quasion.correct) {
-                await answer?.updateOne({ score: quasion.score })
+        if (question.mapAwnserIdByUserId.has(user._id.toString())) {
+            const answer = await ChoiseAnswer.findByIdAndUpdate(question.mapAwnserIdByUserId.get(user._id.toString()), answers[i])
+            if (answers[i].answer === question.correct) {
+                await answer?.updateOne({ score: question.score })
             } else {
                 await answer?.updateOne({ score: 0 })
             }
             i++
 
         } else {
-            const choiseAnswer = await ChoiseAnswer.create(answers[i])
-            await choiseAnswer.updateOne({ userId: user._id })
+            const choiceAnswer = await ChoiseAnswer.create(answers[i])
+            await choiceAnswer.updateOne({ userId: user._id })
             const camp = await Camp.findById(answers[i++].campId)
-            await camp?.updateOne({ choiseAnswerIds: swop(null, choiseAnswer._id, camp.choiseAnswerIds) })
+            await camp?.updateOne({ choiseAnswerIds: swop(null, choiceAnswer._id, camp.choiseAnswerIds) })
             await user.updateOne({
-                choiseAnswerIds: swop(null, choiseAnswer._id, user.choiseAnswerIds),
-                quasionIds: swop(null, quasion._id, user.quasionIds)
+                choiseAnswerIds: swop(null, choiceAnswer._id, user.choiseAnswerIds),
+                quasionIds: swop(null, question._id, user.quasionIds)
             })
-            await quasion.updateOne({ choiseAnswerIds: swop(null, choiseAnswer._id, quasion.choiseAnswerIds) })
-            if (answers[i].answer === quasion.correct) {
-                await choiseAnswer.updateOne({ score: quasion.score })
+            await question.updateOne({ choiseAnswerIds: swop(null, choiceAnswer._id, question.choiseAnswerIds) })
+            if (answers[i].answer === question.correct) {
+                await choiceAnswer.updateOne({ score: question.score })
             } else {
-                await choiseAnswer.updateOne({ score: 0 })
+                await choiceAnswer.updateOne({ score: 0 })
             }
         }
     }
@@ -1851,12 +1851,12 @@ export async function getShowRegisters(req: express.Request, res: express.Respon
         sendRes(res, false)
         return
     }
-    const bufs = mapObjectIdToMyMap(camp.peePassIds)
+    const buff = mapObjectIdToMyMap(camp.peePassIds)
     var i = 0
     const out: ShowRegister[] = []
-    while (i < bufs.length) {
-        const user = await User.findById(bufs[i].key)
-        const part = await Part.findById(bufs[i++].value)
+    while (i < buff.length) {
+        const user = await User.findById(buff[i].key)
+        const part = await Part.findById(buff[i++].value)
         if (!user || !part) {
             continue
         }
