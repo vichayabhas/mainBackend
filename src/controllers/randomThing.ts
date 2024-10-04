@@ -854,6 +854,7 @@ export async function getAllChatFromCampId(req: express.Request, res: express.Re
             groupName: camp.groupName,
             timeOffset,
             success: true,
+            roomName: 'รวมทุกแชต',
         }
         res.status(200).json(output)
     } else {
@@ -866,6 +867,7 @@ export async function getAllChatFromCampId(req: express.Request, res: express.Re
             groupName: camp.groupName,
             timeOffset,
             success: true,
+            roomName: 'รวมทุกแชต',
         }
         res.status(200).json(output)
     }
@@ -898,6 +900,7 @@ export async function getPartChat(req: express.Request, res: express.Response, n
         groupName: camp.groupName,
         timeOffset,
         success: true,
+        roomName:`ฝ่าย${part.partName}`
     }
     res.status(200).json(output)
 }
@@ -940,7 +943,8 @@ export async function getNongBaanChat(req: express.Request, res: express.Respons
                 } : null,
                 groupName: camp.groupName,
                 timeOffset,
-                success: true
+                success: true,
+                roomName:`ห้อง${camp.groupName}${baan.name}`,
             }
             res.status(200).json(output)
             return
@@ -966,7 +970,8 @@ export async function getNongBaanChat(req: express.Request, res: express.Respons
                 },
                 groupName: camp.groupName,
                 timeOffset,
-                success: true
+                success: true,
+                roomName:user.mode=='pee'?`ห้อง${camp.groupName}${baan.name}ที่มีน้องด้วย`:`ห้อง${camp.groupName}${baan.name}`,
             }
             res.status(200).json(output)
             return
@@ -1015,6 +1020,7 @@ export async function getPeeBaanChat(req: express.Request, res: express.Response
         groupName: camp.groupName,
         timeOffset,
         success: true,
+        roomName:`ห้อง${camp.groupName}${baan.name}ที่มีแต่พี่`,
     }
     res.status(200).json(output)
 }
@@ -1056,6 +1062,7 @@ export async function getNongChat(req: express.Request, res: express.Response, n
         groupName: camp.groupName,
         timeOffset,
         success: true,
+        roomName:`คุยส่วนตัวกับน้อง${user.nickname} บ้าน${baan.name}`,
     }
     res.status(200).json(output)
 }

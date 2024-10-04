@@ -836,4 +836,5 @@ export interface ChatReady {
         roomType: TypeChat;
     } | null;
     success: boolean,
+    roomName: string,
 }
