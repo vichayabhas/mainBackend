@@ -1046,9 +1046,10 @@ export async function getNongChat(req: express.Request, res: express.Response, n
         sendRes(res, false)
         return
     }
+    const host=await User.findById(campMemberCard.userId)
     const chats = await getShowChatFromChatIds(campMemberCard.chatIds, getModeBySituation(user.mode, campMemberCard.userId.equals(user._id) ? 'nong' : 'pee', true))
     const timeOffset = await TimeOffset.findById(user.displayOffsetId)
-    if (!timeOffset) {
+    if (!timeOffset||!host) {
         sendRes(res, false)
         return
     }
@@ -1062,7 +1063,7 @@ export async function getNongChat(req: express.Request, res: express.Response, n
         groupName: camp.groupName,
         timeOffset,
         success: true,
-        roomName: `คุยส่วนตัวกับน้อง${user.nickname} บ้าน${baan.name}`,
+        roomName: `คุยส่วนตัวกับน้อง${host.nickname} บ้าน${baan.name}`,
     }
     res.status(200).json(output)
 }
