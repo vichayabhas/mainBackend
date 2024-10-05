@@ -880,7 +880,7 @@ export async function getPartChat(req: express.Request, res: express.Response, n
         return
     }
     const camp = await Camp.findById(part.campId)
-    if (!camp) {
+    if (!camp || (!camp.peeIds.includes(user._id) && !camp.petoIds.includes(user._id))) {
         sendRes(res, false)
         return
     }
@@ -900,7 +900,7 @@ export async function getPartChat(req: express.Request, res: express.Response, n
         groupName: camp.groupName,
         timeOffset,
         success: true,
-        roomName:`ฝ่าย${part.partName}`
+        roomName: part._id.equals(camp.partPeeBaanId) ? `ห้องพี่${camp.groupName}คุยกัน ! อย่าหลุดสิ่งที่ไม่อยากให้น้องรู้ในแชตนี้` : `ฝ่าย${part.partName}`
     }
     res.status(200).json(output)
 }
@@ -944,7 +944,7 @@ export async function getNongBaanChat(req: express.Request, res: express.Respons
                 groupName: camp.groupName,
                 timeOffset,
                 success: true,
-                roomName:`ห้อง${camp.groupName}${baan.name}`,
+                roomName: `ห้อง${camp.groupName}${baan.name}`,
             }
             res.status(200).json(output)
             return
@@ -971,7 +971,7 @@ export async function getNongBaanChat(req: express.Request, res: express.Respons
                 groupName: camp.groupName,
                 timeOffset,
                 success: true,
-                roomName:user.mode=='pee'?`ห้อง${camp.groupName}${baan.name}ที่มีน้องด้วย`:`ห้อง${camp.groupName}${baan.name}`,
+                roomName: user.mode == 'pee' ? `ห้อง${camp.groupName}${baan.name}ที่มีน้องด้วย` : `ห้อง${camp.groupName}${baan.name}`,
             }
             res.status(200).json(output)
             return
@@ -1020,7 +1020,7 @@ export async function getPeeBaanChat(req: express.Request, res: express.Response
         groupName: camp.groupName,
         timeOffset,
         success: true,
-        roomName:`ห้อง${camp.groupName}${baan.name}ที่มีแต่พี่`,
+        roomName: `ห้อง${camp.groupName}${baan.name}ที่มีแต่พี่`,
     }
     res.status(200).json(output)
 }
@@ -1062,7 +1062,7 @@ export async function getNongChat(req: express.Request, res: express.Response, n
         groupName: camp.groupName,
         timeOffset,
         success: true,
-        roomName:`คุยส่วนตัวกับน้อง${user.nickname} บ้าน${baan.name}`,
+        roomName: `คุยส่วนตัวกับน้อง${user.nickname} บ้าน${baan.name}`,
     }
     res.status(200).json(output)
 }
@@ -1078,4 +1078,36 @@ function getModeBySituation(mode: Mode, role: RoleCamp, isHidePart: boolean): Mo
         return 'nong'
     }
     return mode
+}
+export async function getPartPeebaanChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const camp = await Camp.findById(req.params.id)
+    const user = await getUser(req)
+    if (!camp || !user) {
+        sendRes(res, false)
+        return
+    }
+    const part = await Part.findById(camp.partPeeBaanId)
+    if (!part || (!camp.peeIds.includes(user._id) && !camp.petoIds.includes(user._id))) {
+        sendRes(res, false)
+        return
+    }
+    const chats = await getShowChatFromChatIds(part.chatIds, user.mode)
+    const timeOffset = await TimeOffset.findById(user.displayOffsetId)
+    if (!timeOffset) {
+        sendRes(res, false)
+        return
+    }
+    const output: ChatReady = {
+        chats,
+        mode: getModeBySituation(user.mode, 'pee', true),
+        sendType: {
+            roomType: 'คุยกันในฝ่าย',
+            id: part._id,
+        },
+        groupName: camp.groupName,
+        timeOffset,
+        success: true,
+        roomName: user.mode == 'pee' ? `ห้องพี่${camp.groupName}คุยกัน ! อย่าหลุดสิ่งที่ไม่อยากให้น้องรู้ในแชตนี้` : `ห้องพี่${camp.groupName}คุยกัน`,
+    }
+    res.status(200).json(output)
 }

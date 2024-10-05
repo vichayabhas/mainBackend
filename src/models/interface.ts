@@ -805,7 +805,7 @@ export const departures = [
 export type Departure = typeof departures[number]
 export const typeChats = ['น้องคุยส่วนตัวกับพี่', 'คุยกันในบ้าน', 'คุยกันในฝ่าย', 'พี่คุยกันในบ้าน', 'พี่บ้านคุยกัน'] as const
 export type TypeChat = typeof typeChats[number]
-export type GetChat = 'getAllChatFromCampId' | 'getPartChat' | 'getNongBaanChat' | 'getPeeBaanChat' | 'getNongChat'
+export type GetChat = 'getAllChatFromCampId' | 'getPartChat' | 'getNongBaanChat' | 'getPeeBaanChat' | 'getNongChat' | 'getPartPeebaanChat'
 export interface AllPlaceData {
     allPlace: Map<string, InterPlace[]>,
     allBuildings: Map<mongoose.Types.ObjectId, InterBuilding>,

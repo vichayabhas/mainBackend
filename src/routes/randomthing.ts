@@ -1,6 +1,6 @@
 import express from "express";
 import { isPass, modePee, pee, protect } from "../middleware/auth";
-import { addLostAndFound, createBuilding, createNongBaanChat, createNongChat, createPartChat, createPeeBaanChat, createPlace, getAllBuilding, getAllChatFromCampId, getBuilding, getLostAndFounds, getNongBaanChat, getNongChat, getPartChat, getPeeBaanChat, getPlace, getPlaces, getShowPlace, getSystemInfo } from "../controllers/randomThing";
+import { addLostAndFound, createBuilding, createNongBaanChat, createNongChat, createPartChat, createPeeBaanChat, createPlace, getAllBuilding, getAllChatFromCampId, getBuilding, getLostAndFounds, getNongBaanChat, getNongChat, getPartChat, getPartPeebaanChat, getPeeBaanChat, getPlace, getPlaces, getShowPlace, getSystemInfo } from "../controllers/randomThing";
 
 
 const router = express.Router()
@@ -23,6 +23,7 @@ router.get('/getNongChat/params/:id', protect, getNongChat)//
 router.post('/createNongChat/', protect, createNongChat)//
 router.post('/createPeeBaanChat/', protect, pee, createPeeBaanChat)//
 router.post('/createNongBaanChat/', protect, createNongBaanChat)//
+router.get('/getPartPeebaanChat/params/:id', protect, pee, getPartPeebaanChat)//
 // export async function editChat
 // export async function deleteChat
 export default router
