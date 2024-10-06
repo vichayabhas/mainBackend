@@ -2016,7 +2016,7 @@ export async function getAllHealthIssue(req: express.Request, res: express.Respo
             name: baan.name,
             nongs: [],
             pees: [],
-            peto: [],
+            petos: [],
         }
         var j = 0
         while (j < baan.nongHeathIssueIds.length) {
@@ -2062,7 +2062,7 @@ export async function getAllHealthIssue(req: express.Request, res: express.Respo
             name: part.partName,
             nongs: [],
             pees: [],
-            peto: [],
+            petos: [],
         }
         var j = 0
         while (j < part.peeHeathIssueIds.length) {
@@ -2078,7 +2078,7 @@ export async function getAllHealthIssue(req: express.Request, res: express.Respo
                 user,
                 heathIssue,
             }
-            welfarePart.peto = ifIsTrue(isWelfareValid(buffer), buffer, welfarePart.peto, petos)
+            welfarePart.petos = ifIsTrue(isWelfareValid(buffer), buffer, welfarePart.petos, petos)
         }
         j = 0
         while (j < part.peeHeathIssueIds.length) {

@@ -858,6 +858,6 @@ export interface CampWelfarePack{
 export interface WelfarePack{
     nongs:HeathIssuePack[],
     pees:HeathIssuePack[],
-    peto:HeathIssuePack[],
+    petos:HeathIssuePack[],
     name:string,
 }
