@@ -592,6 +592,7 @@ export interface HeathIssueBody {
     isWearing: boolean,
     spicy: boolean,
     foodConcern: string,
+    foodLimit: FoodLimit,
 }
 export interface CreateActionPlan {
     action: string,
@@ -837,4 +838,26 @@ export interface ChatReady {
     } | null;
     success: boolean,
     roomName: string,
+}
+export const foodLimits = ['อิสลาม', 'มังสวิรัติ', 'เจ', 'ไม่มีข้อจำกัดด้านความเชื่อ'] as const
+export type FoodLimit = typeof foodLimits[number]
+export interface HeathIssuePack {
+    heathIssue: HeathIssueBody,
+    user: InterUser,
+}
+export interface CampWelfarePack{
+    nongs:HeathIssuePack[],
+    pees:HeathIssuePack[],
+    petos:HeathIssuePack[],
+    name:string,
+    baans:WelfarePack[],
+    parts:WelfarePack[],
+    isHavePeto: boolean,
+    groupName: string,
+}
+export interface WelfarePack{
+    nongs:HeathIssuePack[],
+    pees:HeathIssuePack[],
+    peto:HeathIssuePack[],
+    name:string,
 }

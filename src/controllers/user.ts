@@ -11,7 +11,7 @@ import User, { buf } from "../models/User";
 import { calculate, resOk, sendingEmail, sendRes, swop } from "./setup";
 import express, { json } from "express";
 import bcrypt from "bcrypt"
-import { HeathIssueBody, InterUser, Register, ShowMember, UpdateTimeOffset } from "../models/interface";
+import { HeathIssueBody, HeathIssuePack, InterUser, Register, ShowMember, UpdateTimeOffset } from "../models/interface";
 import jwt from 'jsonwebtoken'
 import mongoose from "mongoose";
 import Song from "../models/Song";
@@ -383,7 +383,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 			sendRes(res, true)
 			return
 		}
-		if (!heathIssueBody.food.localeCompare('') && !heathIssueBody.medicine.localeCompare('') && !heathIssueBody.chronicDisease.localeCompare('') && !heathIssueBody.foodConcern.localeCompare('') && !heathIssueBody.spicy && !heathIssueBody.isWearing) {
+		if (!heathIssueBody.food.localeCompare('') && !heathIssueBody.medicine.localeCompare('') && !heathIssueBody.chronicDisease.localeCompare('') && !heathIssueBody.foodConcern.localeCompare('') && !heathIssueBody.spicy && !heathIssueBody.isWearing && heathIssueBody.foodLimit != 'ไม่มีข้อจำกัดด้านความเชื่อ') {
 			var i = 0
 			while (i < old.campMemberCardIds.length) {
 				const campMemberCard = await CampMemberCard.findById(old.campMemberCardIds[i++])
@@ -1001,7 +1001,7 @@ export async function revalidationHeathIssues(ids: mongoose.Types.ObjectId[]) {
 			await old.deleteOne()
 			continue
 		}
-		if (!old.food.localeCompare('') && !old.medicine.localeCompare('') && !old.chronicDisease.localeCompare('') && !old.foodConcern.localeCompare('') && !old.spicy && !old.isWearing) {
+		if (!old.food.localeCompare('') && !old.medicine.localeCompare('') && !old.chronicDisease.localeCompare('') && !old.foodConcern.localeCompare('') && !old.spicy && !old.isWearing && old.foodLimit != 'ไม่มีข้อจำกัดด้านความเชื่อ') {
 			var j = 0
 			while (j < old.campMemberCardIds.length) {
 				const campMemberCard = await CampMemberCard.findById(old.campMemberCardIds[j++])
@@ -1122,4 +1122,7 @@ export async function bypassRole(req: express.Request, res: express.Response, ne
 		}
 	}
 	sendRes(res, false)
+}
+export function isWelfareValid(input: HeathIssuePack): boolean {
+	return input.heathIssue.food != '' || input.heathIssue.foodConcern != '' || input.heathIssue.foodLimit != 'ไม่มีข้อจำกัดด้านความเชื่อ' || input.heathIssue.isWearing || input.heathIssue.spicy
 }

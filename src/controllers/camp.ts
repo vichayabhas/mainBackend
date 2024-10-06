@@ -12,7 +12,7 @@ import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
 import express from "express";
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap, AllNongRegister, CampSizeContainer } from "../models/interface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap, AllNongRegister, CampSizeContainer, WelfarePack, HeathIssuePack, CampWelfarePack } from "../models/interface";
 import mongoose from "mongoose";
 import Song from "../models/Song";
 import HeathIssue from "../models/HeathIssue";
@@ -22,6 +22,7 @@ import ChoiseAnswer from "../models/ChoiseAnswer";
 import ChoiseQuasion from "../models/ChoiseQuasion";
 import WorkItem from "../models/WorkItem";
 import { deleteWorkingItemRaw } from "./admin";
+import { isWelfareValid } from "./user";
 //*export async function getBaan
 //*export async function getCamp
 //*export async function getBaans
@@ -68,6 +69,7 @@ import { deleteWorkingItemRaw } from "./admin";
 //*export async function getAllUserCamp
 // export async function getAllNongRegister
 //*export async function getAllCampSize
+//*export async function getAllHealthIssue
 export async function getBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const data = await Baan.findById(req.params.id);
@@ -1992,4 +1994,119 @@ export async function getAllCampSize(req: express.Request, res: express.Response
         })
     }
     res.status(200).json(output)
+}
+export async function getAllHealthIssue(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const camp = await Camp.findById(req.params.id)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
+    const nongs: HeathIssuePack[] = []
+    const pees: HeathIssuePack[] = []
+    const petos: HeathIssuePack[] = []
+    const baans:WelfarePack[]=[]
+    const parts:WelfarePack[]=[]
+    var i = 0
+    while (i < camp.baanIds.length) {
+        const baan = await Baan.findById(camp.baanIds[i++])
+        if (!baan) {
+            continue
+        }
+        const welfareBaan: WelfarePack = {
+            name: baan.name,
+            nongs: [],
+            pees: [],
+            peto: [],
+        }
+        var j = 0
+        while (j < baan.nongHeathIssueIds.length) {
+            const heathIssue = await HeathIssue.findById(baan.nongHeathIssueIds[j++])
+            if (!heathIssue) {
+                continue
+            }
+            const user: InterUser | null = await User.findById(heathIssue.userId)
+            if (!user) {
+                continue
+            }
+            const buffer: HeathIssuePack = {
+                user,
+                heathIssue,
+            }
+            welfareBaan.nongs = ifIsTrue(isWelfareValid(buffer), buffer, welfareBaan.nongs, nongs)
+        }
+        j = 0
+        while (j < baan.peeHeathIssueIds.length) {
+            const heathIssue = await HeathIssue.findById(baan.peeHeathIssueIds[j++])
+            if (!heathIssue) {
+                continue
+            }
+            const user: InterUser | null = await User.findById(heathIssue.userId)
+            if (!user) {
+                continue
+            }
+            const buffer: HeathIssuePack = {
+                user,
+                heathIssue,
+            }
+            welfareBaan.pees = ifIsTrue(isWelfareValid(buffer), buffer, welfareBaan.pees, pees)
+        }
+        baans.push(welfareBaan)
+    }
+    i=0
+    while (i < camp.partIds.length) {
+        const part = await Part.findById(camp.partIds[i++])
+        if (!part) {
+            continue
+        }
+        const welfarePart: WelfarePack = {
+            name: part.partName,
+            nongs: [],
+            pees: [],
+            peto: [],
+        }
+        var j = 0
+        while (j < part.peeHeathIssueIds.length) {
+            const heathIssue = await HeathIssue.findById(part.petoHeathIssueIds[j++])
+            if (!heathIssue) {
+                continue
+            }
+            const user: InterUser | null = await User.findById(heathIssue.userId)
+            if (!user) {
+                continue
+            }
+            const buffer: HeathIssuePack = {
+                user,
+                heathIssue,
+            }
+            welfarePart.peto = ifIsTrue(isWelfareValid(buffer), buffer, welfarePart.peto, petos)
+        }
+        j = 0
+        while (j < part.peeHeathIssueIds.length) {
+            const heathIssue = await HeathIssue.findById(part.peeHeathIssueIds[j++])
+            if (!heathIssue) {
+                continue
+            }
+            const user: InterUser | null = await User.findById(heathIssue.userId)
+            if (!user) {
+                continue
+            }
+            const buffer: HeathIssuePack = {
+                user,
+                heathIssue,
+            }
+            welfarePart.pees = ifIsTrue(isWelfareValid(buffer), buffer, welfarePart.pees, )
+        }
+        parts.push(welfarePart)
+    }
+    const buffer:CampWelfarePack={
+        name:camp.campName,
+        isHavePeto:camp.memberStructure=='nong->highSchool,pee->1year,peto->2upYear',
+        nongs,
+        pees,
+        petos,
+        parts,
+        baans,
+        groupName:camp.groupName,
+    }
+    res.status(200).json(buffer)
 }

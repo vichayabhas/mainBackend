@@ -567,7 +567,7 @@ export function startJsonSize(): InterSize {
         _id: null
     }
 }
-export function ifIsTrue(input: boolean, id: mongoose.Types.ObjectId, array1: mongoose.Types.ObjectId[], array2?: mongoose.Types.ObjectId[], array3?: mongoose.Types.ObjectId[]) {
+export function ifIsTrue<T>(input: boolean, id: T, array1: T[], array2?: T[], array3?: T[]) {
     if (input) {
         array1.push(id)
         if (array2) {

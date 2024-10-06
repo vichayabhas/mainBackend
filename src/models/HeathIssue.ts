@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { foodLimits } from "./interface";
 const PeeCampSchema = new mongoose.Schema({
     userId: {//user
         type: mongoose.Schema.ObjectId,
@@ -51,6 +52,11 @@ const PeeCampSchema = new mongoose.Schema({
     campMemberCardIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
+    },
+    foodLimit:{
+        type:String,
+        enum:foodLimits,
+        default:'ไม่มีข้อจำกัดด้านความเชื่อ'
     }
 })
 export default mongoose.model('HelthIsue', PeeCampSchema)
