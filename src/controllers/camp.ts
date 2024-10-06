@@ -1955,7 +1955,7 @@ export async function getAllCampSize(req: express.Request, res: express.Response
         groupName,
         baanIds,
         partIds,
-        memberStructure: memberStructure,
+        memberStructure,
     } = camp
     var i = 0
     const output: CampSizeContainer = {
@@ -2004,8 +2004,8 @@ export async function getAllHealthIssue(req: express.Request, res: express.Respo
     const nongs: HeathIssuePack[] = []
     const pees: HeathIssuePack[] = []
     const petos: HeathIssuePack[] = []
-    const baans:WelfarePack[]=[]
-    const parts:WelfarePack[]=[]
+    const baans: WelfarePack[] = []
+    const parts: WelfarePack[] = []
     var i = 0
     while (i < camp.baanIds.length) {
         const baan = await Baan.findById(camp.baanIds[i++])
@@ -2052,7 +2052,7 @@ export async function getAllHealthIssue(req: express.Request, res: express.Respo
         }
         baans.push(welfareBaan)
     }
-    i=0
+    i = 0
     while (i < camp.partIds.length) {
         const part = await Part.findById(camp.partIds[i++])
         if (!part) {
@@ -2094,19 +2094,19 @@ export async function getAllHealthIssue(req: express.Request, res: express.Respo
                 user,
                 heathIssue,
             }
-            welfarePart.pees = ifIsTrue(isWelfareValid(buffer), buffer, welfarePart.pees, )
+            welfarePart.pees = ifIsTrue(isWelfareValid(buffer), buffer, welfarePart.pees,)
         }
         parts.push(welfarePart)
     }
-    const buffer:CampWelfarePack={
-        name:camp.campName,
-        isHavePeto:camp.memberStructure=='nong->highSchool,pee->1year,peto->2upYear',
+    const buffer: CampWelfarePack = {
+        name: camp.campName,
+        isHavePeto: camp.memberStructure == 'nong->highSchool,pee->1year,peto->2upYear',
         nongs,
         pees,
         petos,
         parts,
         baans,
-        groupName:camp.groupName,
+        groupName: camp.groupName,
     }
     res.status(200).json(buffer)
 }
