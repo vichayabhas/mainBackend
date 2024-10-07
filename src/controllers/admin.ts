@@ -189,14 +189,14 @@ export async function updateBaanRaw(update: UpdateBaan) {
             }
         }
         if (girlNewP) {
-            const girlNewB = await Building.findById(girlNewP?.buildingId)
+            const girlNewB = await Building.findById(girlNewP.buildingId)
             if (girlNewB) {
                 await girlNewB.updateOne({ girlSleepBaanIds: swop(null, baan._id, girlNewB.girlSleepBaanIds) })
                 await girlNewP.updateOne({ girlSleepBaanIds: swop(null, baan._id, girlNewP.girlSleepBaanIds) })
             }
         }
         if (normalNewP) {
-            const normalNewB = await Building.findById(normalNewP?.buildingId)
+            const normalNewB = await Building.findById(normalNewP.buildingId)
             if (normalNewB) {
                 await normalNewB.updateOne({ normalBaanIds: swop(null, baan._id, normalNewB.normalBaanIds) })
                 await normalNewP.updateOne({ normalBaanIds: swop(null, baan._id, normalNewP.normalBaanIds) })
@@ -216,7 +216,7 @@ export async function updateBaanRaw(update: UpdateBaan) {
                 await girlOldP.updateOne({ girlSleepBaanIds: swop(baan._id, null, girlOldP.girlSleepBaanIds) })
             }
         }
-        if (normalNewP) {
+        if (normalOldP) {
             const normalOldB = await Building.findById(normalOldP.buildingId)
             if (normalOldB) {
                 await normalOldB.updateOne({ normalBaanIds: swop(baan._id, null, normalOldB.normalBaanIds) })
@@ -234,6 +234,7 @@ export async function updateBaanRaw(update: UpdateBaan) {
         })
         return true
     } catch (err) {
+        console.log(err)
         return false
     }
 }
