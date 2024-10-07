@@ -273,7 +273,7 @@ export interface InterCampMemberCard {
     chatIds: mongoose.Types.ObjectId[],
     allChatIds: mongoose.Types.ObjectId[],
     ownChatIds: mongoose.Types.ObjectId[],
-    heathIssueId: mongoose.Types.ObjectId | null,
+    healthIssueId: mongoose.Types.ObjectId | null,
 }
 export interface InterSong {
     name: string,
@@ -296,7 +296,7 @@ export interface InterUser {
     studentId: string | null,//            
     gender: 'Male' | 'Female',//          
     shirtSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',//
-    heathIssueId: mongoose.Types.ObjectId | null,//          
+    healthIssueId: mongoose.Types.ObjectId | null,//          
     haveBottle: boolean,//                
     mode: 'nong' | 'pee',//                
     nongCampIds: mongoose.Types.ObjectId[],//               
@@ -557,7 +557,7 @@ export interface ShowMember {
     studentId: string | null,//            
     gender: 'Male' | 'Female',//           เพศ
     shirtSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',//
-    heathIssueId: mongoose.Types.ObjectId | null,//          
+    healthIssueId: mongoose.Types.ObjectId | null,//          
     haveBottle: boolean,//                 
     group: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | null,//           
     likeSongs: string[],//               
@@ -811,22 +811,6 @@ export interface AllPlaceData {
     allPlace: Map<string, InterPlace[]>,
     allBuildings: Map<mongoose.Types.ObjectId, InterBuilding>,
 }
-export interface CampSizeContainer {
-    name: string,
-    groupName: string,
-    nongSize: InterSize,
-    peeSize: InterSize,
-    petoSize: InterSize,
-    partSizes: SizeContainer[],
-    baanSizes: SizeContainer[],
-    isHavePeto: boolean,
-}
-export interface SizeContainer {
-    name: string,
-    nongSize: InterSize,
-    peeSize: InterSize,
-    petoSize: InterSize,
-}
 export interface ChatReady {
     chats: ShowChat[];
     timeOffset: InterTimeOffset;
@@ -845,19 +829,41 @@ export interface HeathIssuePack {
     heathIssue: HeathIssueBody,
     user: InterUser,
 }
-export interface CampWelfarePack{
-    nongs:HeathIssuePack[],
-    pees:HeathIssuePack[],
-    petos:HeathIssuePack[],
-    name:string,
-    baans:WelfarePack[],
-    parts:WelfarePack[],
+export interface CampWelfarePack {
+    nongHealths: HeathIssuePack[],
+    peeHealths: HeathIssuePack[],
+    petoHealths: HeathIssuePack[],
+    name: string,
+    baanWelfares: WelfarePack[],
+    partWelfares: WelfarePack[],
     isHavePeto: boolean,
     groupName: string,
+    nongSize: InterSize,
+    peeSize: InterSize,
+    petoSize: InterSize,
 }
-export interface WelfarePack{
-    nongs:HeathIssuePack[],
-    pees:HeathIssuePack[],
-    petos:HeathIssuePack[],
-    name:string,
+export interface WelfarePack {
+    nongHealths: HeathIssuePack[],
+    peeHealths: HeathIssuePack[],
+    petoHealths: HeathIssuePack[],
+    name: string,
+    nongSize: InterSize,
+    peeSize: InterSize,
+    petoSize: InterSize,
+}
+export interface GetBaansForPlan {
+    name: string,
+    fullName: string,
+    boy: InterPlace,
+    girl: InterPlace,
+    normal: InterPlace
+}
+export interface GetPartsForPlan {
+    name: string,
+    place: InterPlace
+}
+export interface GetAllPlanData {
+    name: string,
+    baans: GetBaansForPlan[],
+    parts: GetPartsForPlan[],
 }

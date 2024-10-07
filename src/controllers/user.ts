@@ -262,10 +262,14 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 		sendRes(res, false)
 		return
 	}
-	const oldHeathId = user.heathIssueId
+	const oldHeathId = user.healthIssueId
 	const old = await HeathIssue.findById(oldHeathId)
 	if (!old || old.campIds.length) {
 		if (!old) {
+			if (!heathIssueBody.food.localeCompare('') && !heathIssueBody.medicine.localeCompare('') && !heathIssueBody.chronicDisease.localeCompare('') && !heathIssueBody.foodConcern.localeCompare('') && !heathIssueBody.spicy && !heathIssueBody.isWearing && heathIssueBody.foodLimit == 'ไม่มีข้อจำกัดด้านความเชื่อ'){
+				sendRes(res,true)
+				return
+			}
 			const {
 				food,
 				chronicDisease,
@@ -286,7 +290,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 				userId: user._id,
 			});
 			await user.updateOne({
-				heathIssueId: heath._id
+				healthIssueId: heath._id
 			});
 			var i = 0
 			while (i < user.campMemberCardIds.length) {
@@ -316,7 +320,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 						await heath.updateOne({
 							campMemberCardIds: swop(null, campMemberCard._id, heath.campMemberCardIds),
 						})
-						await campMemberCard.updateOne({ heathIssueId: heath._id })
+						await campMemberCard.updateOne({ healthIssueId: heath._id })
 						break
 					}
 					case "pee": {
@@ -342,13 +346,13 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 							peeCampMemberCardHaveHeathIssueIds: swop(null, campMemberCard._id, baan.peeCampMemberCardHaveHeathIssueIds)
 						})
 						await part.updateOne({
-							peeHeathIssueIds: swop(null, heath._id, baan.peeHeathIssueIds),
+							peeHeathIssueIds: swop(null, heath._id, part.peeHeathIssueIds),
 							peeCampMemberCardHaveHeathIssueIds: swop(null, campMemberCard._id, part.peeCampMemberCardHaveHeathIssueIds)
 						})
 						await heath.updateOne({
 							campMemberCardIds: swop(null, campMemberCard._id, heath.campMemberCardIds),
 						})
-						await campMemberCard.updateOne({ heathIssueId: heath._id })
+						await campMemberCard.updateOne({ healthIssueId: heath._id })
 						break
 					}
 					case "peto": {
@@ -375,7 +379,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 						await heath.updateOne({
 							campMemberCardIds: swop(null, campMemberCard._id, heath.campMemberCardIds),
 						})
-						await campMemberCard.updateOne({ heathIssueId: heath._id })
+						await campMemberCard.updateOne({ healthIssueId: heath._id })
 						break
 					}
 				}
@@ -383,7 +387,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 			sendRes(res, true)
 			return
 		}
-		if (!heathIssueBody.food.localeCompare('') && !heathIssueBody.medicine.localeCompare('') && !heathIssueBody.chronicDisease.localeCompare('') && !heathIssueBody.foodConcern.localeCompare('') && !heathIssueBody.spicy && !heathIssueBody.isWearing && heathIssueBody.foodLimit != 'ไม่มีข้อจำกัดด้านความเชื่อ') {
+		if (!heathIssueBody.food.localeCompare('') && !heathIssueBody.medicine.localeCompare('') && !heathIssueBody.chronicDisease.localeCompare('') && !heathIssueBody.foodConcern.localeCompare('') && !heathIssueBody.spicy && !heathIssueBody.isWearing && heathIssueBody.foodLimit == 'ไม่มีข้อจำกัดด้านความเชื่อ') {
 			var i = 0
 			while (i < old.campMemberCardIds.length) {
 				const campMemberCard = await CampMemberCard.findById(old.campMemberCardIds[i++])
@@ -409,7 +413,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 							nongHeathIssueIds: swop(old._id, null, baan.nongHeathIssueIds),
 							nongCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, baan.nongCampMemberCardHaveHeathIssueIds),
 						})
-						await campMemberCard.updateOne({ heathIssueId: null })
+						await campMemberCard.updateOne({ healthIssueId: null })
 						break
 					}
 					case "pee": {
@@ -435,7 +439,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 							peeHeathIssueIds: swop(old._id, null, part.peeHeathIssueIds),
 							peeCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, part.peeCampMemberCardHaveHeathIssueIds),
 						})
-						await campMemberCard.updateOne({ heathIssueId: null })
+						await campMemberCard.updateOne({ healthIssueId: null })
 						break
 					}
 					case "peto": {
@@ -456,12 +460,12 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 							petoHeathIssueIds: swop(old._id, null, part.petoHeathIssueIds),
 							petoCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, part.petoCampMemberCardHaveHeathIssueIds),
 						})
-						await campMemberCard.updateOne({ heathIssueId: null })
+						await campMemberCard.updateOne({ healthIssueId: null })
 						break
 					}
 				}
 			}
-			await user.updateOne({ heathIssueId: null })
+			await user.updateOne({ healthIssueId: null })
 			await old.deleteOne()
 			sendRes(res, true)
 			return
@@ -487,7 +491,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 			campMemberCardIds: old.campMemberCardIds,
 		});
 		await user.updateOne({
-			heathIssueId: heath._id
+			healthIssueId: heath._id
 		});
 		var i = 0
 		while (i < old.campMemberCardIds.length) {
@@ -508,7 +512,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 					}
 					await camp.updateOne({ nongHeathIssueIds: swop(old._id, heath._id, camp.nongHeathIssueIds) })
 					await baan.updateOne({ nongHeathIssueIds: swop(old._id, heath._id, baan.nongHeathIssueIds) })
-					await campMemberCard.updateOne({ heathIssueId: heath._id })
+					await campMemberCard.updateOne({ healthIssueId: heath._id })
 					break
 				}
 				case "pee": {
@@ -525,7 +529,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 					await camp.updateOne({ peeHeathIssueIds: swop(old._id, heath._id, camp.peeHeathIssueIds) })
 					await baan.updateOne({ peeHeathIssueIds: swop(old._id, heath._id, baan.peeHeathIssueIds) })
 					await part.updateOne({ peeHeathIssueIds: swop(old._id, heath._id, part.peeHeathIssueIds) })
-					await campMemberCard.updateOne({ heathIssueId: heath._id })
+					await campMemberCard.updateOne({ healthIssueId: heath._id })
 					break
 				}
 				case "peto": {
@@ -540,12 +544,12 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 					}
 					await camp.updateOne({ petoHeathIssueIds: swop(old._id, heath._id, camp.petoHeathIssueIds) })
 					await part.updateOne({ petoHeathIssueIds: swop(old._id, heath._id, part.petoHeathIssueIds) })
-					await campMemberCard.updateOne({ heathIssueId: heath._id })
+					await campMemberCard.updateOne({ healthIssueId: heath._id })
 				}
 			}
 		}
 	} else {
-		const heath = await HeathIssue.findByIdAndUpdate(user?.heathIssueId, heathIssueBody);
+		const heath = await HeathIssue.findByIdAndUpdate(user?.healthIssueId, heathIssueBody);
 		await revalidationHeathIssues([heath._id])
 		res.status(200).json(heath?.toObject());
 	}
@@ -997,11 +1001,11 @@ export async function revalidationHeathIssues(ids: mongoose.Types.ObjectId[]) {
 		if (!user) {
 			continue
 		}
-		if (!old._id.equals(user.heathIssueId)) {
+		if (!old._id.equals(user.healthIssueId)) {
 			await old.deleteOne()
 			continue
 		}
-		if (!old.food.localeCompare('') && !old.medicine.localeCompare('') && !old.chronicDisease.localeCompare('') && !old.foodConcern.localeCompare('') && !old.spicy && !old.isWearing && old.foodLimit != 'ไม่มีข้อจำกัดด้านความเชื่อ') {
+		if (old.food=='' && old.medicine=='' && old.chronicDisease=='' && old.foodConcern=='' && !old.spicy && !old.isWearing && old.foodLimit == 'ไม่มีข้อจำกัดด้านความเชื่อ') {
 			var j = 0
 			while (j < old.campMemberCardIds.length) {
 				const campMemberCard = await CampMemberCard.findById(old.campMemberCardIds[j++])
@@ -1027,7 +1031,7 @@ export async function revalidationHeathIssues(ids: mongoose.Types.ObjectId[]) {
 							nongHeathIssueIds: swop(old._id, null, baan.nongHeathIssueIds),
 							nongCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, baan.nongCampMemberCardHaveHeathIssueIds),
 						})
-						await campMemberCard.updateOne({ heathIssueId: null })
+						await campMemberCard.updateOne({ healthIssueId: null })
 						break
 					}
 					case "pee": {
@@ -1053,7 +1057,7 @@ export async function revalidationHeathIssues(ids: mongoose.Types.ObjectId[]) {
 							peeHeathIssueIds: swop(old._id, null, part.peeHeathIssueIds),
 							peeCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, part.peeCampMemberCardHaveHeathIssueIds),
 						})
-						await campMemberCard.updateOne({ heathIssueId: null })
+						await campMemberCard.updateOne({ healthIssueId: null })
 						break
 					}
 					case "peto": {
@@ -1074,12 +1078,12 @@ export async function revalidationHeathIssues(ids: mongoose.Types.ObjectId[]) {
 							petoHeathIssueIds: swop(old._id, null, part.petoHeathIssueIds),
 							petoCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, part.petoCampMemberCardHaveHeathIssueIds),
 						})
-						await campMemberCard.updateOne({ heathIssueId: null })
+						await campMemberCard.updateOne({ healthIssueId: null })
 						break
 					}
 				}
 			}
-			await user.updateOne({ heathIssueId: null })
+			await user.updateOne({ healthIssueId: null })
 			await old.deleteOne()
 		}
 	}

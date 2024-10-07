@@ -168,9 +168,8 @@ export async function updateBaan(req: express.Request, res: express.Response, ne
     const s = await updateBaanRaw(update)
     sendRes(res, s)
 }
-async function updateBaanRaw(update: UpdateBaan) {
+export async function updateBaanRaw(update: UpdateBaan) {
     try {
-        //console.log(update)
         var { name, fullName, baanId, link, girlSleepPlaceId, boySleepPlaceId, normalPlaceId, nongSendMessage } = update
         const baan = await Baan.findById(baanId)
         if (!baan) {
@@ -589,7 +588,7 @@ async function forceDeleteCampRaw(campId: mongoose.Types.ObjectId, res: express.
                 if (!campMemberCard) {
                     continue
                 }
-                const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+                const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
                 if (!heathIssue) {
                     continue
                 }
@@ -611,7 +610,7 @@ async function forceDeleteCampRaw(campId: mongoose.Types.ObjectId, res: express.
                 if (!campMemberCard) {
                     continue
                 }
-                const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+                const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
                 if (!heathIssue) {
                     continue
                 }
@@ -633,7 +632,7 @@ async function forceDeleteCampRaw(campId: mongoose.Types.ObjectId, res: express.
                 if (!campMemberCard) {
                     continue
                 }
-                const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+                const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
                 if (!heathIssue) {
                     continue
                 }
@@ -806,7 +805,7 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
             if (!campMemberCard) {
                 continue
             }
-            const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+            const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
             if (!heathIssue) {
                 continue
             }
@@ -820,7 +819,7 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
             if (!campMemberCard) {
                 continue
             }
-            const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+            const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
             if (!heathIssue) {
                 continue
             }
@@ -843,7 +842,7 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
         if (!part) {
             continue
         }
-        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (!heathIssue) {
             continue
         }
@@ -1169,7 +1168,7 @@ async function forceDeletePartRaw(partId: mongoose.Types.ObjectId) {
         if (!baan) {
             continue
         }
-        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (!heathIssue) {
             continue
         }
@@ -1192,7 +1191,7 @@ async function forceDeletePartRaw(partId: mongoose.Types.ObjectId) {
             if (!campMemberCard) {
                 continue
             }
-            const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+            const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
             if (!heathIssue) {
                 continue
             }
@@ -1206,7 +1205,7 @@ async function forceDeletePartRaw(partId: mongoose.Types.ObjectId) {
             if (!campMemberCard) {
                 continue
             }
-            const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+            const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
             if (!heathIssue) {
                 continue
             }
@@ -1718,7 +1717,7 @@ async function lockDataNong(campId: mongoose.Types.ObjectId) {
         if (!campMemberCard) {
             continue
         }
-        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (!heathIssue) {
             continue
         }
@@ -1739,7 +1738,7 @@ async function lockDataPee(campId: mongoose.Types.ObjectId) {
         if (!campMemberCard) {
             continue
         }
-        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (!heathIssue) {
             continue
         }
@@ -1760,7 +1759,7 @@ async function lockDataPeto(campId: mongoose.Types.ObjectId) {
         if (!campMemberCard) {
             continue
         }
-        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (!heathIssue) {
             continue
         }
@@ -1785,12 +1784,12 @@ async function unlockDataNong(campId: mongoose.Types.ObjectId) {
         if (!campMemberCard) {
             continue
         }
-        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (!heathIssue) {
             continue
         }
         await heathIssue.updateOne({ campIds: swop(camp1._id, null, heathIssue.campIds) })
-        await campMemberCard.updateOne({ heathIssueId: null })
+        await campMemberCard.updateOne({ healthIssueId: null })
     }
     i = 0
     while (i < camp1.baanIds.length) {
@@ -1861,15 +1860,15 @@ async function unlockDataNong(campId: mongoose.Types.ObjectId) {
             ifIsTrue(user.haveBottle, user._id, campNongHaveBottleIds, baanNongHaveBottleIds)
             sizeJsonMod(user.shirtSize, 1, baanNongShirtSize)
             sizeJsonMod(user.shirtSize, 1, campNongShirtSize)
-            if (user.heathIssueId) {
-                const heathIssue = await HeathIssue.findById(user.heathIssueId)
+            if (user.healthIssueId) {
+                const heathIssue = await HeathIssue.findById(user.healthIssueId)
                 if (heathIssue) {
                     await heathIssue.updateOne({ campMemberCardIds: swop(null, campMemberCard._id, heathIssue.campMemberCardIds) })
                     baanNongHeathIssueIds.push(heathIssue._id)
                     campNongHeathIssueIds.push(heathIssue._id)
                     baanNongCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
                     campNongCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
-                    await campMemberCard.updateOne({ heathIssueId: heathIssue._id })
+                    await campMemberCard.updateOne({ healthIssueId: heathIssue._id })
                 }
             }
             ifIsTrue(sleepAtCamp, user._id, campNongSleepIds, baanNongSleepIds)
@@ -1905,12 +1904,12 @@ async function unlockDataPee(campId: mongoose.Types.ObjectId) {
         if (!campMemberCard) {
             continue
         }
-        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (!heathIssue) {
             continue
         }
         await heathIssue.updateOne({ campIds: swop(camp1._id, null, heathIssue.campIds) })
-        await campMemberCard.updateOne({ heathIssueId: null })
+        await campMemberCard.updateOne({ healthIssueId: null })
     }
     i = 0
     while (i < camp1.baanIds.length) {
@@ -1998,8 +1997,8 @@ async function unlockDataPee(campId: mongoose.Types.ObjectId) {
             sizeJsonMod(user.shirtSize, 1, baanPeeShirtSize)
             sizeJsonMod(user.shirtSize, 1, campPeeShirtSize)
             sizeJsonMod(user.shirtSize, 1, partPeeShirtSize)
-            if (user.heathIssueId) {
-                const heathIssue = await HeathIssue.findById(user.heathIssueId)
+            if (user.healthIssueId) {
+                const heathIssue = await HeathIssue.findById(user.healthIssueId)
                 if (heathIssue) {
                     await heathIssue.updateOne({ campMemberCardIds: swop(null, campMemberCard._id, heathIssue.campMemberCardIds) })
                     baanPeeHeathIssueIds.push(heathIssue._id)
@@ -2008,7 +2007,7 @@ async function unlockDataPee(campId: mongoose.Types.ObjectId) {
                     baanPeeCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
                     campPeeCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
                     partPeeCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
-                    await campMemberCard.updateOne({ heathIssueId: heathIssue._id })
+                    await campMemberCard.updateOne({ healthIssueId: heathIssue._id })
                 }
             }
             ifIsTrue(sleepAtCamp, user._id, campPeeSleepIds, baanPeeSleepIds, partPeeSleepIds)
@@ -2051,12 +2050,12 @@ async function unlockDataPeto(campId: mongoose.Types.ObjectId) {
         if (!campMemberCard) {
             continue
         }
-        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (!heathIssue) {
             continue
         }
         await heathIssue.updateOne({ campIds: swop(camp1._id, null, heathIssue.campIds) })
-        await campMemberCard.updateOne({ heathIssueId: null })
+        await campMemberCard.updateOne({ healthIssueId: null })
     }
     i = 0
     while (i < camp1.partIds.length) {
@@ -2127,15 +2126,15 @@ async function unlockDataPeto(campId: mongoose.Types.ObjectId) {
             ifIsTrue(user.haveBottle, user._id, campPetoHaveBottleIds, partPetoHaveBottleIds)
             sizeJsonMod(user.shirtSize, 1, campPetoShirtSize)
             sizeJsonMod(user.shirtSize, 1, partPetoShirtSize)
-            if (user.heathIssueId) {
-                const heathIssue = await HeathIssue.findById(user.heathIssueId)
+            if (user.healthIssueId) {
+                const heathIssue = await HeathIssue.findById(user.healthIssueId)
                 if (heathIssue) {
                     await heathIssue.updateOne({ campMemberCardIds: swop(null, campMemberCard._id, heathIssue.campMemberCardIds) })
                     campPetoHeathIssueIds.push(heathIssue._id)
                     partPetoHeathIssueIds.push(heathIssue._id)
                     campPetoCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
                     partPetoCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
-                    await campMemberCard.updateOne({ heathIssueId: heathIssue._id })
+                    await campMemberCard.updateOne({ healthIssueId: heathIssue._id })
                 }
             }
             ifIsTrue(sleepAtCamp, user._id, campPetoSleepIds, partPetoSleepIds)

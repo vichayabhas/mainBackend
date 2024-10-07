@@ -46,7 +46,7 @@ const PeeCampSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
-    heathIssueId: {
+    healthIssueId: {
         type: mongoose.Schema.ObjectId,
         default: null,
     },

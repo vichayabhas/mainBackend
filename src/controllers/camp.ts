@@ -12,7 +12,7 @@ import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
 import express from "express";
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap, AllNongRegister, CampSizeContainer, WelfarePack, HeathIssuePack, CampWelfarePack } from "../models/interface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap, AllNongRegister, WelfarePack, HeathIssuePack, CampWelfarePack } from "../models/interface";
 import mongoose from "mongoose";
 import Song from "../models/Song";
 import HeathIssue from "../models/HeathIssue";
@@ -68,8 +68,7 @@ import { isWelfareValid } from "./user";
 //*export async function getShowRegisters
 //*export async function getAllUserCamp
 // export async function getAllNongRegister
-//*export async function getAllCampSize
-//*export async function getAllHealthIssue
+//*export async function getAllWelfare
 export async function getBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const data = await Baan.findById(req.params.id);
@@ -265,17 +264,17 @@ export async function addNong(req: express.Request, res: express.Response, next:
                 role: 'nong',
                 haveBottle: user.haveBottle,
                 sleepAtCamp,
-                heathIssueId: user.heathIssueId,
+                healthIssueId: user.healthIssueId,
             })
             nongCamp.nongCampMemberCardIds.push(campMemberCard._id)
             baan.nongCampMemberCardIds.push(campMemberCard._id)
             camp.nongCampMemberCardIds.push(campMemberCard._id)
             user.campMemberCardIds.push(campMemberCard._id)
             newNongPassIds = swop(user._id, null, newNongPassIds)
-            if (user.heathIssueId) {
-                baan.nongHeathIssueIds.push(user.heathIssueId);
-                camp.nongHeathIssueIds.push(user.heathIssueId);
-                const heathIssue = await HeathIssue.findById(user.heathIssueId)
+            if (user.healthIssueId) {
+                baan.nongHeathIssueIds.push(user.healthIssueId);
+                camp.nongHeathIssueIds.push(user.healthIssueId);
+                const heathIssue = await HeathIssue.findById(user.healthIssueId)
                 baan.nongCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
                 camp.nongCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
                 if (heathIssue) {
@@ -425,7 +424,7 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
                 role: 'pee',
                 haveBottle: user.haveBottle,
                 sleepAtCamp,
-                heathIssueId: user.heathIssueId,
+                healthIssueId: user.healthIssueId,
             })
             part.peeCampMemberCardIds.push(campMemberCard._id)
             camp.peeCampMemberCardIds.push(campMemberCard._id)
@@ -436,11 +435,11 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
             baan.peeIds.push(user._id);
             camp.peeIds.push(user._id);
             part.peeIds.push(user._id);
-            if (user.heathIssueId) {
-                baan.peeHeathIssueIds.push(user.heathIssueId);
-                camp.peeHeathIssueIds.push(user.heathIssueId);
-                part.peeHeathIssueIds.push(user.heathIssueId);
-                const heathIssue = await HeathIssue.findById(user.heathIssueId)
+            if (user.healthIssueId) {
+                baan.peeHeathIssueIds.push(user.healthIssueId);
+                camp.peeHeathIssueIds.push(user.healthIssueId);
+                part.peeHeathIssueIds.push(user.healthIssueId);
+                const heathIssue = await HeathIssue.findById(user.healthIssueId)
                 if (heathIssue) {
                     await heathIssue.updateOne({
                         //peeCampIds: swop(null, peeCamp._id, heathIssue.peeCampIds),
@@ -589,16 +588,16 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
             role: 'peto',
             haveBottle: user.haveBottle,
             sleepAtCamp,
-            heathIssueId: user.heathIssueId,
+            healthIssueId: user.healthIssueId,
         })
         petoCamp.petoCampMemberCardIds.push(campMemberCard._id)
         part.petoCampMemberCardIds.push(campMemberCard._id)
         camp.petoCampMemberCardIds.push(campMemberCard._id)
         user.campMemberCardIds.push(campMemberCard._id)
-        if (user.heathIssueId) {
-            part.petoHeathIssueIds.push(user.heathIssueId);
-            camp.petoHeathIssueIds.push(user.heathIssueId);
-            const heathIssue = await HeathIssue.findById(user.heathIssueId)
+        if (user.healthIssueId) {
+            part.petoHeathIssueIds.push(user.healthIssueId);
+            camp.petoHeathIssueIds.push(user.healthIssueId);
+            const heathIssue = await HeathIssue.findById(user.healthIssueId)
             if (heathIssue) {
                 await heathIssue.updateOne({
                     //petoCampIds: swop(null, petoCamp._id, heathIssue.petoCampIds),
@@ -1055,13 +1054,13 @@ export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: 
                     nongIds: swop(user._id, null, oldNongCamp.nongIds),
                     nongCampMemberCardIds: swop(campMemberCard._id, null, oldNongCamp.nongCampMemberCardIds),
                 })
-                if (campMemberCard.heathIssueId) {
+                if (campMemberCard.healthIssueId) {
                     await oldBaan.updateOne({
-                        nongHeathIssueIds: swop(campMemberCard.heathIssueId, null, oldBaan.nongHeathIssueIds),
+                        nongHeathIssueIds: swop(campMemberCard.healthIssueId, null, oldBaan.nongHeathIssueIds),
                         nongCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, oldBaan.nongCampMemberCardHaveHeathIssueIds),
                     })
                     baan.nongCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
-                    baan.nongHeathIssueIds.push(campMemberCard.heathIssueId)
+                    baan.nongHeathIssueIds.push(campMemberCard.healthIssueId)
                 }
                 if (campMemberCard.sleepAtCamp) {
                     await oldBaan.updateOne({ nongSleepIds: swop(user._id, null, oldBaan.nongSleepIds) })
@@ -1114,12 +1113,12 @@ export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: 
                 }
                 oldBaan?.mapCampMemberCardIdByUserId.delete(user.id)
                 baan.mapCampMemberCardIdByUserId.set(user.id, campMemberCard._id)
-                if (campMemberCard.heathIssueId) {
+                if (campMemberCard.healthIssueId) {
                     await oldBaan.updateOne({
-                        peeHeathIssueIds: swop(campMemberCard.heathIssueId, null, oldBaan.peeHeathIssueIds),
+                        peeHeathIssueIds: swop(campMemberCard.healthIssueId, null, oldBaan.peeHeathIssueIds),
                         peeCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, oldBaan.peeCampMemberCardHaveHeathIssueIds)
                     })
-                    baan.peeHeathIssueIds.push(campMemberCard.heathIssueId)
+                    baan.peeHeathIssueIds.push(campMemberCard.healthIssueId)
                     baan.peeCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
                 }
                 if (campMemberCard.sleepAtCamp) {
@@ -1210,13 +1209,13 @@ export async function changePartRaw(userIds: mongoose.Types.ObjectId[], partId: 
                     petoIds: swop(user._id, null, oldPetoCamp.petoIds),
                     petoCampMemberCardIds: swop(campMemberCard._id, null, oldPetoCamp.petoCampMemberCardIds)
                 })
-                if (campMemberCard.heathIssueId) {
+                if (campMemberCard.healthIssueId) {
                     await oldPart.updateOne({
-                        petoHeathIssueIds: swop(campMemberCard.heathIssueId, null, oldPart.petoHeathIssueIds),
+                        petoHeathIssueIds: swop(campMemberCard.healthIssueId, null, oldPart.petoHeathIssueIds),
                         petoCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, oldPart.petoCampMemberCardHaveHeathIssueIds)
                     })
                     part.petoCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
-                    part.petoHeathIssueIds.push(campMemberCard.heathIssueId)
+                    part.petoHeathIssueIds.push(campMemberCard.healthIssueId)
                 }
                 if (campMemberCard.sleepAtCamp) {
                     await oldPart.updateOne({ petoSleepIds: swop(user._id, null, oldPart.petoSleepIds) })
@@ -1274,12 +1273,12 @@ export async function changePartRaw(userIds: mongoose.Types.ObjectId[], partId: 
                 }
                 oldPart.mapCampMemberCardIdByUserId.delete(user.id)
                 part.mapCampMemberCardIdByUserId.set(user.id, campMemberCard._id)
-                if (campMemberCard.heathIssueId) {
+                if (campMemberCard.healthIssueId) {
                     await oldPart.updateOne({
-                        peeHeathIssueIds: swop(campMemberCard.heathIssueId, null, oldPart.peeHeathIssueIds),
+                        peeHeathIssueIds: swop(campMemberCard.healthIssueId, null, oldPart.peeHeathIssueIds),
                         peeCampMemberCardHaveHeathIssueIds: swop(campMemberCard._id, null, oldPart.peeCampMemberCardHaveHeathIssueIds)
                     })
-                    part.peeHeathIssueIds.push(campMemberCard.heathIssueId)
+                    part.peeHeathIssueIds.push(campMemberCard.healthIssueId)
                     part.peeCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
                 }
                 if (campMemberCard.sleepAtCamp) {
@@ -1358,7 +1357,7 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
         }
         var isWearing = false
         var spicy = false
-        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (heathIssue) {
             isWearing = heathIssue.isWearing
             spicy = heathIssue.spicy
@@ -1375,7 +1374,7 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
             tel,
             gender,
             group,
-            heathIssueId: campMemberCard.heathIssueId,
+            healthIssueId: campMemberCard.healthIssueId,
             haveBottle: campMemberCard.haveBottle,
             likeSongs,
             isWearing,
@@ -1428,7 +1427,7 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
         }
         var isWearing = false
         var spicy = false
-        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (heathIssue) {
             isWearing = heathIssue.isWearing
             spicy = heathIssue.spicy
@@ -1445,7 +1444,7 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
             tel,
             gender,
             group,
-            heathIssueId: campMemberCard.heathIssueId,
+            healthIssueId: campMemberCard.healthIssueId,
             haveBottle: campMemberCard.haveBottle,
             likeSongs,
             isWearing,
@@ -1498,7 +1497,7 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
         }
         var isWearing = false
         var spicy = false
-        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (heathIssue) {
             isWearing = heathIssue.isWearing
             spicy = heathIssue.spicy
@@ -1515,7 +1514,7 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
             tel,
             gender,
             group,
-            heathIssueId: campMemberCard.heathIssueId,
+            healthIssueId: campMemberCard.healthIssueId,
             haveBottle: campMemberCard.haveBottle,
             likeSongs,
             isWearing,
@@ -1568,7 +1567,7 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
         }
         var isWearing = false
         var spicy = false
-        const heathIssue = await HeathIssue.findById(campMemberCard.heathIssueId)
+        const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (heathIssue) {
             isWearing = heathIssue.isWearing
             spicy = heathIssue.spicy
@@ -1585,7 +1584,7 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
             tel,
             gender,
             group,
-            heathIssueId: campMemberCard.heathIssueId,
+            healthIssueId: campMemberCard.healthIssueId,
             haveBottle: campMemberCard.haveBottle,
             likeSongs,
             isWearing,
@@ -1941,82 +1940,31 @@ export async function getAllNongRegister(req: express.Request, res: express.Resp
     const out: AllNongRegister = { interviews, pendings, passs, paids, sures }
     res.status(200).json(out)
 }
-export async function getAllCampSize(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getAllWelfare(req: express.Request, res: express.Response, next: express.NextFunction) {
     const camp: InterCampBack | null = await Camp.findById(req.params.id)
     if (!camp) {
         sendRes(res, false)
         return
     }
-    const {
-        campName,
-        peeShirtSize,
-        nongShirtSize,
-        petoShirtSize,
-        groupName,
-        baanIds,
-        partIds,
-        memberStructure,
-    } = camp
-    var i = 0
-    const output: CampSizeContainer = {
-        name: campName,
-        groupName,
-        nongSize: sizeMapToJson(nongShirtSize),
-        peeSize: sizeMapToJson(peeShirtSize),
-        petoSize: sizeMapToJson(petoShirtSize),
-        partSizes: [],
-        baanSizes: [],
-        isHavePeto: memberStructure == 'nong->highSchool,pee->1year,peto->2upYear',
-    }
-    while (i < baanIds.length) {
-        const baan: InterBaanBack | null = await Baan.findById(baanIds[i++])
-        if (!baan) {
-            continue
-        }
-        output.baanSizes.push({
-            nongSize: sizeMapToJson(baan.nongShirtSize),
-            peeSize: sizeMapToJson(baan.peeShirtSize),
-            petoSize: startJsonSize(),
-            name: `${groupName}${baan.name}`
-        })
-    }
-    i = 0
-    while (i < partIds.length) {
-        const part: InterPartBack | null = await Part.findById(partIds[i++])
-        if (!part) {
-            continue
-        }
-        output.partSizes.push({
-            nongSize: startJsonSize(),
-            peeSize: sizeMapToJson(part.peeShirtSize),
-            petoSize: sizeMapToJson(part.petoShirtSize),
-            name: `ฝ่าย${part.partName}`
-        })
-    }
-    res.status(200).json(output)
-}
-export async function getAllHealthIssue(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const camp = await Camp.findById(req.params.id)
-    if (!camp) {
-        sendRes(res, false)
-        return
-    }
-    const nongs: HeathIssuePack[] = []
-    const pees: HeathIssuePack[] = []
-    const petos: HeathIssuePack[] = []
-    const baans: WelfarePack[] = []
-    const parts: WelfarePack[] = []
+    const nongHealths: HeathIssuePack[] = []
+    const peeHealths: HeathIssuePack[] = []
+    const petoHealths: HeathIssuePack[] = []
+    const baanWelfares: WelfarePack[] = []
+    const partWelfares: WelfarePack[] = []
     var i = 0
     while (i < camp.baanIds.length) {
-        const baan = await Baan.findById(camp.baanIds[i++])
+        const baan: InterBaanBack | null = await Baan.findById(camp.baanIds[i++])
         if (!baan) {
             continue
         }
         const welfareBaan: WelfarePack = {
-            name: baan.name,
-            nongs: [],
-            pees: [],
-            petos: [],
+            name: `${camp.groupName}${baan.name}`,
+            nongHealths: [],
+            peeHealths: [],
+            petoHealths: [],
+            nongSize: sizeMapToJson(baan.nongShirtSize),
+            peeSize: sizeMapToJson(baan.peeShirtSize),
+            petoSize: startJsonSize()
         }
         var j = 0
         while (j < baan.nongHeathIssueIds.length) {
@@ -2032,7 +1980,7 @@ export async function getAllHealthIssue(req: express.Request, res: express.Respo
                 user,
                 heathIssue,
             }
-            welfareBaan.nongs = ifIsTrue(isWelfareValid(buffer), buffer, welfareBaan.nongs, nongs)
+            welfareBaan.nongHealths = ifIsTrue(isWelfareValid(buffer), buffer, welfareBaan.nongHealths, nongHealths)
         }
         j = 0
         while (j < baan.peeHeathIssueIds.length) {
@@ -2048,24 +1996,27 @@ export async function getAllHealthIssue(req: express.Request, res: express.Respo
                 user,
                 heathIssue,
             }
-            welfareBaan.pees = ifIsTrue(isWelfareValid(buffer), buffer, welfareBaan.pees, pees)
+            welfareBaan.peeHealths = ifIsTrue(isWelfareValid(buffer), buffer, welfareBaan.peeHealths, peeHealths)
         }
-        baans.push(welfareBaan)
+        baanWelfares.push(welfareBaan)
     }
     i = 0
     while (i < camp.partIds.length) {
-        const part = await Part.findById(camp.partIds[i++])
+        const part: InterPartBack | null = await Part.findById(camp.partIds[i++])
         if (!part) {
             continue
         }
         const welfarePart: WelfarePack = {
-            name: part.partName,
-            nongs: [],
-            pees: [],
-            petos: [],
+            name: `ฝ่าย${part.partName}`,
+            nongHealths: [],
+            peeHealths: [],
+            petoHealths: [],
+            nongSize: startJsonSize(),
+            peeSize: sizeMapToJson(part.peeShirtSize),
+            petoSize: sizeMapToJson(part.petoShirtSize)
         }
         var j = 0
-        while (j < part.peeHeathIssueIds.length) {
+        while (j < part.petoHeathIssueIds.length) {
             const heathIssue = await HeathIssue.findById(part.petoHeathIssueIds[j++])
             if (!heathIssue) {
                 continue
@@ -2078,7 +2029,7 @@ export async function getAllHealthIssue(req: express.Request, res: express.Respo
                 user,
                 heathIssue,
             }
-            welfarePart.petos = ifIsTrue(isWelfareValid(buffer), buffer, welfarePart.petos, petos)
+            welfarePart.petoHealths = ifIsTrue(isWelfareValid(buffer), buffer, welfarePart.petoHealths, petoHealths)
         }
         j = 0
         while (j < part.peeHeathIssueIds.length) {
@@ -2094,19 +2045,22 @@ export async function getAllHealthIssue(req: express.Request, res: express.Respo
                 user,
                 heathIssue,
             }
-            welfarePart.pees = ifIsTrue(isWelfareValid(buffer), buffer, welfarePart.pees,)
+            ifIsTrue(isWelfareValid(buffer), buffer, welfarePart.peeHealths,)
         }
-        parts.push(welfarePart)
+        partWelfares.push(welfarePart)
     }
     const buffer: CampWelfarePack = {
         name: camp.campName,
         isHavePeto: camp.memberStructure == 'nong->highSchool,pee->1year,peto->2upYear',
-        nongs,
-        pees,
-        petos,
-        parts,
-        baans,
+        nongHealths,
+        peeHealths,
+        petoHealths,
+        partWelfares,
+        baanWelfares,
         groupName: camp.groupName,
+        nongSize: sizeMapToJson(camp.nongShirtSize),
+        peeSize: sizeMapToJson(camp.peeShirtSize),
+        petoSize: sizeMapToJson(camp.petoShirtSize)
     }
     res.status(200).json(buffer)
 }

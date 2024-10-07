@@ -55,7 +55,7 @@ const UserSchema = new mongoose.Schema({
         required: [true, 'Plese choose shirt size'],
         enum: ['S', 'M', 'L', 'XL', 'XXL', '3XL']
     },
-    heathIssueId: {//heathIssue
+    healthIssueId: {//heathIssue
         type: mongoose.Schema.ObjectId,
         default: null
 
