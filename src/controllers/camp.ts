@@ -2045,7 +2045,7 @@ export async function getAllWelfare(req: express.Request, res: express.Response,
                 user,
                 heathIssue,
             }
-            ifIsTrue(isWelfareValid(buffer), buffer, welfarePart.peeHealths,)
+            welfarePart.peeHealths = ifIsTrue(isWelfareValid(buffer), buffer, welfarePart.peeHealths,)
         }
         partWelfares.push(welfarePart)
     }
