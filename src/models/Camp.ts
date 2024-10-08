@@ -362,6 +362,9 @@ const campSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         default: []
     },
+    partPrStudioId:{
+        type:mongoose.Types.ObjectId
+    },
 })
 export default mongoose.model('Camp', campSchema)
 

@@ -160,6 +160,7 @@ export interface InterCampBack {
     nongHaveBottleIds: mongoose.Types.ObjectId[],
     peeHaveBottleIds: mongoose.Types.ObjectId[],
     petoHaveBottleIds: mongoose.Types.ObjectId[],
+    partPrStudioId: mongoose.Types.ObjectId,
 }
 export interface InterCampStyle {
     refId: mongoose.Types.ObjectId,
@@ -460,6 +461,7 @@ export interface InterCampFront {
     nongHaveBottleIds: mongoose.Types.ObjectId[],
     peeHaveBottleIds: mongoose.Types.ObjectId[],
     petoHaveBottleIds: mongoose.Types.ObjectId[],
+    partPrStudioId:mongoose.Types.ObjectId,
 }
 export interface InterPartFront {
     nameId: mongoose.Types.ObjectId,

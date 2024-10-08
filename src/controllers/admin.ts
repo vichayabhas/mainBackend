@@ -12,7 +12,7 @@ import CampMemberCard from "../models/CampMemberCard"
 import User from "../models/User"
 import WorkItem from "../models/WorkItem"
 import { CreateCamp, InterBaanFront, InterCampBack, UpdateCamp, UpdateBaan, Group, MyMap, InterPartBack, Size } from "../models/interface"
-import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, ifIsTrue, jsonToMapSize, removeDuplicate , sendRes, sizeJsonMod, sizeMapToJson, startJsonSize, startSize, swop } from "./setup"
+import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, ifIsTrue, jsonToMapSize, removeDuplicate, sendRes, sizeJsonMod, sizeMapToJson, startJsonSize, startSize, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
 import PartNameContainer from '../models/PartNameContainer'
@@ -350,6 +350,10 @@ export async function createCamp(req: express.Request, res: express.Response, ne
         if (!partNameContainerPlan) {
             partNameContainerPlan = await PartNameContainer.create({ name: 'แผน' })
         }
+        var partNameContainerPrStudio = await PartNameContainer.findOne({ name: 'PR/studio' })
+        if (!partNameContainerPrStudio) {
+            partNameContainerPrStudio = await PartNameContainer.create({ name: 'PR/studio' })
+        }
         const part = await Part.create({
             nameId: partNameContainer._id, campId: camp._id, partName: `${partNameContainer.name} ${nameContainer.name} ${camp.round}`, isAuth: true
         })
@@ -385,6 +389,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
         const welfare = await addPartRaw(camp._id, partNameContainerWelfare._id, true)
         const med = await addPartRaw(camp._id, partNameContainerMed._id, true)
         const plan = await addPartRaw(camp._id, partNameContainerPlan._id, true)
+        const prStudio = await addPartRaw(camp._id, partNameContainerPrStudio._id, true)
         if (!coop || !regis || !peeBaan || !welfare || !med || !plan) {
             sendRes(res, false)
             return
@@ -396,6 +401,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
             partMedId: med._id,
             partWelfareId: welfare._id,
             partPlanId: plan._id,
+            partPrStudioId: prStudio._id,
         })
         if (memberStructure == 'nong->highSchool,pee->1year,peto->2upYear') {
             await addPetoRaw(boardIds, part._id, res)

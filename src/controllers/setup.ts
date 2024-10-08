@@ -243,6 +243,7 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         peeCampMemberCardHaveHeathIssueIds,
         petoHaveBottleIds,
         petoCampMemberCardHaveHeathIssueIds,
+        partPrStudioId,
 
     } = input
     return ({
@@ -325,6 +326,7 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         peeCampMemberCardHaveHeathIssueIds,
         petoHaveBottleIds,
         petoCampMemberCardHaveHeathIssueIds,
+        partPrStudioId,
 
     })
 }
