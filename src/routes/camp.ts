@@ -47,7 +47,7 @@ router.post('/changePart/', protect, pee, changePart)//
 router.get('/getAllUserCamp/', protect, getAllUserCamp)//
 //router.get('/getAllNongRegister/params/:id', protect, pee)
 router.get('/getAllWelfare/params/:id', getAllWelfare)//
-router.get('/getAllPlanData/params/id', getAllPlanData)//
+router.get('/getAllPlanData/params/:id', getAllPlanData)//
 router.put('/planUpdateCamp/', protect, planUpdateCamp)//
 
 export default router;
