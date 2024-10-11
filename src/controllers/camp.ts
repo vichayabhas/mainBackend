@@ -12,7 +12,7 @@ import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
 import express from "express";
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap, AllNongRegister, WelfarePack, HeathIssuePack, CampWelfarePack } from "../models/interface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap, AllNongRegister, WelfarePack, HeathIssuePack, CampWelfarePack, GetBaansForPlan, GetPartsForPlan, GetAllPlanData, UpdateAllPlanData } from "../models/interface";
 import mongoose from "mongoose";
 import Song from "../models/Song";
 import HeathIssue from "../models/HeathIssue";
@@ -21,7 +21,7 @@ import Building from "../models/Building";
 import ChoiseAnswer from "../models/ChoiseAnswer";
 import ChoiseQuasion from "../models/ChoiseQuasion";
 import WorkItem from "../models/WorkItem";
-import { deleteWorkingItemRaw } from "./admin";
+import { deleteWorkingItemRaw, updateBaanRaw } from "./admin";
 import { isWelfareValid } from "./user";
 //*export async function getBaan
 //*export async function getCamp
@@ -69,6 +69,8 @@ import { isWelfareValid } from "./user";
 //*export async function getAllUserCamp
 // export async function getAllNongRegister
 //*export async function getAllWelfare
+//*export async function getAllPlanData
+//*export async function planUpdateCamp
 export async function getBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const data = await Baan.findById(req.params.id);
@@ -2063,4 +2065,140 @@ export async function getAllWelfare(req: express.Request, res: express.Response,
         petoSize: sizeMapToJson(camp.petoShirtSize)
     }
     res.status(200).json(buffer)
+}
+export async function getAllPlanData(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const camp = await Camp.findById(req.params.id)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
+    var i = 0
+    const baanDatas: GetBaansForPlan[] = []
+    const partDatas: GetPartsForPlan[] = []
+    while (i < camp.baanIds.length) {
+        const baan = await Baan.findById(camp.baanIds[i++])
+        if (!baan) {
+            continue
+        }
+        const boy = await Place.findById(baan.boySleepPlaceId)
+        const girl = await Place.findById(baan.girlSleepPlaceId)
+        const normal = await Place.findById(baan.normalPlaceId)
+        baanDatas.push({
+            boy,
+            girl,
+            name: baan.name,
+            normal,
+            fullName: baan.fullName,
+            _id: baan._id,
+        })
+    }
+    i = 0
+    while (i < camp.partIds.length) {
+        const part = await Part.findById(camp.partIds[i++])
+        if (!part) {
+            continue
+        }
+        const place = await Place.findById(part.placeId)
+        partDatas.push({ place, name: part.partName, _id: part._id })
+
+    }
+    const buffer: GetAllPlanData = {
+        partDatas,
+        baanDatas,
+        name: camp.campName,
+        _id: camp._id,
+        groupName: camp.groupName,
+        isOverNightCamp: camp.nongSleepModel != 'ไม่มีการค้างคืน'
+    }
+    res.status(200).json(buffer)
+}
+export async function planUpdateCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const update: UpdateAllPlanData = req.body
+    const user = await getUser(req)
+    const camp = await Camp.findById(update._id)
+    if (!user || !camp) {
+        sendRes(res, false)
+        return
+    }
+    const campMemberCard = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
+    if (!campMemberCard) {
+        sendRes(res, false)
+        return
+    }
+    switch (campMemberCard.role) {
+        case "nong": {
+            sendRes(res, false)
+            return
+        }
+        case "pee": {
+            const peeCamp = await PeeCamp.findById(campMemberCard.campModelId)
+            if (!peeCamp) {
+                sendRes(res, false)
+                return
+            }
+            if (!peeCamp.partId.equals(camp.partBoardId) && !peeCamp.partId.equals(camp.partPlanId)) {
+                sendRes(res, false)
+                return
+            }
+            break
+        }
+        case "peto": {
+            const petoCamp = await PetoCamp.findById(campMemberCard.campModelId)
+            if (!petoCamp) {
+                sendRes(res, false)
+                return
+            }
+            if (!petoCamp.partId.equals(camp.partBoardId) && !petoCamp.partId.equals(camp.partPlanId)) {
+                sendRes(res, false)
+                return
+            }
+            break
+        }
+    }
+    var i = 0
+    while (i < update.baanDatas.length) {
+        const updateBaan = update.baanDatas[i++]
+        const baan = await Baan.findById(update._id)
+        if (!baan) {
+            continue
+        }
+        const {
+            link,
+            name,
+            fullName,
+            nongSendMessage
+        } = baan
+        await updateBaanRaw({
+            baanId: baan._id,
+            boySleepPlaceId: updateBaan.boyId,
+            girlSleepPlaceId: updateBaan.girlId,
+            name,
+            nongSendMessage,
+            normalPlaceId: updateBaan.normalId,
+            link,
+            fullName,
+        })
+    }
+    i = 0
+    while (i < update.partDatas.length) {
+        const updatePart = update.partDatas[i++]
+        const part = await Part.findById(updatePart._id)
+        const newPlace = await Place.findById(updatePart.placeId)
+        if (newPlace) {
+            const newBuilding = await Building.findById(newPlace.buildingId)
+            if (newBuilding) {
+                await newPlace.updateOne({ partIds: swop(null, part._id, newPlace.partIds) })
+                await newBuilding.updateOne({ partIds: swop(null, part._id, newBuilding.partIds) })
+            }
+        }
+        const oldPlace = await Place.findById(part.placeId)
+        if (oldPlace) {
+            const oldBuilding = await Building.findById(oldPlace.buildingId)
+            if (oldBuilding) {
+                await oldPlace.updateOne({ partIds: swop(part._id, null, oldBuilding.partIds) })
+                await oldBuilding.updateOne({ partIds: swop(part._id, null, oldBuilding.partIds) })
+            }
+        }
+    }
+    sendRes(res, true)
 }

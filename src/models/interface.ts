@@ -461,7 +461,7 @@ export interface InterCampFront {
     nongHaveBottleIds: mongoose.Types.ObjectId[],
     peeHaveBottleIds: mongoose.Types.ObjectId[],
     petoHaveBottleIds: mongoose.Types.ObjectId[],
-    partPrStudioId:mongoose.Types.ObjectId,
+    partPrStudioId: mongoose.Types.ObjectId,
 }
 export interface InterPartFront {
     nameId: mongoose.Types.ObjectId,
@@ -856,16 +856,36 @@ export interface WelfarePack {
 export interface GetBaansForPlan {
     name: string,
     fullName: string,
-    boy: InterPlace,
-    girl: InterPlace,
-    normal: InterPlace
+    boy: InterPlace | null,
+    girl: InterPlace | null,
+    normal: InterPlace | null,
+    _id: mongoose.Types.ObjectId,
 }
 export interface GetPartsForPlan {
     name: string,
-    place: InterPlace
+    place: InterPlace | null,
+    _id: mongoose.Types.ObjectId,
 }
 export interface GetAllPlanData {
     name: string,
-    baans: GetBaansForPlan[],
-    parts: GetPartsForPlan[],
+    baanDatas: GetBaansForPlan[],
+    partDatas: GetPartsForPlan[],
+    _id: mongoose.Types.ObjectId,
+    groupName: string,
+    isOverNightCamp: boolean
+}
+export interface UpdateBaansForPlan {
+    boyId: mongoose.Types.ObjectId | null,
+    girlId: mongoose.Types.ObjectId | null,
+    normalId: mongoose.Types.ObjectId | null,
+    _id: mongoose.Types.ObjectId,
+}
+export interface UpdatePartsForPlan {
+    placeId: mongoose.Types.ObjectId | null,
+    _id: mongoose.Types.ObjectId,
+}
+export interface UpdateAllPlanData {
+    baanDatas: UpdateBaansForPlan[],
+    partDatas: UpdatePartsForPlan[],
+    _id: mongoose.Types.ObjectId,
 }

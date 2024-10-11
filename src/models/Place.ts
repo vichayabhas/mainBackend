@@ -1,7 +1,8 @@
 import mongoose from "mongoose"
 const PeeCampSchema = new mongoose.Schema({
     buildingId: {//building
-        type: mongoose.Schema.ObjectId
+        type: mongoose.Schema.ObjectId,
+        required:true
     },
     floor: {
         type: String,
