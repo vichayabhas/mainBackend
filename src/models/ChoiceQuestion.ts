@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 const PeeCampSchema = new mongoose.Schema({
-    choiseAnswerIds: {
+    choiceAnswerIds: {
         type: [mongoose.Schema.ObjectId],
         default: []
     },
@@ -38,4 +38,4 @@ const PeeCampSchema = new mongoose.Schema({
         enum:['A','B','C','D','E']
     }
 })
-export default mongoose.model('ChoiseQuasion', PeeCampSchema)
+export default mongoose.model('ChoiceQuestion', PeeCampSchema)

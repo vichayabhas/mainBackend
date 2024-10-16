@@ -292,8 +292,8 @@ export interface InterUser {
     nickname: string,//                   
     email: string,//
     password: string,//                 
-    resetPasswordToken: string,
-    resetPasswordExpire: Date,
+    resetPasswordToken?: string,
+    resetPasswordExpire?: Date,
     studentId: string | null,//            
     gender: 'Male' | 'Female',//          
     shirtSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',//
@@ -619,51 +619,68 @@ export interface showActionPlan {
     partName: string,
     placeName: string[]
 }
-export interface ChoiseAnswer extends Answer {
+export interface ChoiceAnswer extends Answer {
     userId: mongoose.Types.ObjectId,
     _id: mongoose.Types.ObjectId
 }
-export type Choise = 'A' | 'B' | 'C' | "D" | "E"
-export interface ChoiseQuasion {
-    choiseAnswerIds: mongoose.Types.ObjectId[],
+export type Choice = 'A' | 'B' | 'C' | "D" | "E"
+export interface ChoiceQuestion {
+    choiceAnswerIds: mongoose.Types.ObjectId[],
     campId: mongoose.Types.ObjectId,
     userIds: mongoose.Types.ObjectId[],
-    quasion: string,
+    question: string,
     a: string,
     b: string,
     c: string,
     d: string,
     e: string,
     _id: mongoose.Types.ObjectId,
-    score: number,
-    correct: Choise
+    scoreA: number,
+    scoreB: number,
+    scoreC: number,
+    scoreD: number,
+    scoreE: number,
+    answerA: number,
+    answerB: number,
+    answerC: number,
+    answerD: number,
+    answerE: number,
+    correct: Choice | null,
 }
 export interface Answer {
-    quasionId: mongoose.Types.ObjectId,
+    questionId: mongoose.Types.ObjectId,
     campId: mongoose.Types.ObjectId,
-    answer: Choise | null
+    answer: Choice | null
 }
-export interface CreateQuation {
+export interface CreateQuestion {
     campId: mongoose.Types.ObjectId,
-    quasion: string,
+    question: string,
     a: string,
     b: string,
     c: string,
     d: string,
     e: string,
-    score: number,
-    correct: Choise
+    scoreA: number,
+    scoreB: number,
+    scoreC: number,
+    scoreD: number,
+    scoreE: number,
+    correct: Choice | null,
 }
-export interface EditQuation {
+export interface EditQuestion {
     _id: mongoose.Types.ObjectId,
-    quasion: string,
+    question: string,
     a: string,
     b: string,
     c: string,
     d: string,
     e: string,
-    score: number,
-    correct: Choise
+    scoreA: number,
+    scoreB: number,
+    scoreC: number,
+    scoreD: number,
+    scoreE: number,
+    correct: Choice | null,
 }
 export interface CreateWorkingItem {
     name: string,
@@ -832,17 +849,14 @@ export interface HeathIssuePack {
     user: InterUser,
 }
 export interface CampWelfarePack {
-    nongHealths: HeathIssuePack[],
-    peeHealths: HeathIssuePack[],
-    petoHealths: HeathIssuePack[],
-    name: string,
     baanWelfares: WelfarePack[],
     partWelfares: WelfarePack[],
     isHavePeto: boolean,
     groupName: string,
-    nongSize: InterSize,
-    peeSize: InterSize,
-    petoSize: InterSize,
+    campWelfare:WelfarePack
+    baanHaveBottles: CampNumberData[],
+    partHaveBottles: CampNumberData[],
+    campBottleNumber:CampNumberData
 }
 export interface WelfarePack {
     nongHealths: HeathIssuePack[],
@@ -872,7 +886,16 @@ export interface GetAllPlanData {
     partDatas: GetPartsForPlan[],
     _id: mongoose.Types.ObjectId,
     groupName: string,
-    isOverNightCamp: boolean
+    isOverNightCamp: boolean,
+    baanBoySleeps: CampNumberData[],
+    baanGirlSleeps: CampNumberData[],
+    partBoySleeps: CampNumberData[],
+    partGirlSleeps: CampNumberData[],
+    boySleepNumber:CampNumberData,
+    girlSleepNumber:CampNumberData,
+    isHavePeto: boolean,
+    baanSleepDatas: CampSleepDataContainer[],
+    partSleepDatas: CampSleepDataContainer[],
 }
 export interface UpdateBaansForPlan {
     boyId: mongoose.Types.ObjectId | null,
@@ -888,4 +911,19 @@ export interface UpdateAllPlanData {
     baanDatas: UpdateBaansForPlan[],
     partDatas: UpdatePartsForPlan[],
     _id: mongoose.Types.ObjectId,
+}
+export interface CampNumberData {
+    name: string,
+    nongNumber: number,
+    peeNumber: number,
+    petoNumber: number,
+}
+export interface CampSleepDataContainer {
+    name: string,
+    nongBoys: InterUser[],
+    nongGirls: InterUser[],
+    peeBoys: InterUser[],
+    peeGirls: InterUser[],
+    petoBoys: InterUser[],
+    petoGirls: InterUser[],
 }

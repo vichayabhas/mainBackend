@@ -12,17 +12,18 @@ import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
 import express from "express";
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuation, EditQuation, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap, AllNongRegister, WelfarePack, HeathIssuePack, CampWelfarePack, GetBaansForPlan, GetPartsForPlan, GetAllPlanData, UpdateAllPlanData } from "../models/interface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuestion, EditQuestion, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap, AllNongRegister, WelfarePack, HeathIssuePack, CampWelfarePack, GetBaansForPlan, GetPartsForPlan, GetAllPlanData, UpdateAllPlanData, CampNumberData, CampSleepDataContainer } from "../models/interface";
 import mongoose from "mongoose";
 import Song from "../models/Song";
 import HeathIssue from "../models/HeathIssue";
 import Place from "../models/Place";
 import Building from "../models/Building";
 import ChoiseAnswer from "../models/ChoiseAnswer";
-import ChoiseQuasion from "../models/ChoiseQuasion";
 import WorkItem from "../models/WorkItem";
 import { deleteWorkingItemRaw, updateBaanRaw } from "./admin";
 import { isWelfareValid } from "./user";
+import ChoiceQuestion from "../models/ChoiceQuestion";
+
 //*export async function getBaan
 //*export async function getCamp
 //*export async function getBaans
@@ -383,6 +384,8 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
         }
         const baanPeeHaveBottleIds = baan.peeHaveBottleIds
         const campPeeHaveBottleIds = camp.peeHaveBottleIds
+        const baanPeeSleepIds = baan.peeSleepIds
+        const campPeeSleepIds = camp.peeSleepIds
         var count = 0
         const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize()
         var i = 0
@@ -391,7 +394,7 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
             if (!user) {
                 continue
             }
-            const part = await Part.findById(camp.peePassIds.get(user.id));
+            var part = await Part.findById(camp.peePassIds.get(user.id));
             if (!part) {
                 continue
             }
@@ -411,11 +414,10 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
                 }
                 case 'ไม่มีการค้างคืน': sleepAtCamp = false
             }
-            if (sleepAtCamp) {
-                camp.peeSleepIds.push(user._id)
-                baan.peeSleepIds.push(user._id)
-                part.peeSleepIds.push(user._id)
-            }
+            part = await part.updateOne({
+                peeSleepIds: ifIsTrue(sleepAtCamp, user._id, part.peeSleepIds, campPeeSleepIds, baanPeeSleepIds),
+                peeHaveBottleIds: ifIsTrue(user.haveBottle, user._id, part.peeHaveBottleIds, baanPeeHaveBottleIds, campPeeHaveBottleIds),
+            })
             camp.peeMapIdGtoL.set(user._id.toString(), camp.currentPee + 1)
             camp.peeMapIdLtoG.set((camp.currentPee + 1).toString(), user._id)
             const campMemberCard = await CampMemberCard.create({
@@ -444,7 +446,6 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
                 const heathIssue = await HeathIssue.findById(user.healthIssueId)
                 if (heathIssue) {
                     await heathIssue.updateOne({
-                        //peeCampIds: swop(null, peeCamp._id, heathIssue.peeCampIds),
                         campMemberCardIds: swop(null, campMemberCard._id, heathIssue.campMemberCardIds)
                     })
                     baan.peeCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
@@ -455,9 +456,7 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
             const userSize = user.shirtSize as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
             part.peeShirtSize.set(userSize, part.peeShirtSize.get(userSize) as number + 1);
             size.set(userSize, size.get(userSize) as number + 1)
-            ifIsTrue(user.haveBottle, user._id, baanPeeHaveBottleIds)
-            ifIsTrue(user.haveBottle, user._id, campPeeHaveBottleIds)
-            await part.updateOne({ peeHaveBottleIds: ifIsTrue(user.haveBottle, user._id, part.peeHaveBottleIds) })
+
             user.peeCampIds.push(peeCamp._id);
             user.registerIds.push(camp._id)
             camp.peePassIds.delete(user.id);
@@ -472,13 +471,9 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
             await user.updateOne({
                 peeCampIds: user.peeCampIds,
                 campMemberCardIds: user.campMemberCardIds,
-                registerIds: user.registerIds
+                registerIds: user.registerIds,
+                authPartIds: ifIsTrue(part.isAuth, part._id, user.authPartIds)
             })
-            if (part.isAuth) {
-                await user.updateOne({
-                    authPartIds: swop(null, part._id, user.authPartIds)
-                })
-            }
             await part.updateOne({
                 mapCampMemberCardIdByUserId: part.mapCampMemberCardIdByUserId,
                 peeHeathIssueIds: part.peeHeathIssueIds,
@@ -499,7 +494,7 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
             peeHeathIssueIds: camp.peeHeathIssueIds,
             peePassIds: camp.peePassIds,
             mapCampMemberCardIdByUserId: camp.mapCampMemberCardIdByUserId,
-            peeSleepIds: camp.peeSleepIds,
+            peeSleepIds: campPeeSleepIds,
             currentPee: camp.currentPee,
             peeCampMemberCardHaveHeathIssueIds: camp.peeCampMemberCardHaveHeathIssueIds,
             peeHaveBottleIds: campPeeHaveBottleIds,
@@ -512,7 +507,7 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
             peeCampMemberCardIds: baan.peeCampMemberCardIds,
             mapCampMemberCardIdByUserId: baan.mapCampMemberCardIdByUserId,
             peeShirtSize: baan.peeShirtSize,
-            peeSleepIds: baan.peeSleepIds,
+            peeSleepIds: baanPeeSleepIds,
             peeCampMemberCardHaveHeathIssueIds: baan.peeCampMemberCardHaveHeathIssueIds,
             peeHaveBottleIds: baanPeeHaveBottleIds,
         })
@@ -1614,62 +1609,64 @@ export async function getImpotentPartIdBCRP(campId: mongoose.Types.ObjectId) {
     }
     return [camp.partBoardId, camp.partCoopId, camp.partRegisterId, camp.partPeeBaanId, camp.partWelfareId, camp.partMedId, camp.partPlanId] as mongoose.Types.ObjectId[]
 }
-export async function answerTheQuasion(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const answers: Answer[] = req.body
-    var i = 0
-    const user = await getUser(req)
-    if (!user) {
-        sendRes(res, false)
-        return
-    }
-    while (i < answers.length) {
-        const question = await ChoiseQuasion.findById(answers[i].quasionId)
-        if (!question) {
-            continue
-        }
-        if (question.mapAwnserIdByUserId.has(user._id.toString())) {
-            const answer = await ChoiseAnswer.findByIdAndUpdate(question.mapAwnserIdByUserId.get(user._id.toString()), answers[i])
-            if (answers[i].answer === question.correct) {
-                await answer?.updateOne({ score: question.score })
-            } else {
-                await answer?.updateOne({ score: 0 })
-            }
-            i++
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// export async function answerTheQuestion(req: express.Request, res: express.Response, next: express.NextFunction) {
+//     const answers: Answer[] = req.body
+//     var i = 0
+//     const user = await getUser(req)
+//     if (!user) {
+//         sendRes(res, false)
+//         return
+//     }
+//     while (i < answers.length) {
+//         const question = await ChoiceQuestion.findById(answers[i].questionId)
+//         if (!question) {
+//             continue
+//         }
+//         if (question.mapAwnserIdByUserId.has(user._id.toString())) {
+//             const answer = await ChoiseAnswer.findByIdAndUpdate(question.mapAwnserIdByUserId.get(user._id.toString()), answers[i])
+//             if (answers[i].answer === question.correct) {
+//                 await answer?.updateOne({ score: question.score })
+//             } else {
+//                 await answer?.updateOne({ score: 0 })
+//             }
+//             i++
 
-        } else {
-            const choiceAnswer = await ChoiseAnswer.create(answers[i])
-            await choiceAnswer.updateOne({ userId: user._id })
-            const camp = await Camp.findById(answers[i++].campId)
-            await camp?.updateOne({ choiseAnswerIds: swop(null, choiceAnswer._id, camp.choiseAnswerIds) })
-            await user.updateOne({
-                choiseAnswerIds: swop(null, choiceAnswer._id, user.choiseAnswerIds),
-                quasionIds: swop(null, question._id, user.quasionIds)
-            })
-            await question.updateOne({ choiseAnswerIds: swop(null, choiceAnswer._id, question.choiseAnswerIds) })
-            if (answers[i].answer === question.correct) {
-                await choiceAnswer.updateOne({ score: question.score })
-            } else {
-                await choiceAnswer.updateOne({ score: 0 })
-            }
-        }
-    }
-    sendRes(res, true)
-}
-export async function createAllQuasion(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const create: CreateQuation[] = req.body
-    var i = 0
-    while (i < create.length) {
-        const choiseQuasion = await ChoiseQuasion.create(create[i++])
-        const camp = await Camp.findById(choiseQuasion.campId)
-        await camp?.updateOne({ quasionIds: swop(null, choiseQuasion._id, camp.quasionIds) })
-    }
-    res.status(201).json(resOk)
-}
-export async function updateQuasion(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { _id, a, b, c, d, e, quasion, correct, score }: EditQuation = req.body
-    await ChoiseQuasion.findByIdAndUpdate(_id, { a, b, c, d, e, quasion, correct, score })
-    res.status(200).json(resOk)
-}
+//         } else {
+//             const choiceAnswer = await ChoiseAnswer.create(answers[i])
+//             await choiceAnswer.updateOne({ userId: user._id })
+//             const camp = await Camp.findById(answers[i++].campId)
+//             await camp?.updateOne({ choiseAnswerIds: swop(null, choiceAnswer._id, camp.choiseAnswerIds) })
+//             await user.updateOne({
+//                 choiseAnswerIds: swop(null, choiceAnswer._id, user.choiseAnswerIds),
+//                 quasionIds: swop(null, question._id, user.quasionIds)
+//             })
+//             await question.updateOne({ choiceAnswerIds: swop(null, choiceAnswer._id, question.choiceAnswerIds) })
+//             if (answers[i].answer === question.correct) {
+//                 await choiceAnswer.updateOne({ score: question.score })
+//             } else {
+//                 await choiceAnswer.updateOne({ score: 0 })
+//             }
+//         }
+//     }
+//     sendRes(res, true)
+// }
+// export async function createAllQuasion(req: express.Request, res: express.Response, next: express.NextFunction) {
+//     const create: CreateQuestion[] = req.body
+//     var i = 0
+//     while (i < create.length) {
+//         const choiceQuestion = await ChoiceQuestion.create(create[i++])
+//         const camp = await Camp.findById(choiceQuestion.campId)
+//         await camp?.updateOne({ quasionIds: swop(null, choiceQuestion._id, camp.quasionIds) })
+//     }
+//     res.status(201).json(resOk)
+// }
+// export async function updateQuasion(req: express.Request, res: express.Response, next: express.NextFunction) {
+//     const { _id, a, b, c, d, e,  question, correct,  }: EditQuestion = req.body
+//     await ChoiceQuestion.findByIdAndUpdate(_id, { a, b, c, d, e,  question, correct })
+//     res.status(200).json(resOk)
+// }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function getActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const actionPlan: InterActionPlan | null = await ActionPlan.findById(req.params.id)
@@ -1953,6 +1950,8 @@ export async function getAllWelfare(req: express.Request, res: express.Response,
     const petoHealths: HeathIssuePack[] = []
     const baanWelfares: WelfarePack[] = []
     const partWelfares: WelfarePack[] = []
+    const baanHaveBottles: CampNumberData[] = []
+    const partHaveBottles: CampNumberData[] = []
     var i = 0
     while (i < camp.baanIds.length) {
         const baan: InterBaanBack | null = await Baan.findById(camp.baanIds[i++])
@@ -2001,6 +2000,12 @@ export async function getAllWelfare(req: express.Request, res: express.Response,
             welfareBaan.peeHealths = ifIsTrue(isWelfareValid(buffer), buffer, welfareBaan.peeHealths, peeHealths)
         }
         baanWelfares.push(welfareBaan)
+        baanHaveBottles.push({
+            name: baan.name,
+            nongNumber: baan.nongHaveBottleIds.length,
+            peeNumber: baan.peeHaveBottleIds.length,
+            petoNumber: 0
+        })
     }
     i = 0
     while (i < camp.partIds.length) {
@@ -2015,7 +2020,7 @@ export async function getAllWelfare(req: express.Request, res: express.Response,
             petoHealths: [],
             nongSize: startJsonSize(),
             peeSize: sizeMapToJson(part.peeShirtSize),
-            petoSize: sizeMapToJson(part.petoShirtSize)
+            petoSize: sizeMapToJson(part.petoShirtSize),
         }
         var j = 0
         while (j < part.petoHeathIssueIds.length) {
@@ -2050,19 +2055,35 @@ export async function getAllWelfare(req: express.Request, res: express.Response,
             welfarePart.peeHealths = ifIsTrue(isWelfareValid(buffer), buffer, welfarePart.peeHealths,)
         }
         partWelfares.push(welfarePart)
+        partHaveBottles.push({
+            name: part.partName,
+            nongNumber: 0,
+            peeNumber: part.peeHaveBottleIds.length,
+            petoNumber: part.petoHaveBottleIds.length,
+        })
     }
     const buffer: CampWelfarePack = {
-        name: camp.campName,
         isHavePeto: camp.memberStructure == 'nong->highSchool,pee->1year,peto->2upYear',
-        nongHealths,
-        peeHealths,
-        petoHealths,
         partWelfares,
         baanWelfares,
         groupName: camp.groupName,
-        nongSize: sizeMapToJson(camp.nongShirtSize),
-        peeSize: sizeMapToJson(camp.peeShirtSize),
-        petoSize: sizeMapToJson(camp.petoShirtSize)
+        campWelfare: {
+            nongSize: sizeMapToJson(camp.nongShirtSize),
+            peeSize: sizeMapToJson(camp.peeShirtSize),
+            petoSize: sizeMapToJson(camp.petoShirtSize),
+            name: camp.campName,
+            nongHealths,
+            peeHealths,
+            petoHealths,
+        },
+        baanHaveBottles,
+        partHaveBottles,
+        campBottleNumber: {
+            nongNumber: camp.nongHaveBottleIds.length,
+            peeNumber: camp.peeHaveBottleIds.length,
+            petoNumber: camp.petoHaveBottleIds.length,
+            name: camp.campName
+        },
     }
     res.status(200).json(buffer)
 }
@@ -2075,6 +2096,18 @@ export async function getAllPlanData(req: express.Request, res: express.Response
     var i = 0
     const baanDatas: GetBaansForPlan[] = []
     const partDatas: GetPartsForPlan[] = []
+    const baanBoySleeps: CampNumberData[] = []
+    const baanGirlSleeps: CampNumberData[] = []
+    const partBoySleeps: CampNumberData[] = []
+    const partGirlSleeps: CampNumberData[] = []
+    const baanSleepDatas: CampSleepDataContainer[] = []
+    const partSleepDatas: CampSleepDataContainer[] = []
+    var nongBoySleep: number = 0
+    var nongGirlSleep: number = 0
+    var peeBoySleep: number = 0
+    var peeGirlSleep: number = 0
+    var petoBoySleep: number = 0
+    var petoGirlSleep: number = 0
     while (i < camp.baanIds.length) {
         const baan = await Baan.findById(camp.baanIds[i++])
         if (!baan) {
@@ -2083,6 +2116,28 @@ export async function getAllPlanData(req: express.Request, res: express.Response
         const boy = await Place.findById(baan.boySleepPlaceId)
         const girl = await Place.findById(baan.girlSleepPlaceId)
         const normal = await Place.findById(baan.normalPlaceId)
+        const nongBoys: InterUser[] = []
+        const nongGirls: InterUser[] = []
+        const peeBoys: InterUser[] = []
+        const peeGirls: InterUser[] = []
+        var j = 0
+        while (j < baan.nongSleepIds.length) {
+            const user: InterUser | null = await User.findById(baan.nongSleepIds[j++])
+            if (!user) {
+                continue
+            }
+            ifIsTrue(user.gender == 'Male', user, nongBoys)
+            ifIsTrue(user.gender == 'Female', user, nongGirls)
+        }
+        j = 0
+        while (j < baan.peeSleepIds.length) {
+            const user: InterUser | null = await User.findById(baan.peeSleepIds[j++])
+            if (!user) {
+                continue
+            }
+            ifIsTrue(user.gender == 'Male', user, peeBoys)
+            ifIsTrue(user.gender == 'Female', user, peeGirls)
+        }
         baanDatas.push({
             boy,
             girl,
@@ -2091,6 +2146,31 @@ export async function getAllPlanData(req: express.Request, res: express.Response
             fullName: baan.fullName,
             _id: baan._id,
         })
+        baanBoySleeps.push({
+            nongNumber: nongBoys.length,
+            peeNumber: peeBoys.length,
+            petoNumber: 0,
+            name: baan.name,
+        })
+        baanGirlSleeps.push({
+            nongNumber: nongGirls.length,
+            peeNumber: peeGirls.length,
+            petoNumber: 0,
+            name: baan.name,
+        })
+        baanSleepDatas.push({
+            name: baan.name,
+            nongBoys,
+            nongGirls,
+            peeBoys,
+            peeGirls,
+            petoBoys: [],
+            petoGirls: [],
+        })
+        nongBoySleep += nongBoys.length
+        nongGirlSleep += nongGirls.length
+        peeBoySleep += peeBoys.length
+        peeGirlSleep += peeGirls.length
     }
     i = 0
     while (i < camp.partIds.length) {
@@ -2098,8 +2178,53 @@ export async function getAllPlanData(req: express.Request, res: express.Response
         if (!part) {
             continue
         }
+        const petoBoys: InterUser[] = []
+        const petoGirls: InterUser[] = []
+        const peeBoys: InterUser[] = []
+        const peeGirls: InterUser[] = []
+        var j = 0
+        while (j < part.petoSleepIds.length) {
+            const user: InterUser | null = await User.findById(part.petoSleepIds[j++])
+            if (!user) {
+                continue
+            }
+            ifIsTrue(user.gender == 'Male', user, petoBoys)
+            ifIsTrue(user.gender == 'Female', user, petoGirls)
+        }
+        j = 0
+        while (j < part.peeSleepIds.length) {
+            const user: InterUser | null = await User.findById(part.peeSleepIds[j++])
+            if (!user) {
+                continue
+            }
+            ifIsTrue(user.gender == 'Male', user, peeBoys)
+            ifIsTrue(user.gender == 'Female', user, peeGirls)
+        }
         const place = await Place.findById(part.placeId)
         partDatas.push({ place, name: part.partName, _id: part._id })
+        partBoySleeps.push({
+            nongNumber: 0,
+            peeNumber: peeBoys.length,
+            petoNumber: petoBoys.length,
+            name: part.partName,
+        })
+        partGirlSleeps.push({
+            nongNumber: 0,
+            peeNumber: peeGirls.length,
+            petoNumber: petoGirls.length,
+            name: part.partName,
+        })
+        partSleepDatas.push({
+            name: part.partName,
+            nongBoys: [],
+            nongGirls: [],
+            peeBoys,
+            peeGirls,
+            petoBoys,
+            petoGirls,
+        })
+        petoBoySleep += petoBoys.length
+        petoGirlSleep += petoGirls.length
 
     }
     const buffer: GetAllPlanData = {
@@ -2108,7 +2233,26 @@ export async function getAllPlanData(req: express.Request, res: express.Response
         name: camp.campName,
         _id: camp._id,
         groupName: camp.groupName,
-        isOverNightCamp: camp.nongSleepModel != 'ไม่มีการค้างคืน'
+        isOverNightCamp: camp.nongSleepModel != 'ไม่มีการค้างคืน',
+        isHavePeto: camp.memberStructure == 'nong->highSchool,pee->1year,peto->2upYear',
+        baanSleepDatas,
+        partSleepDatas,
+        baanBoySleeps,
+        baanGirlSleeps,
+        partBoySleeps,
+        partGirlSleeps,
+        boySleepNumber: {
+            name: camp.campName,
+            nongNumber: nongBoySleep,
+            peeNumber: peeBoySleep,
+            petoNumber: petoBoySleep,
+        },
+        girlSleepNumber: {
+            name: camp.campName,
+            nongNumber: nongGirlSleep,
+            peeNumber: peeGirlSleep,
+            petoNumber: petoGirlSleep,
+        },
     }
     res.status(200).json(buffer)
 }
