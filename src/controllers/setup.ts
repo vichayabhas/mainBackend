@@ -598,3 +598,6 @@ export const systemMode:string=process.env.MODE
 export function getSystemMode(){
     return process.env.MODE
 }
+export function getEndEmail(){
+    return process.env.END_EMAIL
+}

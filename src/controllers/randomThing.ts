@@ -4,7 +4,7 @@ import Camp from "../models/Camp"
 import Song from "../models/Song"
 import User from "../models/User"
 import express from "express";
-import { getSystemMode, resError, resOk, sendRes, swop, systemMode } from "./setup";
+import { getEndEmail, getSystemMode, resError, resOk, sendRes, swop, systemMode } from "./setup";
 import LostAndFound from "../models/LostAndFound";
 import Building from "../models/Building";
 import Place from "../models/Place";
@@ -51,6 +51,7 @@ import TimeOffset from "../models/TimeOffset";
 //*export async function getPeeBaanChat
 //*export async function getNongChat
 //*export async function getSystemInfo
+//*export async function getPartPeebaanChat
 export async function addLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { songIds }: { songIds: string[] } = req.body
     const user = await getUser(req)
@@ -1069,7 +1070,8 @@ export async function getNongChat(req: express.Request, res: express.Response, n
 }
 export async function getSystemInfo(req: express.Request, res: express.Response, next: express.NextFunction) {
     const systemMode = getSystemMode()
-    res.status(200).json({ systemMode })
+    const endEmail=getEndEmail()
+    res.status(200).json({ systemMode ,endEmail})
 }
 function getModeBySituation(mode: Mode, role: RoleCamp, isHidePart: boolean): Mode {
     if (!isHidePart) {

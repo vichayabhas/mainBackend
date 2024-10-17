@@ -230,6 +230,8 @@ export async function addNong(req: express.Request, res: express.Response, next:
         var count = 0
         const baanNongHaveBottleIds = baan.nongHaveBottleIds
         const campNongHaveBottleIds = camp.nongHaveBottleIds
+        const baanNongSleepIds=baan.nongSleepIds
+        const campNongSleepIds=camp.nongSleepIds
         const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize()
         var i = 0
         while (i < members.length) {
@@ -255,10 +257,7 @@ export async function addNong(req: express.Request, res: express.Response, next:
                 case null: sleepAtCamp = false
                 case undefined: sleepAtCamp = false
             }
-            if (sleepAtCamp) {
-                camp.nongSleepIds.push(user._id)
-                baan.nongSleepIds.push(user._id)
-            }
+            ifIsTrue(sleepAtCamp,user._id,campNongSleepIds,baanNongSleepIds)
             const campMemberCard = await CampMemberCard.create({
                 userId: user._id,
                 size: user.shirtSize,
@@ -289,8 +288,7 @@ export async function addNong(req: express.Request, res: express.Response, next:
             }
             const userSize = user.shirtSize as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
             size.set(userSize, size.get(userSize) as number + 1)
-            ifIsTrue(user.haveBottle, user._id, baanNongHaveBottleIds)
-            ifIsTrue(user.haveBottle, user._id, campNongHaveBottleIds)
+            ifIsTrue(user.haveBottle, user._id, baanNongHaveBottleIds,campNongHaveBottleIds)
             user.nongCampIds.push(nongCamp._id);
             camp.mapCampMemberCardIdByUserId.set(user.id, campMemberCard._id)
             baan.mapCampMemberCardIdByUserId.set(user.id, campMemberCard._id)//
@@ -308,7 +306,7 @@ export async function addNong(req: express.Request, res: express.Response, next:
             nongHeathIssueIds: camp.nongHeathIssueIds,
             nongIds: camp.nongIds,
             mapCampMemberCardIdByUserId: camp.mapCampMemberCardIdByUserId,
-            nongSleepIds: camp.nongSleepIds,
+            nongSleepIds: campNongSleepIds,
             currentNong: camp.currentNong,
             nongCampMemberCardHaveHeathIssueIds: camp.nongCampMemberCardHaveHeathIssueIds,
             nongHaveBottleIds: campNongHaveBottleIds,
@@ -319,7 +317,7 @@ export async function addNong(req: express.Request, res: express.Response, next:
             nongHeathIssueIds: baan.nongHeathIssueIds,
             nongIds: baan.nongIds,//
             mapCampMemberCardIdByUserId: baan.mapCampMemberCardIdByUserId,
-            nongSleepIds: baan.nongSleepIds,
+            nongSleepIds: baanNongSleepIds,
             nongCampMemberCardHaveHeathIssueIds: baan.nongCampMemberCardHaveHeathIssueIds,
             nongHaveBottleIds: baanNongHaveBottleIds,
         })
@@ -606,8 +604,7 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
         }
         const userSize = user.shirtSize as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
         size.set(userSize, size.get(userSize) as number + 1)
-        ifIsTrue(user.haveBottle, user._id, partPetoHaveBottleIds)
-        ifIsTrue(user.haveBottle, user._id, campPetoHaveBottleIds)
+        ifIsTrue(user.haveBottle, user._id, partPetoHaveBottleIds,campPetoHaveBottleIds)
         user.petoCampIds.push(petoCamp._id)
         user.registerIds.push(camp._id)
         camp.mapCampMemberCardIdByUserId.set(user.id, campMemberCard._id)
@@ -615,13 +612,9 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
         await user.updateOne({
             petoCampIds: user.petoCampIds,
             campMemberCardIds: user.campMemberCardIds,
-            registerIds: user.registerIds
+            registerIds: user.registerIds,
+            authPartIds:ifIsTrue(part.isAuth,part._id,user.authPartIds)
         })
-        if (part.isAuth) {
-            await user.updateOne({
-                authPartIds: swop(null, part._id, user.authPartIds)
-            })
-        }
     }
     size.forEach((v, k) => {
         camp.petoShirtSize.set(k, camp.petoShirtSize.get(k) as number + v)
