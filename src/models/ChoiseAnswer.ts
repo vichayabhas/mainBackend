@@ -3,7 +3,7 @@ const PeeCampSchema = new mongoose.Schema({
     userId:{
         type:mongoose.Schema.ObjectId
     },
-    quasionId:{
+    questionId:{
         type:mongoose.Schema.ObjectId
     },
     campId:{
