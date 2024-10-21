@@ -18,12 +18,12 @@ export async function protect(req: express.Request, res: express.Response, next:
     const { id } = decoded as any
     const user = await User.findById(id)
     if (!user) {
-      return res.status(401).json({ sucess: false, massage: 'Not authorize to access this route' });
+      return res.status(401).json({ success: false, massage: 'Not authorize to access this route' });
     }
     next();
   } catch (err: any) {
     console.log(err.stack);
-    return res.status(401).json({ sucess: false, massage: 'Not authorize to access this route' });
+    return res.status(401).json({ success: false, massage: 'Not authorize to access this route' });
   }
 }
 export function authorize(...roles: String[]) {
