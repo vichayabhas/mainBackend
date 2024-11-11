@@ -11,8 +11,8 @@ import PetoCamp from "../models/PetoCamp"
 import CampMemberCard from "../models/CampMemberCard"
 import User from "../models/User"
 import WorkItem from "../models/WorkItem"
-import { CreateCamp, InterBaanFront, InterCampBack, UpdateCamp, UpdateBaan, Group, MyMap, InterPartBack, Size } from "../models/interface"
-import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, ifIsTrue, jsonToMapSize, removeDuplicate, sendRes, sizeJsonMod, sizeMapToJson, startJsonSize, startSize, swop } from "./setup"
+import { CreateCamp, InterBaanFront, InterCampBack, UpdateCamp, UpdateBaan, Group, MyMap, InterPartBack, Size, Id, InterChoiceQuestion } from "../models/interface"
+import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, ifIsTrue, jsonToMapSize, removeDuplicate, sendRes, sizeJsonMod, sizeMapToJson, startJsonSize, startSize, stringToId, swop } from "./setup"
 import express from "express";
 import Song from "../models/Song"
 import PartNameContainer from '../models/PartNameContainer'
@@ -21,10 +21,14 @@ import { getUser } from "../middleware/auth"
 import Building from "../models/Building"
 import LostAndFound from "../models/LostAndFound"
 import { addPeeRaw, addPetoRaw, changeBaanRaw } from "./camp"
-import mongoose from "mongoose"
 import Chat from "../models/Chat"
 import { revalidationHeathIssues } from "./user"
 import { deleteChatRaw } from "./randomThing"
+import AnswerContainer from "../models/AnswerContainer"
+import ChoiceAnswer from "../models/ChoiceAnswer"
+import ChoiceQuestion from "../models/ChoiceQuestion"
+import TextAnswer from "../models/TextAnswer"
+import TextQuestion from "../models/TextQuestion"
 //*export async function addBaan
 //*export async function addPart
 //*export async function updateBaan
@@ -112,7 +116,7 @@ export async function addPart(req: express.Request, res: express.Response, next:
     }
     res.status(201).json(conPartBackToFront(newPart))
 }
-async function addPartRaw(campId: mongoose.Types.ObjectId, nameId: mongoose.Types.ObjectId, isAuth: boolean): Promise<InterPartBack | null> {
+async function addPartRaw(campId: Id, nameId: Id, isAuth: boolean): Promise<InterPartBack | null> {
     const camp = await Camp.findById(campId)
     const partNameContainer = await PartNameContainer.findById(nameId)
     if (!camp || !partNameContainer) {
@@ -274,7 +278,7 @@ export async function updatePart(req: express.Request, res: express.Response, ne
         res.status(400).json({ success: false })
     }
 }
-async function setDefalse(peeCampId: mongoose.Types.ObjectId) {
+async function setDefalse(peeCampId: Id) {
     const name = ['arrayString1', 'arrayString2', 'arrayString3', 'arrayString4', 'arrayString5', 'map1', 'map2', 'map3', 'map4', 'map5']
     const peeCamp = await PeeCamp.findById(peeCampId)
     peeCamp?.mapArrayStringNumberByName.set(name[0], peeCamp.arrayString1)
@@ -390,7 +394,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
         const med = await addPartRaw(camp._id, partNameContainerMed._id, true)
         const plan = await addPartRaw(camp._id, partNameContainerPlan._id, true)
         const prStudio = await addPartRaw(camp._id, partNameContainerPrStudio._id, true)
-        if (!coop || !regis || !peeBaan || !welfare || !med || !plan) {
+        if (!coop || !regis || !peeBaan || !welfare || !med || !plan || !prStudio) {
             sendRes(res, false)
             return
         }
@@ -411,7 +415,7 @@ export async function createCamp(req: express.Request, res: express.Response, ne
                 sendRes(res, false)
                 return
             }
-            const baan = await addBaanRaw(newCamp, 'board', null)
+            const baan = await addBaanRaw(newCamp, 'board', 'null')
             i = 0
             while (i < boardIds.length) {
                 camp.peePassIds.set(boardIds[i++].toString(), part._id)
@@ -427,9 +431,9 @@ export async function createCamp(req: express.Request, res: express.Response, ne
 }
 export async function forceDeleteCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
     const campId = req.params.id
-    await forceDeleteCampRaw(new mongoose.Types.ObjectId(campId), res)
+    await forceDeleteCampRaw(stringToId(campId), res)
 }
-async function forceDeleteCampRaw(campId: mongoose.Types.ObjectId, res: express.Response | null) {
+async function forceDeleteCampRaw(campId: Id, res: express.Response | null) {
     try {
         const camp = await Camp.findById(campId)
         if (!camp) {
@@ -479,7 +483,7 @@ async function forceDeleteCampRaw(campId: mongoose.Types.ObjectId, res: express.
             const news = swop(camp._id, null, user.authorizeIds)
             await user.updateOne({
                 authorizeIds: news,
-                authPartIds: swop(camp.partBoardId as mongoose.Types.ObjectId, null, user.authPartIds)
+                authPartIds: swop(camp.partBoardId as Id, null, user.authPartIds)
             })
         }
         i = 0
@@ -723,6 +727,54 @@ async function forceDeleteCampRaw(campId: mongoose.Types.ObjectId, res: express.
         if (name) {
             await name.updateOne({ campIds: swop(camp._id, null, name.campIds) })
         }
+        i = 0
+        while (i < camp.nongAnswerPackIds.length) {
+            const answerPack = await AnswerContainer.findById(camp.nongAnswerPackIds[i++])
+            if (!answerPack) {
+                continue
+            }
+            const user = await User.findById(answerPack.userId)
+            if (!user) {
+                continue
+            }
+            await user.updateOne({ nongAnswerPackIds: swop(answerPack._id, null, user.nongAnswerPackIds) })
+            await answerPack.deleteOne()
+        }
+        i = 0
+        while (i < camp.peeAnswerPackIds.length) {
+            const answerPack = await AnswerContainer.findById(camp.peeAnswerPackIds[i++])
+            if (!answerPack) {
+                continue
+            }
+            const user = await User.findById(answerPack.userId)
+            if (!user) {
+                continue
+            }
+            await user.updateOne({ peeAnswerPackIds: swop(answerPack._id, null, user.peeAnswerPackIds) })
+            await answerPack.deleteOne()
+        }
+        i = 0
+        while (i < camp.choiceQuestionIds.length) {
+            const choiceQuestion = await ChoiceQuestion.findById(camp.choiceQuestionIds[i++])
+            if (!choiceQuestion) {
+                continue
+            }
+            var j = 0
+            while (j < choiceQuestion.answerIds.length) {
+                ChoiceAnswer.findByIdAndDelete(choiceQuestion.answerIds[j++])
+            }
+        }
+        i = 0
+        while (i < camp.textQuestionIds.length) {
+            const textQuestion = await TextQuestion.findById(camp.textQuestionIds[i++])
+            if (!textQuestion) {
+                continue
+            }
+            var j = 0
+            while (j < textQuestion.answerIds.length) {
+                ChoiceAnswer.findByIdAndDelete(textQuestion.answerIds[j++])
+            }
+        }
         await camp.deleteOne()
         res?.status(200).json({ success: true })
     } catch (error) {
@@ -895,7 +947,7 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
             const peeCampIds = swop(peeCamp._id, null, user.peeCampIds)
             const p = swop(user._id, null, part.peeIds)
             await part.updateOne({ peeIds: p })
-            peeIds = swop(user?._id, null, peeIds)
+            peeIds = swop(user._id, null, peeIds)
             await user.updateOne({ peeCampIds })
             if (part.isAuth) {
                 await user.updateOne({
@@ -905,7 +957,6 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
             }
         }
         peeModelIds = swop(peeCamp._id, null, peeModelIds)
-        await peeCamp.deleteOne()
     }
     const nongCamp = await NongCamp.findById(baan.nongModelId)
     if (!nongCamp) {
@@ -961,7 +1012,10 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
             continue
         }
         const user = await User.findById(campMemberCard.userId)
-        await user?.updateOne({
+        if (!user) {
+            continue
+        }
+        await user.updateOne({
             campMemberCardIds: swop(campMemberCard._id, null, user.campMemberCardIds)
         })
         nongCampMemberCardIds = swop(campMemberCard._id, null, nongCampMemberCardIds)
@@ -980,6 +1034,7 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
         while (j < campMemberCard.ownChatIds.length) {
             await deleteChatRaw(campMemberCard.ownChatIds[j++])
         }
+        await removeAnswer(user._id, camp._id)
         campMemberCard?.deleteOne()
     }
     i = 0
@@ -1019,9 +1074,15 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
         while (j < campMemberCard.ownChatIds.length) {
             await deleteChatRaw(campMemberCard.ownChatIds[j++])
         }
+        if (camp.peeAnswerIds.includes(user._id)) {
+            await removeAnswer(user._id, camp._id)
+        }
         await CampMemberCard.findByIdAndDelete(campMemberCard._id)
     }
     i = 0
+    while (i < baan.peeModelIds.length) {
+        await PeeCamp.findByIdAndDelete(baan.peeModelIds[i++])
+    }
     await camp.updateOne({
         nongIds,
         nongShirtSize: camp.nongShirtSize,
@@ -1035,7 +1096,7 @@ export async function forceDeleteBaan(req: express.Request, res: express.Respons
         nongSleepIds,
         peeSleepIds,
         baanIds: swop(baan._id, null, camp.baanIds),
-        nongModelIds: swop(baan.nongModelId as mongoose.Types.ObjectId, null, camp.nongModelIds),
+        nongModelIds: swop(baan.nongModelId as Id, null, camp.nongModelIds),
         nongCampMemberCardHaveHeathIssueIds,
         peeCampMemberCardHaveHeathIssueIds,
     })
@@ -1055,7 +1116,7 @@ export async function saveDeleteBaan(req: express.Request, res: express.Response
         sendRes(res, false)
         return
     }
-    if (!user || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId as mongoose.Types.ObjectId))) {
+    if (!user || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId as Id))) {
         return res.status(403).json({ success: false })
     }
     if (baan.nongIds.length || baan.peeIds.length || baan.songIds.length || baan.nongChatIds.length || baan.peeChatIds.length) {
@@ -1095,7 +1156,7 @@ export async function saveDeleteBaan(req: express.Request, res: express.Response
             await normalB.updateOne({ normalBaanIds: swop(baan._id, null, normalB.normalBaanIds) })
         }
     }
-    await camp.updateOne({ nongModelIds: swop(baan.nongModelId as mongoose.Types.ObjectId, null, camp.nongModelIds), peeModelIds })
+    await camp.updateOne({ nongModelIds: swop(baan.nongModelId as Id, null, camp.nongModelIds), peeModelIds })
     await NongCamp.findByIdAndDelete(baan.nongModelId)
     await CampStyle.findByIdAndDelete(baan.styleId)
     await baan.deleteOne()
@@ -1113,7 +1174,7 @@ export async function saveDeletePart(req: express.Request, res: express.Response
         sendRes(res, false)
         return
     }
-    if (!user || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId as mongoose.Types.ObjectId)) || part.isAuth || part._id.equals(camp.partPeeBaanId)) {
+    if (!user || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId as Id)) || part.isAuth || part._id.equals(camp.partPeeBaanId)) {
         return res.status(403).json({ success: false })
     }
     if (part.petoIds.length || part.peeIds.length || part.actionPlanIds.length || part.workItemIds.length || part.chatIds) {
@@ -1128,16 +1189,16 @@ export async function saveDeletePart(req: express.Request, res: express.Response
         camp.updateOne({ peeModelIds: swop(peeCamp._id, null, camp.peeModelIds) })
         peeCamp?.deleteOne()
     }
-    camp.updateOne({ petoModelIds: swop(part.petoModelId as mongoose.Types.ObjectId, null, camp.petoModelIds) })
+    camp.updateOne({ petoModelIds: swop(part.petoModelId as Id, null, camp.petoModelIds) })
     await PetoCamp.findByIdAndDelete(part?.petoModelId)
     part.deleteOne()
     res.status(200).json({ success: true })
 }
 export async function forceDeletePart(req: express.Request, res: express.Response, next: express.NextFunction) {
-    forceDeletePartRaw(new mongoose.Types.ObjectId(req.params.id))
+    forceDeletePartRaw(stringToId(req.params.id))
     res.status(200).json({ success: true })
 }
-async function forceDeletePartRaw(partId: mongoose.Types.ObjectId) {
+async function forceDeletePartRaw(partId: Id) {
     const part = await Part.findById(partId)
     if (!part) {
         return
@@ -1334,6 +1395,9 @@ async function forceDeletePartRaw(partId: mongoose.Types.ObjectId) {
             await deleteChatRaw(campMemberCard.ownChatIds[j++])
         }
         campMemberCard?.deleteOne()
+        if (camp.peeAnswerIds.includes(user._id)) {
+            await removeAnswer(user._id, camp._id)
+        }
     }
     i = 0
     while (i < part.peeCampMemberCardIds.length) {
@@ -1375,16 +1439,19 @@ async function forceDeletePartRaw(partId: mongoose.Types.ObjectId) {
         while (j < campMemberCard.ownChatIds.length) {
             await deleteChatRaw(campMemberCard.ownChatIds[j++])
         }
+        if (camp.peeAnswerIds.includes(user._id)) {
+            await removeAnswer(user._id, camp._id)
+        }
         await campMemberCard.deleteOne()
         await baan.updateOne({ peeShirtSize: baan.peeShirtSize })
     }
     i = 0
     while (i < part.peeModelIds.length) {
-        await PeeCamp.findByIdAndDelete()
+        await PeeCamp.findByIdAndDelete(part.peeModelIds[i++])
     }
     await camp.updateOne({
         partIds: swop(part._id, null, camp.partIds),
-        petoModelIds: swop(part.petoModelId as mongoose.Types.ObjectId, null, camp.petoModelIds),
+        petoModelIds: swop(part.petoModelId as Id, null, camp.petoModelIds),
         petoShirtSize: camp.petoShirtSize,
         petoCampMemberCardIds,
         peeCampMemberCardIds,
@@ -1500,7 +1567,7 @@ export async function addMoreBoard(req: express.Request, res: express.Response, 
         }
         await user.updateOne({
             authorizeIds: swop(null, camp._id, user.authorizeIds),
-            authPartIds: swop(null, camp.partBoardId as mongoose.Types.ObjectId, user.authPartIds)
+            authPartIds: swop(null, camp.partBoardId as Id, user.authPartIds)
         })
         camp.boardIds.push(user._id)
 
@@ -1520,7 +1587,7 @@ export async function removeBoard(req: express.Request, res: express.Response, n
     await camp?.updateOne({ boardIds: swop(user._id, null, camp.boardIds) })
     await user?.updateOne({
         authorizeIds: swop(camp._id, null, user.authorizeIds),
-        authPartIds: swop(camp.partBoardId as mongoose.Types.ObjectId, null, user.authPartIds)
+        authPartIds: swop(camp.partBoardId as Id, null, user.authPartIds)
     })
     sendRes(res, true)
 }
@@ -1531,7 +1598,7 @@ export async function updateCamp(req: express.Request, res: express.Response, ne
         sendRes(res, false)
         return
     }
-    if (!user || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId as mongoose.Types.ObjectId))) {
+    if (!user || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId as Id))) {
         return res.status(403).json({ success: false })
     }
     const update: UpdateCamp = req.body
@@ -1571,13 +1638,13 @@ export async function createBaanByGroup(req: express.Request, res: express.Respo
     }
     const allGroup: Group[] = ['A', 'B', 'C', 'Dog', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T']
     //var baans: Map<'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T', InterBaanFront> = new Map<'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T', InterBaanFront>()
-    var memberMap = new Map<Group, mongoose.Types.ObjectId[]>()
+    var memberMap = new Map<Group, Id[]>()
     var i = 0
     while (i < 18) {
         memberMap.set(allGroup[i++], [])
     }
     i = 0
-    var members: mongoose.Types.ObjectId[] = []
+    var members: Id[] = []
     camp.peePassIds.forEach((v, k) => {
         members.push(k)
     })
@@ -1592,7 +1659,7 @@ export async function createBaanByGroup(req: express.Request, res: express.Respo
     while (i < 18) {
         const baan = await addBaanRaw(camp, allGroup[i], allGroup[i])
         camp.groupRefMap.set(allGroup[i], baan._id)
-        await addPeeRaw(memberMap.get(allGroup[i++]) as mongoose.Types.ObjectId[], baan._id)
+        await addPeeRaw(memberMap.get(allGroup[i++]) as Id[], baan._id)
     }
     i = 0
     const baan = await Baan.findById(camp.baanBoardId)
@@ -1606,12 +1673,12 @@ export async function createBaanByGroup(req: express.Request, res: express.Respo
         if (!user || !user.group) {
             continue
         }
-        const baanId: mongoose.Types.ObjectId = camp.groupRefMap.get(user.group) as mongoose.Types.ObjectId
+        const baanId: Id = camp.groupRefMap.get(user.group) as Id
         await changeBaanRaw([user._id], baanId, res)
     }
     sendRes(res, true)
 }
-export async function deleteWorkingItemRaw(workItemId: mongoose.Types.ObjectId) {
+export async function deleteWorkingItemRaw(workItemId: Id) {
     const workItem = await WorkItem.findById(workItemId)
     if (!workItem) {
         return
@@ -1649,7 +1716,7 @@ export async function addAllGroup(req: express.Request, res: express.Response, n
         sendRes(res, false)
         return
     }
-    if (camp.ready.includes(baan.groupRef) || (!user.authPartIds.includes(camp.partCoopId)) && !user.authPartIds.includes(camp.partBoardId)) {
+    if (camp.ready.includes(baan.groupRef) || (!user.authPartIds.includes(camp.partCoopId as Id)) && !user.authPartIds.includes(camp.partBoardId as Id)) {
         sendRes(res, false)
         return
     }
@@ -1713,7 +1780,7 @@ export async function afterVisnuToPee(req: express.Request, res: express.Respons
 }
 
 
-async function lockDataNong(campId: mongoose.Types.ObjectId) {
+async function lockDataNong(campId: Id) {
     const camp = await Camp.findById(campId)
     if (!camp) {
         return
@@ -1734,7 +1801,7 @@ async function lockDataNong(campId: mongoose.Types.ObjectId) {
         })
     }
 }
-async function lockDataPee(campId: mongoose.Types.ObjectId) {
+async function lockDataPee(campId: Id) {
     const camp = await Camp.findById(campId)
     if (!camp) {
         return
@@ -1755,7 +1822,7 @@ async function lockDataPee(campId: mongoose.Types.ObjectId) {
         })
     }
 }
-async function lockDataPeto(campId: mongoose.Types.ObjectId) {
+async function lockDataPeto(campId: Id) {
     const camp = await Camp.findById(campId)
     if (!camp) {
         return
@@ -1776,7 +1843,7 @@ async function lockDataPeto(campId: mongoose.Types.ObjectId) {
         })
     }
 }
-async function unlockDataNong(campId: mongoose.Types.ObjectId) {
+async function unlockDataNong(campId: Id) {
     const camp1 = await Camp.findByIdAndUpdate(campId, {
         nongShirtSize: startSize(),
         nongSleepIds: [],
@@ -1815,11 +1882,14 @@ async function unlockDataNong(campId: mongoose.Types.ObjectId) {
     })
     const camp2 = await Camp.findById(camp1._id)
     const campNongShirtSize = startJsonSize()
-    const campNongSleepIds: mongoose.Types.ObjectId[] = []
-    const campNongHaveBottleIds: mongoose.Types.ObjectId[] = []
-    const campNongHeathIssueIds: mongoose.Types.ObjectId[] = []
-    const campNongCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[] = []
+    const campNongSleepIds: Id[] = []
+    const campNongHaveBottleIds: Id[] = []
+    const campNongHeathIssueIds: Id[] = []
+    const campNongCampMemberCardHaveHeathIssueIds: Id[] = []
     i = 0
+    if (!camp2) {
+        return
+    }
     while (i < camp2.nongModelIds.length) {
         const nongCamp = await NongCamp.findById(camp2.nongModelIds[i++])
         if (!nongCamp) {
@@ -1896,7 +1966,7 @@ async function unlockDataNong(campId: mongoose.Types.ObjectId) {
         nongHaveBottleIds: campNongHaveBottleIds,
     })
 }
-async function unlockDataPee(campId: mongoose.Types.ObjectId) {
+async function unlockDataPee(campId: Id) {
     const camp1 = await Camp.findByIdAndUpdate(campId, {
         peeShirtSize: startSize(),
         peeSleepIds: [],
@@ -1945,11 +2015,14 @@ async function unlockDataPee(campId: mongoose.Types.ObjectId) {
     })
     const camp2 = await Camp.findById(camp1._id)
     const campPeeShirtSize = startJsonSize()
-    const campPeeSleepIds: mongoose.Types.ObjectId[] = []
-    const campPeeHaveBottleIds: mongoose.Types.ObjectId[] = []
-    const campPeeHeathIssueIds: mongoose.Types.ObjectId[] = []
-    const campPeeCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[] = []
+    const campPeeSleepIds: Id[] = []
+    const campPeeHaveBottleIds: Id[] = []
+    const campPeeHeathIssueIds: Id[] = []
+    const campPeeCampMemberCardHaveHeathIssueIds: Id[] = []
     i = 0
+    if (!camp2) {
+        return
+    }
     while (i < camp2.peeModelIds.length) {
         const peeCamp = await PeeCamp.findById(camp2.peeModelIds[i++])
         if (!peeCamp) {
@@ -2042,7 +2115,7 @@ async function unlockDataPee(campId: mongoose.Types.ObjectId) {
         peeHaveBottleIds: campPeeHaveBottleIds,
     })
 }
-async function unlockDataPeto(campId: mongoose.Types.ObjectId) {
+async function unlockDataPeto(campId: Id) {
     const camp1 = await Camp.findByIdAndUpdate(campId, {
         petoShirtSize: startSize(),
         petoSleepIds: [],
@@ -2081,11 +2154,14 @@ async function unlockDataPeto(campId: mongoose.Types.ObjectId) {
     })
     const camp2 = await Camp.findById(camp1._id)
     const campPetoShirtSize = startJsonSize()
-    const campPetoSleepIds: mongoose.Types.ObjectId[] = []
-    const campPetoHaveBottleIds: mongoose.Types.ObjectId[] = []
-    const campPetoHeathIssueIds: mongoose.Types.ObjectId[] = []
-    const campPetoCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[] = []
+    const campPetoSleepIds: Id[] = []
+    const campPetoHaveBottleIds: Id[] = []
+    const campPetoHeathIssueIds: Id[] = []
+    const campPetoCampMemberCardHaveHeathIssueIds: Id[] = []
     i = 0
+    if (!camp2) {
+        return
+    }
     while (i < camp2.petoModelIds.length) {
         const petoCamp = await PetoCamp.findById(camp2.petoModelIds[i++])
         if (!petoCamp) {
@@ -2161,4 +2237,131 @@ async function unlockDataPeto(campId: mongoose.Types.ObjectId) {
         petoCampMemberCardHaveHeathIssueIds: campPetoCampMemberCardHaveHeathIssueIds,
         petoHaveBottleIds: campPetoHaveBottleIds,
     })
+}
+async function removeAnswer(userId: Id, campId: Id) {
+    const camp = await Camp.findById(campId)
+    const user = await User.findById(userId)
+    if (!camp || !user) {
+        return
+    }
+    const answerContainer = await AnswerContainer.findById(camp.mapAnswerPackIdByUserId.get(user._id.toString()))
+    if (!answerContainer) {
+        return
+    }
+    const role = answerContainer.role
+    var i = 0
+    while (i < answerContainer.choiceAnswerIds.length) {
+        const choiceAnswer = await ChoiceAnswer.findById(answerContainer.choiceAnswerIds[i++])
+        if (!choiceAnswer) {
+            continue
+        }
+        const choiceQuestion = await ChoiceQuestion.findById(choiceAnswer.questionId)
+        if (!choiceQuestion) {
+            continue
+        }
+        switch (choiceAnswer.answer) {
+            case "A": {
+                if (role == 'nong') {
+                    await choiceQuestion.updateOne({
+                        nongAnswerA: choiceQuestion.nongAnswerA - 1,
+                        answerIds: swop(choiceAnswer._id, null, choiceQuestion.answerIds),
+                    })
+                } else {
+                    await choiceQuestion.updateOne({
+                        peeAnswerA: choiceQuestion.peeAnswerA - 1,
+                        answerIds: swop(choiceAnswer._id, null, choiceQuestion.answerIds),
+                    })
+                }
+                break
+            }
+            case "B": {
+                if (role == 'nong') {
+                    await choiceQuestion.updateOne({
+                        nongAnswerB: choiceQuestion.nongAnswerB - 1,
+                        answerIds: swop(choiceAnswer._id, null, choiceQuestion.answerIds),
+                    })
+                } else {
+                    await choiceQuestion.updateOne({
+                        peeAnswerB: choiceQuestion.peeAnswerB - 1,
+                        answerIds: swop(choiceAnswer._id, null, choiceQuestion.answerIds),
+                    })
+                }
+                break
+            }
+            case "C": {
+                if (role == 'nong') {
+                    await choiceQuestion.updateOne({
+                        nongAnswerC: choiceQuestion.nongAnswerC - 1,
+                        answerIds: swop(choiceAnswer._id, null, choiceQuestion.answerIds),
+                    })
+                } else {
+                    await choiceQuestion.updateOne({
+                        peeAnswerC: choiceQuestion.peeAnswerC - 1,
+                        answerIds: swop(choiceAnswer._id, null, choiceQuestion.answerIds),
+                    })
+                }
+                break
+            }
+            case "D": {
+                if (role == 'nong') {
+                    await choiceQuestion.updateOne({
+                        nongAnswerD: choiceQuestion.nongAnswerD - 1,
+                        answerIds: swop(choiceAnswer._id, null, choiceQuestion.answerIds),
+                    })
+                } else {
+                    await choiceQuestion.updateOne({
+                        peeAnswerD: choiceQuestion.peeAnswerD - 1,
+                        answerIds: swop(choiceAnswer._id, null, choiceQuestion.answerIds),
+                    })
+                }
+                break
+            }
+            case "E": {
+                if (role == 'nong') {
+                    await choiceQuestion.updateOne({
+                        nongAnswerE: choiceQuestion.nongAnswerE - 1,
+                        answerIds: swop(choiceAnswer._id, null, choiceQuestion.answerIds),
+                    })
+                } else {
+                    await choiceQuestion.updateOne({
+                        peeAnswerE: choiceQuestion.peeAnswerE - 1,
+                        answerIds: swop(choiceAnswer._id, null, choiceQuestion.answerIds),
+                    })
+                }
+                break
+            }
+            case "-": {
+                break
+            }
+        }
+        await choiceAnswer.deleteOne()
+    }
+    i = 0
+    while (i < answerContainer.textAnswerIds.length) {
+        const textAnswer = await TextAnswer.findById(answerContainer.textAnswerIds[i++])
+        if (!textAnswer) {
+            continue
+        }
+        const textQuestion = await TextQuestion.findById(textAnswer.questionId)
+        if (!textQuestion) {
+            continue
+        }
+        await textQuestion.updateOne({ answerIds: swop(textAnswer._id, null, textQuestion.answerIds) })
+    }
+    camp.mapAnswerPackIdByUserId.delete(user._id.toString())
+    if (role == 'nong') {
+        await camp.updateOne({
+            mapAnswerPackIdByUserId: camp.mapAnswerPackIdByUserId,
+            nongAnswerPackIds: swop(answerContainer._id, null, camp.nongAnswerPackIds),
+        })
+        await user.updateOne({ nongAnswerPackIds: swop(answerContainer._id, null, user.nongAnswerPackIds) })
+    } else {
+        await camp.updateOne({
+            mapAnswerPackIdByUserId: camp.mapAnswerPackIdByUserId,
+            peeAnswerPackIds: swop(answerContainer._id, null, camp.peeAnswerPackIds),
+            peeAnswerIds: swop(user._id, null, camp.peeAnswerIds),
+        })
+        await user.updateOne({ peeAnswerPackIds: swop(answerContainer._id, null, user.peeAnswerPackIds) })
+    }
+    await answerContainer.deleteOne()
 }

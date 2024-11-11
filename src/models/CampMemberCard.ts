@@ -1,18 +1,13 @@
 import mongoose from "mongoose"
+import { arrayObjectId, dataId, dataNumber } from "../controllers/setup"
 const PeeCampSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.ObjectId,
-        required: true
-    },
+    userId: dataId,
     size: {
         type: String,
         enum: ['S', 'M', 'L', 'XL', 'XXL', '3XL'],
         required: true
     },
-    campModelId: {
-        type: mongoose.Schema.ObjectId,
-        required: true
-    },
+    campModelId:dataId,
     role: {
         type: String,
         enum: ['nong', 'pee', 'peto'],
@@ -22,10 +17,7 @@ const PeeCampSchema = new mongoose.Schema({
         type: String,
         enum: ['baan', 'part']
     },
-    received: {
-        type: Number,
-        default: 0
-    },
+    received: dataNumber,
     haveBottle: {
         type: Boolean,
         default: false
@@ -34,18 +26,9 @@ const PeeCampSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    chatIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    allChatIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    ownChatIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    chatIds: arrayObjectId,
+    allChatIds: arrayObjectId,
+    ownChatIds: arrayObjectId,
     healthIssueId: {
         type: mongoose.Schema.ObjectId,
         default: null,

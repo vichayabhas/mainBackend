@@ -7,22 +7,24 @@ import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import User from "../models/User";
 import CampMemberCard from "../models/CampMemberCard";
-import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, ifIsTrue, mapObjectIdToMyMap, resError, resOk, sendRes, sizeMapToJson, startJsonSize, startSize, swop } from "./setup";
+import { calculate, conBaanBackToFront, conCampBackToFront, conPartBackToFront, ifIsTrue, mapObjectIdToMyMap, removeDuplicate, resError, sendRes, sizeMapToJson, startJsonSize, startSize, stringToId, swop } from "./setup";
 import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
 import express from "express";
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, Answer, CreateQuestion, EditQuestion, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap, AllNongRegister, WelfarePack, HeathIssuePack, CampWelfarePack, GetBaansForPlan, GetPartsForPlan, GetAllPlanData, UpdateAllPlanData, CampNumberData, CampSleepDataContainer } from "../models/interface";
-import mongoose from "mongoose";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap, AllNongRegister, WelfarePack, HeathIssuePack, CampWelfarePack, GetBaansForPlan, GetPartsForPlan, GetAllPlanData, UpdateAllPlanData, CampNumberData, CampSleepDataContainer, Id, AnswerPack, EditQuestionPack, GetAllQuestion, GetChoiceQuestion, GetTextQuestion, RoleCamp } from "../models/interface";
 import Song from "../models/Song";
 import HeathIssue from "../models/HeathIssue";
 import Place from "../models/Place";
 import Building from "../models/Building";
-import ChoiseAnswer from "../models/ChoiseAnswer";
 import WorkItem from "../models/WorkItem";
 import { deleteWorkingItemRaw, updateBaanRaw } from "./admin";
 import { isWelfareValid } from "./user";
+import AnswerContainer from "../models/AnswerContainer";
+import ChoiceAnswer from "../models/ChoiceAnswer";
 import ChoiceQuestion from "../models/ChoiceQuestion";
+import TextAnswer from "../models/TextAnswer";
+import TextQuestion from "../models/TextQuestion";
 
 //*export async function getBaan
 //*export async function getCamp
@@ -56,9 +58,6 @@ import ChoiceQuestion from "../models/ChoiceQuestion";
 //*export async function getPetosFromPartId
 // export async function getLinkRegister
 //*export async function getImpotentPartIdBCRP
-// export async function answerTheQuasion
-// export async function createAllQuasion
-// export async function updateQuasion
 //*export async function getActionPlan
 //*export async function getWorkingItemByPartId
 //*export async function createWorkingItem
@@ -68,10 +67,14 @@ import ChoiceQuestion from "../models/ChoiceQuestion";
 //*export async function getWorkingItem
 //*export async function getShowRegisters
 //*export async function getAllUserCamp
-// export async function getAllNongRegister
 //*export async function getAllWelfare
 //*export async function getAllPlanData
 //*export async function planUpdateCamp
+//*export async function editQuestion
+//*export async function getAllQuestion
+//*export async function answerAllQuestion
+//*export async function deleteChoiceQuestion
+//*export async function deleteTextQuestion
 export async function getBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const data = await Baan.findById(req.params.id);
@@ -207,8 +210,8 @@ export async function addNong(req: express.Request, res: express.Response, next:
             baanId,
             members
         }: {
-            baanId: mongoose.Types.ObjectId,
-            members: mongoose.Types.ObjectId[]
+            baanId: Id,
+            members: Id[]
         } = req.body;
         const baan = await Baan.findById(baanId);
         if (!baan) {
@@ -230,8 +233,8 @@ export async function addNong(req: express.Request, res: express.Response, next:
         var count = 0
         const baanNongHaveBottleIds = baan.nongHaveBottleIds
         const campNongHaveBottleIds = camp.nongHaveBottleIds
-        const baanNongSleepIds=baan.nongSleepIds
-        const campNongSleepIds=camp.nongSleepIds
+        const baanNongSleepIds = baan.nongSleepIds
+        const campNongSleepIds = camp.nongSleepIds
         const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize()
         var i = 0
         while (i < members.length) {
@@ -257,7 +260,7 @@ export async function addNong(req: express.Request, res: express.Response, next:
                 case null: sleepAtCamp = false
                 case undefined: sleepAtCamp = false
             }
-            ifIsTrue(sleepAtCamp,user._id,campNongSleepIds,baanNongSleepIds)
+            ifIsTrue(sleepAtCamp, user._id, campNongSleepIds, baanNongSleepIds)
             const campMemberCard = await CampMemberCard.create({
                 userId: user._id,
                 size: user.shirtSize,
@@ -288,7 +291,7 @@ export async function addNong(req: express.Request, res: express.Response, next:
             }
             const userSize = user.shirtSize as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
             size.set(userSize, size.get(userSize) as number + 1)
-            ifIsTrue(user.haveBottle, user._id, baanNongHaveBottleIds,campNongHaveBottleIds)
+            ifIsTrue(user.haveBottle, user._id, baanNongHaveBottleIds, campNongHaveBottleIds)
             user.nongCampIds.push(nongCamp._id);
             camp.mapCampMemberCardIdByUserId.set(user.id, campMemberCard._id)
             baan.mapCampMemberCardIdByUserId.set(user.id, campMemberCard._id)//
@@ -340,8 +343,8 @@ export async function addPee(req: express.Request, res: express.Response, next: 
         members,
         baanId
     }: {
-        members: mongoose.Types.ObjectId[]
-        baanId: mongoose.Types.ObjectId
+        members: Id[]
+        baanId: Id
     } = req.body;
     const baan = await Baan.findById(baanId);
     if (!baan) {
@@ -370,7 +373,7 @@ export async function addPee(req: express.Request, res: express.Response, next: 
     const success = await addPeeRaw(members, baanId)
     sendRes(res, success)
 }
-export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mongoose.Types.ObjectId) {
+export async function addPeeRaw(members: Id[], baanId: Id) {
     try {
         const baan = await Baan.findById(baanId);
         if (!baan) {
@@ -412,10 +415,7 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
                 }
                 case 'ไม่มีการค้างคืน': sleepAtCamp = false
             }
-            part = await part.updateOne({
-                peeSleepIds: ifIsTrue(sleepAtCamp, user._id, part.peeSleepIds, campPeeSleepIds, baanPeeSleepIds),
-                peeHaveBottleIds: ifIsTrue(user.haveBottle, user._id, part.peeHaveBottleIds, baanPeeHaveBottleIds, campPeeHaveBottleIds),
-            })
+
             camp.peeMapIdGtoL.set(user._id.toString(), camp.currentPee + 1)
             camp.peeMapIdLtoG.set((camp.currentPee + 1).toString(), user._id)
             const campMemberCard = await CampMemberCard.create({
@@ -479,6 +479,8 @@ export async function addPeeRaw(members: mongoose.Types.ObjectId[], baanId: mong
                 peeCampMemberCardIds: part.peeCampMemberCardIds,
                 peeShirtSize: part.peeShirtSize,
                 peeCampMemberCardHaveHeathIssueIds: part.peeCampMemberCardHaveHeathIssueIds,
+                peeSleepIds: ifIsTrue(sleepAtCamp, user._id, part.peeSleepIds, campPeeSleepIds, baanPeeSleepIds),
+                peeHaveBottleIds: ifIsTrue(user.haveBottle, user._id, part.peeHaveBottleIds, baanPeeHaveBottleIds, campPeeHaveBottleIds),
             })
         }
         size.forEach((v, k) => {
@@ -524,7 +526,7 @@ export async function addPeto(req: express.Request, res: express.Response, next:
     await addPetoRaw(member, partId, res);
 
 }
-export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mongoose.Types.ObjectId, res: express.Response) {
+export async function addPetoRaw(member: Id[], partId: Id, res: express.Response) {
     const part = await Part.findById(partId);
     if (!part) {
         sendRes(res, false)
@@ -604,7 +606,7 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
         }
         const userSize = user.shirtSize as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
         size.set(userSize, size.get(userSize) as number + 1)
-        ifIsTrue(user.haveBottle, user._id, partPetoHaveBottleIds,campPetoHaveBottleIds)
+        ifIsTrue(user.haveBottle, user._id, partPetoHaveBottleIds, campPetoHaveBottleIds)
         user.petoCampIds.push(petoCamp._id)
         user.registerIds.push(camp._id)
         camp.mapCampMemberCardIdByUserId.set(user.id, campMemberCard._id)
@@ -613,7 +615,7 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
             petoCampIds: user.petoCampIds,
             campMemberCardIds: user.campMemberCardIds,
             registerIds: user.registerIds,
-            authPartIds:ifIsTrue(part.isAuth,part._id,user.authPartIds)
+            authPartIds: ifIsTrue(part.isAuth, part._id, user.authPartIds)
         })
     }
     size.forEach((v, k) => {
@@ -645,7 +647,7 @@ export async function addPetoRaw(member: mongoose.Types.ObjectId[], partId: mong
     sendRes(res, true)
 }
 export async function staffRegister(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const partId = new mongoose.Types.ObjectId(req.params.id)
+    const partId = stringToId(req.params.id)
     const part = await Part.findById(partId)
     const user = await getUser(req)
     if (!user || !part) {
@@ -930,20 +932,23 @@ export async function nongRegister(req: express.Request, res: express.Response, 
     try {
         const {
             campId,
-            link
+            link,
+            answer
+
         } = req.body
         const nong = await getUser(req)
-        if (!campId || !link) {
+        if (!campId || !link || !nong) {
             sendRes(res, false)
             return
         }
         const camp = await Camp.findById(campId)
+        await answerAllQuestion(answer, nong._id, 'nong')
         if (!camp?.open) {
             return res.status(400).json({ success: false, message: 'This camp is close' })
         }
         camp.nongMapIdGtoL.set(nong._id.toString(), camp.currentNong + 1)
         camp.nongMapIdLtoG.set((camp.currentNong + 1).toString(), nong._id)
-        camp.nongPendingIds.set(nong.id, link)
+        camp.nongPendingIds.set(nong._id.toString(), link)
         await camp.updateOne({
             nongPendingIds: camp.nongPendingIds,
             currentNong: camp.currentNong + 1,
@@ -976,7 +981,7 @@ export async function getPartName(req: express.Request, res: express.Response, n
     }
 }
 export async function changeBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { userIds, baanId }: { userIds: mongoose.Types.ObjectId[], baanId: mongoose.Types.ObjectId } = req.body
+    const { userIds, baanId }: { userIds: Id[], baanId: Id } = req.body
     const user = await getUser(req)
     const baan = await Baan.findById(baanId)
     if (!baan) {
@@ -990,7 +995,7 @@ export async function changeBaan(req: express.Request, res: express.Response, ne
     }
     await changeBaanRaw(userIds, baanId, res)
 }
-export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: mongoose.Types.ObjectId, res: express.Response) {
+export async function changeBaanRaw(userIds: Id[], baanId: Id, res: express.Response) {
     const baan = await Baan.findById(baanId)
     if (!baan) {
         sendRes(res, false)
@@ -1140,11 +1145,11 @@ export async function changeBaanRaw(userIds: mongoose.Types.ObjectId[], baanId: 
     sendRes(res, true)
 }
 export async function changePart(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { userIds, partId }: { userIds: mongoose.Types.ObjectId[], partId: mongoose.Types.ObjectId } = req.body
+    const { userIds, partId }: { userIds: Id[], partId: Id } = req.body
     const out = await changePartRaw(userIds, partId)
     sendRes(res, out)
 }
-export async function changePartRaw(userIds: mongoose.Types.ObjectId[], partId: mongoose.Types.ObjectId) {
+export async function changePartRaw(userIds: Id[], partId: Id) {
     const part = await Part.findById(partId)
     if (!part) {
         return false
@@ -1324,6 +1329,9 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
             continue
         }
         const user = await User.findById(campMemberCard.userId)
+        if (!user) {
+            continue
+        }
         var j = 0
         var likeSongs: string[] = []
         const {
@@ -1394,6 +1402,9 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
             continue
         }
         const user = await User.findById(campMemberCard.userId)
+        if (!user) {
+            continue
+        }
         var j = 0
         var likeSongs: string[] = []
         const {
@@ -1464,6 +1475,9 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
             continue
         }
         const user = await User.findById(campMemberCard.userId)
+        if (!user) {
+            continue
+        }
         var j = 0
         var likeSongs: string[] = []
         const {
@@ -1534,6 +1548,9 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
             continue
         }
         const user = await User.findById(campMemberCard.userId)
+        if (!user) {
+            continue
+        }
         var j = 0
         var likeSongs: string[] = []
         const {
@@ -1595,71 +1612,13 @@ export async function getLinkRegister(req: express.Request, res: express.Respons
     }
     res.status(200).json({ link: camp.nongPendingIds.get(user.id) })
 }
-export async function getImpotentPartIdBCRP(campId: mongoose.Types.ObjectId) {
+export async function getImpotentPartIdBCRP(campId: Id) {
     const camp = await Camp.findById(campId)
     if (!camp) {
         return []
     }
-    return [camp.partBoardId, camp.partCoopId, camp.partRegisterId, camp.partPeeBaanId, camp.partWelfareId, camp.partMedId, camp.partPlanId] as mongoose.Types.ObjectId[]
+    return [camp.partBoardId, camp.partCoopId, camp.partRegisterId, camp.partPeeBaanId, camp.partWelfareId, camp.partMedId, camp.partPlanId] as Id[]
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// export async function answerTheQuestion(req: express.Request, res: express.Response, next: express.NextFunction) {
-//     const answers: Answer[] = req.body
-//     var i = 0
-//     const user = await getUser(req)
-//     if (!user) {
-//         sendRes(res, false)
-//         return
-//     }
-//     while (i < answers.length) {
-//         const question = await ChoiceQuestion.findById(answers[i].questionId)
-//         if (!question) {
-//             continue
-//         }
-//         if (question.mapAwnserIdByUserId.has(user._id.toString())) {
-//             const answer = await ChoiseAnswer.findByIdAndUpdate(question.mapAwnserIdByUserId.get(user._id.toString()), answers[i])
-//             if (answers[i].answer === question.correct) {
-//                 await answer?.updateOne({ score: question.score })
-//             } else {
-//                 await answer?.updateOne({ score: 0 })
-//             }
-//             i++
-
-//         } else {
-//             const choiceAnswer = await ChoiseAnswer.create(answers[i])
-//             await choiceAnswer.updateOne({ userId: user._id })
-//             const camp = await Camp.findById(answers[i++].campId)
-//             await camp?.updateOne({ choiseAnswerIds: swop(null, choiceAnswer._id, camp.choiseAnswerIds) })
-//             await user.updateOne({
-//                 choiseAnswerIds: swop(null, choiceAnswer._id, user.choiseAnswerIds),
-//                 quasionIds: swop(null, question._id, user.quasionIds)
-//             })
-//             await question.updateOne({ choiceAnswerIds: swop(null, choiceAnswer._id, question.choiceAnswerIds) })
-//             if (answers[i].answer === question.correct) {
-//                 await choiceAnswer.updateOne({ score: question.score })
-//             } else {
-//                 await choiceAnswer.updateOne({ score: 0 })
-//             }
-//         }
-//     }
-//     sendRes(res, true)
-// }
-// export async function createAllQuasion(req: express.Request, res: express.Response, next: express.NextFunction) {
-//     const create: CreateQuestion[] = req.body
-//     var i = 0
-//     while (i < create.length) {
-//         const choiceQuestion = await ChoiceQuestion.create(create[i++])
-//         const camp = await Camp.findById(choiceQuestion.campId)
-//         await camp?.updateOne({ quasionIds: swop(null, choiceQuestion._id, camp.quasionIds) })
-//     }
-//     res.status(201).json(resOk)
-// }
-// export async function updateQuasion(req: express.Request, res: express.Response, next: express.NextFunction) {
-//     const { _id, a, b, c, d, e,  question, correct,  }: EditQuestion = req.body
-//     await ChoiceQuestion.findByIdAndUpdate(_id, { a, b, c, d, e,  question, correct })
-//     res.status(200).json(resOk)
-// }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export async function getActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
         const actionPlan: InterActionPlan | null = await ActionPlan.findById(req.params.id)
@@ -1767,7 +1726,7 @@ export async function updateWorkingItem(req: express.Request, res: express.Respo
 }
 export async function deleteWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
-        await deleteWorkingItemRaw(new mongoose.Types.ObjectId(req.params.id))
+        await deleteWorkingItemRaw(stringToId(req.params.id))
         res.status(200).json({
             success: true,
             data: {}
@@ -1905,31 +1864,6 @@ export async function getAllUserCamp(req: express.Request, res: express.Response
         }
         out.push({ key: camp._id, value: camp.campName })
     }
-    res.status(200).json(out)
-}
-export async function getAllNongRegister(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const camp: InterCampBack | null = await Camp.findById(req.params.id)
-    if (!camp) {
-        sendRes(res, false)
-        return
-    }
-    const { interviews, pendings, passs, paids, sures }: AllNongRegister = { interviews: [], pendings: [], passs: [], paids: [], sures: [] }
-    camp.nongPendingIds.forEach((link, generalId) => {
-        pendings.push({ link, generalId, localId: camp.nongMapIdGtoL.get(generalId).toString() })
-    })
-    camp.nongInterviewIds.forEach((link, generalId) => {
-        interviews.push({ link, generalId, localId: camp.nongMapIdGtoL.get(generalId).toString() })
-    })
-    camp.nongPassIds.forEach((link, generalId) => {
-        passs.push({ link, generalId, localId: camp.nongMapIdGtoL.get(generalId).toString() })
-    })
-    camp.nongPaidIds.forEach((generalId) => {
-        paids.push({ link: camp.nongPassIds.get(generalId).toString(), generalId, localId: camp.nongMapIdGtoL.get(generalId).toString() })
-    })
-    camp.nongSureIds.forEach((generalId) => {
-        sures.push({ link: '', generalId, localId: camp.nongMapIdGtoL.get(generalId).toString() })
-    })
-    const out: AllNongRegister = { interviews, pendings, passs, paids, sures }
     res.status(200).json(out)
 }
 export async function getAllWelfare(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -2285,7 +2219,7 @@ export async function planUpdateCamp(req: express.Request, res: express.Response
                 sendRes(res, false)
                 return
             }
-            if (!petoCamp.partId.equals(camp.partBoardId) && !petoCamp.partId.equals(camp.partPlanId)) {
+            if (petoCamp.partId?.toString() != camp.partBoardId?.toString() && petoCamp.partId?.toString() != camp.partPlanId?.toString()) {
                 sendRes(res, false)
                 return
             }
@@ -2320,6 +2254,9 @@ export async function planUpdateCamp(req: express.Request, res: express.Response
     while (i < update.partDatas.length) {
         const updatePart = update.partDatas[i++]
         const part = await Part.findById(updatePart._id)
+        if (!part) {
+            continue
+        }
         const newPlace = await Place.findById(updatePart.placeId)
         if (newPlace) {
             const newBuilding = await Building.findById(newPlace.buildingId)
@@ -2338,4 +2275,635 @@ export async function planUpdateCamp(req: express.Request, res: express.Response
         }
     }
     sendRes(res, true)
+}
+export async function editQuestion(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const user = await getUser(req)
+    const edit: EditQuestionPack = req.body
+    const camp = await Camp.findById(edit.campId)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
+    if (!user || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId as Id))) {
+        return res.status(403).json({ success: false })
+    }
+    var {
+        _id: campId,
+        choiceQuestionIds,
+        textQuestionIds
+    } = camp
+    for (const {
+        question,
+        a,
+        b,
+        c,
+        d,
+        e,
+        scoreA,
+        scoreB,
+        scoreC,
+        scoreD,
+        scoreE,
+        correct,
+        order,
+        _id,
+    } of edit.choices) {
+        if (!_id) {
+            const newChoice = await ChoiceQuestion.create({
+                question,
+                a,
+                b,
+                c,
+                d,
+                e,
+                scoreA,
+                scoreB,
+                scoreC,
+                scoreD,
+                scoreE,
+                campId,
+                correct,
+                order,
+            })
+            choiceQuestionIds = swop(null, newChoice._id, choiceQuestionIds)
+        } else {
+            await ChoiceQuestion.findByIdAndUpdate(_id, {
+                question,
+                a,
+                b,
+                c,
+                d,
+                e,
+                scoreA,
+                scoreB,
+                scoreC,
+                scoreD,
+                scoreE,
+                correct,
+                order,
+            })
+        }
+    }
+    for (const { _id, question, score, order } of edit.texts) {
+        if (!_id) {
+            const newText = await TextQuestion.create({ question, score, campId, order })
+            textQuestionIds = swop(null, newText._id, textQuestionIds)
+        } else {
+            await TextQuestion.findByIdAndUpdate(_id, { question, score, order })
+        }
+    }
+    await camp.updateOne({ textQuestionIds, choiceQuestionIds })
+    sendRes(res, true)
+}
+export async function getAllQuestion(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const camp = await Camp.findById(req.params.id)
+    const user = await getUser(req)
+    if (!camp || !user) {
+        sendRes(res, false)
+        return
+    }
+    const texts: GetTextQuestion[] = []
+    const choices: GetChoiceQuestion[] = []
+    if (camp.mapAnswerPackIdByUserId.has(user._id.toString())) {
+        const answerPack = await AnswerContainer.findById(camp.mapAnswerPackIdByUserId.get(user._id.toString()))
+        if (answerPack) {
+            const textQuestionIds: Id[] = []
+            for (const textAnswerId of answerPack.textAnswerIds) {
+                const textAnswer = await TextAnswer.findById(textAnswerId)
+                if (!textAnswer) {
+                    continue
+                }
+                const text = await TextQuestion.findById(textAnswer.questionId)
+                if (!text) {
+                    continue
+                }
+                textQuestionIds.push(text._id)
+                const {
+                    question,
+                    _id,
+                    campId,
+                    answerIds,
+                    score,
+                    order,
+                } = text
+                texts.push({
+                    question,
+                    _id,
+                    campId,
+                    answer: textAnswer.answer,
+                    answerIds,
+                    score,
+                    order,
+                    answerId:textAnswer._id,
+                })
+            }
+            const textRemain = removeDuplicate(camp.textQuestionIds, textQuestionIds)
+            for (const textId of textRemain) {
+                const text = await TextQuestion.findById(textId)
+                if (!text) {
+                    continue
+                }
+                const {
+                    question,
+                    _id,
+                    campId,
+                    answerIds,
+                    score,
+                    order,
+                } = text
+                texts.push({
+                    question,
+                    _id,
+                    campId,
+                    answer: '-',
+                    answerIds,
+                    score,
+                    order,
+                    answerId: null,
+                })
+            }
+            const choiceQuestionIds: Id[] = []
+            for (const choiceAnswerId of answerPack.choiceAnswerIds) {
+                const choiceAnswer = await ChoiceAnswer.findById(choiceAnswerId)
+                if (!choiceAnswer) {
+                    continue
+                }
+                const choice = await ChoiceQuestion.findById(choiceAnswer.questionId)
+                if (!choice) {
+                    continue
+                }
+                choiceQuestionIds.push(choice._id)
+                const {
+                    campId,
+                    question,
+                    a,
+                    b,
+                    c,
+                    d,
+                    e,
+                    _id,
+                    scoreA,
+                    scoreB,
+                    scoreC,
+                    scoreD,
+                    scoreE,
+                    correct,
+                    order,
+                    answerIds,
+                    nongAnswerA,
+                    nongAnswerB,
+                    nongAnswerC,
+                    nongAnswerD,
+                    nongAnswerE,
+                    peeAnswerA,
+                    peeAnswerB,
+                    peeAnswerC,
+                    peeAnswerD,
+                    peeAnswerE,
+                } = choice
+                choices.push({
+                    campId,
+                    question,
+                    a,
+                    b,
+                    c,
+                    d,
+                    e,
+                    _id,
+                    scoreA,
+                    scoreB,
+                    scoreC,
+                    scoreD,
+                    scoreE,
+                    correct,
+                    order,
+                    answer: choiceAnswer.answer,
+                    answerIds,
+                    nongAnswerA,
+                    nongAnswerB,
+                    nongAnswerC,
+                    nongAnswerD,
+                    nongAnswerE,
+                    peeAnswerA,
+                    peeAnswerB,
+                    peeAnswerC,
+                    peeAnswerD,
+                    peeAnswerE,
+                    answerId:choiceAnswer._id,
+                })
+            }
+            const choiceRemain = removeDuplicate(camp.choiceQuestionIds, choiceQuestionIds)
+            for (const choiceId of choiceRemain) {
+                const choice = await ChoiceQuestion.findById(choiceId)
+                if (!choice) {
+                    continue
+                }
+                const {
+                    campId,
+                    question,
+                    a,
+                    b,
+                    c,
+                    d,
+                    e,
+                    _id,
+                    scoreA,
+                    scoreB,
+                    scoreC,
+                    scoreD,
+                    scoreE,
+                    nongAnswerA,
+                    nongAnswerB,
+                    nongAnswerC,
+                    nongAnswerD,
+                    nongAnswerE,
+                    peeAnswerA,
+                    peeAnswerB,
+                    peeAnswerC,
+                    peeAnswerD,
+                    peeAnswerE,
+                    correct,
+                    order,
+                    answerIds,
+                } = choice
+                choices.push({
+                    campId,
+                    question,
+                    a,
+                    b,
+                    c,
+                    d,
+                    e,
+                    _id,
+                    scoreA,
+                    scoreB,
+                    scoreC,
+                    scoreD,
+                    scoreE,
+                    nongAnswerA,
+                    nongAnswerB,
+                    nongAnswerC,
+                    nongAnswerD,
+                    nongAnswerE,
+                    peeAnswerA,
+                    peeAnswerB,
+                    peeAnswerC,
+                    peeAnswerD,
+                    peeAnswerE,
+                    correct,
+                    order,
+                    answer: '-',
+                    answerIds,
+                    answerId: null
+                })
+            }
+        }
+    } else {
+        for (const textId of camp.textQuestionIds) {
+            const text = await TextQuestion.findById(textId)
+            if (!text) {
+                continue
+            }
+            const {
+                question,
+                _id,
+                campId,
+                answerIds,
+                score,
+                order,
+            } = text
+            texts.push({
+                question,
+                _id,
+                campId,
+                answer: '-',
+                answerIds,
+                score,
+                order,
+                answerId:null,
+            })
+        }
+        for (const choiceId of camp.choiceQuestionIds) {
+            const choice = await ChoiceQuestion.findById(choiceId)
+            if (!choice) {
+                continue
+            }
+            const {
+                campId,
+                question,
+                a,
+                b,
+                c,
+                d,
+                e,
+                _id,
+                scoreA,
+                scoreB,
+                scoreC,
+                scoreD,
+                scoreE,
+                nongAnswerA,
+                nongAnswerB,
+                nongAnswerC,
+                nongAnswerD,
+                nongAnswerE,
+                peeAnswerA,
+                peeAnswerB,
+                peeAnswerC,
+                peeAnswerD,
+                peeAnswerE,
+                correct,
+                order,
+                answerIds,
+            } = choice
+            choices.push({
+                campId,
+                question,
+                a,
+                b,
+                c,
+                d,
+                e,
+                _id,
+                scoreA,
+                scoreB,
+                scoreC,
+                scoreD,
+                scoreE,
+                nongAnswerA,
+                nongAnswerB,
+                nongAnswerC,
+                nongAnswerD,
+                nongAnswerE,
+                peeAnswerA,
+                peeAnswerB,
+                peeAnswerC,
+                peeAnswerD,
+                peeAnswerE,
+                correct,
+                order,
+                answer: '-',
+                answerIds,
+                answerId:null,
+            })
+        }
+    }
+    const buffer: GetAllQuestion = {
+        choices,
+        texts,
+    }
+    console.log(buffer)
+    res.status(200).json(buffer)
+}
+export async function answerAllQuestion(answer: AnswerPack, userId: Id, role: RoleCamp) {
+    const camp = await Camp.findById(answer.campId)
+    const user = await User.findById(userId)
+    if (!camp || !user) {
+        return
+    }
+    const choiceAnswerIds: Id[] = []
+    const textAnswerIds: Id[] = []
+    var answerContainer = await AnswerContainer.findById(camp.mapAnswerPackIdByUserId.get(user._id.toString()))
+    if (!answerContainer) {
+        answerContainer = await AnswerContainer.create({
+            campId: camp._id,
+            userId: user._id, role,
+        })
+        switch (role) {
+            case "nong": {
+                await user.updateOne({ nongAnswerPackIds: swop(null, answerContainer._id, user.nongAnswerPackIds) })
+                camp.mapAnswerPackIdByUserId.set(user._id.toString(), answerContainer._id)
+                await camp.updateOne({ nongAnswerPackIds: swop(null, answerContainer._id, camp.nongAnswerPackIds), mapAnswerPackIdByUserId: camp.mapAnswerPackIdByUserId })
+                break
+            }
+            case "pee": {
+                await user.updateOne({ peeAnswerPackIds: swop(null, answerContainer._id, user.peeAnswerPackIds) })
+                camp.mapAnswerPackIdByUserId.set(user._id.toString(), answerContainer._id)
+                await camp.updateOne({ peeAnswerPackIds: swop(null, answerContainer._id, camp.peeAnswerPackIds), mapAnswerPackIdByUserId: camp.mapAnswerPackIdByUserId, peeAnswerIds: swop(null, user._id, camp.peeAnswerIds) })
+                break
+            }
+            case "peto": {
+                await user.updateOne({ peeAnswerPackIds: swop(null, answerContainer._id, user.peeAnswerPackIds) })
+                camp.mapAnswerPackIdByUserId.set(user._id.toString(), answerContainer._id)
+                await camp.updateOne({ peeAnswerPackIds: swop(null, answerContainer._id, camp.peeAnswerPackIds), mapAnswerPackIdByUserId: camp.mapAnswerPackIdByUserId, peeAnswerIds: swop(null, user._id, camp.peeAnswerIds) })
+                break
+            }
+        }
+    }
+    for (const textAnswerPack of answer.textAnswers) {
+        const question = await TextQuestion.findById(textAnswerPack.questionId)
+        if (!question) {
+            continue
+        }
+        var textAnswer = await TextAnswer.findById(textAnswerPack.answerId)
+        if (!textAnswer) {
+            textAnswer = await TextAnswer.create({
+                answer: textAnswerPack.answer,
+                userId: user._id,
+                questionId: question._id,
+                containerId: answerContainer._id,
+            })
+            await question.updateOne({ answerIds: swop(null, textAnswer._id, question.answerIds) })
+        } else {
+            await textAnswer.updateOne({ answer: textAnswerPack.answer })
+        }
+        textAnswerIds.push(textAnswer._id)
+    }
+    for (const choiceAnswerPack of answer.choiceAnswers) {
+        const question1 = await ChoiceQuestion.findById(choiceAnswerPack.questionId)
+        if (!question1) {
+            continue
+        }
+        var choiceAnswer = await ChoiceAnswer.findById(choiceAnswerPack.answerId)
+        var score: number
+        switch (choiceAnswerPack.answer) {
+            case "A": {
+                score = question1.scoreA
+                if (role == 'nong') {
+                    await question1.updateOne({ nongAnswerA: question1.nongAnswerA + 1 })
+                } else {
+                    await question1.updateOne({ peeAnswerA: question1.peeAnswerA + 1 })
+                }
+                break
+            }
+            case "B": {
+                score = question1.scoreB
+                if (role == 'nong') {
+                    await question1.updateOne({ nongAnswerB: question1.nongAnswerB + 1 })
+                } else {
+                    await question1.updateOne({ peeAnswerB: question1.peeAnswerB + 1 })
+                }
+                break
+            }
+            case "C": {
+                score = question1.scoreC
+                if (role == 'nong') {
+                    await question1.updateOne({ nongAnswerC: question1.nongAnswerC + 1 })
+                } else {
+                    await question1.updateOne({ peeAnswerC: question1.peeAnswerC + 1 })
+                }
+                break
+            }
+            case "D": {
+                score = question1.scoreD
+                if (role == 'nong') {
+                    await question1.updateOne({ nongAnswerD: question1.nongAnswerD + 1 })
+                } else {
+                    await question1.updateOne({ peeAnswerD: question1.peeAnswerD + 1 })
+                }
+                break
+            }
+            case "E": {
+                score = question1.scoreE
+                if (role == 'nong') {
+                    await question1.updateOne({ nongAnswerE: question1.nongAnswerE + 1 })
+                } else {
+                    await question1.updateOne({ peeAnswerE: question1.peeAnswerE + 1 })
+                }
+                break
+            }
+            case "-": {
+                score = 0
+                break
+            }
+        }
+        const question2 = await ChoiceQuestion.findById(question1._id)
+        if (!question2) {
+            continue
+        }
+        if (!choiceAnswer) {
+            choiceAnswer = await ChoiceAnswer.create({
+                campId: camp._id,
+                answer: choiceAnswerPack.answer,
+                score,
+                questionId: question2._id,
+                userId: user._id,
+                containerId: answerContainer._id,
+            })
+            await question2.updateOne({ answerIds: swop(null, choiceAnswer._id, question2.answerIds) })
+        } else {
+            switch (choiceAnswer.answer) {
+                case "A": {
+                    if (role == 'nong') {
+                        await question2.updateOne({ nongAnswerA: question2.nongAnswerA - 1 })
+                    } else {
+                        await question2.updateOne({ peeAnswerA: question2.peeAnswerA - 1 })
+                    }
+                    break
+                }
+                case "B": {
+                    if (role == 'nong') {
+                        await question2.updateOne({ nongAnswerB: question2.nongAnswerB - 1 })
+                    } else {
+                        await question2.updateOne({ peeAnswerB: question2.peeAnswerB - 1 })
+                    }
+                    break
+                }
+                case "C": {
+                    if (role == 'nong') {
+                        await question2.updateOne({ nongAnswerC: question2.nongAnswerC - 1 })
+                    } else {
+                        await question2.updateOne({ peeAnswerC: question2.peeAnswerC - 1 })
+                    }
+                    break
+                }
+                case "D": {
+                    if (role == 'nong') {
+                        await question2.updateOne({ nongAnswerD: question2.nongAnswerD - 1 })
+                    } else {
+                        await question2.updateOne({ peeAnswerD: question2.peeAnswerD - 1 })
+                    }
+                    break
+                }
+                case "E": {
+                    if (role == 'nong') {
+                        await question2.updateOne({ nongAnswerE: question2.nongAnswerE - 1 })
+                    } else {
+                        await question2.updateOne({ peeAnswerE: question2.peeAnswerE - 1 })
+                    }
+                    break
+                }
+                case "-": {
+                    break
+                }
+            }
+            await choiceAnswer.updateOne({ score, answer: choiceAnswerPack.answer })
+        }
+        choiceAnswerIds.push(choiceAnswer._id)
+    }
+    await answerContainer.updateOne({
+        choiceAnswerIds, textAnswerIds
+    })
+}
+export async function deleteChoiceQuestion(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const question = await ChoiceQuestion.findById(req.params.id)
+    if (!question) {
+        sendRes(res, false)
+        return
+    }
+    const camp = await Camp.findById(question.campId)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
+    await camp.updateOne({ choiceQuestionIds: swop(question._id, null, camp.choiceQuestionIds) })
+    var i = 0
+    while (i < question.answerIds.length) {
+        const answer = await ChoiceAnswer.findById(question.answerIds[i++])
+        if (!answer) {
+            continue
+        }
+        const answerContainer = await AnswerContainer.findById(answer.containerId)
+        if (!answerContainer) {
+            continue
+        }
+        await answerContainer.updateOne({ choiceAnswerIds: swop(answer._id, null, answerContainer.choiceAnswerIds) })
+        await answer.deleteOne()
+    }
+    await question.deleteOne()
+    sendRes(res, true)
+}
+export async function deleteTextQuestion(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const question = await TextQuestion.findById(req.params.id)
+    if (!question) {
+        sendRes(res, false)
+        return
+    }
+    const camp = await Camp.findById(question.campId)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
+    await camp.updateOne({ textQuestionIds: swop(question._id, null, camp.textQuestionIds) })
+    var i = 0
+    while (i < question.answerIds.length) {
+        const answer = await TextAnswer.findById(question.answerIds[i++])
+        if (!answer) {
+            continue
+        }
+        const answerContainer = await AnswerContainer.findById(answer.containerId)
+        if (!answerContainer) {
+            continue
+        }
+        await answerContainer.updateOne({ choiceAnswerIds: swop(answer._id, null, answerContainer.choiceAnswerIds) })
+        await answer.deleteOne()
+    }
+    await question.deleteOne()
+    sendRes(res, true)
+}
+export async function peeAnswerQuestion(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { answer }: { answer: AnswerPack } = req.body
+    const camp = await Camp.findById(answer.campId)
+    const user = await getUser(req)
+    if (!camp || !user) {
+        sendRes(res, false)
+        return
+    }
+    const campMemberCard = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
+    if (!campMemberCard) {
+        sendRes(res, false)
+        return
+    }
+    await answerAllQuestion(answer,user._id,campMemberCard.role)
+    sendRes(res,true)
 }

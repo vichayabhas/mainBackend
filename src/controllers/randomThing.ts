@@ -4,15 +4,14 @@ import Camp from "../models/Camp"
 import Song from "../models/Song"
 import User from "../models/User"
 import express from "express";
-import { getEndEmail, getSystemMode, resError, resOk, sendRes, swop, systemMode } from "./setup";
+import { getEndEmail, getSystemMode, resError, resOk, sendRes, stringToId, swop } from "./setup";
 import LostAndFound from "../models/LostAndFound";
 import Building from "../models/Building";
 import Place from "../models/Place";
 import NongCamp from "../models/NongCamp";
-import { ChatReady, CreateBaanChat, CreateNongChat, CreatePeeChat, EditChat, InterCampBack, InterChat, InterLostAndFound, InterPlace, Mode, RoleCamp, ShowChat, ShowLostAndFound, ShowPlace, TypeChat } from "../models/interface";
+import { ChatReady, CreateBaanChat, CreateNongChat, CreatePeeChat, EditChat, Id, InterLostAndFound, InterPlace, Mode, RoleCamp, ShowChat, ShowLostAndFound, ShowPlace, TypeChat } from "../models/interface";
 import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
-import mongoose from "mongoose";
 import Part from "../models/Part";
 import CampMemberCard from "../models/CampMemberCard";
 import Chat from "../models/Chat";
@@ -75,7 +74,7 @@ export async function addLikeSong(req: express.Request, res: express.Response, n
 }
 async function getAllSong() {
     const songs = await Song.find()
-    const map: Map<mongoose.Types.ObjectId, number> = new Map
+    const map: Map<Id, number> = new Map
     var i = 0
     while (i < songs.length) {
         map.set(songs[i++]._id, 0)
@@ -88,7 +87,7 @@ export async function getNongLikeSong(req: express.Request, res: express.Respons
         sendRes(res, false)
         return
     }
-    const songList: Map<mongoose.Types.ObjectId, number> = await getAllSong()
+    const songList: Map<Id, number> = await getAllSong()
     var i = 0
     while (i < camp.nongIds.length) {
         const user = await User.findById(camp.nongIds[i++])
@@ -109,7 +108,7 @@ export async function getPeeLikeSong(req: express.Request, res: express.Response
         sendRes(res, false)
         return
     }
-    const songList: Map<mongoose.Types.ObjectId, number> = await getAllSong()
+    const songList: Map<Id, number> = await getAllSong()
     var i = 0
     while (i < camp.peeIds.length) {
         const user = await User.findById(camp.peeIds[i++])
@@ -130,7 +129,7 @@ export async function getPetoLikeSong(req: express.Request, res: express.Respons
         sendRes(res, false)
         return
     }
-    const songList: Map<mongoose.Types.ObjectId, number> = await getAllSong()
+    const songList: Map<Id, number> = await getAllSong()
     var i = 0
     while (i < camp.petoIds.length) {
         const user = await User.findById(camp.petoIds[i++])
@@ -151,7 +150,7 @@ export async function getAllCampLikeSong(req: express.Request, res: express.Resp
         sendRes(res, false)
         return
     }
-    const songList: Map<mongoose.Types.ObjectId, number> = await getAllSong()
+    const songList: Map<Id, number> = await getAllSong()
     var i = 0
     while (i < camp.nongIds.length) {
         const user = await User.findById(camp.nongIds[i++])
@@ -253,7 +252,7 @@ export async function deleteLostAndFound(req: express.Request, res: express.Resp
         return
     }
     const camp = await Camp.findById(lostAndFound.campId)
-    if (!user || (user.role != 'admin' && (lostAndFound.userId !== (user._id)) && (camp ? !user.authPartIds.includes(camp.partBoardId as mongoose.Types.ObjectId) && !user.authPartIds.includes(camp.partRegisterId as mongoose.Types.ObjectId) : true) && !camp?.boardIds.includes(user._id))) {
+    if (!user || (user.role != 'admin' && (lostAndFound.userId !== (user._id)) && (camp ? !user.authPartIds.includes(camp.partBoardId as Id) && !user.authPartIds.includes(camp.partRegisterId as Id) : true) && !camp?.boardIds.includes(user._id))) {
         res.status(403).json(resError)
     }
     const owner = await User.findById(lostAndFound.userId)
@@ -467,12 +466,15 @@ export async function createPartChat(req: express.Request, res: express.Response
     var i = 0
     while (i < camp.peeCampMemberCardIds.length) {
         const campMemberCard = await CampMemberCard.findById(camp.peeCampMemberCardIds[i++])
+        if (!campMemberCard) {
+            continue
+        }
         await campMemberCard.updateOne({ allChatIds: swop(null, chat._id, campMemberCard.allChatIds) })
     }
     await part.updateOne({ chatIds: swop(null, chat._id, part.chatIds) })
     res.status(201).json(chat)
 }
-export async function getShowChatFromChatIds(inputs: mongoose.Types.ObjectId[], mode: Mode) {
+export async function getShowChatFromChatIds(inputs: Id[], mode: Mode) {
     const out: ShowChat[] = []
     var i = 0
     while (i < inputs.length) {
@@ -625,11 +627,14 @@ export async function editChat(req: express.Request, res: express.Response, next
     res.status(200).json(chat)
 }
 export async function deleteChat(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const success = await deleteChatRaw(new mongoose.Types.ObjectId(req.params.id))
+    const success = await deleteChatRaw(stringToId(req.params.id))
     sendRes(res, success)
 }
-export async function deleteChatRaw(chatId: mongoose.Types.ObjectId) {
+export async function deleteChatRaw(chatId: Id) {
     const chat = await Chat.findById(chatId)
+    if (!chat) {
+        return false
+    }
     var i = 0
     switch (chat.typeChat) {
         case 'น้องคุยส่วนตัวกับพี่': {
@@ -741,6 +746,10 @@ export async function createNongChat(req: express.Request, res: express.Response
         return
     }
     const campMemberCardSender = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
+    if (!campMemberCardSender) {
+        sendRes(res, false)
+        return
+    }
     const chat = await Chat.create({
         message: create.message,
         campModelId: campMemberCardSender.campModelId,
@@ -772,7 +781,15 @@ export async function createPeeBaanChat(req: express.Request, res: express.Respo
         return
     }
     const camp = await Camp.findById(baan.campId)
+    if (!camp) {
+        sendRes(res, false)
+        return
+    }
     const campMemberCardSender = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
+    if (!campMemberCardSender) {
+        sendRes(res, false)
+        return
+    }
     const chat = await Chat.create({
         message: create.message,
         campModelId: campMemberCardSender.campModelId,
@@ -786,6 +803,9 @@ export async function createPeeBaanChat(req: express.Request, res: express.Respo
     var i = 0
     while (i < baan.peeCampMemberCardIds.length) {
         const campMemberCard = await CampMemberCard.findById(baan.peeCampMemberCardIds[i++])
+        if (!campMemberCard) {
+            continue
+        }
         await campMemberCard.updateOne({ allChatIds: swop(null, chat._id, campMemberCard.allChatIds) })
     }
     await baan.updateOne({ peeChatIds: swop(null, chat._id, baan.peeChatIds) })
@@ -801,9 +821,14 @@ export async function createNongBaanChat(req: express.Request, res: express.Resp
     const camp = await Camp.findById(baan.campId)
     if (!camp) {
         sendRes(res, false)
+        return
     }
     const campMemberCardSender = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
-    const campMemberCardIds: mongoose.Types.ObjectId[] = []
+    if (!campMemberCardSender) {
+        sendRes(res, false)
+        return
+    }
+    const campMemberCardIds: Id[] = []
     const chat = await Chat.create({
         message: create.message,
         campModelId: campMemberCardSender.campModelId,
@@ -860,6 +885,10 @@ export async function getAllChatFromCampId(req: express.Request, res: express.Re
         res.status(200).json(output)
     } else {
         const campMemberCard = await CampMemberCard.findById(camp.mapCampMemberCardIdByUserId.get(user._id.toString()))
+        if (!campMemberCard) {
+            sendRes(res, false)
+            return
+        }
         const chats = await getShowChatFromChatIds(campMemberCard.allChatIds, getModeBySituation(user.mode, campMemberCard.role, true))
         const output: ChatReady = {
             chats,
@@ -1047,10 +1076,10 @@ export async function getNongChat(req: express.Request, res: express.Response, n
         sendRes(res, false)
         return
     }
-    const host=await User.findById(campMemberCard.userId)
+    const host = await User.findById(campMemberCard.userId)
     const chats = await getShowChatFromChatIds(campMemberCard.chatIds, getModeBySituation(user.mode, campMemberCard.userId.equals(user._id) ? 'nong' : 'pee', true))
     const timeOffset = await TimeOffset.findById(user.displayOffsetId)
-    if (!timeOffset||!host) {
+    if (!timeOffset || !host) {
         sendRes(res, false)
         return
     }
@@ -1070,8 +1099,8 @@ export async function getNongChat(req: express.Request, res: express.Response, n
 }
 export async function getSystemInfo(req: express.Request, res: express.Response, next: express.NextFunction) {
     const systemMode = getSystemMode()
-    const endEmail=getEndEmail()
-    res.status(200).json({ systemMode ,endEmail})
+    const endEmail = getEndEmail()
+    res.status(200).json({ systemMode, endEmail })
 }
 function getModeBySituation(mode: Mode, role: RoleCamp, isHidePart: boolean): Mode {
     if (!isHidePart) {

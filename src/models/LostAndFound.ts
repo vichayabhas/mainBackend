@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { dataId, dataString } from "../controllers/setup";
 const LostAndFoundSchema = new mongoose.Schema({
     campId: {
         type: mongoose.Schema.ObjectId,
@@ -9,18 +10,12 @@ const LostAndFoundSchema = new mongoose.Schema({
         enum: ['lost', 'found'],
         required:true
     },
-    name: {
-        type: String,
-        required:true
-    },
+    name: dataString,
     detail: {
         type: String,
         required:true
     },
-    userId: {
-        type: mongoose.Schema.ObjectId,
-        required:true
-    },
+    userId: dataId,
     placeId: {
         type: mongoose.Schema.ObjectId,
         //required:true,

@@ -1,34 +1,17 @@
 import mongoose from "mongoose";
+import { arrayObjectId, dataDate, dataId, dataString } from "../controllers/setup";
 const HospitalSchema = new mongoose.Schema({
-    action: {
-        type: String
-
-    },
-    partId: {
-        type: mongoose.Schema.ObjectId
-    },
-    campId: {
-        type: mongoose.Schema.ObjectId
-    },
-    placeIds: {//place
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    start: {
-        type: Date
-    },
-    end: {
-        type: Date
-    },
-    headId: {//user
-        type: mongoose.Schema.ObjectId
-    },
+    action: dataString,
+    partId: dataId,
+    campId: dataId,
+    placeIds: arrayObjectId,
+    start:dataDate,
+    end: dataDate,
+    headId: dataId,
     body: {
         type: String,
-        default:''
+        default: ''
     },
-    partName:{
-        type:String,
-    }
+    partName: dataString,
 });
 export default mongoose.model('ActionPlan', HospitalSchema);

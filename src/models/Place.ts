@@ -1,56 +1,18 @@
 import mongoose from "mongoose"
+import { arrayObjectId, dataId, dataNumber, dataString } from "../controllers/setup"
 const PeeCampSchema = new mongoose.Schema({
-    buildingId: {//building
-        type: mongoose.Schema.ObjectId,
-        required:true
-    },
-    floor: {
-        type: String,
-        required:true
-    },
-    room: {
-        type: String,
-        required:true
-    },
-    actionPlanIds: {//actionPlan
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    fridayActIds: {//fridayAct
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    boySleepBaanIds:{//baan
-        type:[mongoose.Schema.ObjectId],
-        default:[]
-    },
-    girlSleepBaanIds:{//baan
-        type:[mongoose.Schema.ObjectId],
-        default:[]
-    },
-    normalBaanIds:{//baan
-        type:[mongoose.Schema.ObjectId],
-        default:[]
-    },
-    sleepCap:{
-        type:Number,
-        default :0
-    },
-    actCap:{
-        type:Number,
-        default:0
-    },
-    studyCap:{
-        type:Number,
-        default:0
-    },
-    lostAndFoundIds:{ 
-        type: [mongoose.Schema.ObjectId],
-        default: []      
-    },
-    partIds:{
-        type:[mongoose.Schema.ObjectId],
-        default:[]
-    }
+    buildingId: dataId,
+    floor: dataString,
+    room: dataString,
+    actionPlanIds: arrayObjectId,
+    fridayActIds: arrayObjectId,
+    boySleepBaanIds: arrayObjectId,
+    girlSleepBaanIds: arrayObjectId,
+    normalBaanIds: arrayObjectId,
+    sleepCap: dataNumber,
+    actCap: dataNumber,
+    studyCap: dataNumber,
+    lostAndFoundIds: arrayObjectId,
+    partIds: arrayObjectId,
 })
 export default mongoose.model('Place', PeeCampSchema)

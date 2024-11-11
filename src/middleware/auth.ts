@@ -4,6 +4,7 @@ import User, { buf } from '../models/User';
 import { NextFunction } from 'express'
 import express from "express";
 import { resError } from "../controllers/setup";
+import { InterUser } from '../models/interface';
 const testJwt = buf
 export async function protect(req: express.Request, res: express.Response, next: NextFunction) {
   let token: string | null | undefined;
@@ -140,7 +141,7 @@ export function isLogin(withIn: express.RequestHandler, withOut: express.Request
     }
   }
 }
-export async function isPass(req: express.Request, res: express.Response, next: NextFunction){
+export async function isPass(req: express.Request, res: express.Response, next: NextFunction) {
   console.log('hhhhhhnjmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmppppppppppppppppppppppppppppppppppppp')
   next()
 }

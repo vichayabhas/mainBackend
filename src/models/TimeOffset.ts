@@ -1,20 +1,9 @@
 import mongoose from "mongoose";
+import { dataId, dataNumber } from "../controllers/setup";
 const PeeCampSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.ObjectId,
-        required: true
-    },
-    day: {
-        type: Number,
-        default: 0
-    },
-    hour: {
-        type: Number,
-        default: 0
-    },
-    minute: {
-        type: Number,
-        default: 0
-    }
+    userId:dataId,
+    day: dataNumber,
+    hour:dataNumber,
+    minute:dataNumber,
 })
 export default mongoose.model('TimeOffset', PeeCampSchema)

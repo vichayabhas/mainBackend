@@ -1,153 +1,46 @@
 import mongoose from "mongoose";
-import { startSize } from "../controllers/setup";
+import { arrayObjectId, dataDate, dataId, dataMap, dataNumber, dataSize, dataString } from "../controllers/setup";
 
 const campSchema = new mongoose.Schema({
-    nameId: {//nameContainer
-        type: mongoose.Schema.ObjectId,
-        required: true,
-    },
+    nameId: dataId,
     round: {
         type: Number,
         required: true,
     },
-    dateStart: {
-        type: Date,
-        required: true,
-    },
-    dateEnd: {
-        type: Date,
-        required: true,
-    },
-    boardIds: {//user            
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    peeIds: {//user
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongIds: {//user
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    partIds: {//part           
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    petoIds: {//user
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    authorizeIds: {//user
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongHeathIssueIds: {//helth
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    peeHeathIssueIds: {//helth
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    petoHeathIssueIds: {//helth
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    dateStart: dataDate,
+    dateEnd: dataDate,
+    boardIds: arrayObjectId,
+    peeIds: arrayObjectId,
+    nongIds: arrayObjectId,
+    partIds: arrayObjectId,
+    petoIds: arrayObjectId,
+    authorizeIds: arrayObjectId,
+    nongHeathIssueIds: arrayObjectId,
+    peeHeathIssueIds: arrayObjectId,
+    petoHeathIssueIds: arrayObjectId,
     dataLock: {
         type: Boolean,
         default: false
     },
-    nongShirtSize: {// size    count
-        type: Map,
-        //value:Number,
-        //key:('S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'),
-        default: startSize()
-    },
-    peeShirtSize: {// size    count
-        type: Map,
-        default: startSize()
-    },
-    petoShirtSize: {// size    count
-        type: Map,
-        default: startSize()
-    },
-    nongModelIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    peeModelIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    petoModelIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongPendingIds: {//user
-        type: Map,
-        default: new Map
-    },
-    nongPassIds: {//user    link
-        type: Map,
-        default: new Map
-    },
+    nongShirtSize: dataSize,
+    peeShirtSize: dataSize,
+    petoShirtSize: dataSize,
+    nongModelIds: arrayObjectId,
+    peeModelIds: arrayObjectId,
+    petoModelIds: arrayObjectId,
+    nongPendingIds: dataMap,
+    nongPassIds: dataMap,
     open: {
         type: Boolean,
-        default: true
+        default: false,
     },
-    peePassIds: {
-        type: Map,
-        default: new Map
-    },
-    songIds: {//song
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    // nongHaveBottle: {
-    //     type: Number,
-    //     default: 0
-    // },
-    // peeHaveBottle: {
-    //     type: Number,
-    //     default: 0
-    // },
-    // petoHaveBottle: {
-    //     type: Number,
-    //     default: 0
-    // },
-    // nongHaveBottleMapIds: {
-    //     type: Map,
-    //     default: new Map<mongoose.ObjectId, boolean>()
-    // },
-    // peeHaveBottleMapIds: {
-    //     type: Map,
-    //     default: new Map<mongoose.ObjectId, boolean>()
-    // },
-    // petoHaveBottleMapIds: {
-    //     type: Map,
-    //     default: new Map<mongoose.ObjectId, boolean>()
-    // },
-    nongSureIds: {//user
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    baanIds: {//baan
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongCampMemberCardIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    peeCampMemberCardIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    petoCampMemberCardIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    peePassIds: dataMap,
+    songIds: arrayObjectId,
+    nongSureIds: arrayObjectId,
+    baanIds: arrayObjectId,
+    nongCampMemberCardIds: arrayObjectId,
+    peeCampMemberCardIds: arrayObjectId,
+    petoCampMemberCardIds: arrayObjectId,
     link: {
         type: String
     },
@@ -166,41 +59,25 @@ const campSchema = new mongoose.Schema({
     campStyleId: {
         type: mongoose.Schema.ObjectId
     },
-    actionPlanIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    workItemIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongPaidIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongInterviewIds: {
-        type: Map,
-        default: new Map<mongoose.ObjectId, string>()
-    },
+    actionPlanIds: arrayObjectId,
+    workItemIds: arrayObjectId,
+    nongPaidIds: arrayObjectId,
+    nongInterviewIds: dataMap,
     registerModel: {
         type: String,
-        enum: ['noPaid', 'noInterview', 'all']
+        enum: ['noPaid', 'noInterview', 'all'],
+        required: true
     },
-    lostAndFoundIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    lostAndFoundIds: arrayObjectId,
     memberStructure: {
         type: String,
-        enum: ['nong->highSchool,pee->1year,peto->2upYear', 'nong->highSchool,pee->2upYear', 'nong->1year,pee->2upYear', 'nong->highSchool,pee->allYear', 'allYearMix']
+        enum: ['nong->highSchool,pee->1year,peto->2upYear', 'nong->highSchool,pee->2upYear', 'nong->1year,pee->2upYear', 'nong->highSchool,pee->allYear', 'allYearMix'],
+        require: true,
     },
     logoUrl: {
         type: String
     },
-    mapCampMemberCardIdByUserId: {
-        type: Map,
-        default: new Map
-    },
+    mapCampMemberCardIdByUserId: dataMap,
     peeLock: {
         type: Boolean,
         default: false
@@ -209,22 +86,10 @@ const campSchema = new mongoose.Schema({
         type: String,
         default: null
     },
-    outRoundIds: {//น้องที่ตกรอบ
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    campName: {
-        type: String,
-        required: true,
-    },
-    nongSleepIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    peeSleepIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    outRoundIds: arrayObjectId,
+    campName: dataString,
+    nongSleepIds: arrayObjectId,
+    peeSleepIds: arrayObjectId,
     nongSleepModel: {
         type: String,
         enum: ['นอนทุกคน', 'เลือกได้ว่าจะค้างคืนหรือไม่', 'ไม่มีการค้างคืน'],
@@ -235,17 +100,11 @@ const campSchema = new mongoose.Schema({
         enum: ['นอนทุกคน', 'เลือกได้ว่าจะค้างคืนหรือไม่', 'ไม่มีการค้างคืน'],
         required: true,
     },
-    groupRefMap: {
-        type: Map,
-        default: new Map
-    },
+    groupRefMap: dataMap,
     baanBoardId: {
         type: mongoose.Schema.ObjectId
     },
-    partNameIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    partNameIds: arrayObjectId,
     ready: {
         type: [{
             type: String,
@@ -265,14 +124,6 @@ const campSchema = new mongoose.Schema({
     partPeeBaanId: {
         type: mongoose.Schema.ObjectId
     },
-    choiseAnswerIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    quasionIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
     groupName: {
         type: String,
         default: 'บ้าน'
@@ -289,34 +140,13 @@ const campSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    actionPlanOffset: {
-        type: Number,
-        default: 0
-    },
-    nongMapIdLtoG: {
-        type: Map,
-        default: new Map<number, mongoose.Types.ObjectId>()
-    },
-    peeMapIdLtoG: {
-        type: Map,
-        default: new Map<number, mongoose.Types.ObjectId>()
-    },
-    nongMapIdGtoL: {
-        type: Map,
-        default: new Map<mongoose.Types.ObjectId, number>()
-    },
-    peeMapIdGtoL: {
-        type: Map,
-        default: new Map<mongoose.Types.ObjectId, number>()
-    },
-    currentNong: {
-        type: Number,
-        default: 0
-    },
-    currentPee: {
-        type: Number,
-        default: 0
-    },
+    actionPlanOffset: dataNumber,
+    nongMapIdLtoG: dataMap,
+    peeMapIdLtoG: dataMap,
+    nongMapIdGtoL: dataMap,
+    peeMapIdGtoL: dataMap,
+    currentNong: dataNumber,
+    currentPee: dataNumber,
     mdTime: {
         type: Date,
         default: new Date(Date.now())
@@ -330,40 +160,26 @@ const campSchema = new mongoose.Schema({
     partPlanId: {
         type: mongoose.Schema.ObjectId
     },
-    allPetoChatIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
+    allPetoChatIds: arrayObjectId,
+    petoSleepIds: arrayObjectId,
+    nongCampMemberCardHaveHeathIssueIds: arrayObjectId,
+    peeCampMemberCardHaveHeathIssueIds: arrayObjectId,
+    petoCampMemberCardHaveHeathIssueIds: arrayObjectId,
+    nongHaveBottleIds: arrayObjectId,
+    peeHaveBottleIds: arrayObjectId,
+    petoHaveBottleIds: arrayObjectId,
+    partPrStudioId: {
+        type: mongoose.Types.ObjectId
     },
-    petoSleepIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongCampMemberCardHaveHeathIssueIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    peeCampMemberCardHaveHeathIssueIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    petoCampMemberCardHaveHeathIssueIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongHaveBottleIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    peeHaveBottleIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    petoHaveBottleIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    partPrStudioId:{
-        type:mongoose.Types.ObjectId
+    choiceQuestionIds: arrayObjectId,
+    textQuestionIds: arrayObjectId,
+    nongAnswerPackIds: arrayObjectId,
+    peeAnswerPackIds: arrayObjectId,
+    mapAnswerPackIdByUserId: dataMap,
+    peeAnswerIds: arrayObjectId,
+    showCorrectAnswerAndScore: {
+        type: Boolean,
+        default: false,
     },
 })
 export default mongoose.model('Camp', campSchema)

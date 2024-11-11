@@ -1,9 +1,8 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
+import { arrayObjectId, dataId, dataString } from '../controllers/setup';
 const HospitalSchema = new mongoose.Schema({
-    name: {
-        type: String
-    },
+    name:dataString,
     link: {
         type: String,
         default:null
@@ -13,21 +12,13 @@ const HospitalSchema = new mongoose.Schema({
         enum: ['not start', 'in process', 'done'],
         default: 'not start'
     },
-    partId: {
-        type: mongoose.Schema.ObjectId,
-        required:[true]
-    },
-    linkOutIds: {//workItem
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    partId: dataId,
+    linkOutIds: arrayObjectId,
     fromId: {
         type: mongoose.Schema.ObjectId,
         default:null
     },
-    createBy:{
-        type:mongoose.Schema.ObjectId
-    },
+    createBy:dataId,
     password:{
         type:String,
         required:[true,''],

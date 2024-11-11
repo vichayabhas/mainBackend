@@ -1,9 +1,9 @@
 import Camp from "../models/Camp";
-import { sendRes, swop } from "./setup";
+import { sendRes, stringToId, swop } from "./setup";
 import express from "express";
 import { getUser } from "../middleware/auth";
-import mongoose from "mongoose";
 import { changePartRaw, getImpotentPartIdBCRP } from "./camp";
+import { Id } from "../models/interface";
 export async function interview(req: express.Request, res: express.Response, next: express.NextFunction) {
     const { members, campId } = req.body
     const i = await interviewRaw(members, campId)
@@ -13,7 +13,7 @@ export async function interview(req: express.Request, res: express.Response, nex
     }
     res.status(200).json({ count: i })
 }
-async function interviewRaw(members: mongoose.Types.ObjectId[], campId: mongoose.Types.ObjectId) {
+async function interviewRaw(members: Id[], campId: Id) {
     const camp = await Camp.findById(campId)
     if (!camp) {
         return 0
@@ -29,7 +29,7 @@ async function interviewRaw(members: mongoose.Types.ObjectId[], campId: mongoose
     })
     return i
 }
-async function passRaw(members: mongoose.Types.ObjectId[], campId: mongoose.Types.ObjectId) {
+async function passRaw(members: Id[], campId: Id) {
     const camp = await Camp.findById(campId)
     if (!camp) {
         return 0
@@ -68,7 +68,7 @@ export async function paid(req: express.Request, res: express.Response, next: ex
     }
 }
 export async function sure(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { members, campId }: { members: mongoose.Types.ObjectId[], campId: mongoose.Types.ObjectId } = req.body
+    const { members, campId }: { members: Id[], campId: Id } = req.body
     const camp = await Camp.findById(campId)
     if (!camp) {
         sendRes(res, false)
@@ -80,7 +80,7 @@ export async function sure(req: express.Request, res: express.Response, next: ex
     } = camp
     var i = 0
     while (i < members.length) {
-        if (!camp.nongPaidIds.includes(new mongoose.Types.ObjectId(members[i].toString()))) {
+        if (!camp.nongPaidIds.includes(stringToId(members[i].toString()))) {
             i++
             //console.log('jjjjjjjjjjjjjjjjjjjjjjjj')
             continue
@@ -128,7 +128,7 @@ export async function kickPee(req: express.Request, res: express.Response, next:
     sendRes(res, true)
 }
 export async function kickNong(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { members, campId }: { members: mongoose.Types.ObjectId[], campId: mongoose.Types.ObjectId } = req.body
+    const { members, campId }: { members: Id[], campId: Id } = req.body
     const camp = await Camp.findById(campId)
     if (!camp) {
         sendRes(res, false)
@@ -152,5 +152,4 @@ export async function kickNong(req: express.Request, res: express.Response, next
         outRoundIds: camp.outRoundIds
     })
     sendRes(res, true)
-
 }

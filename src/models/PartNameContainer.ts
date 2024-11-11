@@ -1,15 +1,10 @@
 import mongoose from "mongoose"
+import { arrayObjectId } from "../controllers/setup"
 const PeeCampSchema = new mongoose.Schema({
-    campIds: {//camp
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    campIds: arrayObjectId,
     name: {
         type: String
     },
-    partIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: [] 
-    }
+    partIds: arrayObjectId,
 })  
 export default mongoose.model('PartNameContainer', PeeCampSchema)

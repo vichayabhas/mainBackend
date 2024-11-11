@@ -1,40 +1,14 @@
 import mongoose from "mongoose"
+import { arrayObjectId, dataString } from "../controllers/setup"
 const PeeCampSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required:true
-    },
-    placeIds: {//place
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    actionPlanIds: {//actionPlan
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    fridayActIds: {//fridayAct
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    lostAndFoundIds:{
-        type: [mongoose.Schema.ObjectId],
-        default: []      
-    },
-    boySleepBaanIds:{//baan
-        type:[mongoose.Schema.ObjectId],
-        default:[]
-    },
-    girlSleepBaanIds:{//baan
-        type:[mongoose.Schema.ObjectId],
-        default:[]
-    },
-    normalBaanIds:{//baan
-        type:[mongoose.Schema.ObjectId],
-        default:[]
-    },
-    partIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    }
+    name: dataString,
+    placeIds: arrayObjectId,
+    actionPlanIds: arrayObjectId,
+    fridayActIds: arrayObjectId,
+    lostAndFoundIds: arrayObjectId,
+    boySleepBaanIds: arrayObjectId,
+    girlSleepBaanIds: arrayObjectId,
+    normalBaanIds: arrayObjectId,
+    partIds: arrayObjectId,
 })
 export default mongoose.model('Building', PeeCampSchema)

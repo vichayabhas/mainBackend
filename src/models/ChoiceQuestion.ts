@@ -1,41 +1,52 @@
 import mongoose from "mongoose";
+import { arrayObjectId, dataId, dataNumber, dataString } from "../controllers/setup";
 const PeeCampSchema = new mongoose.Schema({
-    choiceAnswerIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
+    campId: dataId,
+    question: dataString,
+    a: dataString,
+    b: dataString,
+    c: dataString,
+    d: dataString,
+    e: dataString,
+    scoreA: {
+        type: Number,
+        required: true
     },
-    campId: {
-        type: mongoose.Schema.ObjectId
+    scoreB: {
+        type: Number,
+        required: true
     },
-    mapAwnserIdByUserId: {
-        type: Map,
-        default: new Map()
+    scoreC: {
+        type: Number,
+        required: true
     },
-    quasion: {
-        type: String
+    scoreD: {
+        type: Number,
+        required: true
     },
-    a: {
-        type: String
+    scoreE: {
+        type: Number,
+        required: true
     },
-    b: {
-        type: String
+    nongAnswerA: dataNumber,
+    nongAnswerB: dataNumber,
+    nongAnswerC: dataNumber,
+    nongAnswerD: dataNumber,
+    nongAnswerE: dataNumber,
+    peeAnswerA: dataNumber,
+    peeAnswerB: dataNumber,
+    peeAnswerC: dataNumber,
+    peeAnswerD: dataNumber,
+    peeAnswerE: dataNumber,
+    correct: {
+        type: String,
+        required: true,
+        enum: ['A', 'B', 'C', 'D', 'E', '-']
     },
-    c: {
-        type: String 
+    order: {
+        type: Number,
+        required: true
     },
-    d: {
-        type: String
-    },
-    e: {
-        type: String
-    },
-    score:{
-        type:Number,
-        default:1
-    },
-    correct:{
-        type:String,
-        enum:['A','B','C','D','E']
-    }
+    answerIds:arrayObjectId,
 })
 export default mongoose.model('ChoiceQuestion', PeeCampSchema)

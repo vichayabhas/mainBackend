@@ -1,20 +1,12 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { arrayObjectId, dataString } from '../controllers/setup';
 export const buf: string = process.env.JWT_SECECRET || 'asdfjkl;;lkjfdsa'
 const UserSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'Please add a name']
-    },
-    lastname: {
-        type: String,
-        required: [true, 'Please add a lastname']
-    },
-    nickname: {
-        type: String,
-        required: [true, 'Please add a nickname']
-    },
+    name: dataString,
+    lastname: dataString,
+    nickname: dataString,
     email: {
         type: String,
         required: [true, 'Please add an email'],
@@ -48,7 +40,7 @@ const UserSchema = new mongoose.Schema({
     gender: {
         type: String,
         enum: ['Male', 'Female'],
-        required:true
+        required: true
     },
     shirtSize: {
         type: String,
@@ -70,21 +62,9 @@ const UserSchema = new mongoose.Schema({
         enum: ['nong', 'pee'],
         default: 'nong'
     },
-    nongCampIds: {//nongCamp
-        type: [mongoose.Schema.ObjectId],
-        default: []
-
-    },
-    peeCampIds: {//peeCamp
-        type: [mongoose.Schema.ObjectId],
-        default: []
-
-    },
-    petoCampIds: {//petoCamp
-        type: [mongoose.Schema.ObjectId],
-        default: []
-
-    }
+    nongCampIds: arrayObjectId,
+    peeCampIds: arrayObjectId,
+    petoCampIds: arrayObjectId
     ,
     group: {
         type: String,
@@ -97,25 +77,10 @@ const UserSchema = new mongoose.Schema({
         default: 'nong'
 
     },
-    filterIds: {//camp
-        type: [mongoose.Schema.ObjectId],
-        default: []
-
-    },
-    registerIds: {//camp          //nong
-        type: [mongoose.Schema.ObjectId],
-        default: []
-
-    },
-    authorizeIds: {//camp
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    fridayActIds: {//fridayAct
-        type: [mongoose.Schema.ObjectId],
-        default: []
-
-    },
+    filterIds: arrayObjectId,
+    registerIds: arrayObjectId,
+    authorizeIds: arrayObjectId,
+    fridayActIds: arrayObjectId,
     fridayActEn: {
         type: Boolean,
         default: false
@@ -124,18 +89,9 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    likeSongIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    campMemberCardIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    lostAndFoundIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    likeSongIds: arrayObjectId,
+    campMemberCardIds: arrayObjectId,
+    lostAndFoundIds: arrayObjectId,
     createdAt: {
         type: Date,
         default: Date.now()
@@ -144,35 +100,21 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: 'null'
     },
-    citizenId: {//รหัสประจำตัวประชาชน
-        type: String
-    },
+    citizenId: dataString,
     likeToSleepAtCamp: {
         type: Boolean,
         required: true
     },
-    authPartIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    choiseAnswerIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    quasionIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    authPartIds: arrayObjectId,
     selectOffsetId: {
         type: mongoose.Schema.ObjectId
     },
     displayOffsetId: {
         type: mongoose.Schema.ObjectId
     },
-    chatIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    chatIds: arrayObjectId,
+    nongAnswerPackIds: arrayObjectId,
+    peeAnswerPackIds: arrayObjectId,
 });
 UserSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10);

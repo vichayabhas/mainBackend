@@ -1,5 +1,5 @@
 import express from 'express'
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, InterWorkingItem, InterActionPlan, MapObjectId, MyMap, Size } from '../models/interface'
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, InterActionPlan, MapObjectId, MyMap, Size, Id } from '../models/interface'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 
@@ -13,7 +13,7 @@ export function startSize(): Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number>
     })
     return size
 }
-export function swop(olds: mongoose.Types.ObjectId | null, news: mongoose.Types.ObjectId | null, array: mongoose.Types.ObjectId[]): mongoose.Types.ObjectId[] {
+export function swop(olds: Id | null, news: Id | null, array: Id[]): Id[] {
     if (!olds) {
         if (news) {
             array.push(news)
@@ -78,9 +78,9 @@ export function sizeJsonMod(size: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', count:
     return input
 }
 
-export function mapBoolToArray(input: Map<mongoose.Types.ObjectId, boolean>): mongoose.Types.ObjectId[] {
-    var out: mongoose.Types.ObjectId[] = []
-    input.forEach((v: boolean, k: mongoose.Types.ObjectId) => {
+export function mapBoolToArray(input: Map<Id, boolean>): Id[] {
+    var out: Id[] = []
+    input.forEach((v: boolean, k: Id) => {
         if (v) {
             out.push(k)
         }
@@ -244,6 +244,13 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         petoHaveBottleIds,
         petoCampMemberCardHaveHeathIssueIds,
         partPrStudioId,
+        choiceQuestionIds,
+        textQuestionIds,
+        nongAnswerPackIds,
+        peeAnswerPackIds,
+        mapAnswerPackIdByUserId,
+        peeAnswerIds,
+        showCorrectAnswerAndScore,
 
     } = input
     return ({
@@ -327,6 +334,13 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         petoHaveBottleIds,
         petoCampMemberCardHaveHeathIssueIds,
         partPrStudioId,
+        choiceQuestionIds,
+        textQuestionIds,
+        nongAnswerPackIds,
+        peeAnswerPackIds,
+        mapAnswerPackIdByUserId: mapObjectIdToMyMap(mapAnswerPackIdByUserId),
+        peeAnswerIds,
+        showCorrectAnswerAndScore,
 
     })
 }
@@ -389,121 +403,54 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
         petoCampMemberCardHaveHeathIssueIds,
     })
 }
-export function mapStringToMyMap(input: Map<mongoose.Types.ObjectId, string | number>): MyMap[] {
+export function mapStringToMyMap(input: Map<Id, string | number>): MyMap[] {
     var out: MyMap[] = []
-    input.forEach((v: string | number, key: mongoose.Types.ObjectId) => {
+    input.forEach((v: string | number, key: Id) => {
         out.push({ key, value: v.toString() })
     })
     return out
 }
-export function mapObjectIdToMyMap(input: Map<mongoose.Types.ObjectId, mongoose.Types.ObjectId>): MapObjectId[] {
+export function mapObjectIdToMyMap(input: Map<Id, Id>): MapObjectId[] {
     var out: MapObjectId[] = []
-    input.forEach((value: mongoose.Types.ObjectId, key: mongoose.Types.ObjectId) => {
+    input.forEach((value: Id, key: Id) => {
         out.push({ key, value })
     })
     return out
 }
-/*export function myMapToMapString(input: MyMap[]): Map<string, string> {
-    const map: Map<string, string> = new Map
-    input.forEach((v) => {
-        map.set(v.key, v.value)
-    })
-    return map
-
-}*/
-/*export function linkSign(input: InterWorkingItem, token: string): InterWorkingItem {
-    const {
-
-        name,
-        link,
-        status,
-        partId,
-        campId,
-        linkOutIds,
-        fromId,
-        createBy,
-        _id
-    } = input
-    return ({
-        name,
-        status,
-        campId,
-        linkOutIds,
-        fromId,
-        partId,
-        link: jwt.sign(link, token),
-        createBy,
-        _id
-    })
-}
-function hashRaw(input: string, token: string): string|null {
-    try {
-        const out = jwt.verify(input, token)
-        return(out as {link:string|null}) .link
-    } catch (error) {
-        return 'null'
-    }
-}
-export function linkHash(input: InterWorkingItem, token: string): InterWorkingItem {
-    const {
-
-        name,
-        link,
-        status,
-        partId,
-        campId,
-        linkOutIds,
-        fromId,
-        createBy,
-        _id
-    } = input
-    return ({
-
-        name,
-        status,
-        campId,
-        linkOutIds,
-        fromId,
-        partId,
-        link: hashRaw(link, token),
-        createBy,
-        _id
-    })
-}*/
 export function isInTime(start: Date, end: Date): boolean {
     const now = new Date(Date.now())
     return (now > start && now < end)
 }
-export function plusActionPlan(input: InterActionPlan, minute: number): InterActionPlan {
-    const millisecond = minute * 1000 * 60
-    const {
-        start,
-        end,
-        partId,
-        placeIds,
-        action,
-        headId,
-        body,
-        _id,
-        partName
-    } = input
-    return ({
-        start: new Date(start.getTime() + millisecond),
-        end: new Date(end.getTime() + millisecond),
-        partId,
-        placeIds,
-        action,
-        headId,
-        body,
-        _id,
-        partName
-    })
-}
+// export function plusActionPlan(input: InterActionPlan, minute: number): InterActionPlan {
+//     const millisecond = minute * 1000 * 60
+//     const {
+//         start,
+//         end,
+//         partId,
+//         placeIds,
+//         action,
+//         headId,
+//         body,
+//         _id,
+//         partName
+//     } = input
+//     return ({
+//         start: new Date(start.getTime() + millisecond),
+//         end: new Date(end.getTime() + millisecond),
+//         partId,
+//         placeIds,
+//         action,
+//         headId,
+//         body,
+//         _id,
+//         partName
+//     })
+// }
 export const backendUrl = 'http://localhost:5000'
 export const userPath = 'api/v1/auth'
-export function removeDuplicate(input: mongoose.Types.ObjectId[], compare: mongoose.Types.ObjectId[]): mongoose.Types.ObjectId[] {
+export function removeDuplicate(input: Id[], compare: Id[]): Id[] {
     return input.filter((e) => {
-        return !compare.includes(e)
+        return !compare.map((v)=>v.toString()).includes(e.toString())
     })
 }
 export function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
@@ -540,13 +487,13 @@ export function sendingEmail(email: string, text: string) {
     })
 }
 export const removeDups = (
-    input: mongoose.Types.ObjectId[]
-): mongoose.Types.ObjectId[] => {
+    input: Id[]
+): Id[] => {
     var arr = input.map((e) => (e.toString().split(' ')[0]))
     var unique = arr.filter(function (elem, index, self) {
         return index === self.indexOf(elem);
     })
-    return unique.map((e) => new mongoose.Types.ObjectId(e));
+    return unique.map((e) => stringToId(e));
 }
 export function jsonToMapSize(input: InterSize): Map<Size, number> {
     const output = new Map<Size, number>()
@@ -581,7 +528,7 @@ export function ifIsTrue<T>(input: boolean, id: T, array1: T[], array2?: T[], ar
     }
     return array1
 }
-export function ifIsHave(input: mongoose.Types.ObjectId | null, array: mongoose.Types.ObjectId[]) {
+export function ifIsHave(input: Id | null, array: Id[]) {
     if (input) {
         array.push(input)
     }
@@ -594,10 +541,40 @@ export function ifIsPlus(logic: boolean, input: number): number {
         return input
     }
 }
-export const systemMode:string=process.env.MODE
-export function getSystemMode(){
+export function getSystemMode() {
     return process.env.MODE
 }
-export function getEndEmail(){
+export function getEndEmail() {
     return process.env.END_EMAIL
 }
+export function stringToId(input: string) {
+    return new mongoose.Types.ObjectId(input)
+}
+export const arrayObjectId = {
+    type: [mongoose.Schema.ObjectId],
+    default: []
+} as const
+export const dataString = {
+    type: String,
+    required: true,
+} as const
+export const dataNumber = {
+    type: Number,
+    default: 0
+} as const
+export const dataMap = {
+    type: Map,
+    default: new Map()
+} as const
+export const dataId = {
+    type: mongoose.Schema.ObjectId,
+    required: true
+} as const
+export const dataDate = {
+    type: Date,
+    required: true
+} as const
+export const dataSize = {// size    count
+    type: Map,
+    default: startSize()
+} as const

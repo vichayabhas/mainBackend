@@ -1,10 +1,8 @@
 import mongoose from "mongoose";
 import { foodLimits } from "./interface";
+import { arrayObjectId, dataId } from "../controllers/setup";
 const PeeCampSchema = new mongoose.Schema({
-    userId: {//user
-        type: mongoose.Schema.ObjectId,
-        required: true
-    },
+    userId:dataId,
     food: {
         type: String,
         default: ''
@@ -33,26 +31,8 @@ const PeeCampSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    // nongCampIds: {
-    //     type: [mongoose.Schema.ObjectId],
-    //     default: []
-    // },
-    // peeCampIds: {
-    //     type: [mongoose.Schema.ObjectId],
-    //     default: []
-    // },
-    // petoCampIds: {
-    //     type: [mongoose.Schema.ObjectId],
-    //     default: []
-    // },
-    campIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    campMemberCardIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    campIds:arrayObjectId,
+    campMemberCardIds: arrayObjectId,
     foodLimit:{
         type:String,
         enum:foodLimits,

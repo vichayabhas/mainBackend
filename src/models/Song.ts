@@ -1,32 +1,15 @@
 import mongoose from "mongoose"
+import { arrayObjectId, dataString } from "../controllers/setup"
 const PartSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    campIds: {//camp
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    baanIds: {//baan
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    author: {
-        type: String,
-        required: true,
-    },
+    name: dataString,
+    campIds:arrayObjectId,
+    baanIds: arrayObjectId,
+    author: dataString,
     time: {
         type: Number,
         require: true,
     },
-    link: {
-        type: String,
-        required: true,
-    },
-    userLikeIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    }
+    link: dataString,
+    userLikeIds: arrayObjectId,
 })
 export default mongoose.model('Song', PartSchema)

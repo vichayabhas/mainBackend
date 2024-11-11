@@ -18,326 +18,336 @@ export interface HospitalJson {
     data: HospitalItem[]
 }
 import mongoose from "mongoose"
+export type Id = mongoose.Types.ObjectId
 export interface InterActionPlan {
     action: string,
-    partId: mongoose.Types.ObjectId,
-    placeIds: mongoose.Types.ObjectId[],
+    partId: Id,
+    placeIds: Id[],
     start: Date,
     end: Date,
-    headId: mongoose.Types.ObjectId,
+    headId: Id,
     body: string,
-    _id: mongoose.Types.ObjectId,
+    _id: Id,
     partName: string,
 }
 export interface InterBaanBack {
     name: string,
     fullName: string | null,
-    campId: mongoose.Types.ObjectId,
-    peeIds: mongoose.Types.ObjectId[],
-    nongIds: mongoose.Types.ObjectId[],
-    nongHeathIssueIds: mongoose.Types.ObjectId[],
-    peeHeathIssueIds: mongoose.Types.ObjectId[],
+    campId: Id,
+    peeIds: Id[],
+    nongIds: Id[],
+    nongHeathIssueIds: Id[],
+    peeHeathIssueIds: Id[],
     nongShirtSize: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number>,
     peeShirtSize: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number>,
-    songIds: mongoose.Types.ObjectId[],
-    peeModelIds: mongoose.Types.ObjectId[],
-    nongModelId: mongoose.Types.ObjectId,
-    mapPeeCampIdByPartId: Map<mongoose.Types.ObjectId, mongoose.Types.ObjectId>,                    ///////////////////////i
-    nongCampMemberCardIds: mongoose.Types.ObjectId[],
-    peeCampMemberCardIds: mongoose.Types.ObjectId[],
+    songIds: Id[],
+    peeModelIds: Id[],
+    nongModelId: Id,
+    mapPeeCampIdByPartId: Map<Id, Id>,                    ///////////////////////i
+    nongCampMemberCardIds: Id[],
+    peeCampMemberCardIds: Id[],
     link: string | null,
-    styleId: mongoose.Types.ObjectId,
-    boySleepPlaceId: mongoose.Types.ObjectId | null,
-    girlSleepPlaceId: mongoose.Types.ObjectId | null,
-    normalPlaceId: mongoose.Types.ObjectId | null,
-    mapCampMemberCardIdByUserId: Map<mongoose.Types.ObjectId, mongoose.Types.ObjectId>,
-    _id: mongoose.Types.ObjectId,
-    nongSleepIds: mongoose.Types.ObjectId[],
-    peeSleepIds: mongoose.Types.ObjectId[],
+    styleId: Id,
+    boySleepPlaceId: Id | null,
+    girlSleepPlaceId: Id | null,
+    normalPlaceId: Id | null,
+    mapCampMemberCardIdByUserId: Map<Id, Id>,
+    _id: Id,
+    nongSleepIds: Id[],
+    peeSleepIds: Id[],
     groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'null'
-    chatIds: mongoose.Types.ObjectId[],
+    chatIds: Id[],
     mdTime: Date,
-    peeChatIds: mongoose.Types.ObjectId[],
-    nongChatIds: mongoose.Types.ObjectId[],
+    peeChatIds: Id[],
+    nongChatIds: Id[],
     nongSendMessage: boolean,
-    nongCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    peeCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    nongHaveBottleIds: mongoose.Types.ObjectId[],
-    peeHaveBottleIds: mongoose.Types.ObjectId[],
+    nongCampMemberCardHaveHeathIssueIds: Id[],
+    peeCampMemberCardHaveHeathIssueIds: Id[],
+    nongHaveBottleIds: Id[],
+    peeHaveBottleIds: Id[],
 }
 export interface InterBuilding {
     name: string,
-    placeIds: mongoose.Types.ObjectId[],
-    actionPlanIds: mongoose.Types.ObjectId[],
-    fridayActIds: mongoose.Types.ObjectId[],
-    _id: mongoose.Types.ObjectId,
-    lostAndFoundIds: mongoose.Types.ObjectId[],
-    boySleepBaanIds: mongoose.Types.ObjectId[],
-    girlSleepBaanIds: mongoose.Types.ObjectId[],
-    normalBaanIds: mongoose.Types.ObjectId[],
-    partIds: mongoose.Types.ObjectId[]
+    placeIds: Id[],
+    actionPlanIds: Id[],
+    fridayActIds: Id[],
+    _id: Id,
+    lostAndFoundIds: Id[],
+    boySleepBaanIds: Id[],
+    girlSleepBaanIds: Id[],
+    normalBaanIds: Id[],
+    partIds: Id[]
 }
 export interface InterCampBack {
-    nameId: mongoose.Types.ObjectId,
+    nameId: Id,
     round: number,
     dateStart: Date,
     dateEnd: Date,
-    boardIds: mongoose.Types.ObjectId[],
-    peeIds: mongoose.Types.ObjectId[],
-    nongIds: mongoose.Types.ObjectId[],
-    partIds: mongoose.Types.ObjectId[],
-    petoIds: mongoose.Types.ObjectId[],
-    authorizeIds: mongoose.Types.ObjectId[],
-    nongHeathIssueIds: mongoose.Types.ObjectId[],
-    peeHeathIssueIds: mongoose.Types.ObjectId[],
-    petoHeathIssueIds: mongoose.Types.ObjectId[],
+    boardIds: Id[],
+    peeIds: Id[],
+    nongIds: Id[],
+    partIds: Id[],
+    petoIds: Id[],
+    authorizeIds: Id[],
+    nongHeathIssueIds: Id[],
+    peeHeathIssueIds: Id[],
+    petoHeathIssueIds: Id[],
     dataLock: boolean,
     nongShirtSize: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number>,
     peeShirtSize: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number>,
     petoShirtSize: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number>,
-    nongModelIds: mongoose.Types.ObjectId[],
-    peeModelIds: mongoose.Types.ObjectId[],
-    petoModelIds: mongoose.Types.ObjectId[],
-    nongPendingIds: Map<mongoose.Types.ObjectId, string>,                            /////////////i
-    nongPassIds: Map<mongoose.Types.ObjectId, string>,                               ////////////////////i
+    nongModelIds: Id[],
+    peeModelIds: Id[],
+    petoModelIds: Id[],
+    nongPendingIds: Map<Id, string>,                            /////////////i
+    nongPassIds: Map<Id, string>,                               ////////////////////i
     open: boolean,
-    peePassIds: Map<mongoose.Types.ObjectId, mongoose.Types.ObjectId>,//<userId,partId>               ////////////////////////i
-    songIds: mongoose.Types.ObjectId[],
-    nongSureIds: mongoose.Types.ObjectId[],
-    baanIds: mongoose.Types.ObjectId[],
-    nongCampMemberCardIds: mongoose.Types.ObjectId[],
-    peeCampMemberCardIds: mongoose.Types.ObjectId[],
-    petoCampMemberCardIds: mongoose.Types.ObjectId[],
+    peePassIds: Map<Id, Id>,//<userId,partId>               ////////////////////////i
+    songIds: Id[],
+    nongSureIds: Id[],
+    baanIds: Id[],
+    nongCampMemberCardIds: Id[],
+    peeCampMemberCardIds: Id[],
+    petoCampMemberCardIds: Id[],
     link: string | null,
     allDone: boolean,
     lockChangePickup: boolean,
     pictureUrls: string[],
-    campStyleId: mongoose.Types.ObjectId,
-    actionPlanIds: mongoose.Types.ObjectId[],
-    workItemIds: mongoose.Types.ObjectId[],
-    nongPaidIds: mongoose.Types.ObjectId[],
-    nongInterviewIds: Map<mongoose.Types.ObjectId, string>,                            ////////////////////////////////i
+    campStyleId: Id,
+    actionPlanIds: Id[],
+    workItemIds: Id[],
+    nongPaidIds: Id[],
+    nongInterviewIds: Map<Id, string>,                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
     memberStructure: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear' | 'nong->highSchool,pee->allYear' | 'allYearMix',
     logoUrl: string | null,
-    mapCampMemberCardIdByUserId: Map<mongoose.Types.ObjectId, mongoose.Types.ObjectId>,
+    mapCampMemberCardIdByUserId: Map<Id, Id>,
     registerSheetLink: string | null,
     peeLock: boolean,
-    outRoundIds: mongoose.Types.ObjectId[],
-    _id: mongoose.Types.ObjectId,
+    outRoundIds: Id[],
+    _id: Id,
     campName: string,
-    nongSleepIds: mongoose.Types.ObjectId[],
-    peeSleepIds: mongoose.Types.ObjectId[],
+    nongSleepIds: Id[],
+    peeSleepIds: Id[],
     nongSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
     peeSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน'
-    groupRefMap: Map<Group, mongoose.Types.ObjectId>,
-    baanBoardId: mongoose.Types.ObjectId | null,
-    partNameIds: mongoose.Types.ObjectId[],
-    partBoardId: mongoose.Types.ObjectId,
-    partCoopId: mongoose.Types.ObjectId,
-    partRegisterId: mongoose.Types.ObjectId,
-    partPeeBaanId: mongoose.Types.ObjectId,
+    groupRefMap: Map<Group, Id>,
+    baanBoardId: Id | null,
+    partNameIds: Id[],
+    partBoardId: Id,
+    partCoopId: Id,
+    partRegisterId: Id,
+    partPeeBaanId: Id,
     groupName: string,
     peeDataLock: boolean,
     petoDataLock: boolean,
     haveCloth: boolean,
     actionPlanOffset: number,
-    nongMapIdLtoG: Map<number, mongoose.Types.ObjectId>,
-    peeMapIdLtoG: Map<number, mongoose.Types.ObjectId>,
-    nongMapIdGtoL: Map<mongoose.Types.ObjectId, number>,
-    peeMapIdGtoL: Map<mongoose.Types.ObjectId, number>,
+    nongMapIdLtoG: Map<number, Id>,
+    peeMapIdLtoG: Map<number, Id>,
+    nongMapIdGtoL: Map<Id, number>,
+    peeMapIdGtoL: Map<Id, number>,
     currentNong: number,
     currentPee: number,
     mdTime: Date,
-    partWelfareId: mongoose.Types.ObjectId,
-    partMedId: mongoose.Types.ObjectId,
-    partPlanId: mongoose.Types.ObjectId,
-    allPetoChatIds: mongoose.Types.ObjectId[],
-    petoSleepIds: mongoose.Types.ObjectId[],
-    nongCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    peeCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    petoCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    nongHaveBottleIds: mongoose.Types.ObjectId[],
-    peeHaveBottleIds: mongoose.Types.ObjectId[],
-    petoHaveBottleIds: mongoose.Types.ObjectId[],
-    partPrStudioId: mongoose.Types.ObjectId,
+    partWelfareId: Id,
+    partMedId: Id,
+    partPlanId: Id,
+    allPetoChatIds: Id[],
+    petoSleepIds: Id[],
+    nongCampMemberCardHaveHeathIssueIds: Id[],
+    peeCampMemberCardHaveHeathIssueIds: Id[],
+    petoCampMemberCardHaveHeathIssueIds: Id[],
+    nongHaveBottleIds: Id[],
+    peeHaveBottleIds: Id[],
+    petoHaveBottleIds: Id[],
+    partPrStudioId: Id,
+    choiceQuestionIds: Id[],
+    textQuestionIds: Id[],
+    nongAnswerPackIds: Id[],
+    peeAnswerPackIds: Id[],
+    mapAnswerPackIdByUserId: Map<Id, Id>,
+    peeAnswerIds: Id[],
+    showCorrectAnswerAndScore: boolean,
 }
 export interface InterCampStyle {
-    refId: mongoose.Types.ObjectId,
+    refId: Id,
     types: 'camp' | 'baan',
-    _id: mongoose.Types.ObjectId
+    _id: Id
 }
 export interface InterFridayAct {
     company: string,
     date: Date,
-    staffId: mongoose.Types.ObjectId[],
+    staffId: Id[],
     limit: number,
-    studentId: mongoose.Types.ObjectId[],
-    placeId: mongoose.Types.ObjectId,
-    _id: mongoose.Types.ObjectId
+    studentId: Id[],
+    placeId: Id,
+    _id: Id
 }
 export interface InterHeathIssue extends HeathIssueBody {
-    userId: mongoose.Types.ObjectId,
-    _id: mongoose.Types.ObjectId
-    campIds: mongoose.Types.ObjectId[]
-    // nongCampIds: mongoose.Types.ObjectId[],
-    // peeCampIds: mongoose.Types.ObjectId[],
-    // petoCampIds: mongoose.Types.ObjectId[],
-    campMemberCardIds: mongoose.Types.ObjectId[],
+    userId: Id,
+    _id: Id
+    campIds: Id[]
+    campMemberCardIds: Id[],
 }
 export interface InterNameContainer {
-    campIds: mongoose.Types.ObjectId[],
+    campIds: Id[],
     name: string,
-    _id: mongoose.Types.ObjectId
+    _id: Id
 }
 export interface InterNongCampBack {
-    campId: mongoose.Types.ObjectId,
-    baanId: mongoose.Types.ObjectId,
-    nongIds: mongoose.Types.ObjectId[],
-    nongCampMemberCardIds: mongoose.Types.ObjectId[],
-    _id: mongoose.Types.ObjectId,
+    campId: Id,
+    baanId: Id,
+    nongIds: Id[],
+    nongCampMemberCardIds: Id[],
+    _id: Id,
     //mapNongCampIdByUserId: Map<string, string>
 }
 export interface InterPartBack {
-    nameId: mongoose.Types.ObjectId,
-    campId: mongoose.Types.ObjectId,
-    peeIds: mongoose.Types.ObjectId[],
-    petoIds: mongoose.Types.ObjectId[],
-    peeHeathIssueIds: mongoose.Types.ObjectId[],
-    petoHeathIssueIds: mongoose.Types.ObjectId[],
+    nameId: Id,
+    campId: Id,
+    peeIds: Id[],
+    petoIds: Id[],
+    peeHeathIssueIds: Id[],
+    petoHeathIssueIds: Id[],
     peeShirtSize: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number>,
     petoShirtSize: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number>,
-    peeModelIds: mongoose.Types.ObjectId[],
-    petoModelId: mongoose.Types.ObjectId,
-    mapPeeCampIdByBaanId: Map<mongoose.Types.ObjectId, mongoose.Types.ObjectId>,                                     /////////////////i
-    peeCampMemberCardIds: mongoose.Types.ObjectId[],
-    petoCampMemberCardIds: mongoose.Types.ObjectId[],
-    actionPlanIds: mongoose.Types.ObjectId[],
-    workItemIds: mongoose.Types.ObjectId[],
-    placeId: mongoose.Types.ObjectId | null,
-    mapCampMemberCardIdByUserId: Map<mongoose.Types.ObjectId, mongoose.Types.ObjectId>,
-    _id: mongoose.Types.ObjectId,
+    peeModelIds: Id[],
+    petoModelId: Id,
+    mapPeeCampIdByBaanId: Map<Id, Id>,                                     /////////////////i
+    peeCampMemberCardIds: Id[],
+    petoCampMemberCardIds: Id[],
+    actionPlanIds: Id[],
+    workItemIds: Id[],
+    placeId: Id | null,
+    mapCampMemberCardIdByUserId: Map<Id, Id>,
+    _id: Id,
     partName: string,
-    peeSleepIds: mongoose.Types.ObjectId[],
-    chatIds: mongoose.Types.ObjectId[],
+    peeSleepIds: Id[],
+    chatIds: Id[],
     isAuth: boolean,
-    petoSleepIds: mongoose.Types.ObjectId[],
-    peeCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    petoCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    peeHaveBottleIds: mongoose.Types.ObjectId[],
-    petoHaveBottleIds: mongoose.Types.ObjectId[],
+    petoSleepIds: Id[],
+    peeCampMemberCardHaveHeathIssueIds: Id[],
+    petoCampMemberCardHaveHeathIssueIds: Id[],
+    peeHaveBottleIds: Id[],
+    petoHaveBottleIds: Id[],
 }
 export interface InterPartNameContainer {
-    campIds: mongoose.Types.ObjectId[],
+    campIds: Id[],
     name: string,
-    partIds: mongoose.Types.ObjectId[],
-    _id: mongoose.Types.ObjectId
+    partIds: Id[],
+    _id: Id
 }
 export interface InterPeeCamp {
-    campId: mongoose.Types.ObjectId,
-    partId: mongoose.Types.ObjectId,
-    baanId: mongoose.Types.ObjectId, peeIds: mongoose.Types.ObjectId[],
-    peeCampMemberCardIds: mongoose.Types.ObjectId[],
-    _id: mongoose.Types.ObjectId,
+    campId: Id,
+    partId: Id,
+    baanId: Id, peeIds: Id[],
+    peeCampMemberCardIds: Id[],
+    _id: Id,
 }
 export interface InterPetoCamp {
-    campId: mongoose.Types.ObjectId,
-    partId: mongoose.Types.ObjectId,
-    petoCampMemberCardIds: mongoose.Types.ObjectId,
-    petoIds: mongoose.Types.ObjectId[],
-    _id: mongoose.Types.ObjectId,
+    campId: Id,
+    partId: Id,
+    petoCampMemberCardIds: Id,
+    petoIds: Id[],
+    _id: Id,
 }
 export interface InterPlace {
-    buildingId: mongoose.Types.ObjectId,
+    buildingId: Id,
     floor: string,
     room: string,
-    actionPlanIds: mongoose.Types.ObjectId[],
-    fridayActIds: mongoose.Types.ObjectId[],
-    boySleepBaanIds: mongoose.Types.ObjectId[],
-    girlSleepBaanIds: mongoose.Types.ObjectId[],
-    normalBaanIds: mongoose.Types.ObjectId[],
+    actionPlanIds: Id[],
+    fridayActIds: Id[],
+    boySleepBaanIds: Id[],
+    girlSleepBaanIds: Id[],
+    normalBaanIds: Id[],
     sleepCap: number,
     actCap: number,
     studyCap: number,
-    _id: mongoose.Types.ObjectId
+    _id: Id
 }
 export interface InterCampMemberCard {
-    userId: mongoose.Types.ObjectId,
+    userId: Id,
     size: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',
-    campModelId: mongoose.Types.ObjectId,
+    campModelId: Id,
     role: 'nong' | 'pee' | 'peto',
     receive: number,
     received: number,
-    _id: mongoose.Types.ObjectId,
+    _id: Id,
     haveBottle: boolean,
     sleepAtCamp: boolean,
-    chatIds: mongoose.Types.ObjectId[],
-    allChatIds: mongoose.Types.ObjectId[],
-    ownChatIds: mongoose.Types.ObjectId[],
-    healthIssueId: mongoose.Types.ObjectId | null,
+    chatIds: Id[],
+    allChatIds: Id[],
+    ownChatIds: Id[],
+    healthIssueId: Id | null,
 }
 export interface InterSong {
     name: string,
-    campIds: mongoose.Types.ObjectId[],
-    baanIds: mongoose.Types.ObjectId[],
+    campIds: Id[],
+    baanIds: Id[],
     author: string,
     time: number,
     link: string,
-    userLikeIds: mongoose.Types.ObjectId[],
-    _id: mongoose.Types.ObjectId
+    userLikeIds: Id[],
+    _id: Id
 }
 export interface InterUser {
-    name: string,//                       
-    lastname: string,//
-    nickname: string,//                   
-    email: string,//
-    password: string,//                 
-    resetPasswordToken?: string,
-    resetPasswordExpire?: Date,
-    studentId: string | null,//            
-    gender: 'Male' | 'Female',//          
-    shirtSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',//
-    healthIssueId: mongoose.Types.ObjectId | null,//          
-    haveBottle: boolean,//                
-    mode: 'nong' | 'pee',//                
-    nongCampIds: mongoose.Types.ObjectId[],//               
-    peeCampIds: mongoose.Types.ObjectId[],//                
-    petoCampIds: mongoose.Types.ObjectId[],//               
-    group: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | null,//
-    role: 'pee' | 'nong' | 'admin' | 'peto',//
-    filterIds: mongoose.Types.ObjectId[],//                 
-    registerIds: mongoose.Types.ObjectId[],//               
-    authorizeIds: mongoose.Types.ObjectId[],//              
-    fridayActIds: mongoose.Types.ObjectId[],//              ลง friday activity 
-    fridayActEn: boolean,//                 friday activity 
-    fridayAuth: boolean,//                  friday activity 
-    likeSongIds: mongoose.Types.ObjectId[],//               
-    campMemberCardIds: mongoose.Types.ObjectId[],//            
-    createdAt: Date,//
-    tel: string,   //                      
-    linkHash: string,//                     default 'null'
-    citizenId: string,//                     
-    _id: mongoose.Types.ObjectId,
+    _id: Id,
+    name: string,
+    lastname: string,
+    nickname: string,
+    email: string
+
+    password: string
+    tel: string
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+    studentId: string
+    gender: 'Male' | 'Female',
+    shirtSize: Size,
+    healthIssueId: Id,
+    haveBottle: boolean,
+
+    mode: Mode,
+    nongCampIds: Id[],
+    peeCampIds: Id[],
+    petoCampIds: Id[],
+    group: Group | 'null',
+    role: Role,
+    filterIds: Id[],
+    registerIds: Id[],
+    authorizeIds: Id[],
+    fridayActIds: Id[],
+    fridayActEn: boolean,
+    fridayAuth: boolean,
+    likeSongIds: Id[],
+    campMemberCardIds: Id[],
+    lostAndFoundIds: Id[],
+    createdAt: Date,
+    linkHash: string,
+    citizenId: string,
     likeToSleepAtCamp: boolean,
-    selectOffsetId: mongoose.Types.ObjectId,
-    displayOffsetId: mongoose.Types.ObjectId,
-    authPartIds: mongoose.Types.ObjectId[],
-    chatIds: mongoose.Types.ObjectId[],
+    authPartIds: Id[],
+    selectOffsetId: Id,
+    displayOffsetId: Id,
+    chatIds: Id[],
+    nongAnswerPackIds: Id[],
+    peeAnswerPackIds: Id[],
 }
 export interface InterWorkingItem {
     name: string,
     link: string | null,
     status: 'not start' | 'in process' | 'done',
-    partId: mongoose.Types.ObjectId,
-    linkOutIds: mongoose.Types.ObjectId[],
-    fromId: mongoose.Types.ObjectId | null,
-    createBy: mongoose.Types.ObjectId,
-    _id: mongoose.Types.ObjectId,
+    partId: Id,
+    linkOutIds: Id[],
+    fromId: Id | null,
+    createBy: Id,
+    _id: Id,
     password: string,
     partName: string
 }
 export interface InterSize {
-    _id: mongoose.Types.ObjectId | null,
+    _id: Id | null,
     sizeS: number,
     sizeM: number,
     sizeL: number,
@@ -348,78 +358,78 @@ export interface InterSize {
 export interface InterBaanFront {
     name: string,
     fullName: string | null,
-    campId: mongoose.Types.ObjectId,
-    peeIds: mongoose.Types.ObjectId[],
-    nongIds: mongoose.Types.ObjectId[],
-    nongHeathIssueIds: mongoose.Types.ObjectId[],
-    peeHeathIssueIds: mongoose.Types.ObjectId[],
+    campId: Id,
+    peeIds: Id[],
+    nongIds: Id[],
+    nongHeathIssueIds: Id[],
+    peeHeathIssueIds: Id[],
     nongShirtSize: InterSize,//
     peeShirtSize: InterSize,//
-    songIds: mongoose.Types.ObjectId[],
-    peeModelIds: mongoose.Types.ObjectId[],
-    nongModelId: mongoose.Types.ObjectId,
-    nongCampMemberCardIds: mongoose.Types.ObjectId[],
-    peeCampMemberCardIds: mongoose.Types.ObjectId[],
+    songIds: Id[],
+    peeModelIds: Id[],
+    nongModelId: Id,
+    nongCampMemberCardIds: Id[],
+    peeCampMemberCardIds: Id[],
     link: string | null,
-    styleId: mongoose.Types.ObjectId,
-    boySleepPlaceId: mongoose.Types.ObjectId | null,
-    girlSleepPlaceId: mongoose.Types.ObjectId | null,
-    normalPlaceId: mongoose.Types.ObjectId | null,
+    styleId: Id,
+    boySleepPlaceId: Id | null,
+    girlSleepPlaceId: Id | null,
+    normalPlaceId: Id | null,
     mapCampMemberCardIdByUserId: MapObjectId[],
-    _id: mongoose.Types.ObjectId,
-    nongSleepIds: mongoose.Types.ObjectId[],
-    peeSleepIds: mongoose.Types.ObjectId[],
+    _id: Id,
+    nongSleepIds: Id[],
+    peeSleepIds: Id[],
     groupRef: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'null',
-    chatIds: mongoose.Types.ObjectId[],
+    chatIds: Id[],
     mdTime: Date,
-    peeChatIds: mongoose.Types.ObjectId[],
-    nongChatIds: mongoose.Types.ObjectId[],
+    peeChatIds: Id[],
+    nongChatIds: Id[],
     nongSendMessage: boolean,
-    nongCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    peeCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    nongHaveBottleIds: mongoose.Types.ObjectId[],
-    peeHaveBottleIds: mongoose.Types.ObjectId[],
+    nongCampMemberCardHaveHeathIssueIds: Id[],
+    peeCampMemberCardHaveHeathIssueIds: Id[],
+    nongHaveBottleIds: Id[],
+    peeHaveBottleIds: Id[],
 }
 
 export interface InterCampFront {
-    nameId: mongoose.Types.ObjectId,
+    nameId: Id,
     round: number,
     dateStart: Date,
     dateEnd: Date,
-    boardIds: mongoose.Types.ObjectId[],
-    peeIds: mongoose.Types.ObjectId[],
-    nongIds: mongoose.Types.ObjectId[],
-    partIds: mongoose.Types.ObjectId[],
-    petoIds: mongoose.Types.ObjectId[],
-    authorizeIds: mongoose.Types.ObjectId[],
-    nongHeathIssueIds: mongoose.Types.ObjectId[],
-    peeHeathIssueIds: mongoose.Types.ObjectId[],
-    petoHeathIssueIds: mongoose.Types.ObjectId[],
+    boardIds: Id[],
+    peeIds: Id[],
+    nongIds: Id[],
+    partIds: Id[],
+    petoIds: Id[],
+    authorizeIds: Id[],
+    nongHeathIssueIds: Id[],
+    peeHeathIssueIds: Id[],
+    petoHeathIssueIds: Id[],
     dataLock: boolean,
     nongShirtSize: InterSize,
     peeShirtSize: InterSize,
     petoShirtSize: InterSize,
-    nongModelIds: mongoose.Types.ObjectId[],
-    peeModelIds: mongoose.Types.ObjectId[],
-    petoModelIds: mongoose.Types.ObjectId[],
+    nongModelIds: Id[],
+    peeModelIds: Id[],
+    petoModelIds: Id[],
     nongPendingIds: MyMap[],                            /////////////i
     nongPassIds: MyMap[],                               ////////////////////i
     open: boolean,
     peePassIds: MapObjectId[],//<userId,partId>               ////////////////////////i
-    songIds: mongoose.Types.ObjectId[],
-    nongSureIds: mongoose.Types.ObjectId[],
-    baanIds: mongoose.Types.ObjectId[],
-    nongCampMemberCardIds: mongoose.Types.ObjectId[],
-    peeCampMemberCardIds: mongoose.Types.ObjectId[],
-    petoCampMemberCardIds: mongoose.Types.ObjectId[],
+    songIds: Id[],
+    nongSureIds: Id[],
+    baanIds: Id[],
+    nongCampMemberCardIds: Id[],
+    peeCampMemberCardIds: Id[],
+    petoCampMemberCardIds: Id[],
     link: string | null,
     allDone: boolean,
     lockChangePickup: boolean,
     pictureUrls: string[],
-    campStyleId: mongoose.Types.ObjectId,
-    actionPlanIds: mongoose.Types.ObjectId[],
-    workItemIds: mongoose.Types.ObjectId[],
-    nongPaidIds: mongoose.Types.ObjectId[],
+    campStyleId: Id,
+    actionPlanIds: Id[],
+    workItemIds: Id[],
+    nongPaidIds: Id[],
     nongInterviewIds: MyMap[],                            ////////////////////////////////i
     registerModel: 'noPaid' | 'noInterview' | 'all',
     memberStructure: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear' | 'nong->highSchool,pee->allYear' | 'allYearMix',
@@ -427,19 +437,19 @@ export interface InterCampFront {
     mapCampMemberCardIdByUserId: MapObjectId[],
     registerSheetLink: string | null,
     peeLock: boolean,
-    outRoundIds: mongoose.Types.ObjectId[],
-    _id: mongoose.Types.ObjectId,
+    outRoundIds: Id[],
+    _id: Id,
     campName: string,
-    nongSleepIds: mongoose.Types.ObjectId[],
-    peeSleepIds: mongoose.Types.ObjectId[],
+    nongSleepIds: Id[],
+    peeSleepIds: Id[],
     nongSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
     peeSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
-    baanBoardId: mongoose.Types.ObjectId | null,
-    partNameIds: mongoose.Types.ObjectId[],
-    partBoardId: mongoose.Types.ObjectId,
-    partCoopId: mongoose.Types.ObjectId,
-    partRegisterId: mongoose.Types.ObjectId,
-    partPeeBaanId: mongoose.Types.ObjectId,
+    baanBoardId: Id | null,
+    partNameIds: Id[],
+    partBoardId: Id,
+    partCoopId: Id,
+    partRegisterId: Id,
+    partPeeBaanId: Id,
     groupName: string,
     peeDataLock: boolean,
     petoDataLock: boolean,
@@ -450,60 +460,67 @@ export interface InterCampFront {
     nongMapIdGtoL: MyMap[],
     peeMapIdGtoL: MyMap[],
     mdTime: Date,
-    partWelfareId: mongoose.Types.ObjectId,
-    partMedId: mongoose.Types.ObjectId,
-    partPlanId: mongoose.Types.ObjectId,
-    allPetoChatIds: mongoose.Types.ObjectId[],
-    petoSleepIds: mongoose.Types.ObjectId[],
-    nongCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    peeCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    petoCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    nongHaveBottleIds: mongoose.Types.ObjectId[],
-    peeHaveBottleIds: mongoose.Types.ObjectId[],
-    petoHaveBottleIds: mongoose.Types.ObjectId[],
-    partPrStudioId: mongoose.Types.ObjectId,
+    partWelfareId: Id,
+    partMedId: Id,
+    partPlanId: Id,
+    allPetoChatIds: Id[],
+    petoSleepIds: Id[],
+    nongCampMemberCardHaveHeathIssueIds: Id[],
+    peeCampMemberCardHaveHeathIssueIds: Id[],
+    petoCampMemberCardHaveHeathIssueIds: Id[],
+    nongHaveBottleIds: Id[],
+    peeHaveBottleIds: Id[],
+    petoHaveBottleIds: Id[],
+    partPrStudioId: Id,
+    choiceQuestionIds: Id[],
+    textQuestionIds: Id[],
+    nongAnswerPackIds: Id[],
+    peeAnswerPackIds: Id[],
+    mapAnswerPackIdByUserId: MapObjectId[],
+    peeAnswerIds: Id[],
+    showCorrectAnswerAndScore: boolean,
 }
 export interface InterPartFront {
-    nameId: mongoose.Types.ObjectId,
-    campId: mongoose.Types.ObjectId,
-    peeIds: mongoose.Types.ObjectId[],
-    petoIds: mongoose.Types.ObjectId[],
-    peeHeathIssueIds: mongoose.Types.ObjectId[],
-    petoHeathIssueIds: mongoose.Types.ObjectId[],
+    nameId: Id,
+    campId: Id,
+    peeIds: Id[],
+    petoIds: Id[],
+    peeHeathIssueIds: Id[],
+    petoHeathIssueIds: Id[],
     peeShirtSize: InterSize,
     petoShirtSize: InterSize,
-    peeModelIds: mongoose.Types.ObjectId[],
-    petoModelId: mongoose.Types.ObjectId,
-    peeCampMemberCardIds: mongoose.Types.ObjectId[],
-    petoCampMemberCardIds: mongoose.Types.ObjectId[],
-    actionPlanIds: mongoose.Types.ObjectId[],
-    workItemIds: mongoose.Types.ObjectId[],
-    placeId: mongoose.Types.ObjectId | null,
+    peeModelIds: Id[],
+    petoModelId: Id,
+    peeCampMemberCardIds: Id[],
+    petoCampMemberCardIds: Id[],
+    actionPlanIds: Id[],
+    workItemIds: Id[],
+    placeId: Id | null,
     mapCampMemberCardIdByUserId: MapObjectId[],
-    _id: mongoose.Types.ObjectId,
+    _id: Id,
     partName: string
-    peeSleepIds: mongoose.Types.ObjectId[],
-    chatIds: mongoose.Types.ObjectId[],
+    peeSleepIds: Id[],
+    chatIds: Id[],
     isAuth: boolean,
-    petoSleepIds: mongoose.Types.ObjectId[],
-    peeCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    petoCampMemberCardHaveHeathIssueIds: mongoose.Types.ObjectId[],
-    peeHaveBottleIds: mongoose.Types.ObjectId[],
-    petoHaveBottleIds: mongoose.Types.ObjectId[],
+    petoSleepIds: Id[],
+    peeCampMemberCardHaveHeathIssueIds: Id[],
+    petoCampMemberCardHaveHeathIssueIds: Id[],
+    peeHaveBottleIds: Id[],
+    petoHaveBottleIds: Id[],
 }
 export interface MyMap {
-    key: mongoose.Types.ObjectId,
+    key: Id,
     value: string
 }
 export interface InterLostAndFound {
-    campId: mongoose.Types.ObjectId | null,
+    campId: Id | null,
     type: 'lost' | 'found',
     name: string,
     detail: string,
-    userId: mongoose.Types.ObjectId,
-    placeId: mongoose.Types.ObjectId | null,
-    buildingId: mongoose.Types.ObjectId | null,
-    _id: mongoose.Types.ObjectId
+    userId: Id,
+    placeId: Id | null,
+    buildingId: Id | null,
+    _id: Id
 }
 export interface Register {
     name: string,
@@ -533,22 +550,23 @@ export interface UpdateCamp {
     groupName: string,
     peeDataLock: boolean,
     petoDataLock: boolean,
-    haveCloth: boolean
+    haveCloth: boolean,
+    showCorrectAnswerAndScore: boolean,
 }
 export interface CreateCamp {
-    nameId: mongoose.Types.ObjectId,
+    nameId: Id,
     round: number,
     dateStart: Date,
     dateEnd: Date,
-    boardIds: mongoose.Types.ObjectId[],
+    boardIds: Id[],
     registerModel: 'noPaid' | 'noInterview' | 'all',
     memberStructure: 'nong->highSchool,pee->1year,peto->2upYear' | 'nong->highSchool,pee->2upYear' | 'nong->1year,pee->2upYear' | 'nong->highSchool,pee->allYear' | 'allYearMix',
     nongSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน',
     peeSleepModel: 'นอนทุกคน' | 'เลือกได้ว่าจะค้างคืนหรือไม่' | 'ไม่มีการค้างคืน'
 }
 export interface MapObjectId {
-    key: mongoose.Types.ObjectId,
-    value: mongoose.Types.ObjectId
+    key: Id,
+    value: Id
 }
 export interface ShowMember {
     //                          id ของ mongodb
@@ -559,26 +577,26 @@ export interface ShowMember {
     studentId: string | null,//            
     gender: 'Male' | 'Female',//           เพศ
     shirtSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL',//
-    healthIssueId: mongoose.Types.ObjectId | null,//          
+    healthIssueId: Id | null,//          
     haveBottle: boolean,//                 
     group: 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T' | null,//           
     likeSongs: string[],//               
     tel: string,   //                      
-    _id: mongoose.Types.ObjectId,
+    _id: Id,
     sleep: boolean,
     isWearing: boolean,
     spicy: boolean,
     id: number,
-    campMemberCardId: mongoose.Types.ObjectId,
+    campMemberCardId: Id,
 }
 export interface UpdateBaan {
     name: string,
     fullName: string | null,
-    baanId: mongoose.Types.ObjectId,
+    baanId: Id,
     link: string | null,
-    girlSleepPlaceId: mongoose.Types.ObjectId | null,
-    boySleepPlaceId: mongoose.Types.ObjectId | null,
-    normalPlaceId: mongoose.Types.ObjectId | null,
+    girlSleepPlaceId: Id | null,
+    boySleepPlaceId: Id | null,
+    normalPlaceId: Id | null,
     nongSendMessage: boolean,
 }
 export type Group = 'A' | 'B' | 'C' | 'Dog' | 'E' | 'F' | 'G' | 'H' | 'J' | 'K' | 'L' | 'M' | 'N' | 'P' | 'Q' | 'R' | 'S' | 'T'
@@ -598,101 +616,39 @@ export interface HeathIssueBody {
 }
 export interface CreateActionPlan {
     action: string,
-    partId: mongoose.Types.ObjectId,
-    placeIds: mongoose.Types.ObjectId[],
+    partId: Id,
+    placeIds: Id[],
     start: Date,
     end: Date,
-    headId: mongoose.Types.ObjectId,
+    headId: Id,
     body: string
 }
 export interface showActionPlan {
-    _id: mongoose.Types.ObjectId,
+    _id: Id,
     action: string,
-    partId: mongoose.Types.ObjectId,
-    placeIds: mongoose.Types.ObjectId[],
+    partId: Id,
+    placeIds: Id[],
     start: Date,
     end: Date,
-    headId: mongoose.Types.ObjectId,
+    headId: Id,
     body: string,
     headName: string,
     headTel: string,
     partName: string,
     placeName: string[]
 }
-export interface ChoiceAnswer extends Answer {
-    userId: mongoose.Types.ObjectId,
-    _id: mongoose.Types.ObjectId
-}
-export type Choice = 'A' | 'B' | 'C' | "D" | "E"
-export interface ChoiceQuestion {
-    choiceAnswerIds: mongoose.Types.ObjectId[],
-    campId: mongoose.Types.ObjectId,
-    userIds: mongoose.Types.ObjectId[],
-    question: string,
-    a: string,
-    b: string,
-    c: string,
-    d: string,
-    e: string,
-    _id: mongoose.Types.ObjectId,
-    scoreA: number,
-    scoreB: number,
-    scoreC: number,
-    scoreD: number,
-    scoreE: number,
-    answerA: number,
-    answerB: number,
-    answerC: number,
-    answerD: number,
-    answerE: number,
-    correct: Choice | null,
-}
-export interface Answer {
-    questionId: mongoose.Types.ObjectId,
-    campId: mongoose.Types.ObjectId,
-    answer: Choice | null
-}
-export interface CreateQuestion {
-    campId: mongoose.Types.ObjectId,
-    question: string,
-    a: string,
-    b: string,
-    c: string,
-    d: string,
-    e: string,
-    scoreA: number,
-    scoreB: number,
-    scoreC: number,
-    scoreD: number,
-    scoreE: number,
-    correct: Choice | null,
-}
-export interface EditQuestion {
-    _id: mongoose.Types.ObjectId,
-    question: string,
-    a: string,
-    b: string,
-    c: string,
-    d: string,
-    e: string,
-    scoreA: number,
-    scoreB: number,
-    scoreC: number,
-    scoreD: number,
-    scoreE: number,
-    correct: Choice | null,
-}
+
 export interface CreateWorkingItem {
     name: string,
     link: string | null,
-    partId: mongoose.Types.ObjectId,
-    fromId: mongoose.Types.ObjectId | null,
+    partId: Id,
+    fromId: Id | null,
     password: string
 }
 export interface ShowRegister {
     fullName: string,
-    userId: mongoose.Types.ObjectId,
-    partId: mongoose.Types.ObjectId,
+    userId: Id,
+    partId: Id,
     partName: string
 }
 export interface RegisBaan {
@@ -706,11 +662,11 @@ export interface RegisPart {
     part: InterPartFront
 }
 export interface InterTimeOffset {
-    userId: mongoose.Types.ObjectId,
+    userId: Id,
     day: number,
     hour: number,
     minute: number,
-    _id: mongoose.Types.ObjectId
+    _id: Id
 }
 export interface UpdateTimeOffsetRaw {
     day: number,
@@ -722,11 +678,11 @@ export interface UpdateTimeOffset {
     select: UpdateTimeOffsetRaw
 }
 export interface AddLostAndFound {
-    campId: mongoose.Types.ObjectId | null,
+    campId: Id | null,
     type: 'lost' | 'found',
     name: string,
     detail: string,
-    placeId: mongoose.Types.ObjectId | null,
+    placeId: Id | null,
 }
 export interface ShowLostAndFound extends InterLostAndFound {
     userName: string,
@@ -742,7 +698,7 @@ export interface ShowPlace {
     buildingName: string,
     floor: string,
     room: string,
-    _id: mongoose.Types.ObjectId
+    _id: Id
 }
 export interface mapObjectIdToLocalId {
     key: string,
@@ -756,7 +712,7 @@ export interface ShowNong {
     id: number,
 }
 export interface ShowRegisterNong {
-    generalId: mongoose.Types.ObjectId,
+    generalId: Id,
     link: string,
     localId: string,
 }
@@ -769,12 +725,12 @@ export interface AllNongRegister {
 }
 export interface InterChat {
     message: string,
-    userId: mongoose.Types.ObjectId,
-    campModelId: mongoose.Types.ObjectId,
+    userId: Id,
+    campModelId: Id,
     role: RoleCamp,
     typeChat: TypeChat,
-    refId: mongoose.Types.ObjectId,//'น้องคุยส่วนตัวกับพี่','คุยกันในบ้าน'baan,'คุยกันในฝ่าย'part,'พี่คุยกันในบ้าน'baan,'พี่บ้านคุยกัน'part
-    campMemberCardIds: mongoose.Types.ObjectId[],
+    refId: Id,//'น้องคุยส่วนตัวกับพี่','คุยกันในบ้าน'baan,'คุยกันในฝ่าย'part,'พี่คุยกันในบ้าน'baan,'พี่บ้านคุยกัน'part
+    campMemberCardIds: Id[],
     date: Date,
 }
 export interface ShowChat extends InterChat {
@@ -785,19 +741,19 @@ export interface ShowChat extends InterChat {
 }
 export interface CreatePeeChat {
     message: string,
-    partId: mongoose.Types.ObjectId
+    partId: Id
 }
 export interface EditChat {
     message: string,
-    id: mongoose.Types.ObjectId
+    id: Id
 }
 export interface CreateBaanChat {
     message: string,
-    baanId: mongoose.Types.ObjectId
+    baanId: Id
 }
 export interface CreateNongChat {
     message: string,
-    CampMemberCard: mongoose.Types.ObjectId
+    CampMemberCard: Id
 }
 export const departures = [
     "วิศวกรรมเคมี (Chemical Engineering)",
@@ -828,7 +784,7 @@ export type TypeChat = typeof typeChats[number]
 export type GetChat = 'getAllChatFromCampId' | 'getPartChat' | 'getNongBaanChat' | 'getPeeBaanChat' | 'getNongChat' | 'getPartPeebaanChat'
 export interface AllPlaceData {
     allPlace: Map<string, InterPlace[]>,
-    allBuildings: Map<mongoose.Types.ObjectId, InterBuilding>,
+    allBuildings: Map<Id, InterBuilding>,
 }
 export interface ChatReady {
     chats: ShowChat[];
@@ -836,7 +792,7 @@ export interface ChatReady {
     mode: Mode;
     groupName: string;
     sendType: {
-        id: mongoose.Types.ObjectId;
+        id: Id;
         roomType: TypeChat;
     } | null;
     success: boolean,
@@ -873,18 +829,18 @@ export interface GetBaansForPlan {
     boy: InterPlace | null,
     girl: InterPlace | null,
     normal: InterPlace | null,
-    _id: mongoose.Types.ObjectId,
+    _id: Id,
 }
 export interface GetPartsForPlan {
     name: string,
     place: InterPlace | null,
-    _id: mongoose.Types.ObjectId,
+    _id: Id,
 }
 export interface GetAllPlanData {
     name: string,
     baanDatas: GetBaansForPlan[],
     partDatas: GetPartsForPlan[],
-    _id: mongoose.Types.ObjectId,
+    _id: Id,
     groupName: string,
     isOverNightCamp: boolean,
     baanBoySleeps: CampNumberData[],
@@ -898,19 +854,19 @@ export interface GetAllPlanData {
     partSleepDatas: CampSleepDataContainer[],
 }
 export interface UpdateBaansForPlan {
-    boyId: mongoose.Types.ObjectId | null,
-    girlId: mongoose.Types.ObjectId | null,
-    normalId: mongoose.Types.ObjectId | null,
-    _id: mongoose.Types.ObjectId,
+    boyId: Id | null,
+    girlId: Id | null,
+    normalId: Id | null,
+    _id: Id,
 }
 export interface UpdatePartsForPlan {
-    placeId: mongoose.Types.ObjectId | null,
-    _id: mongoose.Types.ObjectId,
+    placeId: Id | null,
+    _id: Id,
 }
 export interface UpdateAllPlanData {
     baanDatas: UpdateBaansForPlan[],
     partDatas: UpdatePartsForPlan[],
-    _id: mongoose.Types.ObjectId,
+    _id: Id,
 }
 export interface CampNumberData {
     name: string,
@@ -926,4 +882,122 @@ export interface CampSleepDataContainer {
     peeGirls: InterUser[],
     petoBoys: InterUser[],
     petoGirls: InterUser[],
+}
+export interface InterChoiceAnswer {
+    userId: Id,
+    _id: Id
+    campId: Id,
+    questionId: Id,
+    answer: Choice | "-",
+    score: number,
+    containerId: Id,
+}
+
+export const choices = ['A', 'B', 'C', 'D', 'E'] as const
+export type Choice = typeof choices[number]
+export interface InterChoiceQuestion {
+    campId: Id,
+    question: string,
+    a: string,
+    b: string,
+    c: string,
+    d: string,
+    e: string,
+    _id: Id,
+    scoreA: number,
+    scoreB: number,
+    scoreC: number,
+    scoreD: number,
+    scoreE: number,
+    nongAnswerA: number,
+    nongAnswerB: number,
+    nongAnswerC: number,
+    nongAnswerD: number,
+    nongAnswerE: number,
+    peeAnswerA: number,
+    peeAnswerB: number,
+    peeAnswerC: number,
+    peeAnswerD: number,
+    peeAnswerE: number,
+    correct: Choice | "-",
+    order: number,
+    answerIds: Id[]
+}
+export interface EditChoiceQuestion {
+    _id: Id | null,
+    question: string,
+    a: string,
+    b: string,
+    c: string,
+    d: string,
+    e: string,
+    scoreA: number,
+    scoreB: number,
+    scoreC: number,
+    scoreD: number,
+    scoreE: number,
+    correct: Choice | "-",
+    order: number,
+}
+export interface InterTextQuestion {
+    question: string,
+    _id: Id,
+    campId: Id,
+    answerIds: Id[],
+    score: number,
+    order: number,
+}
+export interface EditTextQuestion {
+    question: string,
+    _id: Id | null,
+    score: number,
+    order: number,
+}
+export interface InterAnswerContainer {
+    choiceAnswerIds: Id[],
+    textAnswerIds: Id[],
+    campId: Id,
+    userId: Id,
+    _id: Id,
+    role: RoleCamp,
+}
+export interface InterTextAnswer {
+    _id: Id,
+    answer: string,
+    userId: Id,
+    questionId: Id,
+    score: number,
+    containerId: Id,
+}
+export interface ChoiceAnswerPack {
+    answer: Choice | "-",
+    questionId: Id,
+    answerId: Id | null
+}
+export interface TextAnswerPack {
+    answer: string,
+    questionId: Id,
+    answerId: Id | null
+}
+export interface AnswerPack {
+    campId: Id,
+    textAnswers: TextAnswerPack[],
+    choiceAnswers: ChoiceAnswerPack[],
+}
+export interface EditQuestionPack {
+    campId: Id,
+    texts: EditTextQuestion[],
+    choices: EditChoiceQuestion[],
+}
+export interface GetChoiceQuestion extends InterChoiceQuestion {
+    answer: Choice | '-',
+    answerId: Id | null,
+}
+export interface GetTextQuestion extends InterTextQuestion {
+    answer: string,
+    answerId: Id | null,
+}
+export interface GetAllQuestion {
+    choices: GetChoiceQuestion[],
+    texts: GetTextQuestion[]
 }

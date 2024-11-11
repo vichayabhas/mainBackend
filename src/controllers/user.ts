@@ -8,13 +8,11 @@ import PeeCamp from "../models/PeeCamp";
 import PetoCamp from "../models/PetoCamp";
 import CampMemberCard from "../models/CampMemberCard";
 import User, { buf } from "../models/User";
-import { calculate, resOk, sendingEmail, sendRes, swop } from "./setup";
-import express, { json } from "express";
+import { calculate, sendingEmail, sendRes, swop } from "./setup";
+import express from "express";
 import bcrypt from "bcrypt"
-import { HeathIssueBody, HeathIssuePack, InterUser, Register, ShowMember, UpdateTimeOffset } from "../models/interface";
+import { HeathIssueBody, HeathIssuePack, Id, InterUser, Register, UpdateTimeOffset } from "../models/interface";
 import jwt from 'jsonwebtoken'
-import mongoose from "mongoose";
-import Song from "../models/Song";
 import TimeOffset from "../models/TimeOffset";
 //*export async function register
 //*export async function login
@@ -266,8 +264,8 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 	const old = await HeathIssue.findById(oldHeathId)
 	if (!old || old.campIds.length) {
 		if (!old) {
-			if (!heathIssueBody.food.localeCompare('') && !heathIssueBody.medicine.localeCompare('') && !heathIssueBody.chronicDisease.localeCompare('') && !heathIssueBody.foodConcern.localeCompare('') && !heathIssueBody.spicy && !heathIssueBody.isWearing && heathIssueBody.foodLimit == 'ไม่มีข้อจำกัดด้านความเชื่อ'){
-				sendRes(res,true)
+			if (!heathIssueBody.food.localeCompare('') && !heathIssueBody.medicine.localeCompare('') && !heathIssueBody.chronicDisease.localeCompare('') && !heathIssueBody.foodConcern.localeCompare('') && !heathIssueBody.spicy && !heathIssueBody.isWearing && heathIssueBody.foodLimit == 'ไม่มีข้อจำกัดด้านความเชื่อ') {
+				sendRes(res, true)
 				return
 			}
 			const {
@@ -295,6 +293,9 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 			var i = 0
 			while (i < user.campMemberCardIds.length) {
 				const campMemberCard = await CampMemberCard.findById(user.campMemberCardIds[i++])
+				if (!campMemberCard) {
+					continue
+				}
 				switch (campMemberCard.role) {
 					case "nong": {
 						const nongCamp = await NongCamp.findById(campMemberCard.campModelId)
@@ -550,6 +551,10 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 		}
 	} else {
 		const heath = await HeathIssue.findByIdAndUpdate(user?.healthIssueId, heathIssueBody);
+		if (!heath) {
+			sendRes(res, false)
+			return
+		}
 		await revalidationHeathIssues([heath._id])
 		res.status(200).json(heath?.toObject());
 	}
@@ -950,11 +955,21 @@ export async function getTimeOffset(req: express.Request, res: express.Response,
 	} catch (e) {
 		sendRes(res, false)
 	}
-
+}
+export function checkValidStudentEmail(input: string) {
+	const endEmail = process.env.END_EMAIL || 'student.chula.ac.th'
+	const lastTwoDigit = process.env.LAST_TWO_DIGIT || '21'
+	const idLength = parseInt(process.env.ID_LENGTH || '10')
+	const id = input.split('@')[0]
+	return input.split('@')[1] == endEmail && id[8] == lastTwoDigit[0] && id[9] == lastTwoDigit[1] && Number.isInteger(id) && id.length == idLength
 }
 export async function signId(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const user = await getUser(req)
-	if (!user || user.email.split('@')[1].localeCompare('student.chula.ac.th')) {
+	if (!user) {
+		sendRes(res, false)
+		return
+	}
+	if (!checkValidStudentEmail(user.email)) {
 		sendRes(res, false)
 		return
 	}
@@ -966,6 +981,10 @@ export async function signId(req: express.Request, res: express.Response, next: 
 export async function verifyEmail(req: express.Request, res: express.Response, next: express.NextFunction) {
 	const user = await getUser(req)
 	if (!user) {
+		sendRes(res, false)
+		return
+	}
+	if (!checkValidStudentEmail(user.email)) {
 		sendRes(res, false)
 		return
 	}
@@ -987,7 +1006,7 @@ export async function verifyEmail(req: express.Request, res: express.Response, n
 	}
 
 }
-export async function revalidationHeathIssues(ids: mongoose.Types.ObjectId[]) {
+export async function revalidationHeathIssues(ids: Id[]) {
 	var i = 0
 	while (i < ids.length) {
 		const old = await HeathIssue.findById(ids[i++])
@@ -1005,7 +1024,7 @@ export async function revalidationHeathIssues(ids: mongoose.Types.ObjectId[]) {
 			await old.deleteOne()
 			continue
 		}
-		if (old.food=='' && old.medicine=='' && old.chronicDisease=='' && old.foodConcern=='' && !old.spicy && !old.isWearing && old.foodLimit == 'ไม่มีข้อจำกัดด้านความเชื่อ') {
+		if (old.food == '' && old.medicine == '' && old.chronicDisease == '' && old.foodConcern == '' && !old.spicy && !old.isWearing && old.foodLimit == 'ไม่มีข้อจำกัดด้านความเชื่อ') {
 			var j = 0
 			while (j < old.campMemberCardIds.length) {
 				const campMemberCard = await CampMemberCard.findById(old.campMemberCardIds[j++])
@@ -1092,6 +1111,7 @@ export async function checkPassword(req: express.Request, res: express.Response,
 	const user = await getUser(req)
 	if (!user) {
 		sendRes(res, false)
+		return
 	}
 	const isMatch = await bcrypt.compare(req.body.password, user.password)
 	sendRes(res, isMatch)

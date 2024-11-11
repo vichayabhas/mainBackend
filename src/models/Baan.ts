@@ -1,83 +1,26 @@
 import mongoose from "mongoose";
-import { startSize } from "../controllers/setup";
+import { arrayObjectId, dataId, dataMap, dataSize, dataString } from "../controllers/setup";
 const BaanSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    fullName: {
-        type: String,
-        required: true,
-    },
-    campId: {//camp
-        type: mongoose.Schema.ObjectId,
-        required: true,
-    },
-    peeIds: {//user
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongIds: {//user
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongHeathIssueIds: {//heath
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    peeHeathIssueIds: {//helth
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongShirtSize: {// size    count
-        type: Map,
-        default: startSize()
-    },
-    peeShirtSize: {// size    count
-        type: Map,
-        default: startSize()
-    },
-    songIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    // nongHaveBottle: {
-    //     type: Number,
-    //     default: 0
-    // },
-    // peeHaveBottle: {
-    //     type: Number,
-    //     default: 0
-    // },
-    // nongHaveBottleMapIds: {
-    //     type: Map,
-    //     default: new Map<mongoose.ObjectId, boolean>()
-    // },
-    // peeHaveBottleMapIds: {
-    //     type: Map,
-    //     default: new Map<mongoose.ObjectId, boolean>()
-    // },
-    mapPeeCampIdByPartId: {
-        type: Map,
-        default: new Map<mongoose.ObjectId, mongoose.ObjectId>()
-    },
-    peeModelIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    name: dataString,
+    fullName:dataString,
+    campId:dataId,
+    peeIds: arrayObjectId,
+    nongIds: arrayObjectId,
+    nongHeathIssueIds: arrayObjectId,
+    peeHeathIssueIds: arrayObjectId,
+    nongShirtSize: dataSize,
+    peeShirtSize: dataSize,
+    songIds: arrayObjectId,
+    mapPeeCampIdByPartId: dataMap,
+    peeModelIds: arrayObjectId,
     nongModelId: {
         type: mongoose.Schema.ObjectId
     },
-    nongCampMemberCardIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    peeCampMemberCardIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    nongCampMemberCardIds: arrayObjectId,
+    peeCampMemberCardIds: arrayObjectId,
     link: {
-        type: String
+        type: String,
+        default:null,
     },
     styleId: {
         type: mongoose.Schema.ObjectId
@@ -94,74 +37,28 @@ const BaanSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         default: null
     },
-    mapCampMemberCardIdByUserId: {
-        type: Map,
-        default: new Map<mongoose.ObjectId, mongoose.ObjectId>()
-    },
+    mapCampMemberCardIdByUserId:dataMap,
     groupRef: {
         type: String,
         enum: ['A', 'B', 'C', 'Dog', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'null'],
         default: 'null'
-    }, nongSleepIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    peeSleepIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    chatIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    }, nongSleepIds: arrayObjectId,
+    peeSleepIds: arrayObjectId,
+    chatIds: arrayObjectId,
     mdTime: {
         type: Date,
         default: new Date(Date.now())
     },
-    peeChatIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongChatIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    peeChatIds: arrayObjectId,
+    nongChatIds: arrayObjectId,
     nongSendMessage: {
         type: Boolean,
         default: false
     },
-    // nongHaveHeathIssueIds: {
-    //     type: [mongoose.Schema.ObjectId],
-    //     default: []
-    // },
-    // nongMapHeathIssueIdByUserId: {
-    //     type: Map,
-    //     default: new Map()
-    // },
-    // peeHaveHeathIssueIds: {
-    //     type: [mongoose.Schema.ObjectId],
-    //     default: []
-    // },
-    // peeMapHeathIssueIdByUserId: {
-    //     type: Map,
-    //     default: new Map()
-    // }
-    nongCampMemberCardHaveHeathIssueIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    peeCampMemberCardHaveHeathIssueIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongHaveBottleIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    peeHaveBottleIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
+    nongCampMemberCardHaveHeathIssueIds: arrayObjectId,
+    peeCampMemberCardHaveHeathIssueIds: arrayObjectId,
+    nongHaveBottleIds: arrayObjectId,
+    peeHaveBottleIds: arrayObjectId,
 
 })
 export default mongoose.model('Baan', BaanSchema)

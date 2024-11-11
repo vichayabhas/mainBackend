@@ -1,24 +1,12 @@
 import mongoose from "mongoose"
+import { arrayObjectId, dataId, dataMap } from "../controllers/setup"
 const PeeCampSchema = new mongoose.Schema({
-    campId: {
-        type: mongoose.Schema.ObjectId,
-        required: true
-
-    },
+    campId: dataId,
     baanId: {
         type: mongoose.Schema.ObjectId
     },
-    nongIds: {//user
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    nongCampMemberCardIds: {
-        type: [mongoose.Schema.ObjectId],
-        default: []
-    },
-    mapNongCampIdByUserId: {//user    รหัสประจำตัวน้องค่าย    
-        type: Map,
-        default: new Map
-    }
+    nongIds:arrayObjectId,
+    nongCampMemberCardIds:arrayObjectId,
+    mapNongCampIdByUserId: dataMap
 })
 export default mongoose.model('NongCamp', PeeCampSchema)
