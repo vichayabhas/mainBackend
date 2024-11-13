@@ -253,7 +253,7 @@ export async function addNong(req: express.Request, res: express.Response, next:
                     break
                 }
                 case 'เลือกได้ว่าจะค้างคืนหรือไม่': {
-                    sleepAtCamp = user.likeToSleepAtCamp as boolean
+                    sleepAtCamp = user.likeToSleepAtCamp
                     break
                 }
                 case 'ไม่มีการค้างคืน': sleepAtCamp = false
@@ -289,7 +289,7 @@ export async function addNong(req: express.Request, res: express.Response, next:
                     })
                 }
             }
-            const userSize = user.shirtSize as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
+            const userSize = user.shirtSize
             size.set(userSize, size.get(userSize) as number + 1)
             ifIsTrue(user.haveBottle, user._id, baanNongHaveBottleIds, campNongHaveBottleIds)
             user.nongCampIds.push(nongCamp._id);
@@ -565,7 +565,7 @@ export async function addPetoRaw(member: Id[], partId: Id, res: express.Response
                 break
             }
             case 'เลือกได้ว่าจะค้างคืนหรือไม่': {
-                sleepAtCamp = user.likeToSleepAtCamp as boolean
+                sleepAtCamp = user.likeToSleepAtCamp
                 break
             }
             case 'ไม่มีการค้างคืน': {
@@ -604,7 +604,7 @@ export async function addPetoRaw(member: Id[], partId: Id, res: express.Response
                 camp.petoCampMemberCardHaveHeathIssueIds.push(campMemberCard._id)
             }
         }
-        const userSize = user.shirtSize as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
+        const userSize = user.shirtSize
         size.set(userSize, size.get(userSize) as number + 1)
         ifIsTrue(user.haveBottle, user._id, partPetoHaveBottleIds, campPetoHaveBottleIds)
         user.petoCampIds.push(petoCamp._id)
@@ -700,6 +700,9 @@ export async function getActionPlanByPartId(req: express.Request, res: express.R
                 _id
             } = actionPlan
             const user = await User.findById(headId)
+            if (!user) {
+                continue
+            }
             var k = 0
             const placeName: string[] = []
             while (k < placeIds.length) {
@@ -715,8 +718,8 @@ export async function getActionPlanByPartId(req: express.Request, res: express.R
                 end,
                 headId,
                 body,
-                headName: user?.nickname as string,
-                headTel: user?.tel as string,
+                headName: user.nickname,
+                headTel: user.tel,
                 partName,
                 placeName,
                 _id
@@ -848,6 +851,9 @@ export async function getActionPlans(req: express.Request, res: express.Response
                         _id
                     } = actionPlan
                     const user = await User.findById(headId)
+                    if (!user) {
+                        continue
+                    }
                     var k = 0
                     const placeName: string[] = []
                     while (k < placeIds.length) {
@@ -863,8 +869,8 @@ export async function getActionPlans(req: express.Request, res: express.Response
                         end,
                         headId,
                         body,
-                        headName: user?.nickname as string,
-                        headTel: user?.tel as string,
+                        headName: user.nickname,
+                        headTel: user.tel,
                         partName,
                         placeName,
                         _id
@@ -896,6 +902,9 @@ export async function getActionPlans(req: express.Request, res: express.Response
                         _id
                     } = actionPlan
                     const user = await User.findById(headId)
+                    if(!user){
+                        continue
+                    }
                     var k = 0
                     const placeName: string[] = []
                     while (k < placeIds.length) {
@@ -911,8 +920,8 @@ export async function getActionPlans(req: express.Request, res: express.Response
                         end,
                         headId,
                         body,
-                        headName: user?.nickname as string,
-                        headTel: user?.tel as string,
+                        headName: user.nickname,
+                        headTel: user.tel,
                         partName,
                         placeName,
                         _id
@@ -1036,7 +1045,7 @@ export async function changeBaanRaw(userIds: Id[], baanId: Id, res: express.Resp
                     mapCampMemberCardIdByUserId: oldBaan.mapCampMemberCardIdByUserId,
                     nongShirtSize: oldBaan.nongShirtSize
                 })
-                baan.nongShirtSize.set(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(baan.nongShirtSize.get(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 1, 0))
+                baan.nongShirtSize.set(campMemberCard.size, calculate(baan.nongShirtSize.get(campMemberCard.size), 1, 0))
                 baan.nongIds.push(user._id)
                 baan.nongCampMemberCardIds.push(campMemberCard._id)
                 await campMemberCard.updateOne({ campModelId: newNongCamp._id })
@@ -1092,13 +1101,13 @@ export async function changeBaanRaw(userIds: Id[], baanId: Id, res: express.Resp
                     continue
                 }
                 await user.updateOne({ peeCampIds: swop(oldPeeCamp._id, newPeeCamp._id, user.peeCampIds) })
-                oldBaan.peeShirtSize.set(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(oldBaan.peeShirtSize.get(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 0, 1))
+                oldBaan.peeShirtSize.set(campMemberCard.size, calculate(oldBaan.peeShirtSize.get(campMemberCard.size), 0, 1))
                 await oldBaan.updateOne({
                     peeCampMemberCardIds: swop(campMemberCard._id, null, oldBaan.peeCampMemberCardIds),
                     peeIds: swop(user._id, null, oldBaan.peeIds),
                     peeShirtSize: oldBaan.peeShirtSize,
                 })
-                baan.peeShirtSize.set(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(baan.peeShirtSize.get(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 1, 0))
+                baan.peeShirtSize.set(campMemberCard.size, calculate(baan.peeShirtSize.get(campMemberCard.size), 1, 0))
                 baan.peeIds.push(user._id)
                 baan.peeCampMemberCardIds.push(campMemberCard._id)
                 await campMemberCard.updateOne({ campModelId: newPeeCamp._id })
@@ -1183,7 +1192,7 @@ export async function changePartRaw(userIds: Id[], partId: Id) {
                     continue
                 }
                 await user.updateOne({ peeCampIds: swop(oldPetoCamp._id, newPetoCamp._id, user.petoCampIds) })
-                oldPart.petoShirtSize.set(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(oldPart.peeShirtSize.get(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 0, 1))
+                oldPart.petoShirtSize.set(campMemberCard.size, calculate(oldPart.peeShirtSize.get(campMemberCard.size), 0, 1))
                 oldPart.mapCampMemberCardIdByUserId.delete(user?.id)
                 await oldPart.updateOne({
                     petoCampMemberCardIds: swop(campMemberCard._id, null, oldPart.petoCampMemberCardIds),/////////////
@@ -1192,7 +1201,7 @@ export async function changePartRaw(userIds: Id[], partId: Id) {
                     petoShirtSize: oldPart.petoShirtSize
                 })
                 part.petoIds.push(user._id)
-                part.petoShirtSize.set(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(part.petoShirtSize.get(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 1, 0))
+                part.petoShirtSize.set(campMemberCard.size, calculate(part.petoShirtSize.get(campMemberCard.size), 1, 0))
                 part.petoCampMemberCardIds.push(campMemberCard._id)
                 await campMemberCard.updateOne({ campModelId: newPetoCamp._id })
                 if (campMemberCard.haveBottle) {
@@ -1252,14 +1261,14 @@ export async function changePartRaw(userIds: Id[], partId: Id) {
                     continue
                 }
                 await user.updateOne({ peeCampIds: swop(oldPeeCamp._id, newPeeCamp._id, user.peeCampIds) })
-                oldPart.peeShirtSize.set(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(oldPart.peeShirtSize.get(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 0, 1))
+                oldPart.peeShirtSize.set(campMemberCard.size, calculate(oldPart.peeShirtSize.get(campMemberCard.size), 0, 1))
                 await oldPart.updateOne({
                     peeCampMemberCardIds: swop(campMemberCard._id, null, oldPart.peeCampMemberCardIds),
                     peeIds: swop(user._id, null, oldPart.peeIds),
                     peeShirtSize: oldPart.peeShirtSize
                 })
                 part.peeIds.push(user._id)
-                part.peeShirtSize.set(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', calculate(part.peeShirtSize.get(campMemberCard.size as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'), 1, 0))
+                part.peeShirtSize.set(campMemberCard.size, calculate(part.peeShirtSize.get(campMemberCard.size), 1, 0))
                 part.peeCampMemberCardIds.push(campMemberCard._id)
                 await campMemberCard.updateOne({ campModelId: newPeeCamp._id })
                 if (campMemberCard.haveBottle) {
@@ -1816,7 +1825,7 @@ export async function getShowRegisters(req: express.Request, res: express.Respon
             fullName: `ชื่อจริง ${user.name} นามสกุล ${user.lastname} ชื่อเล่น ${user.nickname}`,
             userId: user._id,
             partId: part._id,
-            partName: part.partName as string
+            partName: part.partName
         })
     }
     res.status(200).json(out)
@@ -2394,7 +2403,7 @@ export async function getAllQuestion(req: express.Request, res: express.Response
                     answerIds,
                     score,
                     order,
-                    answerId:textAnswer._id,
+                    answerId: textAnswer._id,
                 })
             }
             const textRemain = removeDuplicate(camp.textQuestionIds, textQuestionIds)
@@ -2489,7 +2498,7 @@ export async function getAllQuestion(req: express.Request, res: express.Response
                     peeAnswerC,
                     peeAnswerD,
                     peeAnswerE,
-                    answerId:choiceAnswer._id,
+                    answerId: choiceAnswer._id,
                 })
             }
             const choiceRemain = removeDuplicate(camp.choiceQuestionIds, choiceQuestionIds)
@@ -2580,7 +2589,7 @@ export async function getAllQuestion(req: express.Request, res: express.Response
                 answerIds,
                 score,
                 order,
-                answerId:null,
+                answerId: null,
             })
         }
         for (const choiceId of camp.choiceQuestionIds) {
@@ -2644,7 +2653,7 @@ export async function getAllQuestion(req: express.Request, res: express.Response
                 order,
                 answer: '-',
                 answerIds,
-                answerId:null,
+                answerId: null,
             })
         }
     }
@@ -2652,7 +2661,6 @@ export async function getAllQuestion(req: express.Request, res: express.Response
         choices,
         texts,
     }
-    console.log(buffer)
     res.status(200).json(buffer)
 }
 export async function answerAllQuestion(answer: AnswerPack, userId: Id, role: RoleCamp) {
@@ -2904,6 +2912,6 @@ export async function peeAnswerQuestion(req: express.Request, res: express.Respo
         sendRes(res, false)
         return
     }
-    await answerAllQuestion(answer,user._id,campMemberCard.role)
-    sendRes(res,true)
+    await answerAllQuestion(answer, user._id, campMemberCard.role)
+    sendRes(res, true)
 }

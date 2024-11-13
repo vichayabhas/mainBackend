@@ -3,7 +3,8 @@ import { arrayObjectId } from "../controllers/setup"
 const PeeCampSchema = new mongoose.Schema({
     campIds: arrayObjectId,
     name: {
-        type: String
+        type: String,
+        required:true,
     },
     partIds: arrayObjectId,
 })  

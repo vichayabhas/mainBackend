@@ -44,7 +44,7 @@ export async function register(req: express.Request, res: express.Response, next
 		const select = await TimeOffset.create({ userId: user._id })
 		const display = await TimeOffset.create({ userId: user._id })
 		await user.updateOne({ displayOffsetId: display._id, selectOffsetId: select._id })
-		sendTokenResponse(user as InterUser, 200, res);
+		sendTokenResponse(user._id, 200, res);
 	} catch (err) {
 		res.status(400).json({
 			success: false
@@ -80,10 +80,10 @@ export async function login(req: express.Request, res: express.Response, next: e
 			msg: "Invalid credentials"
 		});
 	}
-	sendTokenResponse(user as InterUser, 200, res);
+	sendTokenResponse(user._id, 200, res);
 }
-const sendTokenResponse = (user: InterUser, statusCode: number, res: express.Response) => {
-	const token = jwt.sign({ id: user._id }, buf, {
+const sendTokenResponse = (id: Id, statusCode: number, res: express.Response) => {
+	const token = jwt.sign({ id }, buf, {
 		expiresIn: process.env.JWT_EXPIRE
 	});
 	const options = {
@@ -129,7 +129,7 @@ export async function updateSize(req: express.Request, res: express.Response, ne
 		sendRes(res, false)
 		return
 	}
-	const oldSize = old.shirtSize as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
+	const oldSize = old.shirtSize
 	if (shirtSize) {
 		const user = await User.findByIdAndUpdate(old._id, {
 			shirtSize

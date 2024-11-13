@@ -1426,7 +1426,7 @@ async function forceDeletePartRaw(partId: Id) {
             await baan.updateOne({ peeSleepIds: swop(user._id, null, baan.peeSleepIds) })
         }
         baan.updateOne({ peeCampMemberCardIds: swop(campMemberCard?._id, null, part.peeCampMemberCardIds) })
-        baan.peeShirtSize.set(campMemberCard.size as string, calculate(baan.peeShirtSize.get(campMemberCard.size as string), 0, 1))
+        baan.peeShirtSize.set(campMemberCard.size, calculate(baan.peeShirtSize.get(campMemberCard.size), 0, 1))
         var j = 0
         while (j < campMemberCard.allChatIds.length) {
             const chat = await Chat.findById(campMemberCard.allChatIds[j++])
@@ -1757,7 +1757,7 @@ export async function getAllRemainPartName(req: express.Request, res: express.Re
             continue
         }
         const { _id: key, name } = partNameContainer
-        const value = name as string
+        const value = name
         out.push({ key, value })
     }
     res.status(200).json(out)
