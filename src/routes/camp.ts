@@ -2,8 +2,8 @@ import express from 'express';
 
 const router = express.Router();
 
-import { protect, pee, isPass } from '../middleware/auth';
-import { getCamps, getCampName, getCamp, getNongCamp, getPeeCamp, getBaan, getPart, getPartName, nongRegister, staffRegister, getNongsFromBaanId, getPeesFromBaanId, getPeesFromPartId, getPetosFromPartId, getBaans, getActionPlans, getActionPlanByPartId, createActionPlan, getActionPlan, updateActionPlan, deleteActionPlan, createWorkingItem, getWorkingItems, getWorkingItemByPartId, getWorkingItem, updateWorkingItem, deleteWorkingItem, getPetoCamp, getShowRegisters, addNong, addPee, changeBaan, changePart, getAllUserCamp, getAllWelfare, getAllPlanData, planUpdateCamp, editQuestion, deleteChoiceQuestion, deleteTextQuestion, getAllQuestion } from '../controllers/camp';
+import { protect, pee } from '../middleware/auth';
+import { getCamps, getCampName, getCamp, getNongCamp, getPeeCamp, getBaan, getPart, getPartName, nongRegister, staffRegister, getNongsFromBaanId, getPeesFromBaanId, getPeesFromPartId, getPetosFromPartId, getBaans, getActionPlans, getActionPlanByPartId, createActionPlan, getActionPlan, updateActionPlan, deleteActionPlan, createWorkingItem, getWorkingItems, getWorkingItemByPartId, getWorkingItem, updateWorkingItem, deleteWorkingItem, getPetoCamp, getShowRegisters, addNong, addPee, changeBaan, changePart, getAllUserCamp, getAllWelfare, getAllPlanData, planUpdateCamp, editQuestion, deleteChoiceQuestion, deleteTextQuestion, getAllQuestion, plusActionPlan } from '../controllers/camp';
 import { interview, kickNong, kickPee, paid, pass, sure } from '../controllers/admidsion';
 router.get('/getCamps/', getCamps)//
 router.get('/getCampName/params/:id', getCampName)//
@@ -48,10 +48,11 @@ router.get('/getAllUserCamp/', protect, getAllUserCamp)//
 router.get('/getAllWelfare/params/:id', getAllWelfare)//
 router.get('/getAllPlanData/params/:id', getAllPlanData)//
 router.put('/planUpdateCamp/', protect, planUpdateCamp)//
-router.put('/editQuestion/',protect,editQuestion)//
-router.get('/getAllQuestion/params/:id', protect,getAllQuestion)//
-router.delete('/deleteChoiceQuestion/params/:id',protect, deleteChoiceQuestion)//
-router.delete('/deleteTextQuestion/params/:id',protect,deleteTextQuestion)//
+router.put('/editQuestion/', protect, editQuestion)//
+router.get('/getAllQuestion/params/:id', protect, getAllQuestion)//
+router.delete('/deleteChoiceQuestion/params/:id', protect, deleteChoiceQuestion)//
+router.delete('/deleteTextQuestion/params/:id', protect, deleteTextQuestion)//
+router.post('/plusActionPlan/',protect,plusActionPlan)
 export default router;
 // export async function deleteChoiceQuestion
 // export async function deleteTextQuestion

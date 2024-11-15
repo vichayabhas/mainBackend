@@ -1,6 +1,5 @@
 import express from 'express'
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, InterActionPlan, MapObjectId, MyMap, Size, Id } from '../models/interface'
-import jwt from 'jsonwebtoken'
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterPartFront, InterSize, MapObjectId, MyMap, Size, Id } from '../models/interface'
 import mongoose from 'mongoose'
 
 
@@ -79,7 +78,7 @@ export function sizeJsonMod(size: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', count:
 }
 
 export function mapBoolToArray(input: Map<Id, boolean>): Id[] {
-    var out: Id[] = []
+    const out: Id[] = []
     input.forEach((v: boolean, k: Id) => {
         if (v) {
             out.push(k)
@@ -236,10 +235,8 @@ export function conCampBackToFront(input: InterCampBack): InterCampFront {
         allPetoChatIds,
         petoSleepIds,
         nongHaveBottleIds,
-        nongMapIdLtoG,
         nongCampMemberCardHaveHeathIssueIds,
         peeHaveBottleIds,
-        peeMapIdLtoG,
         peeCampMemberCardHaveHeathIssueIds,
         petoHaveBottleIds,
         petoCampMemberCardHaveHeathIssueIds,
@@ -404,14 +401,14 @@ export function conPartBackToFront(input: InterPartBack): InterPartFront {
     })
 }
 export function mapStringToMyMap(input: Map<Id, string | number>): MyMap[] {
-    var out: MyMap[] = []
+    const out: MyMap[] = []
     input.forEach((v: string | number, key: Id) => {
         out.push({ key, value: v.toString() })
     })
     return out
 }
 export function mapObjectIdToMyMap(input: Map<Id, Id>): MapObjectId[] {
-    var out: MapObjectId[] = []
+    const out: MapObjectId[] = []
     input.forEach((value: Id, key: Id) => {
         out.push({ key, value })
     })
@@ -455,7 +452,6 @@ export function removeDuplicate(input: Id[], compare: Id[]): Id[] {
 }
 export function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
     if (value === null || value === undefined) return false;
-    const testDummy: TValue = value;
     return true;
 }
 
@@ -489,8 +485,8 @@ export function sendingEmail(email: string, text: string) {
 export const removeDups = (
     input: Id[]
 ): Id[] => {
-    var arr = input.map((e) => (e.toString().split(' ')[0]))
-    var unique = arr.filter(function (elem, index, self) {
+    const arr = input.map((e) => (e.toString().split(' ')[0]))
+    const unique = arr.filter(function (elem, index, self) {
         return index === self.indexOf(elem);
     })
     return unique.map((e) => stringToId(e));

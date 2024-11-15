@@ -1,5 +1,5 @@
 import express from "express";
-import { pee, protect } from "../middleware/auth";
+import { protect } from "../middleware/auth";
 import { adminBypass, nongBypass, peeBypass, petoBypass } from "../controllers/subFrontend";
 
 

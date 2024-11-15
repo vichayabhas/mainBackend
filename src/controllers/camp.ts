@@ -12,7 +12,7 @@ import PartNameContainer from "../models/PartNameContainer";
 import NameContainer from "../models/NameContainer";
 import express from "express";
 import { getUser } from "../middleware/auth";
-import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap, AllNongRegister, WelfarePack, HeathIssuePack, CampWelfarePack, GetBaansForPlan, GetPartsForPlan, GetAllPlanData, UpdateAllPlanData, CampNumberData, CampSleepDataContainer, Id, AnswerPack, EditQuestionPack, GetAllQuestion, GetChoiceQuestion, GetTextQuestion, RoleCamp } from "../models/interface";
+import { InterBaanBack, InterBaanFront, InterCampBack, InterCampFront, InterPartBack, InterUser, InterActionPlan, ShowMember, CreateActionPlan, showActionPlan, CreateWorkingItem, InterWorkingItem, ShowRegister, MyMap, WelfarePack, HeathIssuePack, CampWelfarePack, GetBaansForPlan, GetPartsForPlan, GetAllPlanData, UpdateAllPlanData, CampNumberData, CampSleepDataContainer, Id, AnswerPack, EditQuestionPack, GetAllQuestion, GetChoiceQuestion, GetTextQuestion, RoleCamp } from "../models/interface";
 import Song from "../models/Song";
 import HeathIssue from "../models/HeathIssue";
 import Place from "../models/Place";
@@ -75,7 +75,8 @@ import TextQuestion from "../models/TextQuestion";
 //*export async function answerAllQuestion
 //*export async function deleteChoiceQuestion
 //*export async function deleteTextQuestion
-export async function getBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
+//*export async function plusActionPlan
+export async function getBaan(req: express.Request, res: express.Response) {
     try {
         const data = await Baan.findById(req.params.id);
         if (!data) {
@@ -84,13 +85,13 @@ export async function getBaan(req: express.Request, res: express.Response, next:
             });
         }
         res.status(200).json(conBaanBackToFront(data.toObject()));
-    } catch (err) {
+    } catch {
         res.status(400).json({
             success: false
         });
     }
 }
-export async function getCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getCamp(req: express.Request, res: express.Response) {
     try {
         //console.log(req.params.id)
         const data = await Camp.findById(req.params.id);
@@ -109,7 +110,7 @@ export async function getCamp(req: express.Request, res: express.Response, next:
         });
     }
 }
-export async function getBaans(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getBaans(req: express.Request, res: express.Response) {
     try {
         const camp = await Camp.findById(req.params.id);
         if (!camp) {
@@ -117,8 +118,8 @@ export async function getBaans(req: express.Request, res: express.Response, next
                 success: false
             });
         }
-        var baans: InterBaanFront[] = []
-        var i = 0
+        const baans: InterBaanFront[] = []
+        let i = 0
         while (i < camp.baanIds.length) {
             const baan: InterBaanBack | null = await Baan.findById(camp.baanIds[i++])
             if (baan) {
@@ -127,11 +128,11 @@ export async function getBaans(req: express.Request, res: express.Response, next
         }
         res.status(200).json(baans);
         //console.log(baans.length)
-    } catch (err) {
+    } catch {
         res.status(400).json(resError);
     }
 }
-export async function getCamps(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getCamps(req: express.Request, res: express.Response) {
     try {
         const data: InterCampBack[] = await Camp.find();
         if (!data) {
@@ -148,18 +149,18 @@ export async function getCamps(req: express.Request, res: express.Response, next
         });
     }
 }
-export async function getNongCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getNongCamp(req: express.Request, res: express.Response) {
     try {
         const data = await NongCamp.findById(req.params.id);
         if (!data) {
             return res.status(400).json(resError);
         }
         res.status(200).json(data);
-    } catch (err) {
+    } catch {
         res.status(400).json(resError);
     }
 }
-export async function getPeeCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPeeCamp(req: express.Request, res: express.Response) {
     try {
         const data = await PeeCamp.findById(req.params.id);
         if (!data) {
@@ -168,13 +169,13 @@ export async function getPeeCamp(req: express.Request, res: express.Response, ne
             });
         }
         res.status(200).json(data);
-    } catch (err) {
+    } catch {
         res.status(400).json({
             success: false
         });
     }
 }
-export async function getPetoCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPetoCamp(req: express.Request, res: express.Response) {
     try {
         const data = await PetoCamp.findById(req.params.id);
         if (!data) {
@@ -183,13 +184,13 @@ export async function getPetoCamp(req: express.Request, res: express.Response, n
             });
         }
         res.status(200).json(data);
-    } catch (err) {
+    } catch {
         res.status(400).json({
             success: false
         });
     }
 }
-export async function getPart(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPart(req: express.Request, res: express.Response) {
     try {
         const data: InterPartBack | null = await Part.findById(req.params.id);
         if (!data) {
@@ -198,13 +199,13 @@ export async function getPart(req: express.Request, res: express.Response, next:
             });
         }
         res.status(200).json(conPartBackToFront(data));
-    } catch (err) {
+    } catch {
         res.status(400).json({
             success: false
         });
     }
 }
-export async function addNong(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function addNong(req: express.Request, res: express.Response) {
     try {
         const {
             baanId,
@@ -229,14 +230,14 @@ export async function addNong(req: express.Request, res: express.Response, next:
             sendRes(res, false)
             return
         }
-        var newNongPassIds = camp.nongSureIds
-        var count = 0
+        let newNongPassIds = camp.nongSureIds
+        let count = 0
         const baanNongHaveBottleIds = baan.nongHaveBottleIds
         const campNongHaveBottleIds = camp.nongHaveBottleIds
         const baanNongSleepIds = baan.nongSleepIds
         const campNongSleepIds = camp.nongSleepIds
         const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize()
-        var i = 0
+        let i = 0
         while (i < members.length) {
             count = count + 1
             const user = await User.findById(members[i++])
@@ -246,8 +247,8 @@ export async function addNong(req: express.Request, res: express.Response, next:
             await nongCamp.updateOne({ nongIds: swop(null, user._id, nongCamp.nongIds) })
             await baan.updateOne({ nongIds: swop(null, user._id, baan.nongIds) })
             await camp.updateOne({ nongIds: swop(null, user._id, camp.nongIds) })
-            var sleepAtCamp: boolean
-            switch (camp.toObject().nongSleepModel) {
+            let sleepAtCamp: boolean
+            switch (camp.nongSleepModel) {
                 case 'นอนทุกคน': {
                     sleepAtCamp = true
                     break
@@ -256,9 +257,10 @@ export async function addNong(req: express.Request, res: express.Response, next:
                     sleepAtCamp = user.likeToSleepAtCamp
                     break
                 }
-                case 'ไม่มีการค้างคืน': sleepAtCamp = false
-                case null: sleepAtCamp = false
-                case undefined: sleepAtCamp = false
+                case 'ไม่มีการค้างคืน': {
+                    sleepAtCamp = false
+                    break
+                }
             }
             ifIsTrue(sleepAtCamp, user._id, campNongSleepIds, baanNongSleepIds)
             const campMemberCard = await CampMemberCard.create({
@@ -332,13 +334,13 @@ export async function addNong(req: express.Request, res: express.Response, next:
             success: true,
             count
         });
-    } catch (err) {
+    } catch {
         return res.status(400).json({
             success: false
         });
     }
 }
-export async function addPee(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function addPee(req: express.Request, res: express.Response) {
     const {
         members,
         baanId
@@ -356,7 +358,7 @@ export async function addPee(req: express.Request, res: express.Response, next: 
         sendRes(res, false)
         return false
     }
-    var i = 0
+    let i = 0
     while (i < members.length) {
         const user = await User.findById(members[i++]);
         if (!user || camp.nongIds.includes(user._id) || camp.peeIds.includes(user._id) || camp.petoIds.includes(user._id)) {
@@ -387,15 +389,15 @@ export async function addPeeRaw(members: Id[], baanId: Id) {
         const campPeeHaveBottleIds = camp.peeHaveBottleIds
         const baanPeeSleepIds = baan.peeSleepIds
         const campPeeSleepIds = camp.peeSleepIds
-        var count = 0
+        let count = 0
         const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize()
-        var i = 0
+        let i = 0
         while (i < members.length) {
             const user = await User.findById(members[i++]);
             if (!user) {
                 continue
             }
-            var part = await Part.findById(camp.peePassIds.get(user.id));
+            const part = await Part.findById(camp.peePassIds.get(user.id));
             if (!part) {
                 continue
             }
@@ -403,7 +405,7 @@ export async function addPeeRaw(members: Id[], baanId: Id) {
             if (!peeCamp) {
                 continue
             }
-            var sleepAtCamp: boolean
+            let sleepAtCamp: boolean
             switch (camp.toObject().peeSleepModel) {
                 case 'นอนทุกคน': {
                     sleepAtCamp = true
@@ -518,7 +520,7 @@ export async function addPeeRaw(members: Id[], baanId: Id) {
         return false
     }
 }
-export async function addPeto(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function addPeto(req: express.Request, res: express.Response) {
     const {
         member,
         partId
@@ -539,14 +541,14 @@ export async function addPetoRaw(member: Id[], partId: Id, res: express.Response
     }
     const campPetoHaveBottleIds = camp.petoHaveBottleIds
     const partPetoHaveBottleIds = part.petoHaveBottleIds
-    var count = 0
+    let count = 0
     const size: Map<'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL', number> = startSize()
     const petoCamp = await PetoCamp.findById(part.petoModelId)
     if (!petoCamp) {
         sendRes(res, false)
         return
     }
-    var i = 0
+    let i = 0
     while (i < member.length) {
         count = count + 1
         const user = await User.findById(member[i++])
@@ -558,7 +560,7 @@ export async function addPetoRaw(member: Id[], partId: Id, res: express.Response
         await camp.updateOne({ peeMapIdGtoL: camp.peeMapIdGtoL, peeMapIdLtoG: camp.peeMapIdLtoG })
         part.petoIds.push(user._id)
         camp.petoIds.push(user._id)
-        var sleepAtCamp: boolean
+        let sleepAtCamp: boolean
         switch (camp.toObject().peeSleepModel) {
             case 'นอนทุกคน': {
                 sleepAtCamp = true
@@ -646,7 +648,7 @@ export async function addPetoRaw(member: Id[], partId: Id, res: express.Response
     })
     sendRes(res, true)
 }
-export async function staffRegister(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function staffRegister(req: express.Request, res: express.Response) {
     const partId = stringToId(req.params.id)
     const part = await Part.findById(partId)
     const user = await getUser(req)
@@ -674,15 +676,15 @@ export async function staffRegister(req: express.Request, res: express.Response,
         await addPetoRaw([user._id], part._id, res);
     }
 }
-export async function getActionPlanByPartId(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getActionPlanByPartId(req: express.Request, res: express.Response) {
     try {
         const part = await Part.findById(req.params.id)
-        var data: showActionPlan[] = [];
+        const data: showActionPlan[] = [];
         if (!part) {
             sendRes(res, false)
             return
         }
-        var j = 0
+        let j = 0
         while (j < part.actionPlanIds.length) {
             const actionPlan: InterActionPlan | null = await ActionPlan.findById(part.actionPlanIds[j++])
             if (!actionPlan) {
@@ -703,7 +705,7 @@ export async function getActionPlanByPartId(req: express.Request, res: express.R
             if (!user) {
                 continue
             }
-            var k = 0
+            let k = 0
             const placeName: string[] = []
             while (k < placeIds.length) {
                 const place = await Place.findById(placeIds[k++])
@@ -731,7 +733,7 @@ export async function getActionPlanByPartId(req: express.Request, res: express.R
         console.log(err)
     }
 }
-export async function createActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function createActionPlan(req: express.Request, res: express.Response) {
     const create: CreateActionPlan = req.body
     const hospital = await ActionPlan.create(create);
     const part = await Part.findById(create.partId)
@@ -739,7 +741,7 @@ export async function createActionPlan(req: express.Request, res: express.Respon
     await part?.updateOne({ actionPlanIds: swop(null, hospital._id, part.actionPlanIds) })
     await camp?.updateOne({ actionPlanIds: swop(null, hospital._id, camp.actionPlanIds) })
     await hospital.updateOne({ partName: part?.partName })
-    var i = 0
+    let i = 0
     while (i < hospital.placeIds.length) {
         const place = await Place.findById(create.placeIds[i++])
         const building = await Building.findById(place?.buildingId)
@@ -748,14 +750,14 @@ export async function createActionPlan(req: express.Request, res: express.Respon
     }
     res.status(200).json(hospital);
 }
-export async function updateActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function updateActionPlan(req: express.Request, res: express.Response) {
     try {
         const hospital = await ActionPlan.findById(req.params.id);
         if (!hospital) {
             sendRes(res, false)
             return
         }
-        var i = 0
+        let i = 0
         while (i < hospital.placeIds.length) {
             const place = await Place.findById(hospital.placeIds[i++])
             const building = await Building.findById(place?.buildingId)
@@ -775,13 +777,13 @@ export async function updateActionPlan(req: express.Request, res: express.Respon
             });
         }
         res.status(200).json(hospital);
-    } catch (err) {
+    } catch {
         res.status(400).json({
             success: false
         });
     }
 }
-export async function deleteActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function deleteActionPlan(req: express.Request, res: express.Response) {
     try {
         const hospital = await ActionPlan.findById(req.params.id);
         if (!hospital) {
@@ -799,7 +801,7 @@ export async function deleteActionPlan(req: express.Request, res: express.Respon
         await part?.updateOne({ actionPlanIds: buf })
         const camp = await Camp.findById(part.campId)
         await camp?.updateOne({ actionPlanIds: swop(hospital._id, null, camp.actionPlanIds) })
-        var i = 0
+        let i = 0
         while (i < hospital.placeIds.length) {
             const place = await Place.findById(hospital.placeIds[i++])
             const building = await Building.findById(place?.buildingId)
@@ -818,22 +820,22 @@ export async function deleteActionPlan(req: express.Request, res: express.Respon
         });
     }
 }
-export async function getActionPlans(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getActionPlans(req: express.Request, res: express.Response) {
     try {
-        var data: showActionPlan[] = [];
+        const data: showActionPlan[] = [];
         const user = await getUser(req)
         if (!user) {
             sendRes(res, false)
             return
         }
         if (user.filterIds.length == 0) {
-            var i = 0
+            let i = 0
             while (i < user.registerIds.length) {
                 const camp = await Camp.findById(user.registerIds[i++])
                 if (!camp) {
                     continue
                 }
-                var j = 0
+                let j = 0
                 while (j < camp.actionPlanIds.length) {
                     const actionPlan: InterActionPlan | null = await ActionPlan.findById(camp.actionPlanIds[j++])
                     if (!actionPlan) {
@@ -854,7 +856,7 @@ export async function getActionPlans(req: express.Request, res: express.Response
                     if (!user) {
                         continue
                     }
-                    var k = 0
+                    let k = 0
                     const placeName: string[] = []
                     while (k < placeIds.length) {
                         const place = await Place.findById(placeIds[k++])
@@ -878,13 +880,13 @@ export async function getActionPlans(req: express.Request, res: express.Response
                 }
             }
         } else {
-            var i = 0
+            let i = 0
             while (i < user.filterIds.length) {
                 const camp = await Camp.findById(user.filterIds[i++])
                 if (!camp) {
                     continue
                 }
-                var j = 0
+                let j = 0
                 while (j < camp.actionPlanIds.length) {
                     const actionPlan: InterActionPlan | null = await ActionPlan.findById(camp.actionPlanIds[j++])
                     if (!actionPlan) {
@@ -902,10 +904,10 @@ export async function getActionPlans(req: express.Request, res: express.Response
                         _id
                     } = actionPlan
                     const user = await User.findById(headId)
-                    if(!user){
+                    if (!user) {
                         continue
                     }
-                    var k = 0
+                    let k = 0
                     const placeName: string[] = []
                     while (k < placeIds.length) {
                         const place = await Place.findById(placeIds[k++])
@@ -931,13 +933,13 @@ export async function getActionPlans(req: express.Request, res: express.Response
         }
         data.sort((a, b) => (a.start.getTime() - b.start.getTime()))
         res.status(200).json(data);
-    } catch (err) {
+    } catch {
         res.status(400).json({
             success: false
         });
     }
 }
-export async function nongRegister(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function nongRegister(req: express.Request, res: express.Response) {
     try {
         const {
             campId,
@@ -967,13 +969,13 @@ export async function nongRegister(req: express.Request, res: express.Response, 
         res.status(200).json({
             success: true
         })
-    } catch (err) {
+    } catch {
         res.status(400).json({
             success: false
         })
     }
 }
-export async function getCampName(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getCampName(req: express.Request, res: express.Response) {
     try {
         const camp = await NameContainer.findById(req.params.id)
         res.status(200).json(camp)
@@ -981,7 +983,7 @@ export async function getCampName(req: express.Request, res: express.Response, n
         res.status(400).json(resError)
     }
 }
-export async function getPartName(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPartName(req: express.Request, res: express.Response) {
     try {
         const camp = await PartNameContainer.findById(req.params.id)
         res.status(200).json(camp)
@@ -989,7 +991,7 @@ export async function getPartName(req: express.Request, res: express.Response, n
         res.status(400).json(resError)
     }
 }
-export async function changeBaan(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function changeBaan(req: express.Request, res: express.Response) {
     const { userIds, baanId }: { userIds: Id[], baanId: Id } = req.body
     const user = await getUser(req)
     const baan = await Baan.findById(baanId)
@@ -1016,7 +1018,7 @@ export async function changeBaanRaw(userIds: Id[], baanId: Id, res: express.Resp
         sendRes(res, false)
         return
     }
-    var i = 0
+    let i = 0
     while (i < userIds.length) {
         const user = await User.findById(userIds[i++])
         if (!user) {
@@ -1153,7 +1155,7 @@ export async function changeBaanRaw(userIds: Id[], baanId: Id, res: express.Resp
     }
     sendRes(res, true)
 }
-export async function changePart(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function changePart(req: express.Request, res: express.Response) {
     const { userIds, partId }: { userIds: Id[], partId: Id } = req.body
     const out = await changePartRaw(userIds, partId)
     sendRes(res, out)
@@ -1171,7 +1173,7 @@ export async function changePartRaw(userIds: Id[], partId: Id) {
     if (!newPetoCamp) {
         return false
     }
-    var i = 0
+    let i = 0
     while (i < userIds.length) {
         const user = await User.findById(userIds[i++])
         if (!user) {
@@ -1319,7 +1321,7 @@ export async function changePartRaw(userIds: Id[], partId: Id) {
     }
     return true
 }
-export async function getNongsFromBaanId(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getNongsFromBaanId(req: express.Request, res: express.Response) {
     const out: ShowMember[] = []
     const baan = await Baan.findById(req.params.id)
     if (!baan) {
@@ -1331,7 +1333,7 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
         sendRes(res, false)
         return
     }
-    var i = 0
+    let i = 0
     while (i < baan.nongCampMemberCardIds.length) {
         const campMemberCard = await CampMemberCard.findById(baan.nongCampMemberCardIds[i++])
         if (!campMemberCard) {
@@ -1341,8 +1343,8 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
         if (!user) {
             continue
         }
-        var j = 0
-        var likeSongs: string[] = []
+        let j = 0
+        const likeSongs: string[] = []
         const {
             name,
             lastname,
@@ -1362,8 +1364,8 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
             }
             likeSongs.push(song.name)
         }
-        var isWearing = false
-        var spicy = false
+        let isWearing = false
+        let spicy = false
         const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (heathIssue) {
             isWearing = heathIssue.isWearing
@@ -1392,7 +1394,7 @@ export async function getNongsFromBaanId(req: express.Request, res: express.Resp
     }
     res.status(200).json(out)
 }
-export async function getPeesFromBaanId(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPeesFromBaanId(req: express.Request, res: express.Response) {
     const out: ShowMember[] = []
     const baan = await Baan.findById(req.params.id)
     if (!baan) {
@@ -1404,7 +1406,7 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
         sendRes(res, false)
         return
     }
-    var i = 0
+    let i = 0
     while (i < baan.peeCampMemberCardIds.length) {
         const campMemberCard = await CampMemberCard.findById(baan.peeCampMemberCardIds[i++])
         if (!campMemberCard) {
@@ -1414,8 +1416,8 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
         if (!user) {
             continue
         }
-        var j = 0
-        var likeSongs: string[] = []
+        let j = 0
+        const likeSongs: string[] = []
         const {
             name,
             lastname,
@@ -1435,8 +1437,8 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
             }
             likeSongs.push(song.name)
         }
-        var isWearing = false
-        var spicy = false
+        let isWearing = false
+        let spicy = false
         const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (heathIssue) {
             isWearing = heathIssue.isWearing
@@ -1465,7 +1467,7 @@ export async function getPeesFromBaanId(req: express.Request, res: express.Respo
     }
     res.status(200).json(out)
 }
-export async function getPeesFromPartId(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPeesFromPartId(req: express.Request, res: express.Response) {
     const out: ShowMember[] = []
     const part = await Part.findById(req.params.id)
     if (!part) {
@@ -1477,7 +1479,7 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
         sendRes(res, false)
         return
     }
-    var i = 0
+    let i = 0
     while (i < part.peeCampMemberCardIds.length) {
         const campMemberCard = await CampMemberCard.findById(part.peeCampMemberCardIds[i++])
         if (!campMemberCard) {
@@ -1487,8 +1489,8 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
         if (!user) {
             continue
         }
-        var j = 0
-        var likeSongs: string[] = []
+        let j = 0
+        const likeSongs: string[] = []
         const {
             name,
             lastname,
@@ -1508,8 +1510,8 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
             }
             likeSongs.push(song.name)
         }
-        var isWearing = false
-        var spicy = false
+        let isWearing = false
+        let spicy = false
         const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (heathIssue) {
             isWearing = heathIssue.isWearing
@@ -1538,7 +1540,7 @@ export async function getPeesFromPartId(req: express.Request, res: express.Respo
     }
     res.status(200).json(out)
 }
-export async function getPetosFromPartId(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPetosFromPartId(req: express.Request, res: express.Response) {
     const out: ShowMember[] = []
     const part = await Part.findById(req.params.id)
     if (!part) {
@@ -1550,7 +1552,7 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
         sendRes(res, false)
         return
     }
-    var i = 0
+    let i = 0
     while (i < part.petoCampMemberCardIds.length) {
         const campMemberCard = await CampMemberCard.findById(part.petoCampMemberCardIds[i++])
         if (!campMemberCard) {
@@ -1560,8 +1562,8 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
         if (!user) {
             continue
         }
-        var j = 0
-        var likeSongs: string[] = []
+        let j = 0
+        const likeSongs: string[] = []
         const {
             name,
             lastname,
@@ -1581,8 +1583,8 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
             }
             likeSongs.push(song.name)
         }
-        var isWearing = false
-        var spicy = false
+        let isWearing = false
+        let spicy = false
         const heathIssue = await HeathIssue.findById(campMemberCard.healthIssueId)
         if (heathIssue) {
             isWearing = heathIssue.isWearing
@@ -1611,7 +1613,7 @@ export async function getPetosFromPartId(req: express.Request, res: express.Resp
     }
     res.status(200).json(out)
 }
-export async function getLinkRegister(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getLinkRegister(req: express.Request, res: express.Response) {
     const user = await getUser(req)
     const campId: string = req.params.id
     const camp = await Camp.findById(campId)
@@ -1628,7 +1630,7 @@ export async function getImpotentPartIdBCRP(campId: Id) {
     }
     return [camp.partBoardId, camp.partCoopId, camp.partRegisterId, camp.partPeeBaanId, camp.partWelfareId, camp.partMedId, camp.partPlanId] as Id[]
 }
-export async function getActionPlan(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getActionPlan(req: express.Request, res: express.Response) {
     try {
         const actionPlan: InterActionPlan | null = await ActionPlan.findById(req.params.id)
         if (!actionPlan) {
@@ -1647,7 +1649,7 @@ export async function getActionPlan(req: express.Request, res: express.Response,
             _id
         } = actionPlan
         const user = await User.findById(headId)
-        var k = 0
+        let k = 0
         const placeName: string[] = []
         while (k < placeIds.length) {
             const place = await Place.findById(placeIds[k++])
@@ -1673,15 +1675,15 @@ export async function getActionPlan(req: express.Request, res: express.Response,
         console.log(err)
     }
 }
-export async function getWorkingItemByPartId(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getWorkingItemByPartId(req: express.Request, res: express.Response) {
     try {
         const part = await Part.findById(req.params.id)
-        var data: InterWorkingItem[] = [];
+        const data: InterWorkingItem[] = [];
         if (!part) {
             sendRes(res, false)
             return
         }
-        var j = 0
+        let j = 0
         while (j < part.workItemIds.length) {
             const workItem: InterWorkingItem | null = await WorkItem.findById(part.workItemIds[j++])
             if (!workItem) {
@@ -1694,7 +1696,7 @@ export async function getWorkingItemByPartId(req: express.Request, res: express.
         console.log(err)
     }
 }
-export async function createWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function createWorkingItem(req: express.Request, res: express.Response) {
     const create: CreateWorkingItem = req.body
     const hospital = await WorkItem.create(create);
     const user = await getUser(req)
@@ -1708,10 +1710,9 @@ export async function createWorkingItem(req: express.Request, res: express.Respo
         await from?.updateOne({ linkOutIds: swop(null, hospital._id, from.linkOutIds) })
     }
     await hospital.updateOne({ createBy: user?._id, partName: part?.partName })
-    var i = 0
     res.status(200).json(hospital);
 }
-export async function updateWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function updateWorkingItem(req: express.Request, res: express.Response) {
     try {
         const { status, link, name } = req.body
 
@@ -1727,13 +1728,13 @@ export async function updateWorkingItem(req: express.Request, res: express.Respo
             });
         }
         res.status(200).json(hospital);
-    } catch (err) {
+    } catch {
         res.status(400).json({
             success: false
         });
     }
 }
-export async function deleteWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function deleteWorkingItem(req: express.Request, res: express.Response) {
     try {
         await deleteWorkingItemRaw(stringToId(req.params.id))
         res.status(200).json({
@@ -1746,22 +1747,22 @@ export async function deleteWorkingItem(req: express.Request, res: express.Respo
         });
     }
 }
-export async function getWorkingItems(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getWorkingItems(req: express.Request, res: express.Response) {
     try {
-        var data: InterWorkingItem[] = [];
+        const data: InterWorkingItem[] = [];
         const user = await getUser(req)
         if (!user) {
             sendRes(res, false)
             return
         }
         if (user.filterIds.length == 0) {
-            var i = 0
+            let i = 0
             while (i < user.registerIds.length) {
                 const camp = await Camp.findById(user.registerIds[i++])
                 if (!camp) {
                     continue
                 }
-                var j = 0
+                let j = 0
                 while (j < camp.workItemIds.length) {
                     const workItem: InterWorkingItem | null = await WorkItem.findById(camp.workItemIds[j++])
                     if (!workItem) {
@@ -1771,13 +1772,13 @@ export async function getWorkingItems(req: express.Request, res: express.Respons
                 }
             }
         } else {
-            var i = 0
+            let i = 0
             while (i < user.filterIds.length) {
                 const camp = await Camp.findById(user.filterIds[i++])
                 if (!camp) {
                     continue
                 }
-                var j = 0
+                let j = 0
                 while (j < camp.workItemIds.length) {
                     const workItem: InterWorkingItem | null = await WorkItem.findById(camp.workItemIds[j++])
                     if (!workItem) {
@@ -1788,13 +1789,13 @@ export async function getWorkingItems(req: express.Request, res: express.Respons
             }
         }
         res.status(200).json(data);
-    } catch (err) {
+    } catch {
         res.status(400).json({
             success: false
         });
     }
 }
-export async function getWorkingItem(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getWorkingItem(req: express.Request, res: express.Response) {
     try {
         const workItem: InterWorkingItem | null = await WorkItem.findById(req.params.id)
         if (!workItem) {
@@ -1806,14 +1807,14 @@ export async function getWorkingItem(req: express.Request, res: express.Response
         console.log(err)
     }
 }
-export async function getShowRegisters(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getShowRegisters(req: express.Request, res: express.Response) {
     const camp: InterCampBack | null = await Camp.findById(req.params.id)
     if (!camp) {
         sendRes(res, false)
         return
     }
     const buff = mapObjectIdToMyMap(camp.peePassIds)
-    var i = 0
+    let i = 0
     const out: ShowRegister[] = []
     while (i < buff.length) {
         const user = await User.findById(buff[i].key)
@@ -1830,14 +1831,14 @@ export async function getShowRegisters(req: express.Request, res: express.Respon
     }
     res.status(200).json(out)
 }
-export async function getAllUserCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getAllUserCamp(req: express.Request, res: express.Response) {
     const user = await getUser(req)
-    var out: MyMap[] = []
+    const out: MyMap[] = []
     if (!user) {
         sendRes(res, false)
         return
     }
-    var i = 0
+    let i = 0
     while (i < user.nongCampIds.length) {
         const nongCamp = await NongCamp.findById(user.nongCampIds[i++])
         if (!nongCamp) {
@@ -1875,7 +1876,7 @@ export async function getAllUserCamp(req: express.Request, res: express.Response
     }
     res.status(200).json(out)
 }
-export async function getAllWelfare(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getAllWelfare(req: express.Request, res: express.Response) {
     const camp: InterCampBack | null = await Camp.findById(req.params.id)
     if (!camp) {
         sendRes(res, false)
@@ -1888,7 +1889,7 @@ export async function getAllWelfare(req: express.Request, res: express.Response,
     const partWelfares: WelfarePack[] = []
     const baanHaveBottles: CampNumberData[] = []
     const partHaveBottles: CampNumberData[] = []
-    var i = 0
+    let i = 0
     while (i < camp.baanIds.length) {
         const baan: InterBaanBack | null = await Baan.findById(camp.baanIds[i++])
         if (!baan) {
@@ -1903,7 +1904,7 @@ export async function getAllWelfare(req: express.Request, res: express.Response,
             peeSize: sizeMapToJson(baan.peeShirtSize),
             petoSize: startJsonSize()
         }
-        var j = 0
+        let j = 0
         while (j < baan.nongHeathIssueIds.length) {
             const heathIssue = await HeathIssue.findById(baan.nongHeathIssueIds[j++])
             if (!heathIssue) {
@@ -1958,7 +1959,7 @@ export async function getAllWelfare(req: express.Request, res: express.Response,
             peeSize: sizeMapToJson(part.peeShirtSize),
             petoSize: sizeMapToJson(part.petoShirtSize),
         }
-        var j = 0
+        let j = 0
         while (j < part.petoHeathIssueIds.length) {
             const heathIssue = await HeathIssue.findById(part.petoHeathIssueIds[j++])
             if (!heathIssue) {
@@ -2023,13 +2024,13 @@ export async function getAllWelfare(req: express.Request, res: express.Response,
     }
     res.status(200).json(buffer)
 }
-export async function getAllPlanData(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getAllPlanData(req: express.Request, res: express.Response) {
     const camp = await Camp.findById(req.params.id)
     if (!camp) {
         sendRes(res, false)
         return
     }
-    var i = 0
+    let i = 0
     const baanDatas: GetBaansForPlan[] = []
     const partDatas: GetPartsForPlan[] = []
     const baanBoySleeps: CampNumberData[] = []
@@ -2038,12 +2039,12 @@ export async function getAllPlanData(req: express.Request, res: express.Response
     const partGirlSleeps: CampNumberData[] = []
     const baanSleepDatas: CampSleepDataContainer[] = []
     const partSleepDatas: CampSleepDataContainer[] = []
-    var nongBoySleep: number = 0
-    var nongGirlSleep: number = 0
-    var peeBoySleep: number = 0
-    var peeGirlSleep: number = 0
-    var petoBoySleep: number = 0
-    var petoGirlSleep: number = 0
+    let nongBoySleep: number = 0
+    let nongGirlSleep: number = 0
+    let peeBoySleep: number = 0
+    let peeGirlSleep: number = 0
+    let petoBoySleep: number = 0
+    let petoGirlSleep: number = 0
     while (i < camp.baanIds.length) {
         const baan = await Baan.findById(camp.baanIds[i++])
         if (!baan) {
@@ -2056,7 +2057,7 @@ export async function getAllPlanData(req: express.Request, res: express.Response
         const nongGirls: InterUser[] = []
         const peeBoys: InterUser[] = []
         const peeGirls: InterUser[] = []
-        var j = 0
+        let j = 0
         while (j < baan.nongSleepIds.length) {
             const user: InterUser | null = await User.findById(baan.nongSleepIds[j++])
             if (!user) {
@@ -2118,7 +2119,7 @@ export async function getAllPlanData(req: express.Request, res: express.Response
         const petoGirls: InterUser[] = []
         const peeBoys: InterUser[] = []
         const peeGirls: InterUser[] = []
-        var j = 0
+        let j = 0
         while (j < part.petoSleepIds.length) {
             const user: InterUser | null = await User.findById(part.petoSleepIds[j++])
             if (!user) {
@@ -2192,7 +2193,7 @@ export async function getAllPlanData(req: express.Request, res: express.Response
     }
     res.status(200).json(buffer)
 }
-export async function planUpdateCamp(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function planUpdateCamp(req: express.Request, res: express.Response) {
     const update: UpdateAllPlanData = req.body
     const user = await getUser(req)
     const camp = await Camp.findById(update._id)
@@ -2235,7 +2236,7 @@ export async function planUpdateCamp(req: express.Request, res: express.Response
             break
         }
     }
-    var i = 0
+    let i = 0
     while (i < update.baanDatas.length) {
         const updateBaan = update.baanDatas[i++]
         const baan = await Baan.findById(update._id)
@@ -2285,7 +2286,7 @@ export async function planUpdateCamp(req: express.Request, res: express.Response
     }
     sendRes(res, true)
 }
-export async function editQuestion(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function editQuestion(req: express.Request, res: express.Response) {
     const user = await getUser(req)
     const edit: EditQuestionPack = req.body
     const camp = await Camp.findById(edit.campId)
@@ -2296,8 +2297,7 @@ export async function editQuestion(req: express.Request, res: express.Response, 
     if (!user || (user.role != 'admin' && !user.authPartIds.includes(camp.partBoardId as Id))) {
         return res.status(403).json({ success: false })
     }
-    var {
-        _id: campId,
+    let {
         choiceQuestionIds,
         textQuestionIds
     } = camp
@@ -2330,7 +2330,7 @@ export async function editQuestion(req: express.Request, res: express.Response, 
                 scoreC,
                 scoreD,
                 scoreE,
-                campId,
+                campId: camp._id,
                 correct,
                 order,
             })
@@ -2355,7 +2355,7 @@ export async function editQuestion(req: express.Request, res: express.Response, 
     }
     for (const { _id, question, score, order } of edit.texts) {
         if (!_id) {
-            const newText = await TextQuestion.create({ question, score, campId, order })
+            const newText = await TextQuestion.create({ question, score, campId: camp._id, order })
             textQuestionIds = swop(null, newText._id, textQuestionIds)
         } else {
             await TextQuestion.findByIdAndUpdate(_id, { question, score, order })
@@ -2364,7 +2364,7 @@ export async function editQuestion(req: express.Request, res: express.Response, 
     await camp.updateOne({ textQuestionIds, choiceQuestionIds })
     sendRes(res, true)
 }
-export async function getAllQuestion(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getAllQuestion(req: express.Request, res: express.Response) {
     const camp = await Camp.findById(req.params.id)
     const user = await getUser(req)
     if (!camp || !user) {
@@ -2671,7 +2671,7 @@ export async function answerAllQuestion(answer: AnswerPack, userId: Id, role: Ro
     }
     const choiceAnswerIds: Id[] = []
     const textAnswerIds: Id[] = []
-    var answerContainer = await AnswerContainer.findById(camp.mapAnswerPackIdByUserId.get(user._id.toString()))
+    let answerContainer = await AnswerContainer.findById(camp.mapAnswerPackIdByUserId.get(user._id.toString()))
     if (!answerContainer) {
         answerContainer = await AnswerContainer.create({
             campId: camp._id,
@@ -2703,7 +2703,7 @@ export async function answerAllQuestion(answer: AnswerPack, userId: Id, role: Ro
         if (!question) {
             continue
         }
-        var textAnswer = await TextAnswer.findById(textAnswerPack.answerId)
+        let textAnswer = await TextAnswer.findById(textAnswerPack.answerId)
         if (!textAnswer) {
             textAnswer = await TextAnswer.create({
                 answer: textAnswerPack.answer,
@@ -2722,8 +2722,8 @@ export async function answerAllQuestion(answer: AnswerPack, userId: Id, role: Ro
         if (!question1) {
             continue
         }
-        var choiceAnswer = await ChoiceAnswer.findById(choiceAnswerPack.answerId)
-        var score: number
+        let choiceAnswer = await ChoiceAnswer.findById(choiceAnswerPack.answerId)
+        let score: number
         switch (choiceAnswerPack.answer) {
             case "A": {
                 score = question1.scoreA
@@ -2843,7 +2843,7 @@ export async function answerAllQuestion(answer: AnswerPack, userId: Id, role: Ro
         choiceAnswerIds, textAnswerIds
     })
 }
-export async function deleteChoiceQuestion(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function deleteChoiceQuestion(req: express.Request, res: express.Response) {
     const question = await ChoiceQuestion.findById(req.params.id)
     if (!question) {
         sendRes(res, false)
@@ -2855,7 +2855,7 @@ export async function deleteChoiceQuestion(req: express.Request, res: express.Re
         return
     }
     await camp.updateOne({ choiceQuestionIds: swop(question._id, null, camp.choiceQuestionIds) })
-    var i = 0
+    let i = 0
     while (i < question.answerIds.length) {
         const answer = await ChoiceAnswer.findById(question.answerIds[i++])
         if (!answer) {
@@ -2871,7 +2871,7 @@ export async function deleteChoiceQuestion(req: express.Request, res: express.Re
     await question.deleteOne()
     sendRes(res, true)
 }
-export async function deleteTextQuestion(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function deleteTextQuestion(req: express.Request, res: express.Response) {
     const question = await TextQuestion.findById(req.params.id)
     if (!question) {
         sendRes(res, false)
@@ -2883,7 +2883,7 @@ export async function deleteTextQuestion(req: express.Request, res: express.Resp
         return
     }
     await camp.updateOne({ textQuestionIds: swop(question._id, null, camp.textQuestionIds) })
-    var i = 0
+    let i = 0
     while (i < question.answerIds.length) {
         const answer = await TextAnswer.findById(question.answerIds[i++])
         if (!answer) {
@@ -2899,7 +2899,7 @@ export async function deleteTextQuestion(req: express.Request, res: express.Resp
     await question.deleteOne()
     sendRes(res, true)
 }
-export async function peeAnswerQuestion(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function peeAnswerQuestion(req: express.Request, res: express.Response) {
     const { answer }: { answer: AnswerPack } = req.body
     const camp = await Camp.findById(answer.campId)
     const user = await getUser(req)
@@ -2913,5 +2913,16 @@ export async function peeAnswerQuestion(req: express.Request, res: express.Respo
         return
     }
     await answerAllQuestion(answer, user._id, campMemberCard.role)
+    sendRes(res, true)
+}
+export async function plusActionPlan(req: express.Request, res: express.Response) {
+    const input: { campId: Id; plus: number } = req.body
+    const user = await getUser(req)
+    const camp = await Camp.findById(input.campId)
+    if (!user || !camp || (!camp.peeIds.includes(user._id) && !camp.petoIds.includes(user._id))) {
+        sendRes(res, false)
+        return
+    }
+    await camp.updateOne({ actionPlanOffset: camp.actionPlanOffset + input.plus })
     sendRes(res, true)
 }

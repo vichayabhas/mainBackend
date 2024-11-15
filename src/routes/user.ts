@@ -3,7 +3,7 @@ import { register, login, getMe, updateSize, updateMode, getCampMemberCardByCamp
 
 const router = express.Router();
 
-import { protect, pee, isPass } from '../middleware/auth';
+import { protect, pee } from '../middleware/auth';
 
 router.post('/register', register);//
 router.post('/login', login);//

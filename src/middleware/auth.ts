@@ -4,7 +4,6 @@ import User, { buf } from '../models/User';
 import { NextFunction } from 'express'
 import express from "express";
 import { resError } from "../controllers/setup";
-import { InterUser } from '../models/interface';
 const testJwt = buf
 export async function protect(req: express.Request, res: express.Response, next: NextFunction) {
   let token: string | null | undefined;
@@ -16,20 +15,20 @@ export async function protect(req: express.Request, res: express.Response, next:
   }
   try {
     const decoded = jwt.verify(token, testJwt)
-    const { id } = decoded as any
+    const { id } = decoded as { id: string }
     const user = await User.findById(id)
     if (!user) {
       return res.status(401).json({ success: false, massage: 'Not authorize to access this route' });
     }
     next();
-  } catch (err: any) {
-    console.log(err.stack);
+  } catch (error) {
+    console.log(error.stack)
     return res.status(401).json({ success: false, massage: 'Not authorize to access this route' });
   }
 }
-export function authorize(...roles: String[]) {
+export function authorize(...roles: string[]) {
   return async (req: express.Request, res: express.Response, next: NextFunction) => {
-    let token: String | null | undefined;
+    let token: string | null | undefined;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1]
     }
@@ -49,7 +48,7 @@ export function authorize(...roles: String[]) {
   }
 }
 export async function getUser(req: express.Request) {
-  let token: String | null | undefined;
+  let token: string | null | undefined;
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1]
@@ -58,7 +57,7 @@ export async function getUser(req: express.Request) {
     return null
   }
   const decoded = jwt.verify(token.toString(), testJwt)
-  const { id } = decoded as any
+  const { id } = decoded as { id: string }
   const user = await User.findById(id).select("+password");
   return user
 }
@@ -119,7 +118,7 @@ export function isLogin(withIn: express.RequestHandler, withOut: express.Request
     }
     try {
       const decoded = jwt.verify(token.toString(), testJwt)
-      const { id } = decoded as any
+      const { id } = decoded as { id: string }
       const user = await User.findById(id)
       if (!user) {
         if (withOut) {
@@ -131,7 +130,7 @@ export function isLogin(withIn: express.RequestHandler, withOut: express.Request
         return
       }
       withIn(req, res, next)
-    } catch (err: any) {
+    } catch {
       if (withOut) {
         withOut(req, res, next)
       } else {

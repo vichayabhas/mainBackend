@@ -51,14 +51,14 @@ import TimeOffset from "../models/TimeOffset";
 //*export async function getNongChat
 //*export async function getSystemInfo
 //*export async function getPartPeebaanChat
-export async function addLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function addLikeSong(req: express.Request, res: express.Response) {
     const { songIds }: { songIds: string[] } = req.body
     const user = await getUser(req)
     if (!user) {
         sendRes(res, false)
         return
     }
-    var i = 0
+    let i = 0
     while (i < songIds.length) {
         const song = await Song.findById(songIds[i++])
         if (!song) {
@@ -75,26 +75,26 @@ export async function addLikeSong(req: express.Request, res: express.Response, n
 async function getAllSong() {
     const songs = await Song.find()
     const map: Map<Id, number> = new Map
-    var i = 0
+    let i = 0
     while (i < songs.length) {
         map.set(songs[i++]._id, 0)
     }
     return map
 }
-export async function getNongLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getNongLikeSong(req: express.Request, res: express.Response) {
     const camp = await Camp.findById(req.params.id)
     if (!camp) {
         sendRes(res, false)
         return
     }
     const songList: Map<Id, number> = await getAllSong()
-    var i = 0
+    let i = 0
     while (i < camp.nongIds.length) {
         const user = await User.findById(camp.nongIds[i++])
         if (!user) {
             continue
         }
-        var j = 0
+        let j = 0
         while (j < user.likeSongIds.length) {
             const songId = user.likeSongIds[j++]
             songList.set(songId, songList.get(songId) as number + 1)
@@ -102,20 +102,20 @@ export async function getNongLikeSong(req: express.Request, res: express.Respons
     }
     res.status(200).json({ songList })
 }
-export async function getPeeLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPeeLikeSong(req: express.Request, res: express.Response) {
     const camp = await Camp.findById(req.params.id)
     if (!camp) {
         sendRes(res, false)
         return
     }
     const songList: Map<Id, number> = await getAllSong()
-    var i = 0
+    let i = 0
     while (i < camp.peeIds.length) {
         const user = await User.findById(camp.peeIds[i++])
         if (!user) {
             continue
         }
-        var j = 0
+        let j = 0
         while (j < user.likeSongIds.length) {
             const songId = user.likeSongIds[j++]
             songList.set(songId, songList.get(songId) as number + 1)
@@ -123,20 +123,20 @@ export async function getPeeLikeSong(req: express.Request, res: express.Response
     }
     res.status(200).json({ songList })
 }
-export async function getPetoLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPetoLikeSong(req: express.Request, res: express.Response) {
     const camp = await Camp.findById(req.params.id)
     if (!camp) {
         sendRes(res, false)
         return
     }
     const songList: Map<Id, number> = await getAllSong()
-    var i = 0
+    let i = 0
     while (i < camp.petoIds.length) {
         const user = await User.findById(camp.petoIds[i++])
         if (!user) {
             continue
         }
-        var j = 0
+        let j = 0
         while (j < user.likeSongIds.length) {
             const songId = user.likeSongIds[j++]
             songList.set(songId, songList.get(songId) as number + 1)
@@ -144,20 +144,20 @@ export async function getPetoLikeSong(req: express.Request, res: express.Respons
     }
     res.status(200).json({ songList })
 }
-export async function getAllCampLikeSong(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getAllCampLikeSong(req: express.Request, res: express.Response) {
     const camp = await Camp.findById(req.params.id)
     if (!camp) {
         sendRes(res, false)
         return
     }
     const songList: Map<Id, number> = await getAllSong()
-    var i = 0
+    let i = 0
     while (i < camp.nongIds.length) {
         const user = await User.findById(camp.nongIds[i++])
         if (!user) {
             continue
         }
-        var j = 0
+        let j = 0
         while (j < user.likeSongIds.length) {
             const songId = user.likeSongIds[j++]
             songList.set(songId, songList.get(songId) as number + 1)
@@ -168,7 +168,7 @@ export async function getAllCampLikeSong(req: express.Request, res: express.Resp
         if (!user) {
             continue
         }
-        var j = 0
+        let j = 0
         while (j < user.likeSongIds.length) {
             const songId = user.likeSongIds[j++]
             songList.set(songId, songList.get(songId) as number + 1)
@@ -179,7 +179,7 @@ export async function getAllCampLikeSong(req: express.Request, res: express.Resp
         if (!user) {
             continue
         }
-        var j = 0
+        let j = 0
         while (j < user.likeSongIds.length) {
             const songId = user.likeSongIds[j++]
             songList.set(songId, songList.get(songId) as number + 1)
@@ -187,13 +187,13 @@ export async function getAllCampLikeSong(req: express.Request, res: express.Resp
     }
     res.status(200).json({ songList })
 }
-export async function addBaanSong(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function addBaanSong(req: express.Request, res: express.Response) {
     const { baanId, songIds }: { baanId: string, songIds: string[] } = req.body
     const baan = await Baan.findById(baanId)
     if (!baan) {
         return res.status(400).json({ success: false })
     }
-    var i = 0
+    let i = 0
     while (i < songIds.length) {
         const song = await Song.findById(songIds[i++])
         if (song) {
@@ -204,7 +204,7 @@ export async function addBaanSong(req: express.Request, res: express.Response, n
     await baan.updateOne({ songIds: baan.songIds })
     res.status(200).json({ success: true })
 }
-export async function removeBaanSong(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function removeBaanSong(req: express.Request, res: express.Response) {
     const { baanId, songId } = req.body
     const baan = await Baan.findById(baanId)
     const song = await Song.findById(songId)
@@ -215,7 +215,7 @@ export async function removeBaanSong(req: express.Request, res: express.Response
     await song.updateOne({ baanIds: swop(baan._id, null, song.baanIds) })
     res.status(200).json(resOk)
 }
-export async function addLostAndFound(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function addLostAndFound(req: express.Request, res: express.Response) {
     const {
         campId,
         type,
@@ -244,7 +244,7 @@ export async function addLostAndFound(req: express.Request, res: express.Respons
 
     res.status(201).json({})
 }
-export async function deleteLostAndFound(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function deleteLostAndFound(req: express.Request, res: express.Response) {
     const user = await getUser(req)
     const lostAndFound = await LostAndFound.findById(req.params.id)
     if (!lostAndFound || !user) {
@@ -267,14 +267,14 @@ export async function deleteLostAndFound(req: express.Request, res: express.Resp
     await lostAndFound.deleteOne()
     sendRes(res, true)
 }
-export async function getLostAndFounds(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getLostAndFounds(req: express.Request, res: express.Response) {
     const user = await getUser(req)
     if (!user) {
         sendRes(res, false)
         return
     }
-    var out: InterLostAndFound[] = []
-    var i = 0
+    let out: InterLostAndFound[] = []
+    let i = 0
     if (user.fridayActEn) {
         out = await LostAndFound.find()
     } else {
@@ -287,7 +287,7 @@ export async function getLostAndFounds(req: express.Request, res: express.Respon
             if (!camp) {
                 continue
             }
-            var j = 0
+            let j = 0
             while (j < camp.lostAndFoundIds.length) {
                 const lostAndFound: InterLostAndFound | null = await LostAndFound.findById(camp.lostAndFoundIds[j++])
                 if (lostAndFound) {
@@ -297,7 +297,7 @@ export async function getLostAndFounds(req: express.Request, res: express.Respon
         }
     }
     i = 0
-    var output: ShowLostAndFound[] = []
+    const output: ShowLostAndFound[] = []
     while (i < out.length) {
         const buf = await fillLostAndFound(out[i++])
         if (buf) {
@@ -306,7 +306,7 @@ export async function getLostAndFounds(req: express.Request, res: express.Respon
     }
     res.status(200).json(output)
 }
-export async function getLostAndFound(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getLostAndFound(req: express.Request, res: express.Response) {
     const lostAndFound = await LostAndFound.findById(req.params.id)
     if (!lostAndFound) {
         sendRes(res, false)
@@ -315,18 +315,18 @@ export async function getLostAndFound(req: express.Request, res: express.Respons
     const buf = await fillLostAndFound(lostAndFound.toObject())
     res.status(200).json(buf)
 }
-export async function getAllBuilding(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getAllBuilding(req: express.Request, res: express.Response) {
     const buildings = await Building.find()
     res.status(200).json(buildings)
 }
-export async function createPlace(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function createPlace(req: express.Request, res: express.Response) {
     const { room, buildingId, floor } = req.body
     const place = await Place.create({ room, buildingId, floor })
     const building = await Building.findById(buildingId)
     await building?.updateOne({ placeIds: swop(null, place._id, building.placeIds) })
     res.status(201).json(place)
 }
-export async function saveDeletePlace(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function saveDeletePlace(req: express.Request, res: express.Response) {
     const place = await Place.findById(req.params.id)
     if (place?.actionPlanIds.length || place?.boySleepBaanIds.length || place?.girlSleepBaanIds.length || place?.normalBaanIds.length || place?.fridayActIds.length || place?.partIds.length || place?.lostAndFoundIds.length) {
         return res.status(400).json({ success: false })
@@ -334,11 +334,11 @@ export async function saveDeletePlace(req: express.Request, res: express.Respons
     await place?.deleteOne()
     res.status(200).json({ success: true })
 }
-export async function createBuilding(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function createBuilding(req: express.Request, res: express.Response) {
     const building = await Building.create({ name: req.params.id })
     res.status(201).json(building)
 }
-export async function saveDeleteBuilding(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function saveDeleteBuilding(req: express.Request, res: express.Response) {
     const building = await Building.findById(req.params.id)
     if (building?.placeIds.length) {
         return res.status(400).json({ success: false })
@@ -346,14 +346,14 @@ export async function saveDeleteBuilding(req: express.Request, res: express.Resp
     await building?.deleteOne()
     sendRes(res, true)
 }
-export async function getPlaces(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPlaces(req: express.Request, res: express.Response) {
     const building = await Building.findById(req.params.id)
     if (!building) {
         sendRes(res, false)
         return
     }
-    var places: InterPlace[] = []
-    var i = 0
+    const places: InterPlace[] = []
+    let i = 0
     while (i < building.placeIds.length) {
         const place = await Place.findById(building.placeIds[i++])
         if (place) {
@@ -362,11 +362,11 @@ export async function getPlaces(req: express.Request, res: express.Response, nex
     }
     res.status(200).json(places)
 }
-export async function getPlace(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPlace(req: express.Request, res: express.Response) {
     const place = await Place.findById(req.params.id)
     res.status(200).json(place)
 }
-export async function getBuilding(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getBuilding(req: express.Request, res: express.Response) {
     const building = await Building.findById(req.params.id)
     res.status(200).json(building)
 }
@@ -409,7 +409,7 @@ async function fillLostAndFound(input: InterLostAndFound): Promise<ShowLostAndFo
         campName: camp ? camp.campName : 'null'
     }
 }
-export async function getShowPlace(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getShowPlace(req: express.Request, res: express.Response) {
     const place = await Place.findById(req.params.id)
     if (!place) {
         sendRes(res, false)
@@ -428,7 +428,7 @@ export async function getShowPlace(req: express.Request, res: express.Response, 
     }
     res.status(200).json(showPlace)
 }
-export async function createPartChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function createPartChat(req: express.Request, res: express.Response) {
     const create: CreatePeeChat = req.body
     const user = await getUser(req)
     const part = await Part.findById(create.partId)
@@ -446,7 +446,7 @@ export async function createPartChat(req: express.Request, res: express.Response
         sendRes(res, false)
         return
     }
-    var typeChat: TypeChat
+    let typeChat: TypeChat
     if (part._id.equals(camp.partPeeBaanId)) {
         typeChat = 'พี่บ้านคุยกัน'
     } else {
@@ -463,7 +463,7 @@ export async function createPartChat(req: express.Request, res: express.Response
     })
     await campMemberCard.updateOne({ ownChatIds: swop(null, chat._id, campMemberCard.ownChatIds) })
     await camp.updateOne({ allPetoChatIds: swop(null, chat._id, camp.allPetoChatIds) })
-    var i = 0
+    let i = 0
     while (i < camp.peeCampMemberCardIds.length) {
         const campMemberCard = await CampMemberCard.findById(camp.peeCampMemberCardIds[i++])
         if (!campMemberCard) {
@@ -476,7 +476,7 @@ export async function createPartChat(req: express.Request, res: express.Response
 }
 export async function getShowChatFromChatIds(inputs: Id[], mode: Mode) {
     const out: ShowChat[] = []
-    var i = 0
+    let i = 0
     while (i < inputs.length) {
         const chat = await Chat.findById(inputs[i++])
         if (!chat) {
@@ -492,8 +492,8 @@ export async function getShowChatFromChatIds(inputs: Id[], mode: Mode) {
             campMemberCardIds,
             date,
         } = chat
-        var baanName: string
-        var partName: string
+        let baanName: string
+        let partName: string
         const user = await User.findById(userId)
         switch (role) {
             case "pee": {
@@ -536,7 +536,7 @@ export async function getShowChatFromChatIds(inputs: Id[], mode: Mode) {
                 baanName = baan.name
             }
         }
-        var roomName: string
+        let roomName: string
         switch (chat.typeChat) {
             case 'คุยกันในบ้าน': {
                 const baan = await Baan.findById(chat.refId)
@@ -621,12 +621,12 @@ export async function getShowChatFromChatIds(inputs: Id[], mode: Mode) {
     }
     return out
 }
-export async function editChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function editChat(req: express.Request, res: express.Response) {
     const { message, id }: EditChat = req.body
     const chat = await Chat.findByIdAndUpdate(id, { message })
     res.status(200).json(chat)
 }
-export async function deleteChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function deleteChat(req: express.Request, res: express.Response) {
     const success = await deleteChatRaw(stringToId(req.params.id))
     sendRes(res, success)
 }
@@ -635,7 +635,7 @@ export async function deleteChatRaw(chatId: Id) {
     if (!chat) {
         return false
     }
-    var i = 0
+    let i = 0
     switch (chat.typeChat) {
         case 'น้องคุยส่วนตัวกับพี่': {
             while (i < chat.campMemberCardIds.length) {
@@ -726,7 +726,7 @@ export async function deleteChatRaw(chatId: Id) {
     await chat.deleteOne()
     return true
 }
-export async function createNongChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function createNongChat(req: express.Request, res: express.Response) {
     const create: CreateNongChat = req.body
     const campMemberCardHost = await CampMemberCard.findById(create.CampMemberCard)
     const user = await getUser(req)
@@ -760,7 +760,7 @@ export async function createNongChat(req: express.Request, res: express.Response
         campMemberCardIds: baan.peeCampMemberCardIds,
     })
     await campMemberCardSender.updateOne({ ownChatIds: swop(null, chat._id, campMemberCardSender.ownChatIds) })
-    var i = 0
+    let i = 0
     while (i < baan.peeCampMemberCardIds.length) {
         const campMemberCard = await CampMemberCard.findById(baan.peeCampMemberCardIds[i++])
         if (!campMemberCard) {
@@ -772,7 +772,7 @@ export async function createNongChat(req: express.Request, res: express.Response
     await chat.updateOne({ campMemberCardIds: swop(null, campMemberCardHost._id, chat.campMemberCardIds) })
     res.status(201).json(chat)
 }
-export async function createPeeBaanChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function createPeeBaanChat(req: express.Request, res: express.Response) {
     const create: CreateBaanChat = req.body
     const baan = await Baan.findById(create.baanId)
     const user = await getUser(req)
@@ -800,7 +800,7 @@ export async function createPeeBaanChat(req: express.Request, res: express.Respo
         campMemberCardIds: baan.peeCampMemberCardIds,
     })
     await campMemberCardSender.updateOne({ ownChatIds: swop(null, chat._id, campMemberCardSender.ownChatIds) })
-    var i = 0
+    let i = 0
     while (i < baan.peeCampMemberCardIds.length) {
         const campMemberCard = await CampMemberCard.findById(baan.peeCampMemberCardIds[i++])
         if (!campMemberCard) {
@@ -810,7 +810,7 @@ export async function createPeeBaanChat(req: express.Request, res: express.Respo
     }
     await baan.updateOne({ peeChatIds: swop(null, chat._id, baan.peeChatIds) })
 }
-export async function createNongBaanChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function createNongBaanChat(req: express.Request, res: express.Response) {
     const create: CreateBaanChat = req.body
     const baan = await Baan.findById(create.baanId)
     const user = await getUser(req)
@@ -837,7 +837,7 @@ export async function createNongBaanChat(req: express.Request, res: express.Resp
         typeChat: 'คุยกันในบ้าน',
         refId: baan._id,
     })
-    var i = 0
+    let i = 0
     while (i < baan.peeCampMemberCardIds.length) {
         const campMemberCard = await CampMemberCard.findById(baan.peeCampMemberCardIds[i++])
         if (!campMemberCard) {
@@ -859,7 +859,7 @@ export async function createNongBaanChat(req: express.Request, res: express.Resp
     await chat.updateOne({ campMemberCardIds })
     await baan.updateOne({ nongChatIds: swop(null, chat._id, baan.nongChatIds) })
 }
-export async function getAllChatFromCampId(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getAllChatFromCampId(req: express.Request, res: express.Response) {
     const user = await getUser(req)
     const camp = await Camp.findById(req.params.id)
     if (!camp || !user) {
@@ -902,7 +902,7 @@ export async function getAllChatFromCampId(req: express.Request, res: express.Re
         res.status(200).json(output)
     }
 }
-export async function getPartChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPartChat(req: express.Request, res: express.Response) {
     const part = await Part.findById(req.params.id)
     const user = await getUser(req)
     if (!part || !user) {
@@ -934,7 +934,7 @@ export async function getPartChat(req: express.Request, res: express.Response, n
     }
     res.status(200).json(output)
 }
-export async function getNongBaanChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getNongBaanChat(req: express.Request, res: express.Response) {
     const camp = await Camp.findById(req.params.id)
     const user = await getUser(req)
     if (!camp || !user) {
@@ -1012,7 +1012,7 @@ export async function getNongBaanChat(req: express.Request, res: express.Respons
         }
     }
 }
-export async function getPeeBaanChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPeeBaanChat(req: express.Request, res: express.Response) {
     const camp = await Camp.findById(req.params.id)
     const user = await getUser(req)
     if (!camp || !user) {
@@ -1054,7 +1054,7 @@ export async function getPeeBaanChat(req: express.Request, res: express.Response
     }
     res.status(200).json(output)
 }
-export async function getNongChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getNongChat(req: express.Request, res: express.Response) {
     const campMemberCard = await CampMemberCard.findById(req.params.id)
     const user = await getUser(req)
     if (!campMemberCard || !user) {
@@ -1097,7 +1097,7 @@ export async function getNongChat(req: express.Request, res: express.Response, n
     }
     res.status(200).json(output)
 }
-export async function getSystemInfo(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getSystemInfo(req: express.Request, res: express.Response) {
     const systemMode = getSystemMode()
     const endEmail = getEndEmail()
     res.status(200).json({ systemMode, endEmail })
@@ -1111,7 +1111,7 @@ function getModeBySituation(mode: Mode, role: RoleCamp, isHidePart: boolean): Mo
     }
     return mode
 }
-export async function getPartPeebaanChat(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getPartPeebaanChat(req: express.Request, res: express.Response) {
     const camp = await Camp.findById(req.params.id)
     const user = await getUser(req)
     if (!camp || !user) {

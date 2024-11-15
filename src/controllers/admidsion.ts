@@ -4,13 +4,14 @@ import express from "express";
 import { getUser } from "../middleware/auth";
 import { changePartRaw, getImpotentPartIdBCRP } from "./camp";
 import { Id } from "../models/interface";
-export async function interview(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function interview(req: express.Request, res: express.Response) {
     const { members, campId } = req.body
     const i = await interviewRaw(members, campId)
     if (i == 0) {
         sendRes(res, false)
         return
     }
+   // const o=5
     res.status(200).json({ count: i })
 }
 async function interviewRaw(members: Id[], campId: Id) {
@@ -18,7 +19,7 @@ async function interviewRaw(members: Id[], campId: Id) {
     if (!camp) {
         return 0
     }
-    var i = 0
+    let i = 0
     while (i < members.length) {
         camp.nongInterviewIds.set(members[i].toString(), camp.nongPendingIds.get(members[i].toString()))
         camp.nongPendingIds.delete(members[i++].toString())
@@ -34,7 +35,7 @@ async function passRaw(members: Id[], campId: Id) {
     if (!camp) {
         return 0
     }
-    var i = 0
+    let i = 0
     while (i < members.length) {
         camp.nongPassIds.set(members[i].toString(), camp.nongInterviewIds.get(members[i].toString()))
         camp.nongInterviewIds.delete(members[i++].toString())
@@ -49,7 +50,7 @@ async function passRaw(members: Id[], campId: Id) {
     })
     return i
 }
-export async function paid(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function paid(req: express.Request, res: express.Response) {
     const user = await getUser(req)
     const camp = await Camp.findById(req.params.id)
     if (!camp || !user || !camp.nongPassIds.has(user._id.toString())) {
@@ -67,18 +68,17 @@ export async function paid(req: express.Request, res: express.Response, next: ex
         await camp.updateOne({ nongPaidIds: swop(null, user._id, camp.nongPaidIds) })
     }
 }
-export async function sure(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function sure(req: express.Request, res: express.Response) {
     const { members, campId }: { members: Id[], campId: Id } = req.body
     const camp = await Camp.findById(campId)
     if (!camp) {
         sendRes(res, false)
         return
     }
-    var {
-        nongPaidIds,
-        nongSureIds
-    } = camp
-    var i = 0
+    const nongSureIds = camp.nongSureIds
+    let nongPaidIds=camp.nongPaidIds
+
+    let i = 0
     while (i < members.length) {
         if (!camp.nongPaidIds.includes(stringToId(members[i].toString()))) {
             i++
@@ -99,7 +99,7 @@ export async function sure(req: express.Request, res: express.Response, next: ex
     res.status(200).json({ count: i })
 
 }
-export async function pass(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function pass(req: express.Request, res: express.Response) {
     const { campId, members } = req.body
     const camp = await Camp.findById(campId)
     if (!camp) {
@@ -116,7 +116,7 @@ export async function pass(req: express.Request, res: express.Response, next: ex
     }
     res.status(200).json({ count: i })
 }
-export async function kickPee(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function kickPee(req: express.Request, res: express.Response) {
     const { campId, members } = req.body
     const camp = await Camp.findById(campId)
     if (!camp) {
@@ -127,15 +127,15 @@ export async function kickPee(req: express.Request, res: express.Response, next:
     await changePartRaw(members, im[3])
     sendRes(res, true)
 }
-export async function kickNong(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function kickNong(req: express.Request, res: express.Response) {
     const { members, campId }: { members: Id[], campId: Id } = req.body
     const camp = await Camp.findById(campId)
     if (!camp) {
         sendRes(res, false)
         return
     }
-    var i = 0
-    var { nongPaidIds } = camp
+    let i = 0
+    let { nongPaidIds } = camp
     while (i < members.length) {
         camp.nongInterviewIds.delete(members[i].toString())
         camp.nongPendingIds.delete(members[i].toString())

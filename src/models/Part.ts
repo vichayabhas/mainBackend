@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { arrayObjectId, dataId, dataMap, dataSize, dataString, startSize } from "../controllers/setup";
+import { arrayObjectId, dataId, dataMap, dataSize, dataString } from "../controllers/setup";
 const PartSchema = new mongoose.Schema({
     nameId: dataId,
     campId: dataId,

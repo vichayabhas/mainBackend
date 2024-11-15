@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import { arrayObjectId, dataString } from '../controllers/setup';
 export const buf: string = process.env.JWT_SECECRET || 'asdfjkl;;lkjfdsa'
 const UserSchema = new mongoose.Schema({

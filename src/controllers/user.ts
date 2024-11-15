@@ -11,7 +11,7 @@ import User, { buf } from "../models/User";
 import { calculate, sendingEmail, sendRes, swop } from "./setup";
 import express from "express";
 import bcrypt from "bcrypt"
-import { HeathIssueBody, HeathIssuePack, Id, InterUser, Register, UpdateTimeOffset } from "../models/interface";
+import { HeathIssueBody, HeathIssuePack, Id, Register, UpdateTimeOffset } from "../models/interface";
 import jwt from 'jsonwebtoken'
 import TimeOffset from "../models/TimeOffset";
 //*export async function register
@@ -37,7 +37,7 @@ import TimeOffset from "../models/TimeOffset";
 //*export async function revalidationHeathIssues
 //*export async function checkPassword
 //*export async function bypassRole
-export async function register(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function register(req: express.Request, res: express.Response) {
 	try {
 		const buf: Register = req.body
 		const user = await User.create(buf);
@@ -52,7 +52,7 @@ export async function register(req: express.Request, res: express.Response, next
 		console.log(err);
 	}
 }
-export async function login(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function login(req: express.Request, res: express.Response) {
 	const {
 		email,
 		password
@@ -95,11 +95,11 @@ const sendTokenResponse = (id: Id, statusCode: number, res: express.Response) =>
 		token,
 	});
 };
-export async function getMe(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getMe(req: express.Request, res: express.Response) {
 	const user = await getUser(req)
 	res.status(200).json(user);
 }
-export async function logout(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function logout(req: express.Request, res: express.Response) {
 	//Clears cookie
 	res.cookie('token', 'none', {
 		expires: new Date(Date.now() + 10 * 1000),
@@ -110,7 +110,7 @@ export async function logout(req: express.Request, res: express.Response, next: 
 		data: {}
 	});
 }
-export async function updateMode(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function updateMode(req: express.Request, res: express.Response) {
 	const {
 		mode,
 		filterIds,
@@ -122,7 +122,7 @@ export async function updateMode(req: express.Request, res: express.Response, ne
 	});
 	res.status(200).json(user);
 }
-export async function updateSize(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function updateSize(req: express.Request, res: express.Response) {
 	const shirtSize: 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL' = req.params.id as 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL'
 	const old = await getUser(req)
 	if (!old) {
@@ -138,7 +138,7 @@ export async function updateSize(req: express.Request, res: express.Response, ne
 			sendRes(res, false)
 			return
 		}
-		var i = 0
+		let i = 0
 		while (i < user.campMemberCardIds.length) {
 			const campMemberCard = await CampMemberCard.findById(user.campMemberCardIds[i++])
 			if (!campMemberCard) {
@@ -238,7 +238,7 @@ export async function updateSize(req: express.Request, res: express.Response, ne
 		})
 	}
 }
-export async function getHeathIssue(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getHeathIssue(req: express.Request, res: express.Response) {
 	try {
 		const data = await HeathIssue.findById(req.params.id);
 		if (!data) {
@@ -247,13 +247,13 @@ export async function getHeathIssue(req: express.Request, res: express.Response,
 			});
 		}
 		res.status(200).json(data);
-	} catch (err) {
+	} catch {
 		res.status(400).json({
 			success: false
 		});
 	}
 }
-export async function updateHeath(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function updateHeath(req: express.Request, res: express.Response) {
 	const user = await getUser(req)
 	const heathIssueBody: HeathIssueBody = req.body
 	if (!user) {
@@ -290,7 +290,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 			await user.updateOne({
 				healthIssueId: heath._id
 			});
-			var i = 0
+			let i = 0
 			while (i < user.campMemberCardIds.length) {
 				const campMemberCard = await CampMemberCard.findById(user.campMemberCardIds[i++])
 				if (!campMemberCard) {
@@ -389,7 +389,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 			return
 		}
 		if (!heathIssueBody.food.localeCompare('') && !heathIssueBody.medicine.localeCompare('') && !heathIssueBody.chronicDisease.localeCompare('') && !heathIssueBody.foodConcern.localeCompare('') && !heathIssueBody.spicy && !heathIssueBody.isWearing && heathIssueBody.foodLimit == 'ไม่มีข้อจำกัดด้านความเชื่อ') {
-			var i = 0
+			let i = 0
 			while (i < old.campMemberCardIds.length) {
 				const campMemberCard = await CampMemberCard.findById(old.campMemberCardIds[i++])
 				if (!campMemberCard) {
@@ -494,7 +494,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 		await user.updateOne({
 			healthIssueId: heath._id
 		});
-		var i = 0
+		let i = 0
 		while (i < old.campMemberCardIds.length) {
 			const campMemberCard = await CampMemberCard.findById(old.campMemberCardIds[i++])
 			if (!campMemberCard) {
@@ -559,7 +559,7 @@ export async function updateHeath(req: express.Request, res: express.Response, n
 		res.status(200).json(heath?.toObject());
 	}
 }
-export async function updateBottle(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function updateBottle(req: express.Request, res: express.Response) {
 	const old = await getUser(req)
 	if (!old) {
 		sendRes(res, false)
@@ -573,7 +573,7 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 		sendRes(res, false)
 		return
 	}
-	var i = 0
+	let i = 0
 	while (i < user.campMemberCardIds.length) {
 		const campMemberCard = await CampMemberCard.findById(user.campMemberCardIds[i++])
 		if (!campMemberCard) {
@@ -660,20 +660,20 @@ export async function updateBottle(req: express.Request, res: express.Response, 
 		user,
 	});
 }
-export async function getCampMemberCardByCampId(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getCampMemberCardByCampId(req: express.Request, res: express.Response) {
 	const user = await getUser(req)
 	const campId: string = req.params.id
 	const camp = await Camp.findById(campId)
 	const campMemberCard = await CampMemberCard.findById(camp?.mapCampMemberCardIdByUserId.get(user?.id))
 	res.status(200).json(campMemberCard)
 }
-export async function updateProfile(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function updateProfile(req: express.Request, res: express.Response) {
 	const user = await getUser(req)
 	const { email, tel, name, nickname, lastname, citizenId } = req.body
 	await user?.updateOne({ email, tel, name, nickname, lastname, citizenId })
 	res.status(200).json(user)
 }
-export async function changeModeToPee(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function changeModeToPee(req: express.Request, res: express.Response) {
 	const user = await getUser(req)
 	try {
 		if (!user || user.role == 'nong') {
@@ -693,17 +693,17 @@ export async function changeModeToPee(req: express.Request, res: express.Respons
 		sendRes(res, false)
 	}
 }
-export async function checkTel(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function checkTel(req: express.Request, res: express.Response) {
 	//type FindMode='h=>nong,f=>nong'|'h=>nong,f=>pee'|'h=>nong,f=>peto'|'h=>pee,f=>nong'|'h=>pee,f=>pee'|'h=>pee,f=>peto'|'h=>peto,f=>nong'|'h=>peto,f=>pee'|'h=>peto,f=>peto'
 	const findUser = await User.findOne({ tel: req.params.id })
 	const host = await getUser(req)
 	//console.log(findUser)
-	var relation: string[] = []
+	const relation: string[] = []
 	if (!host || !findUser) {
 		res.status(400).json({ relation })
 		return
 	}
-	var i = 0
+	let i = 0
 	//const map=new Map<string,FindMode>()
 	while (i < host.nongCampIds.length) {
 		const nongCamp = await NongCamp.findById(host.nongCampIds[i++])
@@ -816,7 +816,7 @@ export async function checkTel(req: express.Request, res: express.Response, next
 		relation
 	})
 }
-export async function updateSleep(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function updateSleep(req: express.Request, res: express.Response) {
 	const old = await getUser(req)
 	if (!old) {
 		sendRes(res, false)
@@ -830,7 +830,7 @@ export async function updateSleep(req: express.Request, res: express.Response, n
 		sendRes(res, false)
 		return
 	}
-	var i = 0
+	let i = 0
 	while (i < user.campMemberCardIds.length) {
 		const campMemberCard = await CampMemberCard.findById(user.campMemberCardIds[i++])
 		if (!campMemberCard) {
@@ -918,7 +918,7 @@ export async function updateSleep(req: express.Request, res: express.Response, n
 		user,
 	});
 }
-export async function getUsers(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getUsers(req: express.Request, res: express.Response) {
 	try {
 		const user = await User.findById(req.params.id)
 		res.status(200).json(user)
@@ -927,7 +927,7 @@ export async function getUsers(req: express.Request, res: express.Response, next
 		sendRes(res, false)
 	}
 }
-export async function getCampMemberCard(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getCampMemberCard(req: express.Request, res: express.Response) {
 	try {
 		const campMemberCard = await CampMemberCard.findById(req.params.id)
 		res.status(200).json(campMemberCard)
@@ -937,7 +937,7 @@ export async function getCampMemberCard(req: express.Request, res: express.Respo
 	}
 
 }
-export async function updateTimeOffset(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function updateTimeOffset(req: express.Request, res: express.Response) {
 	const update: UpdateTimeOffset = req.body
 	const user = await getUser(req)
 	if (!user) {
@@ -948,11 +948,11 @@ export async function updateTimeOffset(req: express.Request, res: express.Respon
 	await TimeOffset.findByIdAndUpdate(user.selectOffsetId, update.select)
 	sendRes(res, true)
 }
-export async function getTimeOffset(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function getTimeOffset(req: express.Request, res: express.Response) {
 	try {
 		const buf = await TimeOffset.findById(req.params.id)
 		res.status(200).json(buf)
-	} catch (e) {
+	} catch {
 		sendRes(res, false)
 	}
 }
@@ -963,7 +963,7 @@ export function checkValidStudentEmail(input: string) {
 	const id = input.split('@')[0]
 	return input.split('@')[1] == endEmail && id[8] == lastTwoDigit[0] && id[9] == lastTwoDigit[1] && Number.isInteger(id) && id.length == idLength
 }
-export async function signId(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function signId(req: express.Request, res: express.Response) {
 	const user = await getUser(req)
 	if (!user) {
 		sendRes(res, false)
@@ -978,7 +978,7 @@ export async function signId(req: express.Request, res: express.Response, next: 
 	sendingEmail(user.email, jwt.sign({ password: text }, buf))
 	sendRes(res, true)
 }
-export async function verifyEmail(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function verifyEmail(req: express.Request, res: express.Response) {
 	const user = await getUser(req)
 	if (!user) {
 		sendRes(res, false)
@@ -989,7 +989,7 @@ export async function verifyEmail(req: express.Request, res: express.Response, n
 		return
 	}
 	try {
-		const { password } = jwt.verify(req.body.password, buf) as any
+		const { password } = jwt.verify(req.body.password, buf) as { password: string }
 		const correct = await bcrypt.compare(user._id.toString(), password)
 		if (!correct) {
 			sendRes(res, false)
@@ -1007,7 +1007,7 @@ export async function verifyEmail(req: express.Request, res: express.Response, n
 
 }
 export async function revalidationHeathIssues(ids: Id[]) {
-	var i = 0
+	let i = 0
 	while (i < ids.length) {
 		const old = await HeathIssue.findById(ids[i++])
 		if (!old) {
@@ -1025,7 +1025,7 @@ export async function revalidationHeathIssues(ids: Id[]) {
 			continue
 		}
 		if (old.food == '' && old.medicine == '' && old.chronicDisease == '' && old.foodConcern == '' && !old.spicy && !old.isWearing && old.foodLimit == 'ไม่มีข้อจำกัดด้านความเชื่อ') {
-			var j = 0
+			let j = 0
 			while (j < old.campMemberCardIds.length) {
 				const campMemberCard = await CampMemberCard.findById(old.campMemberCardIds[j++])
 				if (!campMemberCard) {
@@ -1107,7 +1107,7 @@ export async function revalidationHeathIssues(ids: Id[]) {
 		}
 	}
 }
-export async function checkPassword(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function checkPassword(req: express.Request, res: express.Response) {
 	const user = await getUser(req)
 	if (!user) {
 		sendRes(res, false)
@@ -1116,7 +1116,7 @@ export async function checkPassword(req: express.Request, res: express.Response,
 	const isMatch = await bcrypt.compare(req.body.password, user.password)
 	sendRes(res, isMatch)
 }
-export async function bypassRole(req: express.Request, res: express.Response, next: express.NextFunction) {
+export async function bypassRole(req: express.Request, res: express.Response) {
 	const { key } = req.body
 	const user = await getUser(req)
 	if (!user) {

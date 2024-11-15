@@ -1,5 +1,5 @@
 import express from "express";
-import { isPass, modePee, pee, protect } from "../middleware/auth";
+import { modePee, pee, protect } from "../middleware/auth";
 import { addLostAndFound, createBuilding, createNongBaanChat, createNongChat, createPartChat, createPeeBaanChat, createPlace, getAllBuilding, getAllChatFromCampId, getBuilding, getLostAndFounds, getNongBaanChat, getNongChat, getPartChat, getPartPeebaanChat, getPeeBaanChat, getPlace, getPlaces, getShowPlace, getSystemInfo } from "../controllers/randomThing";
 
 
